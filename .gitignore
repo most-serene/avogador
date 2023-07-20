@@ -60,7 +60,7 @@ bower_components
 psd
 thumb
 sketch
-.env
+*.env
 
 ### yarn ###
 # https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
