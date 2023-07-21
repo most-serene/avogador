@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+    webapp:
+        image: avogador-webapp:${BRANCH:-latest}
+        restart: always
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+            target: ${REACT_TARGET}
+            network: host
+            args:
+                OBFUSCATE_DIRECTIVE: ${OBFUSCATE_DIRECTIVE}
+        logging:
+            driver: json-file
+            options:
+                max-file: "10"
+                max-size: "5m"
+        ports:
+            - "${REACT_PORT}:3000"
+
