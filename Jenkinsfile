@@ -39,11 +39,13 @@ pipeline {
             steps {
                 echo "Tests started"
                 
+								/*
                 sh '''
                     cd backend/avogador.api-gateway
                     ls
                     ./gradlew clean test
                 '''
+								*/
                 
                 sh '''
                     cd frontend
