@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   hello-world:
-    image: hello-world
+    image: "hello-world"
     logging:
       driver: json-file
       options:
@@ -13,9 +13,9 @@ services:
     image: avogador-webapp:${BRANCH:-latest}
     restart: always
     build:
-    context: ./frontend
-    dockerfile: Dockerfile
-    target: ${REACT_TARGET}
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: ${REACT_TARGET}
     network: host
     args:
       OBFUSCATE_DIRECTIVE: ${OBFUSCATE_DIRECTIVE}
