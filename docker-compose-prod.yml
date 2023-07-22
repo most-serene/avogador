@@ -16,7 +16,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: ${REACT_TARGET}
-    network: host
+      network: host
     environment:
       OBFUSCATE_DIRECTIVE: ${OBFUSCATE_DIRECTIVE}
     logging:
