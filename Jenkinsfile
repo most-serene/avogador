@@ -96,11 +96,13 @@ pipeline {
         }
     }
     post {
-        always {
+        
+        //always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            junit 'services/projectService/build/test-results/**/*.xml'
-        }
+        //    junit 'services/projectService/build/test-results/**/*.xml'
+        //}
+        
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
