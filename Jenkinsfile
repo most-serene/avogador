@@ -22,6 +22,8 @@ pipeline {
             label 'core'
             }
     }*/
+    tools {nodejs "Node"}
+
     triggers {
         pollSCM 'H/5 * * * *'
     }
@@ -39,16 +41,17 @@ pipeline {
             steps {
                 echo "Tests started"
                 
-								/*
+                /*
                 sh '''
                     cd backend/avogador.api-gateway
                     ls
                     ./gradlew clean test
                 '''
-								*/
+                */
                 
                 sh '''
                     cd frontend
+                    yarn
                     yarn test run
                     yarn lint
                 '''
@@ -60,7 +63,7 @@ pipeline {
         }
         stage('Deliver-staging') {
             when {
-                anyOf { branch 'master'; branch 'staging' }
+                branch 'master'
             }
             steps {
                 echo 'Staging Deliver started'
@@ -79,13 +82,19 @@ pipeline {
         }
         stage('Deliver-production') {
             when {
-                branch 'master'
+                tag "release-*"
             }
             steps {
                 echo 'Production Deliver started'
                 //ssh ${PRODUCTION_HOST} 'bin/MaintenanceAvogador' || true
                 //ssh ${PRODUCTION_HOST} 'bin/NotMaintenanceAvogador'
+                echo '$TAG_NAME'
 
+                sh """
+                    echo ${env.TAG_NAME}
+                """
+
+                /*
                 withEnv(readFile("$JENKINS_HOME/.envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env build
@@ -93,17 +102,19 @@ pipeline {
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} docker container ls -a
                     """
                 }
+                */
                 echo 'Production Deliver finished'
             }
         }
     }
     post {
         
-        //always {
+        always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-        //    junit 'services/projectService/build/test-results/**/*.xml'
-        //}
+            // junit 'services/projectService/build/test-results/**/*.xml'
+            junit 'frontend/reports/*.xml'
+        }
         
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
