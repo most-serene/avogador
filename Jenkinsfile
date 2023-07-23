@@ -49,6 +49,9 @@ pipeline {
                 
                 sh '''
                     cd frontend
+ls
+npm install -g yarn
+yarn
                     yarn test run
                     yarn lint
                 '''
