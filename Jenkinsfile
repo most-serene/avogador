@@ -22,6 +22,8 @@ pipeline {
             label 'core'
             }
     }*/
+tools {nodejs "Node"}
+
     triggers {
         pollSCM 'H/5 * * * *'
     }
