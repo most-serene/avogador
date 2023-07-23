@@ -22,7 +22,7 @@ pipeline {
             label 'core'
             }
     }*/
-tools {nodejs "Node"}
+    tools {nodejs "Node"}
 
     triggers {
         pollSCM 'H/5 * * * *'
@@ -41,19 +41,17 @@ tools {nodejs "Node"}
             steps {
                 echo "Tests started"
                 
-								/*
+                /*
                 sh '''
                     cd backend/avogador.api-gateway
                     ls
                     ./gradlew clean test
                 '''
-								*/
+                */
                 
                 sh '''
                     cd frontend
-ls
-npm install -g yarn
-yarn
+                    yarn
                     yarn test run
                     yarn lint
                 '''
@@ -104,11 +102,12 @@ yarn
     }
     post {
         
-        //always {
+        always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-        //    junit 'services/projectService/build/test-results/**/*.xml'
-        //}
+            // junit 'services/projectService/build/test-results/**/*.xml'
+            junit 'frontend/reports/*.xml'
+        }
         
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
