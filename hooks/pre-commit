@@ -1,3 +1,19 @@
 # /bin/bash
 
-echo "this is a custom pre commit hook"
+echo "-- pre-commit hook started --"
+
+SRC_PATTERN_FRONTEND="frontend/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_FRONTEND"
+then
+    echo "detected changes in frontend"
+
+    cd frontend
+    yarn lint
+    yarn build
+    yarn test run
+    cd ..
+
+    echo "hook on frontend done"
+fi
+
+echo "-- done --"
