@@ -1,4 +1,3 @@
 # /bin/bash
 
 echo "this is a custom pre commit hook"
-
