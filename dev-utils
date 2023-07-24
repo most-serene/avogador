@@ -1,0 +1,50 @@
+#! /opt/homebrew/bin/python3.10
+
+from pygit2 import Repository
+from cmd import Cmd
+import os
+from aeosa import appscript
+from termcolor import colored
+
+class DevUtilsCmd(Cmd):
+    #{os.environ['USER']}-
+    prompt = colored(f"{Repository('.').head.shorthand} > ", "light_green")
+    intro = colored("Welcome to devUtil tool " + os.environ['USER'], "cyan")
+
+    def do_localDevelopMode(self, inp):
+        branch = Repository('.').head.shorthand
+        currDir = os.getcwd()
+        appscript.app('Terminal').do_script('cd ' + currDir + f'; BRANCH={branch} docker compose up --build')  # or any other command you choose
+        # os.system('docker compose up --build -d')
+
+    def do_exit(self, inp):
+        return True
+    
+    def do_restart(self, inp: str):
+        branch = Repository('.').head.shorthand
+        if inp == '':
+            return
+        for s in inp.split(' '):
+            os.system(f'BRANCH={branch} docker compose build {s} && BRANCH={branch} docker compose create {s} && BRANCH={branch} docker compose restart {s}')
+
+    def do_list_services(self, inp):
+        branch = Repository('.').head.shorthand
+        os.system(f'BRANCH={branch} docker compose config --services')
+
+    #### ----- ####
+
+    def help_localDevelopMode(self):
+        print('build and start the local backend cluster instance')
+    
+    def help_list_services(self):
+        print('get a list of the services')
+
+    def help_restart(self):
+        print('rebuild, recreate and restart the listed services')
+
+    def help_exit(self):
+        print("exit the app")
+
+
+p = DevUtilsCmd()
+p.cmdloop()
