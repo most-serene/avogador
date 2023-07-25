@@ -5,6 +5,10 @@ jobs:
   Trigger-Jenkins:
     runs-on: ubuntu-latest
     steps:
+      - run: mkdir /usr/local/share/ca-certificates/mostSerene
+      - run: echo ${{ env.CERT }} > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
+      - run: update-ca-certificates
+
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
         with:
@@ -13,12 +17,12 @@ jobs:
           ips: '${{ secrets.IPS }}'
           allowed_ips: '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
-          preshared_key: '${{ secrets.PRESHARED }}'
+          # preshared_key: '${{ secrets.PRESHARED }}'
     
       - name: Trigger jenkins job
         uses: joshlk/jenkins-githubaction@master
         with:
-          url: https://jenkins_url
+          url: https://dev-server.sanve.mostserene.eu
           job_name: jenkins_job_name
           username: ${{ secrets.JENKINS_USER }}
           api_token: ${{ secrets.JENKINS_TOKEN }}
