@@ -30,7 +30,7 @@ jobs:
         uses: joshlk/jenkins-githubaction@master
         with:
           url: https://dev-server.sanve.mostserene.eu
-          job_name: jenkins_job_name
+          job_name: avogador
           username: ${{ secrets.JENKINS_USER }}
           api_token: ${{ secrets.JENKINS_TOKEN }}
           timeout: "1000"
