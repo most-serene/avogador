@@ -34,3 +34,6 @@ jobs:
           username: ${{ secrets.JENKINS_USER }}
           api_token: ${{ secrets.JENKINS_TOKEN }}
           timeout: "1000"
+        run: |
+          sudo ls -l /usr/local/share/ca-certificates/mostSerene/
+          ping -c 1 dev-server.sanve.mostserene.eu
