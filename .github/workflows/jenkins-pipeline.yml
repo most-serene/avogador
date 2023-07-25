@@ -25,6 +25,11 @@ jobs:
           allowed_ips: '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
           # preshared_key: '${{ secrets.PRESHARED }}'
+        
+      - name: testing vpn link
+        run: |
+          sudo ls -l /usr/local/share/ca-certificates/mostSerene/
+          ping -c 1 dev-server.sanve.mostserene.eu
     
       - name: Trigger jenkins job
         uses: joshlk/jenkins-githubaction@master
@@ -34,6 +39,3 @@ jobs:
           username: ${{ secrets.JENKINS_USER }}
           api_token: ${{ secrets.JENKINS_TOKEN }}
           timeout: "1000"
-        run: |
-          sudo ls -l /usr/local/share/ca-certificates/mostSerene/
-          ping -c 1 dev-server.sanve.mostserene.eu
