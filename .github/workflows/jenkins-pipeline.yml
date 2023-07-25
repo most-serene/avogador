@@ -6,13 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: install MostSerene Root certificate
-        run: 
-          whoami; 
-          sudo mkdir /usr/local/share/ca-certificates/mostSerene;
-          sudo echo "$CERT" > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem;
+        run: |
+          whoami 
+          sudo mkdir /usr/local/share/ca-certificates/mostSerene
+          sudo echo "${{ secrets.CERT }}" > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
           sudo update-ca-certificates
-        env:
-          CERT: ${{ env.CERT }} 
 
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
