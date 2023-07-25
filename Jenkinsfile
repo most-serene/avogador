@@ -1,5 +1,14 @@
 import groovy.json.JsonOutput
 
+void setBuildPending() {
+    step([
+        $class: "GitHubSetCommitStatusBuilder",
+        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/most-serene/avogador"],
+        contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+        // statusMessage: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+    ]);
+}
+
 void setBuildStatus(String message, String state) {
     step([
         $class: "GitHubCommitStatusSetter",
@@ -30,6 +39,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                setBuildPending()
                 echo "Build started"
                 sh """
                 BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --env-file $JENKINS_HOME/.envvars/avogador/development.env build
