@@ -4,13 +4,16 @@ on: [push]
 jobs:
   Trigger-Jenkins:
     runs-on: ubuntu-latest
-    env:
-      CERT: ${{ env.CERT }} 
     steps:
-      - run: whoami
-      - run: sudo mkdir /usr/local/share/ca-certificates/mostSerene
-      - run: sudo echo $CERT > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
-      - run: sudo update-ca-certificates
+      - name: install MostSerene Root certificate
+        steps:
+          run: 
+            whoami; 
+            sudo mkdir /usr/local/share/ca-certificates/mostSerene;
+            sudo echo "$CERT" > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem;
+            sudo update-ca-certificates
+          env:
+            CERT: ${{ env.CERT }} 
 
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
