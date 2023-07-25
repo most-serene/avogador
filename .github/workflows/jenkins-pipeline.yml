@@ -33,4 +33,4 @@ jobs:
     
       - name: Trigger jenkins job
         run: |
-          curl --insecure -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" https://dev-server.sanve.mostserene.eu/job/avogador/build?token=github-action
+          curl -X POST --insecure -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" https://dev-server.sanve.mostserene.eu/job/avogador/build?token=github-action
