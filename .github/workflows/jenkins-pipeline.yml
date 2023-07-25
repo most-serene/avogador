@@ -1,0 +1,25 @@
+name: Jenkins
+run-name: ${{ github.actor }}
+on: [push]
+jobs:
+  Trigger-Jenkins:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up WireGuard
+        uses: egor-tensin/setup-wireguard@v1
+        with:
+          endpoint: '${{ secrets.ENDPOINT }}'
+          endpoint_public_key: '${{ secrets.ENDPOINT_PUBLIC }}'
+          ips: '${{ secrets.IPS }}'
+          allowed_ips: '${{ secrets.ALLOWED_IPS }}'
+          private_key: '${{ secrets.PRIVATE }}'
+          preshared_key: '${{ secrets.PRESHARED }}'
+    
+      - name: Trigger jenkins job
+        uses: joshlk/jenkins-githubaction@master
+        with:
+          url: https://jenkins_url
+          job_name: jenkins_job_name
+          username: ${{ secrets.JENKINS_USER }}
+          api_token: ${{ secrets.JENKINS_TOKEN }}
+          timeout: "1000"
