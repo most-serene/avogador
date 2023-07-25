@@ -4,10 +4,12 @@ on: [push]
 jobs:
   Trigger-Jenkins:
     runs-on: ubuntu-latest
+    env:
+      CERT: ${{ env.CERT }} 
     steps:
       - run: whoami
       - run: sudo mkdir /usr/local/share/ca-certificates/mostSerene
-      - run: sudo echo ${{ env.CERT }} > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
+      - run: sudo echo $CERT > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
       - run: sudo update-ca-certificates
 
       - name: Set up WireGuard
