@@ -1,5 +1,5 @@
 name: Jenkins
-run-name: ${{ github.actor }}
+run-name: Jenkins Triggered by ${{ github.actor }}
 on: [push]
 jobs:
   Trigger-Jenkins:
