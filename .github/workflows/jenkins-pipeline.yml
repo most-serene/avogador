@@ -10,7 +10,7 @@ jobs:
           whoami 
           sudo mkdir /usr/local/share/ca-certificates/mostSerene
           sudo ls -l /usr/local/share/ca-certificates/
-          sudo mkdir /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
+          sudo touch /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
           sudo ls -l /usr/local/share/ca-certificates/mostSerene/
           sudo echo "${{ secrets.CERT }}" > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
           sudo update-ca-certificates
