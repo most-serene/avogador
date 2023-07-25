@@ -3,9 +3,7 @@ import groovy.json.JsonOutput
 void setBuildPending() {
     step([
         $class: "GitHubSetCommitStatusBuilder",
-        reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/most-serene/avogador"],
         contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
-        // statusMessage: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
     ]);
 }
 
