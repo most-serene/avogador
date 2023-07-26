@@ -13,7 +13,6 @@ jobs:
           https://api.github.com/repos/most-serene/avogador/statuses/${{ github.sha }} \
           -d '{"state":"pending","target_url":"https://dev-server.sanve.mostserene.eu:8000/blue/organizations/jenkins/avogador/activity","description":"The Jenkins build will start ASAP","context":"continuous-integration/jenkins/branch "}'
 
-        #-H "X-GitHub-Api-Version: 2022-11-28" \
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
         with:
