@@ -5,16 +5,13 @@ jobs:
   Trigger-Jenkins:
     runs-on: ubuntu-latest
     steps:
-      - name: install MostSerene Root certificate
+      - name: set jenkins pending
         run: |
-          whoami 
-          sudo mkdir /usr/local/share/ca-certificates/mostSerene
-          sudo ls -l /usr/local/share/ca-certificates/
-          sudo touch /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
-          sudo chmod 777 /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
-          sudo ls -l /usr/local/share/ca-certificates/mostSerene/
-          sudo echo "${{ secrets.CERT }}" > /usr/local/share/ca-certificates/mostSerene/mostSereneCA.pem
-          sudo update-ca-certificates
+          curl -L -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.JENKINS_GITHUB_TOKEN }}" \
+          https://api.github.com/repos/most-serene/avogador/statuses/${{ github.sha }} \
+          -d '{"state":"pending","target_url":"https://dev-server.sanve.mostserene.eu:8000/blue/organizations/jenkins/avogador/activity","description":"The Jenkins build will start ASAP","context":"continuous-integration/jenkins/branch "}'
 
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
@@ -24,11 +21,9 @@ jobs:
           ips: '${{ secrets.IPS }}'
           allowed_ips: '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
-          # preshared_key: '${{ secrets.PRESHARED }}'
         
       - name: testing vpn link
         run: |
-          sudo ls -l /usr/local/share/ca-certificates/mostSerene/
           ping -c 1 dev-server.sanve.mostserene.eu
     
       - name: Trigger jenkins job
