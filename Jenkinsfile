@@ -56,7 +56,6 @@ pipeline {
                     '''
                 }
                 
-                
                 sh '''
                     cd frontend
                     yarn
@@ -118,7 +117,7 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            junit 'backend/services/usercourse/build/test-results/**/*.xml'
+            // junit 'backend/services/usercourse/build/test-results/**/*.xml'
             junit 'frontend/reports/*.xml'
         }
         
