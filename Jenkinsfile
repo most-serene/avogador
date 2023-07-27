@@ -29,7 +29,7 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node"}
+    tools {nodejs "Node", gradle "Gradle00"}
 
     /*triggers {
         pollSCM 'H/5 * * * *'
@@ -51,7 +51,7 @@ pipeline {
                 
                 sh '''
                     cd backend/services/usercourse
-                    ./gradlew clean test
+                    gradle clean test
                 '''
                 
                 sh '''
