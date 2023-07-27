@@ -49,12 +49,12 @@ pipeline {
             steps {
                 echo "Tests started"
                 
-                withGradle {
-                    sh '''
-                        cd backend/services/usercourse
-                        gradle clean test
-                    '''
-                }
+                
+                sh '''
+                    cd backend/services/usercourse
+                    ./gradlew clean test
+                '''
+                
                 
                 sh '''
                     cd frontend
