@@ -11,7 +11,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Entity
-@Table(name = "UserCourses")
+@Table(
+        name = "UserCourses",
+        uniqueConstraints = @UniqueConstraint(columnNames={"user_id", "course_id"})
+)
 public class UserCourse {
     @Id
     @GeneratedValue(generator="increment")
@@ -33,7 +36,6 @@ public class UserCourse {
     private CourseRole role = CourseRole.STUDENT;
 
     @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
     private Date joinDate = new Date(Calendar.getInstance().getTimeInMillis());
 
     public UserCourse() {
