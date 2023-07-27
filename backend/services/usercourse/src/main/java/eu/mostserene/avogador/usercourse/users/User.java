@@ -23,12 +23,20 @@ public class User {
     private String familyName;
 
     @NotNull
-    private Boolean isProfessor;
+    private Boolean isProfessor = false;
 
     @NotNull
-    private Boolean isSuperuser;
+    private Boolean isSuperuser = false;
 
     public User() {
+    }
+
+    public User(String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+        this.email = email;
+        this.givenName = givenName;
+        this.familyName = familyName;
+        this.isProfessor = isProfessor;
+        this.isSuperuser = isSuperuser;
     }
 
     public Long getId() {
@@ -59,19 +67,19 @@ public class User {
         this.familyName = familyName;
     }
 
-    public Boolean getProfessor() {
+    public Boolean getIsProfessor() {
         return isProfessor;
     }
 
-    public void setProfessor(Boolean professor) {
+    public void setIsProfessor(Boolean professor) {
         isProfessor = professor;
     }
 
-    public Boolean getSuperuser() {
+    public Boolean getIsSuperuser() {
         return isSuperuser;
     }
 
-    public void setSuperuser(Boolean superuser) {
+    public void setIsSuperuser(Boolean superuser) {
         isSuperuser = superuser;
     }
 }
