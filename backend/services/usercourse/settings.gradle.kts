@@ -1,1 +1,1 @@
-rootProject.name = "avogador-usercourse"
+rootProject.name = "usercourse"
