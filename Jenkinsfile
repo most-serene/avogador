@@ -49,13 +49,10 @@ pipeline {
             steps {
                 echo "Tests started"
                 
-                /*
                 sh '''
-                    cd backend/avogador.api-gateway
-                    ls
+                    cd backend/services/usercourse
                     ./gradlew clean test
                 '''
-                */
                 
                 sh '''
                     cd frontend
@@ -120,7 +117,7 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            // junit 'services/projectService/build/test-results/**/*.xml'
+            junit 'backend/services/usercourse/build/test-results/**/*.xml'
             junit 'frontend/reports/*.xml'
         }
         

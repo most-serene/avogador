@@ -16,4 +16,16 @@ then
     echo "hook on frontend done"
 fi
 
+SRC_PATTERN_USERCOURSE="backend/services/usercourse/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_USERCOURSE"
+then
+    echo "detected changes in usercourse service"
+    
+    cd $SRC_PATTERN_USERCOURSE
+    ./gradlew clean test 
+    cd ../../../
+
+    echo "hook on usercourse service done"
+fi
+
 echo "-- done --"
