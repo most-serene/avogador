@@ -1,14 +1,26 @@
 version: "3.8"
 
 services:
-  hello-world:
-    image: "hello-world"
+  usercourse:
+    image: "avogador-usercourse:dev-${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/usercourse/
+      network: host
+      dockerfile: Dockerfile
+      target: run
     logging:
       driver: json-file
       options:
         max-file: "10"
         max-size: "5m"
-  
+    #environment:
+    #  server.port: 8080
+    ports:
+      - "${PROJECTS_PORT}:8080"
+    networks:
+      - avogador-inner-network
+      
   webapp:
     image: avogador-webapp:${BRANCH:-latest}
     restart: always
@@ -27,3 +39,5 @@ services:
     ports:
       - "${REACT_PORT}:3000"
 
+networks:
+  avogador-inner-network:
