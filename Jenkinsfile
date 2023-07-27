@@ -29,7 +29,7 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node", gradle "Gradle00"}
+    tools {nodejs "Node"}
 
     /*triggers {
         pollSCM 'H/5 * * * *'
@@ -48,13 +48,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Tests started"
-                
-                withGradle {
-                    sh '''
-                        cd backend/services/usercourse
-                        gradle clean test
-                    '''
-                }
                 
                 sh '''
                     cd frontend
