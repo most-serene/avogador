@@ -49,10 +49,12 @@ pipeline {
             steps {
                 echo "Tests started"
                 
-                sh '''
-                    cd backend/services/usercourse
-                    gradle clean test
-                '''
+                withGradle {
+                    sh '''
+                        cd backend/services/usercourse
+                        gradle clean test
+                    '''
+                }
                 
                 sh '''
                     cd frontend
@@ -60,9 +62,7 @@ pipeline {
                     yarn test run
                     yarn lint
                 '''
-                // withGradle {
-                //    sh './services/projectService/gradlew clean test'
-                //}
+                
                 echo "Tests finished"
             }
         }
