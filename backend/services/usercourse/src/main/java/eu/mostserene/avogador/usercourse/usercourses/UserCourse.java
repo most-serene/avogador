@@ -1,7 +1,7 @@
 package eu.mostserene.avogador.usercourse.usercourses;
 
 import eu.mostserene.avogador.usercourse.courses.Course;
-import eu.mostserene.avogador.usercourse.users.User;
+import eu.mostserene.avogador.usercourse.users.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Table(
         name = "UserCourses",
-        uniqueConstraints = @UniqueConstraint(columnNames={"user_id", "course_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames={"userId", "course_id"})
 )
 public class UserCourse {
     @Id
@@ -22,10 +22,8 @@ public class UserCourse {
     @Column(columnDefinition = "serial")
     private Long id;
 
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne
     @NotNull
-    private User user;
+    private Long userId;
 
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
@@ -41,8 +39,8 @@ public class UserCourse {
     public UserCourse() {
     }
 
-    public UserCourse(User user, Course course, CourseRole role) {
-        this.user = user;
+    public UserCourse(UserDto user, Course course, CourseRole role) {
+        this.userId = user.getId();
         this.course = course;
         this.role = role;
     }
@@ -51,12 +49,15 @@ public class UserCourse {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUser() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserDto user) {
+        this.userId = user.getId();
+    }
+    public void setUser(Long id) {
+        this.userId = id;
     }
 
     public Course getCourse() {

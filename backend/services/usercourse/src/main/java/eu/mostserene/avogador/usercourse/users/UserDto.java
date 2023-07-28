@@ -4,34 +4,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity
-@Table(name = "Users")
-public class User {
-    @Id
-    @GeneratedValue(generator="increment")
-    @GenericGenerator(name="increment")
-    @Column(columnDefinition = "serial")
+public class UserDto {
     private Long id;
-
-    @NotNull
     private String email;
-
-    @NotNull
     private String givenName;
-
-    @NotNull
     private String familyName;
-
-    @NotNull
     private Boolean isProfessor = false;
-
-    @NotNull
     private Boolean isSuperuser = false;
 
-    public User() {
+    public UserDto() {
     }
 
-    public User(String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+    public UserDto(Long id,  String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+        this.id = id;
         this.email = email;
         this.givenName = givenName;
         this.familyName = familyName;
