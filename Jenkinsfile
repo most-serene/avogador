@@ -51,6 +51,8 @@ pipeline {
                 
                 withGradle {
                     sh '''
+                        mkdir backend/services/userservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
                         ./gradlew clean test
                     '''
