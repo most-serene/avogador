@@ -1,4 +1,5 @@
 # /bin/bash
+set -e
 
 echo "-- pre-commit hook started --"
 
@@ -16,16 +17,16 @@ then
     echo "hook on frontend done"
 fi
 
-SRC_PATTERN_USERCOURSE="backend/services/usercourse/"
-if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_USERCOURSE"
+SRC_PATTERN_USERSERVICE="backend/services/userservice/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_USERSERVICE"
 then
-    echo "detected changes in usercourse service"
+    echo "detected changes in UserService service"
     
-    cd $SRC_PATTERN_USERCOURSE
+    cd $SRC_PATTERN_USERSERVICE
     ./gradlew clean test 
     cd ../../../
 
-    echo "hook on usercourse service done"
+    echo "hook on UserService service done"
 fi
 
 echo "-- done --"

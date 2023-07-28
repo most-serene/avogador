@@ -51,7 +51,10 @@ pipeline {
                 
                 withGradle {
                     sh '''
-                        cd backend/services/usercourse
+                        mkdir backend/services/userservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
+                        cd backend/services/userservice
+
                         ./gradlew clean test
                     '''
                 }
@@ -117,7 +120,8 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            // junit 'backend/services/usercourse/build/test-results/**/*.xml'
+            junit 'backend/services/userservice/build/test-results/**/*.xml'
+
             junit 'frontend/reports/*.xml'
         }
         
