@@ -30,13 +30,14 @@ public class CourseController {
     @PostMapping("")
     public Course createCourse(HttpServletRequest request, @RequestBody Course _course) {
         var user = userService.getRequestUser(request);
-        System.out.println("EEEAAAAA");
         if(!user.getIsProfessor())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot create a test");
-        System.out.println("UHUHUH");
 
+        _course.setIsArchived(false);
         var course = repository.save(_course);
+
         userCourseService.createAdmin(user, course);
+
         return course;
     }
 
