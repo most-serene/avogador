@@ -1,11 +1,25 @@
 version: "3.8"
 
 services:
-  hello-world:
-    image: "hello-world"
+  users:
+    image: "avogador-userservice:dev-${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/userservice
+      network: host
+      dockerfile: Dockerfile
+      target: run
     logging:
       driver: json-file
       options:
         max-file: "10"
         max-size: "5m"
+    environment:
+      server.port: 8080
+    ports:
+      - "${USERSERVICE_PORT}:8080"
+    networks:
+      - avogador-inner-network
 
+networks:
+  avogador-inner-network:
