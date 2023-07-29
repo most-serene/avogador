@@ -54,18 +54,19 @@ pipeline {
                 
                 withGradle {
                     sh '''
-                        mkdir -p backend/services/userservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
-                        cd backend/services/userservice
+                        mkdir -p backend/services/courseservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        cd backend/services/courseservice
+                        gradle wrapper
 
                         ./gradlew clean test
                     '''
                 }
 
                 withGradle {
-                        // mkdir backend/services/userservice/src/test/resources
-                        // cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                     sh '''
+                        mkdir backend/services/userservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/courseservice
                         gradle wrapper
                         ./gradlew clean test
