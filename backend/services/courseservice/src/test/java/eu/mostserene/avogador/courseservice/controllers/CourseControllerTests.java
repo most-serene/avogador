@@ -3,6 +3,7 @@ package eu.mostserene.avogador.courseservice.controllers;
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseController;
 import eu.mostserene.avogador.courseservice.courses.CourseRepository;
+import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
@@ -17,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,10 +28,11 @@ public class CourseControllerTests {
     private @Autowired MockMvc mvc;
     private @MockBean CourseRepository repository;
     private @MockBean UserCourseService userCourseService;
+    private @MockBean CourseService courseService;
     private @MockBean UserService userService;
 
     private final Course course = new Course("course", "2023/2024", false);
-    private final String courseJSON = "{\"name\": \"Test\", \"year\": \"2023/2024\", \"isArchived\": false}";
+    private final String courseJSON = "{\"name\": \"Test\", \"year\": \"2023/2024\"}";
     private final UserDto studentUser = new UserDto(1L, "student@stud.unive.it", "Student", "1", false, false);
     private final UserDto collaboratorUser = new UserDto(2L, "collaborator@stud.unive.it", "Collaborator", "1", false, false);
     private final UserDto professorUser = new UserDto(3L, "professor@unive.it", "Professor", "1", true, false);
@@ -40,8 +42,12 @@ public class CourseControllerTests {
 
     @Test
     public void createTest_fromStudent_get401() throws Exception{
-        Mockito.when(userService.getRequestUser(Mockito.any()))
-                .thenReturn(studentUser);
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(studentUser);
+        Mockito
+            .when(courseService.createCourse(Mockito.any()))
+            .thenReturn(course);
 
         mvc.perform(post("/public/courses")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -52,11 +58,75 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void createTest_fromProfessor_get401() throws Exception{
-        Mockito.when(userService.getRequestUser(Mockito.any()))
-                .thenReturn(professorUser);
+    public void createTest_fromProfessor_get200() throws Exception{
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(professorUser);
+        Mockito
+            .when(courseService.createCourse(Mockito.any()))
+            .thenReturn(course);
 
         mvc.perform(post("/public/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(courseJSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateTest_fromStudent_get401() throws Exception{
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(studentUser);
+        Mockito
+            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            .thenReturn(student);
+        Mockito
+            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+            .thenReturn(course);
+
+        mvc.perform(put("/public/courses/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(courseJSON)
+                )
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void updateTest_fromCollaborator_get200() throws Exception{
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(collaboratorUser);
+        Mockito
+            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            .thenReturn(collaborator);
+        Mockito
+            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+            .thenReturn(course);
+
+        mvc.perform(put("/public/courses/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(courseJSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateTest_fromAdmin_get200() throws Exception{
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(professorUser);
+        Mockito
+            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            .thenReturn(admin);
+        Mockito
+            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+            .thenReturn(course);
+
+        mvc.perform(put("/public/courses/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(courseJSON)
                 )

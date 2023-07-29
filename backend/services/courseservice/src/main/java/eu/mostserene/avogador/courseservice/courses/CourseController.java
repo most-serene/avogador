@@ -1,14 +1,12 @@
 package eu.mostserene.avogador.courseservice.courses;
 
+import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -20,24 +18,36 @@ public class CourseController {
     private UserService userService;
     @Autowired
     private UserCourseService userCourseService;
-
+    @Autowired
+    private CourseService courseService;
 
     CourseController(CourseRepository rep) {
         this.repository = rep;
     }
 
     @PostMapping("")
-    public Course createCourse(HttpServletRequest request, @RequestBody Course _course) {
+    public Course createCourse(HttpServletRequest request, @RequestBody Course reqCourse) {
         var user = userService.getRequestUser(request);
-        if(!user.getIsProfessor())
+        if(!user.getIsProfessor()){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot create a test");
+        }
 
-        _course.setIsArchived(false);
-        var course = repository.save(_course);
-
+        var course = courseService.createCourse(reqCourse);
         userCourseService.createAdmin(user, course);
 
         return course;
+    }
+
+    @PutMapping("/{courseId}")
+    public Course updateCourse(HttpServletRequest request, @PathVariable Long courseId, @RequestBody Course reqCourse){
+        var user = userService.getRequestUser(request);
+        var userCourse = userCourseService.getUserCourse(user.getId(), courseId);
+
+        if (userCourse.getRole() == CourseRole.STUDENT){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot modify a test");
+        }
+
+        return courseService.updateCourse(courseId, reqCourse);
     }
 
 

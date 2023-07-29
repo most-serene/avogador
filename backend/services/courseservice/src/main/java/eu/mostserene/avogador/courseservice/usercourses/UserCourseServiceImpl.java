@@ -13,8 +13,13 @@ public class UserCourseServiceImpl implements UserCourseService {
 
     @Override
     public UserCourse getUserCourse(UserDto user, Course course) {
+        return getUserCourse(user.getId(), course.getId());
+    }
+
+    @Override
+    public UserCourse getUserCourse(Long userId, Long courseId) {
         return repository
-                .findByUserIdAndCourse_Id(user.getId(), course.getId())
+                .findByUserIdAndCourse_Id(userId, courseId)
                 .orElseThrow(NotFoundException::new);
     }
 
