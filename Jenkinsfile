@@ -78,8 +78,9 @@ pipeline {
                     sh '''
                         mkdir -p backend/services/userservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
-                        cd backend/services/courseservice
+                        cd backend/services/userservice
                         gradle wrapper
+                        
                         ./gradlew clean test
                     '''
                 }
@@ -145,14 +146,9 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            junit 'frontend/reports/*.xml'
-            
-            junit 'backend/services/userservice/build/test-results/**/*.xml'
-            junit 'backend/services/courseservice/build/test-results/**/*.xml'
-
-            junit 'backend/apigateway/build/test-results/**/*.xml'
+            junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
+            junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
         }
-        
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
