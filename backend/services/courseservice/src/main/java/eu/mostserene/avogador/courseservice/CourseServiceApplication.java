@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
 @RestController("/")
-public class UserCourseApplication {
+public class CourseServiceApplication {
 
 	@GetMapping("/status")
 	String getStatus() {
@@ -16,7 +16,7 @@ public class UserCourseApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserCourseApplication.class, args);
+		SpringApplication.run(CourseServiceApplication.class, args);
 	}
 
 }
