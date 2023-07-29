@@ -29,4 +29,16 @@ then
     echo "hook on UserService service done"
 fi
 
+SRC_PATTERN_COURSESERVICE="backend/services/courseservice/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_COURSESERVICE"
+then
+    echo "detected changes in CourseService service"
+    
+    cd $SRC_PATTERN_COURSESERVICE
+    ./gradlew clean test 
+    cd ../../../
+
+    echo "hook on CourseService service done"
+fi
+
 echo "-- done --"
