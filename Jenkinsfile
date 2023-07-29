@@ -29,7 +29,10 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node"}
+    tools {
+        nodejs "Node"
+        gradle "Gradle00"
+    }
 
     /*triggers {
         pollSCM 'H/5 * * * *'
@@ -51,10 +54,21 @@ pipeline {
                 
                 withGradle {
                     sh '''
+                        mkdir -p backend/services/courseservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        cd backend/services/courseservice
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
+
+                withGradle {
+                    sh '''
                         mkdir -p backend/services/userservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
-                        cd backend/services/userservice
-
+                        cd backend/services/courseservice
+                        gradle wrapper
                         ./gradlew clean test
                     '''
                 }
