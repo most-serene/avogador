@@ -145,7 +145,9 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
+            junit 'backend/apigateway/build/test-results/**/*.xml'
             junit 'backend/services/userservice/build/test-results/**/*.xml'
+            junit 'backend/services/courseservice/build/test-results/**/*.xml'
 
             junit 'frontend/reports/*.xml'
         }
