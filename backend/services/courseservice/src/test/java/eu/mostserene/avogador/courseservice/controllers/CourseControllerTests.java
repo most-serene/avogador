@@ -44,7 +44,7 @@ public class CourseControllerTests {
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
 
     @Test
-    public void createCourse_fromStudent_get401() throws Exception{
+    public void createCourse_fromStudent_get403() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(studentUser);
@@ -57,7 +57,7 @@ public class CourseControllerTests {
                         .content(courseJSON)
                 )
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void updateCourse_fromStudent_get401() throws Exception{
+    public void updateCourse_fromStudent_get403() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(studentUser);
@@ -94,7 +94,7 @@ public class CourseControllerTests {
                         .content(courseJSON)
                 )
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void getCourseById_notMember_get401() throws Exception{
+    public void getCourseById_notMember_get403() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(studentUser);
@@ -148,7 +148,7 @@ public class CourseControllerTests {
 
         mvc.perform(get("/public/courses/1"))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test

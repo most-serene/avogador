@@ -30,7 +30,7 @@ public class CourseController {
     public Course createCourse(HttpServletRequest request, @RequestBody Course reqCourse) {
         var user = userService.getRequestUser(request);
         if(!user.getIsProfessor()){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot create a course");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot create a course");
         }
 
         var course = courseService.createCourse(reqCourse);
@@ -44,10 +44,10 @@ public class CourseController {
         var user = userService.getRequestUser(request);
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not part of this course"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
 
         if (userCourse.getRole() == CourseRole.STUDENT){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot modify this course");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify this course");
         }
 
         return courseService.updateCourse(courseId, reqCourse);
@@ -59,7 +59,7 @@ public class CourseController {
 
         return userCourseService
                 .getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not part of this course"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
     }
 
 
