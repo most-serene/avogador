@@ -17,6 +17,18 @@ then
     echo "hook on frontend done"
 fi
 
+SRC_PATTERN_APIGATEWAY="backend/apigateway/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_APIGATEWAY"
+then
+    echo "detected changes in ApiGateway service"
+    
+    cd $SRC_PATTERN_APIGATEWAY
+    ./gradlew clean test 
+    cd ../../
+
+    echo "hook on ApiGateway service done"
+fi
+
 SRC_PATTERN_USERSERVICE="backend/services/userservice/"
 if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_USERSERVICE"
 then
