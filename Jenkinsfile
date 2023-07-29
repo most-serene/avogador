@@ -29,7 +29,10 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node"}
+    tools {
+        nodejs "Node"
+        gradle "Gradle00"
+    }
 
     /*triggers {
         pollSCM 'H/5 * * * *'
