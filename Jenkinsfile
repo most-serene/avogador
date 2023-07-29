@@ -51,6 +51,17 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Tests started"
+
+                withGradle {
+                    sh '''
+                        mkdir -p backend/apigateway/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
+                        cd backend/apigateway
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
                 
                 withGradle {
                     sh '''
