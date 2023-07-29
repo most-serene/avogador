@@ -18,6 +18,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +44,7 @@ public class CourseControllerTests {
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
 
     @Test
-    public void createTest_fromStudent_get401() throws Exception{
+    public void createCourse_fromStudent_get401() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(studentUser);
@@ -58,7 +61,7 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void createTest_fromProfessor_get200() throws Exception{
+    public void createCourse_fromProfessor_get200() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(professorUser);
@@ -75,13 +78,13 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void updateTest_fromStudent_get401() throws Exception{
+    public void updateCourse_fromStudent_get401() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(studentUser);
         Mockito
             .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(student);
+            .thenReturn(Optional.of(student));
         Mockito
             .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
             .thenReturn(course);
@@ -95,13 +98,13 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void updateTest_fromCollaborator_get200() throws Exception{
+    public void updateCourse_fromCollaborator_get200() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(collaboratorUser);
         Mockito
             .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(collaborator);
+            .thenReturn(Optional.of(collaborator));
         Mockito
             .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
             .thenReturn(course);
@@ -115,13 +118,13 @@ public class CourseControllerTests {
     }
 
     @Test
-    public void updateTest_fromAdmin_get200() throws Exception{
+    public void updateCourse_fromAdmin_get200() throws Exception{
         Mockito
             .when(userService.getRequestUser(Mockito.any()))
             .thenReturn(professorUser);
         Mockito
             .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(admin);
+            .thenReturn(Optional.of(admin));
         Mockito
             .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
             .thenReturn(course);
@@ -130,6 +133,34 @@ public class CourseControllerTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(courseJSON)
                 )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getCourseById_notMember_get401() throws Exception{
+        Mockito
+            .when(userService.getRequestUser(Mockito.any()))
+            .thenReturn(studentUser);
+        Mockito
+            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            .thenReturn(Optional.empty());
+
+        mvc.perform(get("/public/courses/1"))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getCourseById_isMember_get200() throws Exception{
+        Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(studentUser);
+        Mockito
+                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(Optional.of(student));
+
+        mvc.perform(get("/public/courses/1"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
