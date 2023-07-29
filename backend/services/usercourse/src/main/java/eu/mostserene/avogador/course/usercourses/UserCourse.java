@@ -1,10 +1,9 @@
-package eu.mostserene.avogador.usercourse.usercourses;
+package eu.mostserene.avogador.course.usercourses;
 
-import eu.mostserene.avogador.usercourse.courses.Course;
-import eu.mostserene.avogador.usercourse.users.UserDto;
+import eu.mostserene.avogador.course.courses.Course;
+import eu.mostserene.avogador.course.users.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Calendar;

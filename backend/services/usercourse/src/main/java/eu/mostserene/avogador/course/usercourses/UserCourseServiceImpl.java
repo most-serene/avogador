@@ -1,8 +1,8 @@
-package eu.mostserene.avogador.usercourse.usercourses;
+package eu.mostserene.avogador.course.usercourses;
 
-import eu.mostserene.avogador.usercourse.courses.Course;
-import eu.mostserene.avogador.usercourse.users.UserDto;
-import eu.mostserene.avogador.usercourse.utils.NotFoundException;
+import eu.mostserene.avogador.course.courses.Course;
+import eu.mostserene.avogador.course.users.UserDto;
+import eu.mostserene.avogador.course.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

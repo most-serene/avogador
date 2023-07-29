@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.usercourse.utils;
+package eu.mostserene.avogador.course.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

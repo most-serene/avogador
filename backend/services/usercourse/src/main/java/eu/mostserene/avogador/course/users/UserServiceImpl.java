@@ -1,6 +1,6 @@
-package eu.mostserene.avogador.usercourse.users;
+package eu.mostserene.avogador.course.users;
 
-import eu.mostserene.avogador.usercourse.utils.NotFoundException;
+import eu.mostserene.avogador.course.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 

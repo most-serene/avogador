@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.usercourse.usercourses;
+package eu.mostserene.avogador.course.usercourses;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

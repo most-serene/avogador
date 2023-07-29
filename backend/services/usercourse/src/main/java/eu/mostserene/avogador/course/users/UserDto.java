@@ -1,8 +1,4 @@
-package eu.mostserene.avogador.usercourse.users;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.GenericGenerator;
+package eu.mostserene.avogador.course.users;
 
 public class UserDto {
     private Long id;

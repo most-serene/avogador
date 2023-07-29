@@ -1,9 +1,8 @@
-package eu.mostserene.avogador.usercourse.courses;
+package eu.mostserene.avogador.course.courses;
 
-import eu.mostserene.avogador.usercourse.usercourses.UserCourseService;
-import eu.mostserene.avogador.usercourse.users.UserService;
+import eu.mostserene.avogador.course.usercourses.UserCourseService;
+import eu.mostserene.avogador.course.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;

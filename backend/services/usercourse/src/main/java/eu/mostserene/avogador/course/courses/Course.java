@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.usercourse.courses;
+package eu.mostserene.avogador.course.courses;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

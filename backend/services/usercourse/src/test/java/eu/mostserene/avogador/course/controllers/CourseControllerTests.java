@@ -1,14 +1,13 @@
-package eu.mostserene.avogador.usercourse.controllers;
+package eu.mostserene.avogador.course.controllers;
 
-import eu.mostserene.avogador.usercourse.courses.Course;
-import eu.mostserene.avogador.usercourse.courses.CourseController;
-import eu.mostserene.avogador.usercourse.courses.CourseRepository;
-import eu.mostserene.avogador.usercourse.usercourses.CourseRole;
-import eu.mostserene.avogador.usercourse.usercourses.UserCourse;
-import eu.mostserene.avogador.usercourse.usercourses.UserCourseService;
-import eu.mostserene.avogador.usercourse.users.UserDto;
-import eu.mostserene.avogador.usercourse.users.UserService;
-import jakarta.servlet.http.HttpServletRequest;
+import eu.mostserene.avogador.course.courses.Course;
+import eu.mostserene.avogador.course.courses.CourseController;
+import eu.mostserene.avogador.course.courses.CourseRepository;
+import eu.mostserene.avogador.course.usercourses.CourseRole;
+import eu.mostserene.avogador.course.usercourses.UserCourse;
+import eu.mostserene.avogador.course.usercourses.UserCourseService;
+import eu.mostserene.avogador.course.users.UserDto;
+import eu.mostserene.avogador.course.users.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

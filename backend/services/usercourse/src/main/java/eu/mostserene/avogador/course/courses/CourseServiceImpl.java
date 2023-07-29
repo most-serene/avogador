@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.usercourse.courses;
+package eu.mostserene.avogador.course.courses;
 
 import org.springframework.stereotype.Service;
 
