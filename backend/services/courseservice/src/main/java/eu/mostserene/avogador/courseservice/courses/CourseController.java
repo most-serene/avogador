@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.courseservice.courses;
 
+import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
@@ -21,6 +22,8 @@ public class CourseController {
     private UserCourseService userCourseService;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private FileSystemService fileSystemService;
 
     CourseController(CourseRepository rep) {
         this.repository = rep;
@@ -32,8 +35,9 @@ public class CourseController {
         if(!user.getIsProfessor()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot create a course");
         }
-
+        
         var course = courseService.createCourse(reqCourse);
+        fileSystemService.createCourse(course);
         userCourseService.createAdmin(user, course);
 
         return course;

@@ -9,6 +9,7 @@ import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,126 +44,136 @@ public class CourseControllerTests {
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
 
-    @Test
-    public void createCourse_fromStudent_get403() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(studentUser);
-        Mockito
-            .when(courseService.createCourse(Mockito.any()))
-            .thenReturn(course);
-
-        mvc.perform(post("/public/courses")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(courseJSON)
-                )
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    public void createCourse_fromProfessor_get200() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(professorUser);
-        Mockito
-            .when(courseService.createCourse(Mockito.any()))
-            .thenReturn(course);
-
-        mvc.perform(post("/public/courses")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(courseJSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void updateCourse_fromStudent_get403() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(studentUser);
-        Mockito
-            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(Optional.of(student));
-        Mockito
-            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-            .thenReturn(course);
-
-        mvc.perform(put("/public/courses/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(courseJSON)
-                )
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    public void updateCourse_fromCollaborator_get200() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(collaboratorUser);
-        Mockito
-            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(Optional.of(collaborator));
-        Mockito
-            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-            .thenReturn(course);
-
-        mvc.perform(put("/public/courses/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(courseJSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void updateCourse_fromAdmin_get200() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(professorUser);
-        Mockito
-            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(Optional.of(admin));
-        Mockito
-            .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-            .thenReturn(course);
-
-        mvc.perform(put("/public/courses/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(courseJSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void getCourseById_notMember_get403() throws Exception{
-        Mockito
-            .when(userService.getRequestUser(Mockito.any()))
-            .thenReturn(studentUser);
-        Mockito
-            .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-            .thenReturn(Optional.empty());
-
-        mvc.perform(get("/public/courses/1"))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    public void getCourseById_isMember_get200() throws Exception{
-        Mockito
+    @Nested
+    class CreateCourse{
+        @Test
+        public void fromStudent_get403() throws Exception{
+            Mockito
                 .when(userService.getRequestUser(Mockito.any()))
                 .thenReturn(studentUser);
-        Mockito
+            Mockito
+                .when(courseService.createCourse(Mockito.any()))
+                .thenReturn(course);
+
+            mvc.perform(post("/public/courses")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(courseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromProfessor_get200() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(professorUser);
+            Mockito
+                .when(courseService.createCourse(Mockito.any()))
+                .thenReturn(course);
+
+            mvc.perform(post("/public/courses")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(courseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class UpdateCourse{
+        @Test
+        public void fromStudent_get403() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(studentUser);
+            Mockito
                 .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(Optional.of(student));
+            Mockito
+                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(course);
 
-        mvc.perform(get("/public/courses/1"))
-                .andDo(print())
-                .andExpect(status().isOk());
+            mvc.perform(put("/public/courses/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(courseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_get200() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(collaboratorUser);
+            Mockito
+                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(Optional.of(collaborator));
+            Mockito
+                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(course);
+
+            mvc.perform(put("/public/courses/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(courseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromAdmin_get200() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(professorUser);
+            Mockito
+                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(Optional.of(admin));
+            Mockito
+                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(course);
+
+            mvc.perform(put("/public/courses/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(courseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class GetCourseById{
+
+        @Test
+        public void notMember_get403() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(studentUser);
+            Mockito
+                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void isMember_get200() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(studentUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
     }
 
 }
