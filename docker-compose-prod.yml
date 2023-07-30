@@ -74,7 +74,7 @@ services:
     networks:
       - avogador-inner-network
 
-  course:
+  courses:
     image: "avogador-courseservice:dev-${BRANCH:-latest}" 
     restart: always
     build:
