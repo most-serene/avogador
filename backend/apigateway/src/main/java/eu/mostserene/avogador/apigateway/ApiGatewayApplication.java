@@ -20,6 +20,9 @@ public class ApiGatewayApplication {
 				.route("users", r -> r.path("/users/**")
 						.filters(f -> f.rewritePath("/users/(?<segment>.*)", "/${segment}"))
 						.uri("http://users:8080"))
+				.route("course", r -> r.path("/courses/**")
+						.filters(f -> f.rewritePath("/courses/(?<segment>.*)", "/${segment}"))
+						.uri("http://courses:8080"))
 				.build();
 	}
 

@@ -12,7 +12,7 @@ public class UserCourseApplication {
 
 	@GetMapping("/status")
 	String getStatus() {
-		return "online";
+		return "courseService online";
 	}
 
 	public static void main(String[] args) {
