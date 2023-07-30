@@ -14,8 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/public/courses")
 public class CourseController {
-    private final CourseRepository repository;
-
     @Autowired
     private UserService userService;
     @Autowired
@@ -25,9 +23,6 @@ public class CourseController {
     @Autowired
     private FileSystemService fileSystemService;
 
-    CourseController(CourseRepository rep) {
-        this.repository = rep;
-    }
 
     @PostMapping("")
     public Course createCourse(HttpServletRequest request, @RequestBody Course reqCourse) {
