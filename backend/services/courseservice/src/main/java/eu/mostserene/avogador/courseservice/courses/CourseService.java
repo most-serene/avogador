@@ -1,8 +1,9 @@
 package eu.mostserene.avogador.courseservice.courses;
 
-import org.springframework.stereotype.Service;
-
-@Service
+import java.util.Optional;
 
 public interface CourseService {
+    Course createCourse(Course course);
+    Course updateCourse(Long id, Course course);
+    Optional<Course> getCourse(Long id);
 }

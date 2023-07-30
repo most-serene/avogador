@@ -2,9 +2,6 @@ package eu.mostserene.avogador.courseservice.users;
 
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
-
-@Service
 
 public interface UserService {
     UserDto getUser(Long id) throws NotFoundException;
