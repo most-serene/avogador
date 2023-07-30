@@ -17,15 +17,15 @@ public class ApiGatewayApplication {
 	@Bean
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
-				.route("geoApi", r -> r.path("/users/**")
+				.route("users", r -> r.path("/users/**")
 						.filters(f -> f.rewritePath("/users/(?<segment>.*)", "/${segment}"))
 						.uri("http://users:8080"))
 				.build();
 	}
 
 
-	@GetMapping("/get")
-	String foo() {
+	@GetMapping("/status")
+	String getStatus() {
 		return  "gateway online";
 	}
 
