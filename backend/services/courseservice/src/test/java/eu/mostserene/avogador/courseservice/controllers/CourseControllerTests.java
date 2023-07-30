@@ -4,6 +4,7 @@ import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseController;
 import eu.mostserene.avogador.courseservice.courses.CourseRepository;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
+import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
@@ -34,6 +35,7 @@ public class CourseControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean CourseService courseService;
     private @MockBean UserService userService;
+    private @MockBean FileSystemService fileSystemService;
 
     private final Course course = new Course("course", "2023/2024", false);
     private final String courseJSON = "{\"name\": \"Test\", \"year\": \"2023/2024\"}";
