@@ -81,5 +81,23 @@ public class CourseController {
         courseService.deleteCourse(courseId);
     }
 
+    @PutMapping("/{courseId}/archive")
+    public Course archiveCourseById(HttpServletRequest request, @PathVariable Long courseId){
+        var user = userService.getRequestUser(request);
+        var userCourse = userCourseService
+                .getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
+        var course = userCourse.getCourse();
+
+        if (userCourse.getRole() != CourseRole.ADMIN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
+        }
+
+        course.setIsArchived(true);
+        fileSystemService.archiveCourse(courseId);
+
+        return course;
+    }
+
 
 }

@@ -253,6 +253,7 @@ public class CourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
+
         @Test
         public void fromStudent_get403() throws Exception{
             Mockito
@@ -293,6 +294,66 @@ public class CourseControllerTests {
             mvc.perform(delete("/public/courses/1"))
                     .andDo(print())
                     .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class ArchiveCourse {
+        @Test
+        public void fromOutside_get403() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(studentUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/courses/1/archive"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromStudent_get403() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(studentUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(put("/public/courses/1/archive"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_get403() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(collaboratorUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+
+            mvc.perform(put("/public/courses/1/archive"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromAdmin_get200() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(professorUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(admin));
+
+            mvc.perform(put("/public/courses/1/archive"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isArchived").value(true));
         }
     }
 

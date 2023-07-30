@@ -14,4 +14,9 @@ public class FileSystemServiceImpl implements FileSystemService{
     public Integer deleteCourse(Long courseId) {
         throw new UnsupportedOperationException("Method not yet implemented");
     }
+
+    @Override
+    public Integer archiveCourse(Long courseId) {
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
 }
