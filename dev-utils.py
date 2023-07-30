@@ -1,5 +1,3 @@
-#! /opt/homebrew/bin/python3.10
-
 from pygit2 import Repository
 from cmd import Cmd
 import os
