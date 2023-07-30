@@ -1,6 +1,41 @@
 version: "3.8"
 
 services:
+  apigateway:
+    image: "avogador-apigateway:dev-${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/apigateway
+      network: host
+      dockerfile: Dockerfile
+      target: ${APIGATEWAY_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
+      # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
+      server.port: 8080
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_FILTER_COMMONSREQUESTLOGGINGFILTER}
+      logging.level.org.springframework.cloud.gateway: TRACE
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      # jwt.secret: ${JWT_SECRET}
+      # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
+      # spring.servlet.multipart.max-file-size: 2GB
+      # spring.servlet.multipart.max-request-size: 2GB
+      spring.profiles.active: ${APIGATEWAY_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      security.allowed.origins: ${APIGATEWAY_ALLOWED_ORIGINS}
+      # multipart.enabled: false
+    ports:
+      - "${APIGATEWAY_PORT}:8080"
+    networks:
+      - avogador-inner-network
+
   users:
     image: "avogador-userservice:dev-${BRANCH:-latest}" 
     restart: always
@@ -37,6 +72,45 @@ services:
       # multipart.enabled: false
     ports:
       - "${USERSERVICE_PORT}:8080"
+    networks:
+      - avogador-inner-network
+
+  courses:
+    image: "avogador-courseservice:dev-${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/courseservice
+      network: host
+      dockerfile: Dockerfile
+      target: ${COURSESERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
+      # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
+      server.port: 8080
+      spring.datasource.url: ${COURSESERVICE_DATASOURCE_URL}
+      spring.datasource.username: ${COURSESERVICE_DATASOURCE_USERNAME}
+      spring.datasource.password: ${COURSESERVICE_DATASOURCE_PASSWORD}
+      spring.jpa.hibernate.ddl-auto: ${COURSESERVICE_JPA_HIBERNATE_DDL_AUTO}
+      spring.jpa.properties.hibernate.dialect: ${COURSESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_FILTER_COMMONSREQUESTLOGGINGFILTER}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      # jwt.secret: ${JWT_SECRET}
+      # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
+      # spring.servlet.multipart.max-file-size: 2GB
+      # spring.servlet.multipart.max-request-size: 2GB
+      spring.profiles.active: ${COURSESERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      security.allowed.origins: ${COURSESERVICE_ALLOWED_ORIGINS}
+      # multipart.enabled: false
+    ports:
+      - "${COURSESERVICE_PORT}:8080"
     networks:
       - avogador-inner-network
 

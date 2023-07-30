@@ -29,7 +29,10 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node"}
+    tools {
+        nodejs "Node"
+        gradle "Gradle00"
+    }
 
     /*triggers {
         pollSCM 'H/5 * * * *'
@@ -48,13 +51,36 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Tests started"
+
+                withGradle {
+                    sh '''
+                        mkdir -p backend/apigateway/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
+                        cd backend/apigateway
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
                 
+                withGradle {
+                    sh '''
+                        mkdir -p backend/services/courseservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        cd backend/services/courseservice
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
+
                 withGradle {
                     sh '''
                         mkdir -p backend/services/userservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
-
+                        gradle wrapper
+                        
                         ./gradlew clean test
                     '''
                 }
@@ -120,11 +146,9 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            junit 'backend/services/userservice/build/test-results/**/*.xml'
-
-            junit 'frontend/reports/*.xml'
+            junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
+            junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
         }
-        
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
