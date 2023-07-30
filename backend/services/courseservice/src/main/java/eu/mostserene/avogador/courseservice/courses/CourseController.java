@@ -37,7 +37,7 @@ public class CourseController {
         }
         
         var course = courseService.createCourse(reqCourse);
-        fileSystemService.createCourse(course);
+        fileSystemService.createCourse(course.getId());
         userCourseService.createAdmin(user, course);
 
         return course;
@@ -64,6 +64,21 @@ public class CourseController {
         return userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
+    }
+
+    @DeleteMapping("/{courseId}")
+    public void deleteCourseById(HttpServletRequest request, @PathVariable Long courseId){
+        var user = userService.getRequestUser(request);
+        var userCourse = userCourseService
+                .getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
+
+        if (userCourse.getRole() != CourseRole.ADMIN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
+        }
+
+        fileSystemService.deleteCourse(courseId);
+        courseService.deleteCourse(courseId);
     }
 
 

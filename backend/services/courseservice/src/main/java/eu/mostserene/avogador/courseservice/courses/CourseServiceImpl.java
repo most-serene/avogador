@@ -27,4 +27,9 @@ public class CourseServiceImpl implements CourseService{
     public Optional<Course> getCourse(Long id) {
         return repository.findById(id);
     }
+
+    @Override
+    public void deleteCourse(Long courseId) {
+        repository.deleteById(courseId);
+    }
 }
