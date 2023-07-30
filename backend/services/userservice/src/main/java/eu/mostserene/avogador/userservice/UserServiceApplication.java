@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserServiceApplication {
 	@GetMapping("/status")
 	String getStatus() {
-		return "online";
+		return "userService online";
 	}
 
 	public static void main(String[] args) {
