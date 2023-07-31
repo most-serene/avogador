@@ -41,6 +41,7 @@ public class CourseControllerTests {
     private @MockBean FileSystemService fileSystemService;
 
     private final Course course = new Course("course", "2023/2024", false);
+    private final Course archivedCourse = new Course("archivedCourse", "2023/2024", true);
     private final Course updatedCourse = new Course("course2", "2023/2024", false);
     private final String courseJSON = "{\"name\": \"course\", \"year\": \"2023/2024\"}";
     private final String updatedCourseJSON = "{\"id\": 1, \"name\": \"course2\", \"year\": \"2023/2024\"}";
@@ -51,6 +52,7 @@ public class CourseControllerTests {
     private final UserCourse student = new UserCourse(studentUser, course, CourseRole.STUDENT);
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
+    private final UserCourse archivedAdmin = new UserCourse(professorUser, archivedCourse, CourseRole.ADMIN);
 
     @Nested
     class CreateCourse{
@@ -161,6 +163,23 @@ public class CourseControllerTests {
         }
 
         @Test
+        public void withArchivedTrue_get403() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(professorUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(archivedAdmin));
+
+            mvc.perform(put("/public/courses/1")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(updatedCourseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
         public void fromCollaborator_get200() throws Exception{
             Mockito
                 .when(userService.getRequestUser(Mockito.any()))
@@ -216,6 +235,34 @@ public class CourseControllerTests {
             mvc.perform(get("/public/courses/1"))
                     .andDo(print())
                     .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromStudent_archivedCourse_get403() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(professorUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(new UserCourse(studentUser, archivedCourse, CourseRole.STUDENT)));
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromAdmin_archivedCourse_get200() throws Exception{
+            Mockito
+                    .when(userService.getRequestUser(Mockito.any()))
+                    .thenReturn(professorUser);
+            Mockito
+                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(archivedAdmin));
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
         }
 
         @Test

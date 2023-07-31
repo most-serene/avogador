@@ -64,9 +64,13 @@ public class CourseController {
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
+        var course = userCourse.getCourse();
 
         if (userCourse.getRole() == CourseRole.STUDENT){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify this course");
+        }
+        if (course.getIsArchived()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify an archived course");
         }
 
         return courseService.updateCourse(courseId, reqCourse);
@@ -79,12 +83,17 @@ public class CourseController {
      * @throws ResponseStatusException(403) if the UserCourse relation does not exist
      * */
     @GetMapping("/{courseId}")
-    private UserCourse getCourseById(HttpServletRequest request, @PathVariable Long courseId) {
+    private UserCourse getCourseById(HttpServletRequest request, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
         var user = userService.getRequestUser(request);
 
-        return userCourseService
+        var userCourse =  userCourseService
                 .getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"));
+
+        if (userCourse.getCourse().getIsArchived() && userCourse.getRole() != CourseRole.ADMIN)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
+
+        return userCourse;
     }
 
     /**
