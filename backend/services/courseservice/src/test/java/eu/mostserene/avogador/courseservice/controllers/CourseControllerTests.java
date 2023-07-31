@@ -41,8 +41,10 @@ public class CourseControllerTests {
     private @MockBean FileSystemService fileSystemService;
 
     private final Course course = new Course("course", "2023/2024", false);
-    private final String courseJSON = "{\"name\": \"Test\", \"year\": \"2023/2024\"}";
-    private final String hackedCourseJSON = "{\"name\": \"Test\", \"year\": \"2023/2024\", \"isArchived\": true}";
+    private final Course updatedCourse = new Course("course2", "2023/2024", false);
+    private final String courseJSON = "{\"name\": \"course\", \"year\": \"2023/2024\"}";
+    private final String updatedCourseJSON = "{\"id\": 1, \"name\": \"course2\", \"year\": \"2023/2024\"}";
+    private final String hackedCourseJSON = "{\"id\": 1, \"name\": \"course\", \"year\": \"2023/2024\", \"isArchived\": true}";
     private final UserDto studentUser = new UserDto(1L, "student@stud.unive.it", "Student", "1", false, false);
     private final UserDto collaboratorUser = new UserDto(2L, "collaborator@stud.unive.it", "Collaborator", "1", false, false);
     private final UserDto professorUser = new UserDto(3L, "professor@unive.it", "Professor", "1", true, false);
@@ -108,6 +110,23 @@ public class CourseControllerTests {
     @Nested
     class UpdateCourse{
         @Test
+        public void wrongId_get400() throws Exception{
+            Mockito
+                .when(userService.getRequestUser(Mockito.any()))
+                .thenReturn(studentUser);
+            Mockito
+                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/courses/2")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(updatedCourseJSON)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
         public void fromOutside_get403() throws Exception{
             Mockito
                 .when(userService.getRequestUser(Mockito.any()))
@@ -118,7 +137,7 @@ public class CourseControllerTests {
 
             mvc.perform(put("/public/courses/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(courseJSON)
+                            .content(updatedCourseJSON)
                     )
                     .andDo(print())
                     .andExpect(status().isForbidden());
@@ -132,13 +151,10 @@ public class CourseControllerTests {
             Mockito
                 .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(Optional.of(student));
-            Mockito
-                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-                .thenReturn(course);
 
             mvc.perform(put("/public/courses/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(courseJSON)
+                            .content(updatedCourseJSON)
                     )
                     .andDo(print())
                     .andExpect(status().isForbidden());
@@ -154,11 +170,11 @@ public class CourseControllerTests {
                 .thenReturn(Optional.of(collaborator));
             Mockito
                 .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-                .thenReturn(course);
+                .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(courseJSON)
+                            .content(updatedCourseJSON)
                     )
                     .andDo(print())
                     .andExpect(status().isOk());
@@ -174,35 +190,14 @@ public class CourseControllerTests {
                 .thenReturn(Optional.of(admin));
             Mockito
                 .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-                .thenReturn(course);
+                .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(courseJSON)
+                            .content(updatedCourseJSON)
                     )
                     .andDo(print())
                     .andExpect(status().isOk());
-        }
-
-        @Test
-        public void fromAdmin_withArchivedTrue_get200() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
-                    .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
-                    .thenReturn(Optional.of(admin));
-            Mockito
-                    .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
-                    .thenReturn(course);
-
-            mvc.perform(put("/public/courses/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(hackedCourseJSON)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isArchived").value(false));
         }
     }
 

@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/public/courses")
 public class CourseController {
@@ -24,6 +26,12 @@ public class CourseController {
     private FileSystemService fileSystemService;
 
 
+    /**
+     * @param request the requests object
+     * @param reqCourse the course from the body of the request
+     * @return the freshly created course with status code 200
+     * @throws ResponseStatusException(403) if the user is not professor
+     */
     @PostMapping("")
     private Course createCourse(HttpServletRequest request, @RequestBody Course reqCourse) {
         var user = userService.getRequestUser(request);
@@ -38,8 +46,20 @@ public class CourseController {
         return course;
     }
 
+    /**
+     * @param request the request object
+     * @param courseId the id of the course to update
+     * @param reqCourse the updated course from the body of the request
+     * @return the updated course
+     * @throws ResponseStatusException(400) if courseId and reqCourse.id mismatch
+     * @throws ResponseStatusException(403) if the user is not part of the course or has student role
+     * */
     @PutMapping("/{courseId}")
     private Course updateCourse(HttpServletRequest request, @PathVariable Long courseId, @RequestBody Course reqCourse){
+        if (!Objects.equals(reqCourse.getId(), courseId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course Id mismatch");
+        }
+
         var user = userService.getRequestUser(request);
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
@@ -52,6 +72,12 @@ public class CourseController {
         return courseService.updateCourse(courseId, reqCourse);
     }
 
+    /**
+     * @param request the request object
+     * @param courseId the id of the course
+     * @return the course corresponding to the id
+     * @throws ResponseStatusException(403) if the UserCourse relation does not exist
+     * */
     @GetMapping("/{courseId}")
     private UserCourse getCourseById(HttpServletRequest request, @PathVariable Long courseId) {
         var user = userService.getRequestUser(request);
@@ -61,6 +87,11 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
     }
 
+    /**
+     * @param request the request object
+     * @param courseId the id of the course to delete
+     * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
+     * */
     @DeleteMapping("/{courseId}")
     private void deleteCourseById(HttpServletRequest request, @PathVariable Long courseId){
         var user = userService.getRequestUser(request);
@@ -76,6 +107,12 @@ public class CourseController {
         courseService.deleteCourse(courseId);
     }
 
+    /**
+     * @param request the request object
+     * @param courseId the id of the course to archive
+     * @return the archived course
+     * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
+     * */
     @PutMapping("/{courseId}/archive")
     private Course archiveCourseById(HttpServletRequest request, @PathVariable Long courseId){
         var user = userService.getRequestUser(request);
