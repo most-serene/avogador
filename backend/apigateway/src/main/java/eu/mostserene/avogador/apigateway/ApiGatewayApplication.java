@@ -18,10 +18,10 @@ public class ApiGatewayApplication {
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
 				.route("users", r -> r.path("/users/**")
-						.filters(f -> f.rewritePath("/users/(?<segment>.*)", "/${segment}"))
+						.filters(f -> f.rewritePath("/users/(?<segment>.*)", "/public/users/${segment}"))
 						.uri("http://users:8080"))
 				.route("course", r -> r.path("/courses/**")
-						.filters(f -> f.rewritePath("/courses/(?<segment>.*)", "/${segment}"))
+						.filters(f -> f.rewritePath("/courses/(?<segment>.*)", "/public/courses/${segment}"))
 						.uri("http://courses:8080"))
 				.build();
 	}
