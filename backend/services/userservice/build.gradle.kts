@@ -22,6 +22,10 @@ repositories {
 }
 
 dependencies {
+	implementation("javax.xml.bind:jaxb-api:2.2.7")
+	implementation("com.sun.xml.bind:jaxb-impl:2.2.5-b10")
+	implementation("io.jsonwebtoken:jjwt:0.9.1")
+	implementation("org.javatuples:javatuples:1.2")
 	implementation("net.minidev:json-smart:2.4.11")
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
