@@ -60,14 +60,14 @@ services:
       spring.jpa.properties.hibernate.dialect: ${USERSERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_FILTER_COMMONSREQUESTLOGGINGFILTER}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
-      # jwt.secret: ${JWT_SECRET}
+      jwt.secret: ${JWT_SECRET}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
       # spring.servlet.multipart.max-request-size: 2GB
       spring.profiles.active: ${USERSERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
-      security.allowed.origins: ${USERSERVICE_ALLOWED_ORIGINS}
+      # security.allowed.origins: ${USERSERVICE_ALLOWED_ORIGINS}
       # multipart.enabled: false
     ports:
       - "${USERSERVICE_PORT}:8080"

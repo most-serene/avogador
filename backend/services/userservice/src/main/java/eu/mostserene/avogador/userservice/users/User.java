@@ -73,19 +73,24 @@ public class User {
         this.familyName = familyName;
     }
 
-    public Boolean getProfessor() {
+    public Boolean getIsProfessor() {
         return isProfessor;
     }
 
-    public void setProfessor(Boolean professor) {
+    public void setIsProfessor(Boolean professor) {
         isProfessor = professor;
     }
 
-    public Boolean getSuperuser() {
+    public Boolean getIsSuperuser() {
         return isSuperuser;
     }
 
-    public void setSuperuser(Boolean superuser) {
+    public void setIsSuperuser(Boolean superuser) {
         isSuperuser = superuser;
+    }
+
+    public AuthUserDTO generateAuthUserDTO() {
+        return new AuthUserDTO(getId(), getEmail(), getGivenName(),
+                getFamilyName(), getIsProfessor(), getIsSuperuser());
     }
 }

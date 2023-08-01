@@ -1,10 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import LoginGoogle from "./components/authentication/LoginGoogle";
+import { avogadorApi } from "./utils/axiosConf";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [gatewayStatus, setGatewayStatus] = useState<string>("offline");
+  const [usersStatus, setUsersStatus] = useState<string>("offline");
+  const [coursesStatus, setCoursesStatus] = useState<string>("offline");
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      avogadorApi
+        .get("/status")
+        .then(({ data }: { data: string }) => {
+          setGatewayStatus(data);
+        })
+        .catch(() => {
+          setGatewayStatus("offline");
+        });
+      avogadorApi
+        .get("/users/status")
+        .then(({ data }: { data: string }) => {
+          setUsersStatus(data);
+        })
+        .catch(() => {
+          setUsersStatus("offline");
+        });
+      avogadorApi
+        .get("/courses/status")
+        .then(({ data }: { data: string }) => {
+          setCoursesStatus(data);
+        })
+        .catch(() => {
+          setCoursesStatus("offline");
+        });
+    }, 2000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, []);
 
   return (
     <>
@@ -18,6 +56,9 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      <p>gateway {gatewayStatus}</p>
+      <p>users {usersStatus}</p>
+      <p>gateway {coursesStatus}</p>
       <div className="card">
         <button
           onClick={() => {
@@ -29,6 +70,7 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
+        <LoginGoogle />
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("/")
 public class CourseServiceApplication {
 
-	@GetMapping("/status")
+	@GetMapping("/public/courses/status")
 	String getStatus() {
 		return "courseService online";
 	}
