@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.userservice.users;
+package eu.mostserene.avogador.apigateway.security;
 
 import lombok.Data;
 

@@ -1,7 +1,11 @@
 package eu.mostserene.avogador.userservice.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,15 +20,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -84,16 +85,13 @@ public class AuthService {
         byte[] apiKeySecretBytes = Base64.getEncoder().encode(jwtSecret.getBytes());
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
-        final Map<String, Object> claims = new HashMap<>();
-
-        claims.put("user", user.generateAuthUserDTO());
-        claims.put("generation_timestamp", Timestamp.from(Instant.now()));
         JwtBuilder builder = Jwts.builder()
                 .setId(String.valueOf(user.getId()))
                 .setIssuedAt(now)
                 .setSubject(user.getEmail())
                 .setIssuer("Avogador")
-                .addClaims(claims)
+                .claim("user", user.generateAuthUserDTO())
+                .claim("generation_timestamp", Timestamp.from(Instant.now()))
                 .signWith(signatureAlgorithm, signingKey);
 
         if (ttlMillis > 0) {
@@ -107,24 +105,31 @@ public class AuthService {
         return builder.compact();
     }
 
-    /*
-    public User decodeJwt(String jwt) {
-        try {
-            return User.createFromCookie(String.valueOf(
-                    Jwts.parser()
-                            .setSigningKey(Base64.getEncoder().encode(jwtSecret.getBytes()))
-                            .parseClaimsJws(jwt)
-                            .getBody()
-                            .get("user")).replace("=", ":"));
-        } catch (ParseException e) {
-            throw new MissingJwtException();
-        }
-    }*/
+
+    public AuthUserDTO decodeJwt(String jwt) {
+        final ObjectMapper mapper = new ObjectMapper();
+
+        Claims jwsMap = Jwts.parser()
+                .setSigningKey(Base64.getEncoder().encode(jwtSecret.getBytes()))
+                .parseClaimsJws(jwt)
+                .getBody();
+
+        return mapper.convertValue(jwsMap.get("user"), AuthUserDTO.class);
+    }
 
     private String extractJwt(HttpServletRequest request) {
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
                 .filter(cookie -> "jwt".equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
+    }
+
+    public AuthUserDTO getRequestUser(HttpServletRequest request) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(request.getHeader("User"), AuthUserDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public record GoogleUser(String email, String domain, String givenName, String familyName, String picture) { }

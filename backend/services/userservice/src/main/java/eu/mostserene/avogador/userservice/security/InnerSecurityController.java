@@ -1,18 +1,24 @@
 package eu.mostserene.avogador.userservice.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
-import eu.mostserene.avogador.userservice.users.User;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Slf4j
 @RequestMapping("/security")
 public class InnerSecurityController {
 
-    @GetMapping("/validate-jwt")
-    private AuthUserDTO validateJWT(HttpServletRequest request) {
-        return null;
+    @Autowired
+    private AuthService authService;
+
+    @PostMapping("/validate-jwt")
+    private AuthUserDTO validateJWT(@RequestBody String jwtToValidate) {
+        return authService.decodeJwt(jwtToValidate);
     }
+
 }

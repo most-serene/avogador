@@ -29,7 +29,7 @@ public class ApiGatewayApplication {
 
 	@GetMapping("/status")
 	String getStatus() {
-		return  "gateway online";
+		return "gateway online";
 	}
 
 	public static void main(String[] args) {

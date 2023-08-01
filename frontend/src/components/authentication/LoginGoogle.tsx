@@ -7,12 +7,8 @@ const LoginGoogle = () => {
   const [user, setUser] = useState<{ givenName: string; familyName: string }>();
 
   const googleSuccess = (response: string) => {
-    console.log(response);
-    console.log(`${import.meta.env.VITE_AVOGADOR_BACKEND_API_ADDRESS}`);
-
-    // avogadorApi.post('/users/google-auth', {'googleToken': response})
     avogadorApi
-      .post("http://localhost:8083/users/google-auth", {
+      .post("/users/google-auth", {
         googleToken: response,
       })
       .then(({ data }: { data: { givenName: string; familyName: string } }) => {
