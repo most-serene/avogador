@@ -1,0 +1,127 @@
+package eu.mostserene.avogador.userservice.users;
+
+import eu.mostserene.avogador.userservice.security.AuthService;
+import eu.mostserene.avogador.userservice.security.InvalidDomainException;
+import eu.mostserene.avogador.userservice.utils.NotFoundException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+@RestController
+@Slf4j
+@RequestMapping("/public/users")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private AuthService authService;
+
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    @GetMapping("/{userId}")
+    private User getUserById(@PathVariable Long userId) {
+        // TODO: AVG-35 - enforce auth
+        return userService.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId));
+    }
+
+    @GetMapping("/email/{userId}")
+    private User getUserByEmail(@PathVariable String email) {
+        // TODO: AVG-35 - enforce auth
+        return userService.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User " + email));
+    }
+
+    @DeleteMapping("/{userId}")
+    private void deleteUser(@PathVariable Long userId) {
+        // TODO: AVG-35 - enforce auth
+        userService.deleteUser(userService.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId))
+        );
+    }
+
+    @PostMapping("/google-auth")
+    private AuthUserDTOWithImage authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
+        log.info("token: "  + googleToken.getGoogleToken());
+        AuthService.GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
+        Optional<User> queriedUser = userService.getUserByEmail(googleUser.email());
+
+        final User user = queriedUser.map(innerUser -> {
+            if (innerUser.getGivenName().equals(googleUser.givenName()) &&
+                    innerUser.getFamilyName().equals(googleUser.familyName())) {
+                return innerUser;
+            }
+            innerUser.setGivenName(googleUser.givenName());
+            innerUser.setFamilyName(googleUser.familyName());
+            return userService.updateUser(innerUser);
+        }).orElseGet(() -> userService.createUser(new User(
+                googleUser.email(),
+                googleUser.givenName(),
+                googleUser.familyName()
+        )));
+
+        ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("jwt", authService.generateJWT(user, 0))
+                .httpOnly(true)
+                .path("/")
+                .sameSite("Strict");
+        log.info(jwtBuilder.build().toString());
+        ResponseCookie jwtCookie = ("dev".equals(activeProfile)) ? jwtBuilder.build() : jwtBuilder.secure(true).build();
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+        return new AuthUserDTOWithImage(user.generateAuthUserDTO(), googleUser.picture());
+    }
+
+    @GetMapping("/logout")
+    private void logoutUser(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    }
+
+
+    private static class GoogleToken {
+        private String googleToken;
+
+        public String getGoogleToken() {
+            return googleToken;
+        }
+    }
+
+    private static class AuthUserDTOWithImage extends AuthUserDTO {
+        private String picture;
+
+
+        public AuthUserDTOWithImage(Long id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser, String picture) {
+            super(id, email, givenName, familyName, isProfessor, isSuperuser);
+            this.setPicture(picture);
+        }
+
+        public AuthUserDTOWithImage(AuthUserDTO authUserDTO, String picture) {
+            super(authUserDTO.getId(), authUserDTO.getEmail(), authUserDTO.getGivenName(), authUserDTO.getFamilyName(),
+                    authUserDTO.getIsProfessor(), authUserDTO.getIsSuperuser());
+            this.setPicture(picture);
+        }
+
+        public String getPicture() {
+            return picture;
+        }
+
+        public void setPicture(String picture) {
+            this.picture = picture;
+        }
+    }
+}

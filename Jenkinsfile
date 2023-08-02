@@ -29,7 +29,10 @@ pipeline {
             label 'core'
             }
     }*/
-    tools {nodejs "Node"}
+    tools {
+        nodejs "Node"
+        gradle "Gradle00"
+    }
 
     /*triggers {
         pollSCM 'H/5 * * * *'
@@ -48,14 +51,39 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Tests started"
+
+                withGradle {
+                    sh '''
+                        mkdir -p backend/apigateway/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
+                        cd backend/apigateway
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
                 
-                /*
-                sh '''
-                    cd backend/avogador.api-gateway
-                    ls
-                    ./gradlew clean test
-                '''
-                */
+                withGradle {
+                    sh '''
+                        mkdir -p backend/services/courseservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        cd backend/services/courseservice
+                        gradle wrapper
+
+                        ./gradlew clean test
+                    '''
+                }
+
+                withGradle {
+                    sh '''
+                        mkdir -p backend/services/userservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
+                        cd backend/services/userservice
+                        gradle wrapper
+                        
+                        ./gradlew clean test
+                    '''
+                }
                 
                 sh '''
                     cd frontend
@@ -63,9 +91,7 @@ pipeline {
                     yarn test run
                     yarn lint
                 '''
-                // withGradle {
-                //    sh './services/projectService/gradlew clean test'
-                //}
+                
                 echo "Tests finished"
             }
         }
@@ -120,10 +146,10 @@ pipeline {
         always {
             // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
-            // junit 'services/projectService/build/test-results/**/*.xml'
-            junit 'frontend/reports/*.xml'
+            junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
+            junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+            discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
-        
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
