@@ -148,6 +148,7 @@ pipeline {
             // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
             junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
             junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+            discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
