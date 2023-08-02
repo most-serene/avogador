@@ -70,6 +70,20 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
+        <button
+          onClick={() => {
+            avogadorApi
+              .get("/users/logout")
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }}
+        >
+          Logout
+        </button>
         <LoginGoogle />
       </div>
       <p className="read-the-docs">
