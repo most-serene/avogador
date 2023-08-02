@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 @RestController
@@ -92,6 +93,12 @@ public class CourseController {
 
         if (userCourse.getCourse().getIsArchived() && userCourse.getRole() != CourseRole.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
+
+        try{
+            String s = courseService.getJoinCode(courseId);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         return userCourse;
     }
