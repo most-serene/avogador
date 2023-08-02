@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   apigateway:
-    image: "avogador-apigateway:dev-${BRANCH:-latest}" 
+    image: "avogador-apigateway:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/apigateway
@@ -37,7 +37,7 @@ services:
       - avogador-inner-network
 
   users:
-    image: "avogador-userservice:dev-${BRANCH:-latest}" 
+    image: "avogador-userservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/userservice
@@ -73,7 +73,7 @@ services:
       - avogador-inner-network
 
   courses:
-    image: "avogador-courseservice:dev-${BRANCH:-latest}" 
+    image: "avogador-courseservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/courseservice
