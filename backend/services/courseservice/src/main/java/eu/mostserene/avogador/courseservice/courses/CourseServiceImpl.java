@@ -41,13 +41,24 @@ public class CourseServiceImpl implements CourseService{
     }
 
     @Override
-    public String getJoinCode(Long courseId) throws NoSuchAlgorithmException, InvalidKeyException {
+    public Optional<String> getJoinCode(Long courseId){
+        Mac mac;
         String algorithm = "HmacSHA256";
         SecretKeySpec secretKeySpec = new SecretKeySpec(joinCodeSecret.getBytes(), algorithm);
-        Mac mac = Mac.getInstance(algorithm);
-        mac.init(secretKeySpec);
 
-        return bytesToHex(mac.doFinal(courseId.toString().getBytes()));
+        try {
+            mac = Mac.getInstance(algorithm);
+        }catch (NoSuchAlgorithmException e){
+            return Optional.empty();
+        }
+
+        try {
+            mac.init(secretKeySpec);
+        } catch (InvalidKeyException e) {
+            return Optional.empty();
+        }
+
+        return Optional.of(bytesToHex(mac.doFinal(courseId.toString().getBytes())));
     }
 
     private static String bytesToHex(byte[] hash) {

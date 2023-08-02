@@ -9,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @SpringBootTest
@@ -21,9 +20,12 @@ public class CourseServiceIntegrationTests {
     @ParameterizedTest
     @MethodSource("joinCodePairs")
     void getJoinCode(Long courseId, String hash) {
-        var result = assertDoesNotThrow(() -> courseService.getJoinCode(courseId));
-        assertEquals(hash, result);
-        System.out.println(result);
+        var result = courseService.getJoinCode(courseId);
+
+        assertTrue(result.isPresent());
+        assertEquals(hash, result.get());
+
+        System.out.println(result.get());
     }
 
     private static Stream<Arguments> joinCodePairs() {
