@@ -24,7 +24,7 @@ public class AuthService {
 
             httpRequest = HttpRequest
                     .newBuilder()
-                    .uri(new URI("http://users:8080/security/validate-jwt"))
+                    .uri(new URI("http://users/security/validate-jwt"))
                     .header("Content-Type", "text/plain")
                     .POST(HttpRequest.BodyPublishers.ofString(jwtToken))
                     .build();
