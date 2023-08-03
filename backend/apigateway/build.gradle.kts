@@ -24,6 +24,7 @@ repositories {
 extra["springCloudVersion"] = "2022.0.3"
 
 dependencies {
+	implementation("com.google.guava:guava:31.1-jre")
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")

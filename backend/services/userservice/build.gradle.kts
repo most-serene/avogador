@@ -22,7 +22,8 @@ repositories {
 }
 
 dependencies {
-	implementation("javax.xml.bind:jaxb-api:2.2.7")
+	implementation("com.google.guava:guava:31.1-jre")
+	implementation("javax.xml.bind:jaxb-api:2.3.1")
 	implementation("com.sun.xml.bind:jaxb-impl:2.2.5-b10")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("org.javatuples:javatuples:1.2")

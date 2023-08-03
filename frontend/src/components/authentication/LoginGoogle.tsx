@@ -11,10 +11,17 @@ const LoginGoogle = () => {
       .post("/users/google-auth", {
         googleToken: response,
       })
-      .then(({ data }: { data: { givenName: string; familyName: string } }) => {
-        console.log(data);
-        setUser(data);
-      })
+      .then(
+        ({
+          data,
+        }: {
+          data: { givenName: string; familyName: string; hash: string };
+        }) => {
+          console.log(data);
+          avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = data.hash;
+          setUser(data);
+        },
+      )
       .catch((err) => {
         console.log(err);
       });

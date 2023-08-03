@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.userservice.users;
 
+import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
@@ -7,17 +8,14 @@ import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping("/google-auth")
-    private AuthUserDTOWithImage authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
+    private AuthUserDTOImageHash authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
         log.info("token: "  + googleToken.getGoogleToken());
         AuthService.GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
         Optional<User> queriedUser = userService.getUserByEmail(googleUser.email());
@@ -81,11 +79,16 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .sameSite("Strict");
-        log.info(jwtBuilder.build().toString());
+
         ResponseCookie jwtCookie = ("dev".equals(activeProfile)) ? jwtBuilder.build() : jwtBuilder.secure(true).build();
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
-        return new AuthUserDTOWithImage(user.generateAuthUserDTO(), googleUser.picture());
+        String jwtHash = Hashing.sha256()
+                .hashString(jwtCookie.getValue(), StandardCharsets.UTF_8)
+                .toString();
+
+        return new AuthUserDTOImageHash(user.generateAuthUserDTO(), googleUser.picture(),
+                jwtHash.substring(jwtHash.length() - 20));
     }
 
     @GetMapping("/logout")
@@ -121,19 +124,24 @@ public class UserController {
         }
     }
 
-    private static class AuthUserDTOWithImage extends AuthUserDTO {
+    private static class AuthUserDTOImageHash extends AuthUserDTO {
         private String picture;
 
+        private String hash;
 
-        public AuthUserDTOWithImage(Long id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser, String picture) {
+
+        public AuthUserDTOImageHash(Long id, String email, String givenName, String familyName,
+                                    Boolean isProfessor, Boolean isSuperuser, String picture, String hash) {
             super(id, email, givenName, familyName, isProfessor, isSuperuser);
             this.setPicture(picture);
+            this.setHash(hash);
         }
 
-        public AuthUserDTOWithImage(AuthUserDTO authUserDTO, String picture) {
+        public AuthUserDTOImageHash(AuthUserDTO authUserDTO, String picture, String hash) {
             super(authUserDTO.getId(), authUserDTO.getEmail(), authUserDTO.getGivenName(), authUserDTO.getFamilyName(),
                     authUserDTO.getIsProfessor(), authUserDTO.getIsSuperuser());
             this.setPicture(picture);
+            this.setHash(hash);
         }
 
         public String getPicture() {
@@ -142,6 +150,14 @@ public class UserController {
 
         public void setPicture(String picture) {
             this.picture = picture;
+        }
+
+        public String getHash() {
+            return hash;
+        }
+
+        public void setHash(String hash) {
+            this.hash = hash;
         }
     }
 }
