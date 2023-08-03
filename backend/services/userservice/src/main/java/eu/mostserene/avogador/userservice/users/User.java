@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @Entity
 @Table(name = "Users")
 public class User {
@@ -36,6 +39,9 @@ public class User {
     @NotNull
     private Boolean isSuperuser = false;
 
+    @NotNull
+    private Timestamp jwtValidity = Timestamp.from(Instant.now());
+
     public User() {
     }
 
@@ -43,6 +49,7 @@ public class User {
         this.email = email;
         this.givenName = givenName;
         this.familyName = familyName;
+        this.jwtValidity = Timestamp.from(Instant.now());
     }
 
     public Long getId() {
@@ -87,6 +94,14 @@ public class User {
 
     public void setIsSuperuser(Boolean superuser) {
         isSuperuser = superuser;
+    }
+
+    public Timestamp getJwtValidity() {
+        return jwtValidity;
+    }
+
+    public void setJwtValidity(Timestamp jwtValidity) {
+        this.jwtValidity = jwtValidity;
     }
 
     public AuthUserDTO generateAuthUserDTO() {
