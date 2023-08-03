@@ -27,7 +27,7 @@ public class CustomWebFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String uri = exchange.getRequest().getURI().getPath();
 
-        if ("/users/google-auth".equals(uri) || "/users/logout".equals(uri)) {
+        if ("/users/google-auth".equals(uri) || "/users/logout".equals(uri) || "/".equals(uri)) {
             return chain.filter(exchange);
         }
 
