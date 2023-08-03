@@ -103,4 +103,25 @@ public class UserCourseServiceTests {
         }
     }
 
+    @Nested
+    class CreateStudent {
+        @Test
+        public void createsStudent() throws Exception {
+            var courseWithId = new Course("course", "2023/2024", false);
+            Field id = courseWithId.getClass().getDeclaredField("id");
+            id.setAccessible(true);
+            id.set(courseWithId, 1L);
+            var newStudent = new UserCourse(outsiderUser, courseWithId, CourseRole.STUDENT);
+
+            when(repository.save(argThat(uc -> uc.getCourse().getId() == 1L && uc.getUser() == 4L)))
+                    .thenReturn(newStudent);
+
+            var result = userCourseService.createAdmin(outsiderUser, courseWithId);
+
+            assertEquals(CourseRole.STUDENT, result.getRole());
+            assertEquals(4L, result.getUser());
+            assertEquals(1L, result.getCourse().getId());
+        }
+    }
+
 }

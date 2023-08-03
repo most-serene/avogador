@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface UserCourseService {
     Optional<UserCourse> getUserCourse(UserDto user, Course course);
     Optional<UserCourse> getUserCourse(Long userId, Long courseId);
-
     UserCourse createAdmin(UserDto user, Course course);
+    UserCourse createStudent(UserDto user, Course course);
 
 }
