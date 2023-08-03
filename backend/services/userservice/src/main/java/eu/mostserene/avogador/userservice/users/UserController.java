@@ -1,9 +1,11 @@
 package eu.mostserene.avogador.userservice.users;
 
 import eu.mostserene.avogador.userservice.security.AuthService;
+import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -90,6 +95,21 @@ public class UserController {
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+    }
+
+    /**
+     * Revokes all the existing jwt for the user in param.
+     * This call is allowed only from a superuser or the user himself
+     * @param request the request
+     * @param userId the id of the user whose tokens have to be revoked
+     */
+    @PatchMapping("/{userId}/revoke-jwt")
+    private void revokeJWTs(HttpServletRequest request, @PathVariable Long userId) {
+        AuthUserDTO requestUser = authService.getRequestUser(request);
+        if (!requestUser.getIsSuperuser() && !Objects.equals(requestUser.getId(), userId)) {
+            throw new ForbiddenException(requestUser);
+        }
+        authService.revokeUserJWTs(userId);
     }
 
 

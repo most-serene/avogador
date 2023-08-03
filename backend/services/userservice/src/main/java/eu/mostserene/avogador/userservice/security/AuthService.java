@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
+import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -106,6 +107,12 @@ public class AuthService {
     }
 
 
+    /**
+     * Given a token, returns the claimed user
+     * @param jwt the json web token expressed as string
+     * @return the user claimed by the jwt
+     * @throws ForbiddenException if the token has been revoked
+     */
     public AuthUserDTO decodeJwt(String jwt) {
         final ObjectMapper mapper = new ObjectMapper();
 
@@ -114,7 +121,25 @@ public class AuthService {
                 .parseClaimsJws(jwt)
                 .getBody();
 
-        return mapper.convertValue(jwsMap.get("user"), AuthUserDTO.class);
+        AuthUserDTO authUserDTO = mapper.convertValue(jwsMap.get("user"), AuthUserDTO.class);
+        Timestamp generationTimestamp = mapper.convertValue(jwsMap.get("generation_timestamp"), Timestamp.class);
+        checkIfRevoked(authUserDTO, generationTimestamp);
+        return authUserDTO;
+    }
+
+    /**
+     * If the jwt creation timestamp is before the user jwtValidity timestamp, a ForbiddenException is thrown
+     * @param authUserDTO the user claimed by the jwt
+     * @param generationTimestamp the timestamp included in the jwt
+     * @throws ForbiddenException thrown if the jwt has been revoked
+     * @throws NotFoundException if the user has been deleted previously
+     */
+    private void checkIfRevoked(AuthUserDTO authUserDTO, Timestamp generationTimestamp) {
+        if (userService.getUserById(authUserDTO.getId())
+                .orElseThrow(() -> new NotFoundException("User does not exist"))
+                .getJwtValidity().compareTo(generationTimestamp) > 0) {
+            throw new ForbiddenException("The token is revoked");
+        }
     }
 
     private String extractJwt(HttpServletRequest request) {
@@ -132,6 +157,24 @@ public class AuthService {
         }
     }
 
+    /**
+     * Revokes all the existing jwt of a user by setting at now the jwtValidity timestamp of the user
+     * @param userId the id of the user whose tokens have to be revoked
+     */
+    public void revokeUserJWTs(Long userId) {
+        User user = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("User " + userId));
+        user.setJwtValidity(Timestamp.from(Instant.now()));
+        userService.updateUser(user);
+    }
+
+    /**
+     * Record representing the GoogleUser returned by the call to the Google Auth API
+     * @param email
+     * @param domain
+     * @param givenName
+     * @param familyName
+     * @param picture
+     */
     public record GoogleUser(String email, String domain, String givenName, String familyName, String picture) { }
 
 }
