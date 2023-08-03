@@ -1,8 +1,8 @@
 package eu.mostserene.avogador.courseservice.courses;
 
+import eu.mostserene.avogador.courseservice.courses.dtos.CourseDetailDto;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
-import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -79,11 +79,12 @@ public class CourseController {
     /**
      * @param request the request object
      * @param courseId the id of the course
-     * @return the course corresponding to the id
+     * @return the course corresponding to the id together with the joinCode
      * @throws ResponseStatusException(403) if the UserCourse relation does not exist
+     * @throws ResponseStatusException(500) if the CourseService couldn't create a join code
      * */
     @GetMapping("/{courseId}")
-    private UserCourse getCourseById(HttpServletRequest request, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
+    private CourseDetailDto getCourseById(HttpServletRequest request, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
         var user = userService.getRequestUser(request);
 
         var userCourse =  userCourseService
@@ -93,7 +94,14 @@ public class CourseController {
         if (userCourse.getCourse().getIsArchived() && userCourse.getRole() != CourseRole.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
 
-        return userCourse;
+        if (userCourse.getRole() == CourseRole.STUDENT){
+            return new CourseDetailDto(userCourse.getCourse(), userCourse.getRole());
+        }
+        var joinCode = courseService.getJoinCode(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        return new CourseDetailDto(userCourse.getCourse(), joinCode, userCourse.getRole());
+
     }
 
     /**

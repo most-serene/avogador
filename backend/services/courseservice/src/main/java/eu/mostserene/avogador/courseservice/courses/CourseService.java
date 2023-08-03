@@ -7,4 +7,5 @@ public interface CourseService {
     Course updateCourse(Long id, Course course);
     Optional<Course> getCourse(Long id);
     void deleteCourse(Long courseId);
+    Optional<String> getJoinCode(Long courseId);
 }

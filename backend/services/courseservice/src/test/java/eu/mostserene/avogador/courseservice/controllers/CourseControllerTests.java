@@ -12,8 +12,6 @@ import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,13 +20,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
 
 @WebMvcTest(CourseController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -58,11 +61,9 @@ public class CourseControllerTests {
     class CreateCourse{
         @Test
         public void fromStudent_get403() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(courseService.createCourse(Mockito.any()))
+            when(courseService.createCourse(any()))
                 .thenReturn(course);
 
             mvc.perform(post("/public/courses")
@@ -75,11 +76,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromProfessor_get200() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(professorUser);
-            Mockito
-                .when(courseService.createCourse(Mockito.any()))
+            when(courseService.createCourse(any()))
                 .thenReturn(course);
 
             mvc.perform(post("/public/courses")
@@ -92,11 +91,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromProfessor_withArchivedTrue_get200() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(courseService.createCourse(Mockito.any()))
+            when(courseService.createCourse(any()))
                     .thenReturn(course);
 
             mvc.perform(post("/public/courses")
@@ -113,11 +110,9 @@ public class CourseControllerTests {
     class UpdateCourse{
         @Test
         public void wrongId_get400() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/2")
@@ -130,11 +125,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromOutside_get403() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/1")
@@ -147,11 +140,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromStudent_get403() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(student));
 
             mvc.perform(put("/public/courses/1")
@@ -164,11 +155,9 @@ public class CourseControllerTests {
 
         @Test
         public void withArchivedTrue_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(archivedAdmin));
 
             mvc.perform(put("/public/courses/1")
@@ -181,14 +170,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromCollaborator_get200() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(collaboratorUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(collaborator));
-            Mockito
-                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+            when(courseService.updateCourse(anyLong(), any()))
                 .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
@@ -201,14 +187,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(professorUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(admin));
-            Mockito
-                .when(courseService.updateCourse(Mockito.anyLong(), Mockito.any()))
+            when(courseService.updateCourse(anyLong(), any()))
                 .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
@@ -225,11 +208,9 @@ public class CourseControllerTests {
 
         @Test
         public void notMember_get403() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(get("/public/courses/1"))
@@ -239,11 +220,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromStudent_archivedCourse_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(new UserCourse(studentUser, archivedCourse, CourseRole.STUDENT)));
 
             mvc.perform(get("/public/courses/1"))
@@ -253,12 +232,12 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_archivedCourse_get200() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(archivedAdmin));
+            when(courseService.getJoinCode(anyLong()))
+                        .thenReturn(Optional.of("joincode"));
 
             mvc.perform(get("/public/courses/1"))
                     .andDo(print())
@@ -267,16 +246,42 @@ public class CourseControllerTests {
 
         @Test
         public void isMember_get200() throws Exception{
-            Mockito
-                .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                 .thenReturn(studentUser);
-            Mockito
-                .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(student));
 
             mvc.perform(get("/public/courses/1"))
                     .andDo(print())
                     .andExpect(status().isOk());
+        }
+
+        @Test
+        public void isStudent_get200_nullJoinCode() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.joinCode").isEmpty());
+        }
+
+        @Test
+        public void isAdmin_get200_nullJoinCode() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(admin));
+            when(courseService.getJoinCode(anyLong()))
+                    .thenReturn(Optional.of("joincode"));
+
+            mvc.perform(get("/public/courses/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.joinCode").isNotEmpty());
         }
     }
 
@@ -284,11 +289,9 @@ public class CourseControllerTests {
     class DeleteCourse{
         @Test
         public void fromOutside_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.empty());
 
             mvc.perform(delete("/public/courses/1"))
@@ -298,11 +301,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromStudent_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(student));
 
             mvc.perform(delete("/public/courses/1"))
@@ -312,11 +313,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromCollaborator_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(collaboratorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(collaborator));
 
             mvc.perform(delete("/public/courses/1"))
@@ -326,11 +325,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
 
             mvc.perform(delete("/public/courses/1"))
@@ -343,11 +340,9 @@ public class CourseControllerTests {
     class ArchiveCourse {
         @Test
         public void fromOutside_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/1/archive"))
@@ -357,11 +352,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromStudent_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(student));
 
             mvc.perform(put("/public/courses/1/archive"))
@@ -371,11 +364,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromCollaborator_get403() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(collaboratorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(collaborator));
 
             mvc.perform(put("/public/courses/1/archive"))
@@ -385,11 +376,9 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            Mockito
-                    .when(userService.getRequestUser(Mockito.any()))
+            when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
-            Mockito
-                    .when(userCourseService.getUserCourse(Mockito.anyLong(), Mockito.anyLong()))
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
 
             mvc.perform(put("/public/courses/1/archive"))
