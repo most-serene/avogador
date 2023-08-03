@@ -100,6 +100,7 @@ services:
       spring.jpa.properties.hibernate.dialect: ${COURSESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      joinCode.secret: ${JOINCODE_SECRET}
       # jwt.secret: ${JWT_SECRET}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
