@@ -4,6 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import LoginGoogle from "./components/authentication/LoginGoogle";
 import { avogadorApi } from "./utils/axiosConf";
+import Button from "@mui/material/Button";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -70,7 +71,8 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
-        <button
+        <Button
+          variant="outlined"
           onClick={() => {
             avogadorApi
               .get("/users/logout")
@@ -83,7 +85,7 @@ function App() {
           }}
         >
           Logout
-        </button>
+        </Button>
         <LoginGoogle />
       </div>
       <p className="read-the-docs">
