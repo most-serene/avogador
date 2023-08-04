@@ -38,4 +38,20 @@ public class UserCourseController {
                 .orElse(userCourseService.createStudent(user, course));
     }
 
+    @PutMapping("/collaborators/{userId}")
+    private UserCourse promoteToCollaborator(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
+        var user = userService.getRequestUser(request);
+        var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course"));
+
+        if (reqUserCourse.getRole() != CourseRole.ADMIN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course");
+        }
+
+        var targetUserCourse = userCourseService.getUserCourse(userId, courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not part of the course"));
+
+        return userCourseService.promoteToCollaborator(targetUserCourse);
+    }
+
 }
