@@ -135,11 +135,11 @@ public class CourseController {
         var user = userService.getRequestUser(request);
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course"));
         var course = userCourse.getCourse();
 
         if (userCourse.getRole() != CourseRole.ADMIN){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course");
         }
 
         course.setIsArchived(true);

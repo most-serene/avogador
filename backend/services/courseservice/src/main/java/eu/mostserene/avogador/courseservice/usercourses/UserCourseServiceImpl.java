@@ -27,4 +27,9 @@ public class UserCourseServiceImpl implements UserCourseService {
     public UserCourse createAdmin(UserDto user, Course course) {
         return repository.save(new UserCourse(user, course, CourseRole.ADMIN));
     }
+
+    @Override
+    public UserCourse createStudent(UserDto user, Course course) {
+        return repository.save(new UserCourse(user, course, CourseRole.STUDENT));
+    }
 }
