@@ -5,6 +5,7 @@ import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,22 @@ public class UserCourseController {
 
         return userCourseService.getUserCourse(user.getId(), courseId)
                 .orElse(userCourseService.createStudent(user, course));
+    }
+
+    @PutMapping("/collaborators/{userId}")
+    private UserCourse promoteToCollaborator(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
+        var user = userService.getRequestUser(request);
+        var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course"));
+
+        if (reqUserCourse.getRole() != CourseRole.ADMIN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course");
+        }
+
+        var targetUserCourse = userCourseService.getUserCourse(userId, courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not part of the course"));
+
+        return userCourseService.promoteToCollaborator(targetUserCourse);
     }
 
 }

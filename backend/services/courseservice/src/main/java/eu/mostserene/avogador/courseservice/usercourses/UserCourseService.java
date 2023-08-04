@@ -11,4 +11,6 @@ public interface UserCourseService {
     UserCourse createAdmin(UserDto user, Course course);
     UserCourse createStudent(UserDto user, Course course);
 
+    UserCourse promoteToCollaborator(UserCourse userCourse);
+
 }

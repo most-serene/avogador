@@ -32,4 +32,10 @@ public class UserCourseServiceImpl implements UserCourseService {
     public UserCourse createStudent(UserDto user, Course course) {
         return repository.save(new UserCourse(user, course, CourseRole.STUDENT));
     }
+
+    @Override
+    public UserCourse promoteToCollaborator(UserCourse userCourse) {
+        userCourse.setRole(CourseRole.COLLABORATOR);
+        return userCourse;
+    }
 }
