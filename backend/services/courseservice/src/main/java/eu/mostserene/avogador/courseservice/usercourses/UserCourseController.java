@@ -5,7 +5,6 @@ import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
