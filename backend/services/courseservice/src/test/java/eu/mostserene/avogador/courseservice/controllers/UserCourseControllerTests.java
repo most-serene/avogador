@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserCourseController.class)
@@ -78,20 +79,20 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void alreadyPresent_get403() throws Exception{
+        public void alreadyPresent_get200() throws Exception{
             when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
+                    .thenReturn(professorUser);
             when(courseService.getCourse(anyLong()))
                     .thenReturn(Optional.of(course));
             when(courseService.getJoinCode(anyLong()))
                     .thenReturn(Optional.of("7ba32aca07cc92001d74537d5ff775343390210f6812450d844bb9a24598c3ff"));
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
-                    .thenReturn(Optional.of(student));
+                    .thenReturn(Optional.of(admin));
 
             mvc.perform(put("/public/courses/1/join/7ba32aca07cc92001d74537d5ff775343390210f6812450d844bb9a24598c3ff"))
                     .andDo(print())
-                    .andExpect(status().isForbidden())
-                    .andExpect(status().reason("You are already part of the course"));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.role").value("ADMIN"));
         }
 
         @Test

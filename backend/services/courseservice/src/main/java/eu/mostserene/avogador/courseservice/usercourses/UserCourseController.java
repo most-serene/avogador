@@ -33,11 +33,9 @@ public class UserCourseController {
         if (!reqJoinCode.equals(joinCode)){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong join code");
         }
-        if (userCourseService.getUserCourse(user.getId(), courseId).isPresent()){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are already part of the course");
-        }
 
-        return userCourseService.createStudent(user, course);
+        return userCourseService.getUserCourse(user.getId(), courseId)
+                .orElse(userCourseService.createStudent(user, course));
     }
 
 }
