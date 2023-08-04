@@ -33,7 +33,7 @@ public class CustomWebFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String uri = exchange.getRequest().getURI().getPath();
 
-        if (!checkCSRF(exchange.getRequest())) {
+        if (isCSRF(exchange.getRequest())) {
             ResponseCookie cookie = ResponseCookie.from("jwt", "")
                     .path("/")
                     .httpOnly(true)
@@ -73,10 +73,10 @@ public class CustomWebFilter implements WebFilter {
         }
     }
 
-    private boolean checkCSRF(ServerHttpRequest request) {
+    private boolean isCSRF(ServerHttpRequest request) {
         HttpCookie jwtCookie = request.getCookies().getFirst("jwt");
 
-        if (jwtCookie == null) return true;
+        if (jwtCookie == null) return false;
 
         String jwtHash = Hashing.sha256()
                 .hashString(jwtCookie.getValue(), StandardCharsets.UTF_8)
@@ -85,6 +85,6 @@ public class CustomWebFilter implements WebFilter {
         String jwtSubHash = jwtHash.substring(jwtHash.length() - 20);
         log.info(request.getHeaders().getFirst("Jwt-CSRF-Hash") + " " + jwtSubHash);
 
-        return jwtSubHash.equals(request.getHeaders().getFirst("Jwt-CSRF-Hash"));
+        return !jwtSubHash.equals(request.getHeaders().getFirst("Jwt-CSRF-Hash"));
     }
 }
