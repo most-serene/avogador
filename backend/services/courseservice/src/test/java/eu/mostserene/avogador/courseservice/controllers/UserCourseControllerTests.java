@@ -46,6 +46,7 @@ public class UserCourseControllerTests {
     private final UserCourse student = new UserCourse(studentUser, course, CourseRole.STUDENT);
     private final UserCourse promotedStudent = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
+    private final UserCourse demotedCollaborator = new UserCourse(studentUser, course, CourseRole.STUDENT);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
     private final UserCourse archivedAdmin = new UserCourse(professorUser, archivedCourse, CourseRole.ADMIN);
 
@@ -174,6 +175,70 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("COLLABORATOR"));
+        }
+    }
+
+    @Nested
+    class DemoteToCollaborator {
+        @Test
+        public void fromOutside_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/courses/1/students/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You cannot demote users in this course"));
+        }
+
+        @Test
+        public void fromStudent_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(student));
+
+
+            mvc.perform(put("/public/courses/1/students/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You cannot demote users in this course"));
+        }
+
+        @Test
+        public void promotedUserIsNotMember_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(admin));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, 1L)), anyLong()))
+                    .thenReturn(Optional.empty());
+
+
+            mvc.perform(put("/public/courses/1/students/1"))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason("User is not part of the course"));
+        }
+
+        @Test
+        public void everythingRight_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(admin));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, 1L)), anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+            when(userCourseService.demoteToStudent(any()))
+                    .thenReturn(demotedCollaborator);
+
+
+            mvc.perform(put("/public/courses/1/students/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.role").value("STUDENT"));
         }
     }
 }
