@@ -10,7 +10,7 @@ public interface UserCourseService {
     Optional<UserCourse> getUserCourse(Long userId, Long courseId);
     UserCourse createAdmin(UserDto user, Course course);
     UserCourse createStudent(UserDto user, Course course);
-
     UserCourse promoteToCollaborator(UserCourse userCourse);
+    UserCourse demoteToStudent(UserCourse userCourse);
 
 }

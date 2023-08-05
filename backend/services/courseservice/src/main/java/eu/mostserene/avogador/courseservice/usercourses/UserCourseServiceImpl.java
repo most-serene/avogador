@@ -38,4 +38,10 @@ public class UserCourseServiceImpl implements UserCourseService {
         userCourse.setRole(CourseRole.COLLABORATOR);
         return userCourse;
     }
+
+    @Override
+    public UserCourse demoteToStudent(UserCourse userCourse) {
+        userCourse.setRole(CourseRole.STUDENT);
+        return userCourse;
+    }
 }
