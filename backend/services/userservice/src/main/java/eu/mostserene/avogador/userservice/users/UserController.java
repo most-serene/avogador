@@ -78,7 +78,7 @@ public class UserController {
         ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("jwt", authService.generateJWT(user, 0))
                 .httpOnly(true)
                 .path("/")
-                .sameSite("Strict");
+                .sameSite("None");
 
         ResponseCookie jwtCookie = ("dev".equals(activeProfile)) ? jwtBuilder.build() : jwtBuilder.secure(true).build();
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
