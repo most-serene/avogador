@@ -7,4 +7,5 @@ public interface UserService {
     UserDto getUser(Long id) throws NotFoundException;
     UserDto getUser(String email);
     UserDto getRequestUser(HttpServletRequest request);
+    String getRequestID(HttpServletRequest request);
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
@@ -32,6 +33,7 @@ public class CustomWebFilter implements WebFilter {
     @Order(5)
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String uri = exchange.getRequest().getURI().getPath();
+        String requestId = RandomStringUtils.randomAlphanumeric(10);
 
         if (isCSRF(exchange.getRequest())) {
             ResponseCookie cookie = ResponseCookie.from("jwt", "")
@@ -45,7 +47,12 @@ public class CustomWebFilter implements WebFilter {
         }
 
         if ("/users/google-auth".equals(uri) || "/users/logout".equals(uri) || "/".equals(uri)) {
-            return chain.filter(exchange);
+            return chain.filter(
+                    exchange.mutate().request(
+                                    exchange.getRequest().mutate()
+                                            .header("Request-ID", requestId)
+                                            .build())
+                            .build());
         }
 
         HttpCookie cookie = exchange.getRequest().getCookies().getFirst("jwt");
@@ -62,6 +69,7 @@ public class CustomWebFilter implements WebFilter {
                         exchange.mutate().request(
                                         exchange.getRequest().mutate()
                                                 .header("User", objectMapper.writeValueAsString(user))
+                                                .header("Request-ID", requestId)
                                                 .build())
                                 .build());
             } catch (JsonProcessingException e) {

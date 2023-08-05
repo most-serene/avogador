@@ -20,4 +20,14 @@ public class UserServiceImpl implements UserService {
     public UserDto getRequestUser(HttpServletRequest request) {
         throw new UnsupportedOperationException("Method not implemented");
     }
+
+    /**
+     * Get the ID of a request
+     * @param request the current request
+     * @return the ID as String
+     */
+    @Override
+    public String getRequestID(HttpServletRequest request) {
+        return request.getHeader("Request-ID");
+    }
 }
