@@ -49,6 +49,8 @@ pipeline {
                         gradle wrapper
 
                         ./gradlew clean assemble
+
+                        cp backend/apigateway/build/libs/* /home/avogador/jars/
                     '''
                 }
                 
@@ -58,6 +60,8 @@ pipeline {
                         gradle wrapper
 
                         ./gradlew clean assemble
+
+                        cp backend/services/courseservice/build/libs/* /home/avogador/jars/
                     '''
                 }
 
@@ -67,6 +71,8 @@ pipeline {
                         gradle wrapper
                         
                         ./gradlew clean assemble
+
+                        cp backend/services/userservice/build/libs/* /home/avogador/jars/
                     '''
                 }
                 
@@ -129,18 +135,6 @@ pipeline {
             }
             steps {
                 echo 'Staging Deliver started'
-
-                sh """
-                    ls
-                    ls backend
-                    ls backend/apigateway
-                    ls backend/apigateway/build
-                    ls backend/apigateway/build/libs/
-                    
-                    cp backend/apigateway/build/libs/* /home/avogador/jars/
-                    cp backend/services/userservice/build/libs/* /home/avogador/jars/
-                    cp backend/services/courseservice/build/libs/* /home/avogador/jars/
-                """
 
                 /*
                 sh '''
