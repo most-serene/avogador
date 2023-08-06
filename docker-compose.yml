@@ -7,7 +7,7 @@ services:
     build:
       context: ./backend/apigateway
       network: host
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: ${APIGATEWAY_TARGET}
     logging:
       driver: json-file
@@ -42,7 +42,7 @@ services:
     build:
       context: ./backend/services/userservice
       network: host
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: ${USERSERVICE_TARGET}
     logging:
       driver: json-file
@@ -90,7 +90,7 @@ services:
     build:
       context: ./backend/services/courseservice
       network: host
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: ${COURSESERVICE_TARGET}
     logging:
       driver: json-file
