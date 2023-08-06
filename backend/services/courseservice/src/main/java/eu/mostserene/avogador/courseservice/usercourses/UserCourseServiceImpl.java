@@ -2,7 +2,6 @@ package eu.mostserene.avogador.courseservice.usercourses;
 
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.users.UserDto;
-import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +46,8 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public List<UserCourse> getCoursesByUserId(Long userId) {
-        return repository.findByUserId(userId);
+    public List<UserCourse> getCoursesByUserId(Long userId, Boolean isArchived) {
+        return repository.findByUserIdAndCourse_IsArchived(userId, isArchived);
     }
 
     @Override

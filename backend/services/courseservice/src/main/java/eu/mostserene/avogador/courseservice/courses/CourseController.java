@@ -53,6 +53,7 @@ public class CourseController {
      * @return the updated course
      * @throws ResponseStatusException(400) if courseId and reqCourse.id mismatch
      * @throws ResponseStatusException(403) if the user is not part of the course or has student role
+     * @throws ResponseStatusException(403) if the course is archived
      * */
     @PutMapping("/{courseId}")
     private Course updateCourse(HttpServletRequest request, @PathVariable Long courseId, @RequestBody Course reqCourse){
@@ -70,7 +71,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify this course");
         }
         if (course.getIsArchived()){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify an archived course");
+            throw new ArchivedCourseException();
         }
 
         return courseService.updateCourse(courseId, reqCourse);
