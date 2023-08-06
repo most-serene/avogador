@@ -72,6 +72,7 @@ pipeline {
                 
                 sh '''
                     cd frontend
+                    cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
                     yarn
                     yarn build
                 '''
@@ -115,7 +116,6 @@ pipeline {
                 
                 sh '''
                     cd frontend
-                    yarn
                     yarn test run
                     yarn lint
                 '''
