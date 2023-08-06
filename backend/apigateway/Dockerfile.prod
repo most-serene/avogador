@@ -1,3 +1,3 @@
 FROM openjdk AS run
-RUN curl -k https://dev-server.sanve.mostserene.eu/jars/apigateway.jar
+RUN curl -k https://dev-server.sanve.mostserene.eu/jars/apigateway.jar --output apigateway.jar
 ENTRYPOINT ["java","-jar","/apigateway.jar"]
