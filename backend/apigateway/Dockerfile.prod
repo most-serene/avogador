@@ -1,4 +1,3 @@
 FROM openjdk AS run
-RUN wget https://dev-server.sanve.mostserene.eu/jars/apigateway.jar  --no-check-certificate
-COPY apigateway.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+RUN wget https://dev-server.sanve.mostserene.eu/jars/apigateway.jar --no-check-certificate
+ENTRYPOINT ["java","-jar","/apigateway.jar"]
