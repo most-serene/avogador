@@ -130,6 +130,12 @@ pipeline {
             steps {
                 echo 'Staging Deliver started'
 
+                sh """
+                    cp backend/apigateway/build/libs/* /home/avogador/jars/
+                    cp backend/services/userservice/build/libs/* /home/avogador/jars/
+                    cp backend/services/courseservice/build/libs/* /home/avogador/jars/
+                """
+
                 /*
                 sh '''
                     cd frontend
