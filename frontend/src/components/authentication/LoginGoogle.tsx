@@ -19,6 +19,7 @@ const LoginGoogle = () => {
         }) => {
           console.log(data);
           avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = data.hash;
+          localStorage.setItem("Jwt-CSRF-Hash", data.hash);
           setUser(data);
         },
       )
