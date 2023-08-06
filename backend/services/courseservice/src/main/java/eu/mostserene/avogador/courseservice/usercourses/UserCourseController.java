@@ -7,11 +7,14 @@ import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/public/courses/{courseId}")
+@RequestMapping("/public/courses")
 public class UserCourseController {
     @Autowired
     private UserService userService;
@@ -22,7 +25,7 @@ public class UserCourseController {
     @Autowired
     private FileSystemService fileSystemService;
 
-    @PutMapping("/join/{reqJoinCode}")
+    @PutMapping("/{courseId}/join/{reqJoinCode}")
     private UserCourse joinCourse(HttpServletRequest request, @PathVariable Long courseId, @PathVariable String reqJoinCode){
         var user = userService.getRequestUser(request);
         var course = courseService.getCourse(courseId)
@@ -38,7 +41,7 @@ public class UserCourseController {
                 .orElse(userCourseService.createStudent(user, course));
     }
 
-    @PutMapping("/collaborators/{userId}")
+    @PutMapping("/{courseId}/collaborators/{userId}")
     private UserCourse promoteToCollaborator(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
         var user = userService.getRequestUser(request);
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
@@ -54,7 +57,7 @@ public class UserCourseController {
         return userCourseService.promoteToCollaborator(targetUserCourse);
     }
 
-    @PutMapping("/students/{userId}")
+    @PutMapping("/{courseId}/students/{userId}")
     private UserCourse demoteToStudent(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
         var user = userService.getRequestUser(request);
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
@@ -68,6 +71,16 @@ public class UserCourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not part of the course"));
 
         return userCourseService.demoteToStudent(targetUserCourse);
+    }
+
+    @GetMapping("/users/{userId}")
+    private List<UserCourse> getCoursesByUser(HttpServletRequest request, @PathVariable Long userId){
+        var user = userService.getRequestUser(request);
+        if (!userId.equals(user.getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
+        }
+
+        return userCourseService.getCoursesByUser(userId);
     }
 
 }

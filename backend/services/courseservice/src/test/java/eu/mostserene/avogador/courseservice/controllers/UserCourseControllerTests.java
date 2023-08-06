@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -239,6 +240,32 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.role").value("STUDENT"));
+        }
+    }
+
+    @Nested
+    class getCoursesByUser {
+        @Test
+        public void idMismatch_get400() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+
+            mvc.perform(get("/public/courses/users/2"))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason("You can't spy on others!"));
+        }
+
+        @Test
+        public void everythingRight_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getCoursesByUser(anyLong()))
+                    .thenReturn(List.of());
+
+            mvc.perform(get("/public/courses/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
         }
     }
 }
