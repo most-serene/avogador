@@ -22,6 +22,7 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-mail:3.0.4")
 	implementation("com.google.guava:guava:31.1-jre")
 	implementation("javax.xml.bind:jaxb-api:2.3.1")
 	implementation("com.sun.xml.bind:jaxb-impl:2.2.5-b10")

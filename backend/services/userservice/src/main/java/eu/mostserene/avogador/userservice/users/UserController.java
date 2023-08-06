@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
+import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
@@ -29,6 +30,9 @@ public class UserController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -69,11 +73,16 @@ public class UserController {
             innerUser.setGivenName(googleUser.givenName());
             innerUser.setFamilyName(googleUser.familyName());
             return userService.updateUser(innerUser);
-        }).orElseGet(() -> userService.createUser(new User(
+        }).orElseGet(() -> {
+            emailService.sendSimpleEmail(googleUser.email(), "Welcome to Avogador!",
+                    "Hi " + googleUser.givenName() + "!\nYou have been successfully registered to Avogador, enjoy!");
+
+            return userService.createUser(new User(
                 googleUser.email(),
                 googleUser.givenName(),
-                googleUser.familyName()
-        )));
+                googleUser.familyName())
+            );
+        });
 
         ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("jwt", authService.generateJWT(user, 0))
                 .httpOnly(true)
