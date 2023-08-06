@@ -47,7 +47,12 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public List<UserCourse> getCoursesByUser(Long userId) {
+    public List<UserCourse> getCoursesByUserId(Long userId) {
         return repository.findByUserId(userId);
+    }
+
+    @Override
+    public List<UserCourse> getUsersbyCourseId(Long courseId) {
+        return repository.findByCourse_Id(courseId);
     }
 }
