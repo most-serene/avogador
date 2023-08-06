@@ -14,5 +14,6 @@ public interface UserCourseService {
     UserCourse promoteToCollaborator(UserCourse userCourse);
     UserCourse demoteToStudent(UserCourse userCourse);
     List<UserCourse> getCoursesByUserId(Long userId);
-    List<UserCourse> getUsersbyCourseId(Long courseId);
+    List<UserCourse> getUsersByCourseId(Long courseId);
+    void removeRealation(UserCourse userCourse);
 }
