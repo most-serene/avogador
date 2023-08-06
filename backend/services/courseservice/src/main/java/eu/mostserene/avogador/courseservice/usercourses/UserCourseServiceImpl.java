@@ -52,7 +52,12 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public List<UserCourse> getUsersbyCourseId(Long courseId) {
+    public List<UserCourse> getUsersByCourseId(Long courseId) {
         return repository.findByCourse_Id(courseId);
+    }
+
+    @Override
+    public void removeRealation(UserCourse userCourse) {
+        repository.delete(userCourse);
     }
 }

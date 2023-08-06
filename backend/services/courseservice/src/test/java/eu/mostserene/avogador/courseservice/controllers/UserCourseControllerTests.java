@@ -38,13 +38,12 @@ public class UserCourseControllerTests {
     private final Course course = new Course("course", "2023/2024", false);
     private final Course archivedCourse = new Course("archivedCourse", "2023/2024", true);
     private final Course updatedCourse = new Course("course2", "2023/2024", false);
-    private final String courseJSON = "{\"name\": \"course\", \"year\": \"2023/2024\"}";
-    private final String updatedCourseJSON = "{\"id\": 1, \"name\": \"course2\", \"year\": \"2023/2024\"}";
-    private final String hackedCourseJSON = "{\"id\": 1, \"name\": \"course\", \"year\": \"2023/2024\", \"isArchived\": true}";
     private final UserDto studentUser = new UserDto(1L, "student@stud.unive.it", "Student", "1", false, false);
+    private final UserDto secondStudentUser = new UserDto(4L, "student@stud.unive.it", "Student", "1", false, false);
     private final UserDto collaboratorUser = new UserDto(2L, "collaborator@stud.unive.it", "Collaborator", "1", false, false);
     private final UserDto professorUser = new UserDto(3L, "professor@unive.it", "Professor", "1", true, false);
     private final UserCourse student = new UserCourse(studentUser, course, CourseRole.STUDENT);
+    private final UserCourse secondStudent = new UserCourse(secondStudentUser, course, CourseRole.STUDENT);
     private final UserCourse promotedStudent = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse demotedCollaborator = new UserCourse(studentUser, course, CourseRole.STUDENT);
@@ -303,7 +302,7 @@ public class UserCourseControllerTests {
                     .thenReturn(collaboratorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(collaborator));
-            when(userCourseService.getUsersbyCourseId(anyLong()))
+            when(userCourseService.getUsersByCourseId(anyLong()))
                     .thenReturn(List.of());
 
             mvc.perform(get("/public/courses/2/users"))
@@ -317,10 +316,121 @@ public class UserCourseControllerTests {
                     .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
-            when(userCourseService.getUsersbyCourseId(anyLong()))
+            when(userCourseService.getUsersByCourseId(anyLong()))
                     .thenReturn(List.of());
 
-            mvc.perform(get("/public/courses/2/users"))
+            mvc.perform(get("/public/courses/1/users"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class LeaveCourse {
+        @Test
+        public void notMember_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(delete("/public/courses/1/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You are not part of this course"));
+        }
+
+        @Test
+        public void adminSelfDelete_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(admin));
+
+            mvc.perform(delete("/public/courses/1/users/3"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("An admin cannot remove themselves"));
+        }
+
+        @Test
+        public void studentDeleteAdmin_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, studentUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(student));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(admin));
+
+            mvc.perform(delete("/public/courses/1/users/3"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You cannot remove this user"));
+        }
+
+        @Test
+        public void studentDeleteStudent_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, studentUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(student));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, secondStudentUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(secondStudent));
+
+            mvc.perform(delete("/public/courses/1/users/4"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You cannot remove this user"));
+        }
+
+        @Test
+        public void collaboratorDeleteStudent_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(collaboratorUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, studentUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(delete("/public/courses/1/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void adminDeleteCollaborator_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(admin));
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+
+            mvc.perform(delete("/public/courses/1/users/2"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void studentSelfDelete_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, studentUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(delete("/public/courses/1/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void collaboratorSelfDelete_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(collaboratorUser);
+            when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+
+            mvc.perform(delete("/public/courses/1/users/2"))
                     .andDo(print())
                     .andExpect(status().isOk());
         }
