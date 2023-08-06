@@ -84,7 +84,7 @@ pipeline {
                         sh """
                             cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
                             cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
-                            cp backend/services/userservice/build/libs/*build/libs/* /share/jars/userservice.jar
+                            cp backend/services/userservice/build/libs/* /share/jars/userservice.jar
                         """
                     }
 
