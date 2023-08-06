@@ -1,3 +1,3 @@
 FROM openjdk AS run
-COPY jars/courseservice*.jar app.jar
+COPY /home/avogador/jars/courseservice*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
