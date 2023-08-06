@@ -1,3 +1,4 @@
 FROM openjdk AS run
-COPY /home/avogador/jars/courseservice*.jar app.jar
+RUN wget https://dev-server.sanve.mostserene.eu/jars/courseservice.jar  --no-check-certificate
+COPY courseservice.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]

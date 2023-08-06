@@ -50,7 +50,7 @@ pipeline {
 
                         ./gradlew clean assemble
 
-                        cp build/libs/* /home/avogador/jars/
+                        cp build/libs/* /share/jars/apigateway.jar
                     '''
                 }
                 
@@ -61,7 +61,7 @@ pipeline {
 
                         ./gradlew clean assemble
 
-                        cp build/libs/* /home/avogador/jars/
+                        cp build/libs/* /share/jars/courseservice.jar
                     '''
                 }
 
@@ -72,7 +72,7 @@ pipeline {
                         
                         ./gradlew clean assemble
 
-                        cp build/libs/* /home/avogador/jars/
+                        cp build/libs/* /share/jars/userservice.jar
                     '''
                 }
                 
