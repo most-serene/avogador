@@ -42,9 +42,41 @@ pipeline {
             steps {
                 setBuildPending()
                 echo "Build started"
-                sh """
-                BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --env-file $JENKINS_HOME/.envvars/avogador/development.env build
-                """
+
+                withGradle {
+                    sh '''
+                        cd backend/apigateway
+                        gradle wrapper
+
+                        ./gradlew clean assemble
+                    '''
+                }
+                
+                withGradle {
+                    sh '''
+                        cd backend/services/courseservice
+                        gradle wrapper
+
+                        ./gradlew clean assemble
+                    '''
+                }
+
+                withGradle {
+                    sh '''
+                        cd backend/services/userservice
+                        gradle wrapper
+                        
+                        ./gradlew clean assemble
+                    '''
+                }
+                
+                sh '''
+                    cd frontend
+                    cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
+                    yarn
+                    yarn build
+                '''
+                
                 echo "Build finished"
             }
         }
@@ -57,7 +89,6 @@ pipeline {
                         mkdir -p backend/apigateway/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
                         cd backend/apigateway
-                        gradle wrapper
 
                         ./gradlew clean test
                     '''
@@ -68,7 +99,6 @@ pipeline {
                         mkdir -p backend/services/courseservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
                         cd backend/services/courseservice
-                        gradle wrapper
 
                         ./gradlew clean test
                     '''
@@ -79,7 +109,6 @@ pipeline {
                         mkdir -p backend/services/userservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
-                        gradle wrapper
                         
                         ./gradlew clean test
                     '''
@@ -87,7 +116,6 @@ pipeline {
                 
                 sh '''
                     cd frontend
-                    yarn
                     yarn test run
                     yarn lint
                 '''
@@ -101,6 +129,10 @@ pipeline {
             }
             steps {
                 echo 'Staging Deliver started'
+                sh '''
+                    cd frontend
+                    cp -r node_modules $JENKINS_HOME/.envvars/avogador/node_modules
+                '''
 
                 //ssh ${STAGING_HOST} 'bin/MaintenanceAvogador' || true
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
