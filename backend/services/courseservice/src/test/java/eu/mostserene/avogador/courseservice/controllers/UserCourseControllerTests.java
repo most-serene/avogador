@@ -244,7 +244,7 @@ public class UserCourseControllerTests {
     }
 
     @Nested
-    class getCoursesByUser {
+    class GetCoursesByUser {
         @Test
         public void idMismatch_get400() throws Exception{
             when(userService.getRequestUser(any()))
@@ -260,10 +260,67 @@ public class UserCourseControllerTests {
         public void everythingRight_get200() throws Exception{
             when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            when(userCourseService.getCoursesByUser(anyLong()))
+            when(userCourseService.getCoursesByUserId(anyLong()))
                     .thenReturn(List.of());
 
             mvc.perform(get("/public/courses/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class GetUsersByCourse {
+        @Test
+        public void wrongCourseId_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/courses/2/users"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You are not part of this course"));
+        }
+
+        @Test
+        public void fromStudent_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(studentUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(student));
+
+            mvc.perform(get("/public/courses/2/users"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("You cannot see the participants of this course"));
+        }
+
+        @Test
+        public void fromCollaborator_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(collaboratorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(collaborator));
+            when(userCourseService.getUsersbyCourseId(anyLong()))
+                    .thenReturn(List.of());
+
+            mvc.perform(get("/public/courses/2/users"))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromAdmin_get200() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(admin));
+            when(userCourseService.getUsersbyCourseId(anyLong()))
+                    .thenReturn(List.of());
+
+            mvc.perform(get("/public/courses/2/users"))
                     .andDo(print())
                     .andExpect(status().isOk());
         }

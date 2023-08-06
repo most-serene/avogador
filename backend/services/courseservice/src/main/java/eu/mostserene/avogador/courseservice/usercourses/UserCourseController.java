@@ -7,7 +7,6 @@ import eu.mostserene.avogador.courseservice.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -80,7 +79,19 @@ public class UserCourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
 
-        return userCourseService.getCoursesByUser(userId);
+        return userCourseService.getCoursesByUserId(userId);
+    }
+
+    @GetMapping("/{courseId}/users")
+    private List<UserCourse> getUsersByCourse(HttpServletRequest request, @PathVariable Long courseId){
+        var user = userService.getRequestUser(request);
+        var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
+        if (userCourse.getRole() == CourseRole.STUDENT){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course");
+        }
+
+        return userCourseService.getUsersbyCourseId(courseId);
     }
 
 }
