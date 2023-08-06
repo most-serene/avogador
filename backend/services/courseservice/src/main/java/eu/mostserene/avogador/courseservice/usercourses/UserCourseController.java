@@ -4,10 +4,10 @@ package eu.mostserene.avogador.courseservice.usercourses;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserService;
+import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -80,7 +80,42 @@ public class UserCourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
 
-        return userCourseService.getCoursesByUser(userId);
+        return userCourseService.getCoursesByUserId(userId);
+    }
+
+    @GetMapping("/{courseId}/users")
+    private List<UserCourse> getUsersByCourse(HttpServletRequest request, @PathVariable Long courseId){
+        var user = userService.getRequestUser(request);
+        var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
+        if (userCourse.getRole() == CourseRole.STUDENT){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course");
+        }
+
+        return userCourseService.getUsersByCourseId(courseId);
+    }
+
+    @DeleteMapping("/{courseId}/users/{userId}")
+    private void leaveCourse(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
+        var user = userService.getRequestUser(request);
+        var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId).
+                orElseThrow(NotMemberException::new);
+
+        if (userId.equals(user.getId()) && reqUserCourse.getRole() == CourseRole.ADMIN){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "An admin cannot remove themselves");
+        }
+        if (userId.equals(user.getId())){
+            userCourseService.removeRealation(reqUserCourse);
+            return;
+        }
+
+        var targetUserCourse = userCourseService.getUserCourse(userId, courseId)
+                .orElseThrow(NotFoundException::new);
+
+        if (targetUserCourse.getRole().getClearance() >= reqUserCourse.getRole().getClearance()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot remove this user");
+        }
+        userCourseService.removeRealation(targetUserCourse);
     }
 
 }

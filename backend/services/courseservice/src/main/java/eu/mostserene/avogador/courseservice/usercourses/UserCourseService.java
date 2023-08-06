@@ -13,6 +13,7 @@ public interface UserCourseService {
     UserCourse createStudent(UserDto user, Course course);
     UserCourse promoteToCollaborator(UserCourse userCourse);
     UserCourse demoteToStudent(UserCourse userCourse);
-    List<UserCourse> getCoursesByUser(Long userId);
-
+    List<UserCourse> getCoursesByUserId(Long userId);
+    List<UserCourse> getUsersByCourseId(Long courseId);
+    void removeRealation(UserCourse userCourse);
 }
