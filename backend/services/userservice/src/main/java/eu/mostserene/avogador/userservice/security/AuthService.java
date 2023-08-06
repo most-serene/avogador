@@ -158,6 +158,15 @@ public class AuthService {
     }
 
     /**
+     * Get the ID of a request
+     * @param request the current request
+     * @return the ID as String
+     */
+    public String getRequestID(HttpServletRequest request) {
+        return request.getHeader("Request-ID");
+    }
+
+    /**
      * Revokes all the existing jwt of a user by setting at now the jwtValidity timestamp of the user
      * @param userId the id of the user whose tokens have to be revoked
      */
