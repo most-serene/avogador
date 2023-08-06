@@ -17,6 +17,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -87,6 +88,7 @@ public class UserController {
         ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("jwt", authService.generateJWT(user, 0))
                 .httpOnly(true)
                 .path("/")
+                .maxAge(Duration.ofDays(7))
                 .sameSite("None");
 
         ResponseCookie jwtCookie = ("dev".equals(activeProfile)) ? jwtBuilder.build() : jwtBuilder.secure(true).build();
