@@ -6,6 +6,7 @@ import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,5 +44,10 @@ public class UserCourseServiceImpl implements UserCourseService {
     public UserCourse demoteToStudent(UserCourse userCourse) {
         userCourse.setRole(CourseRole.STUDENT);
         return userCourse;
+    }
+
+    @Override
+    public List<UserCourse> getCoursesByUser(Long userId) {
+        return repository.findByUserId(userId);
     }
 }

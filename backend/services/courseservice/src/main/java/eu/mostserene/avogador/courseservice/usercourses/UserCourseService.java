@@ -3,6 +3,7 @@ package eu.mostserene.avogador.courseservice.usercourses;
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserCourseService {
@@ -12,5 +13,6 @@ public interface UserCourseService {
     UserCourse createStudent(UserDto user, Course course);
     UserCourse promoteToCollaborator(UserCourse userCourse);
     UserCourse demoteToStudent(UserCourse userCourse);
+    List<UserCourse> getCoursesByUser(Long userId);
 
 }
