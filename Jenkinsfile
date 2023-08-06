@@ -49,8 +49,6 @@ pipeline {
                         gradle wrapper
 
                         ./gradlew clean assemble
-
-                        cp build/libs/* /share/jars/apigateway.jar
                     '''
                 }
                 
@@ -60,8 +58,6 @@ pipeline {
                         gradle wrapper
 
                         ./gradlew clean assemble
-
-                        cp build/libs/* /share/jars/courseservice.jar
                     '''
                 }
 
@@ -71,8 +67,6 @@ pipeline {
                         gradle wrapper
                         
                         ./gradlew clean assemble
-
-                        cp build/libs/* /share/jars/userservice.jar
                     '''
                 }
                 
@@ -82,6 +76,15 @@ pipeline {
                     yarn
                     yarn build
                 '''
+
+                if (env.BRANCH_NAME == 'master') {
+                    echo "Publish JARs"
+                    sh """
+                        cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
+                        cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
+                        cp backend/services/userservice/build/libs/*build/libs/* /share/jars/userservice.jar
+                    """
+                }
                 
                 echo "Build finished"
             }
