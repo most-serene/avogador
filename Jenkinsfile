@@ -73,8 +73,6 @@ pipeline {
                 sh '''
                     cd frontend
                     cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
-                    ls
-                    ls node_modules
                     yarn
                     yarn build
                 '''
@@ -131,6 +129,10 @@ pipeline {
             }
             steps {
                 echo 'Staging Deliver started'
+                sh '''
+                    cd frontend
+                    cp -r node_modules $JENKINS_HOME/.envvars/avogador/node_modules
+                '''
 
                 //ssh ${STAGING_HOST} 'bin/MaintenanceAvogador' || true
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
