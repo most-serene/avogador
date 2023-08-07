@@ -38,26 +38,56 @@ public class UserController {
     @Value("${spring.profiles.active}")
     private String activeProfile;
 
+    /**
+     * Get a user by id, if called by a student, and he's not himself, the email is obfuscated
+     * @param request the current request
+     * @param userId the id of the user
+     * @return the corresponding user
+     */
     @GetMapping("/{userId}")
-    private User getUserById(@PathVariable Long userId) {
-        // TODO: AVG-35 - enforce auth
-        return userService.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("User " + userId));
+    private AuthUserDTO getUserById(HttpServletRequest request, @PathVariable Long userId) {
+        return authService.executeOnRole(request,
+                student -> userService.getUserById(userId)
+                        .map(user -> {
+                            if (!student.getId().equals(userId)) {
+                                user.setEmail("xxx@xxx.xxx");
+                            }
+                            return user;
+                        }),
+                professor -> userService.getUserById(userId),
+                superuser -> userService.getUserById(userId)
+        ).orElseThrow(() -> new NotFoundException("User " + userId)).generateAuthUserDTO();
     }
 
+    /**
+     * Get a user by his email
+     * @param request the current request
+     * @param email the email of the user
+     * @return the corresponding user
+     */
     @GetMapping("/email/{userId}")
-    private User getUserByEmail(@PathVariable String email) {
-        // TODO: AVG-35 - enforce auth
+    private User getUserByEmail(HttpServletRequest request, @PathVariable String email) {
+        authService.getRequestUser(request);
         return userService.getUserByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User " + email));
     }
 
+    /**
+     * Delete a user by id. Only a superuser or the user himself are allowed to do that.
+     * @param userId the id of the user
+     */
     @DeleteMapping("/{userId}")
-    private void deleteUser(@PathVariable Long userId) {
-        // TODO: AVG-35 - enforce auth
-        userService.deleteUser(userService.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("User " + userId))
-        );
+    private void deleteUser(HttpServletRequest request, @PathVariable Long userId) {
+        AuthUserDTO authUserDTO = authService.getRequestUser(request);
+
+        if (authUserDTO.getId().equals(userId)) {
+            userService.deleteUser(userService.getUserById(userId)
+                    .orElseThrow(() -> new NotFoundException("User " + userId)));
+        } else {
+            authUserDTO.requireSuperuser();
+            userService.deleteUser(userService.getUserById(userId)
+                    .orElseThrow(() -> new NotFoundException("User " + userId)));
+        }
     }
 
     @PostMapping("/google-auth")
