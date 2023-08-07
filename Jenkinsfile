@@ -50,7 +50,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
-                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
                 }
                 
                 withGradle {
@@ -60,7 +60,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
-                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
                 }
 
                 withGradle {
@@ -70,7 +70,7 @@ pipeline {
                         
                         ./gradlew clean assemble
                     '''
-                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
                 }
                 
                 // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
