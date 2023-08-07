@@ -78,17 +78,13 @@ pipeline {
                     cd frontend
                     yarn
                     yarn build
+                    tar -czvf webapp.tar.gz dist
                 '''
                 archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
                 script {
 
                     if (env.BRANCH_NAME == 'master') {
-                        sh """
-                            cd frontend
-                            tar -czvf webapp.tar.gz dist
-                        """
-
                         echo "Publish artifacts"
                         sh """
                             cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
