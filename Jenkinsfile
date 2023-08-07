@@ -50,6 +50,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
                 }
                 
                 withGradle {
@@ -59,6 +60,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
                 }
 
                 withGradle {
@@ -68,6 +70,7 @@ pipeline {
                         
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
                 }
                 
                 // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
@@ -75,17 +78,19 @@ pipeline {
                     cd frontend
                     yarn
                     yarn build
+                    tar -czvf webapp.tar.gz dist
                 '''
+                archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
                 script {
 
                     if (env.BRANCH_NAME == 'master') {
-                        echo "Publish JARs"
+                        echo "Publish artifacts"
                         sh """
                             cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
                             cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
                             cp backend/services/userservice/build/libs/* /share/jars/userservice.jar
-														cp -r frontend/dist /share/jars/webapp
+							cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
                         """
                     }
 
@@ -193,8 +198,6 @@ pipeline {
     post {
         
         always {
-            // archiveArtifacts artifacts: 'services/codeExecutor/build/libs/**/*.jar', fingerprint: true
-            // archiveArtifacts artifacts: 'services/projectService/build/libs/**/*.jar', fingerprint: true
             junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
             junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
             discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
