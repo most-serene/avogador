@@ -31,6 +31,7 @@ import java.security.Key;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Component
@@ -148,6 +149,11 @@ public class AuthService {
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
     }
 
+    /**
+     * Get the request associated to the current request
+     * @param request the current request
+     * @return the corresponding user
+     */
     public AuthUserDTO getRequestUser(HttpServletRequest request) {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -174,6 +180,29 @@ public class AuthService {
         User user = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("User " + userId));
         user.setJwtValidity(Timestamp.from(Instant.now()));
         userService.updateUser(user);
+    }
+
+    /**
+     * Executes the given callbacks based on the authorization scope of the request user
+     * @param request the request
+     * @param studentCallback the callback to execute if the user is a student
+     * @param professorCallback the callback to execute if the user is a professor
+     * @param superUserCallback the callback to execute if the user is a superuser
+     * @return the result of the callback
+     * @param <T> the type of the callbacks result
+     */
+    public <T> T executeOnRole(HttpServletRequest request,
+                               Function<AuthUserDTO, T> studentCallback,
+                               Function<AuthUserDTO, T> professorCallback,
+                               Function<AuthUserDTO, T> superUserCallback) {
+        AuthUserDTO user = getRequestUser(request);
+        if (user.getIsSuperuser()) {
+            return superUserCallback.apply(user);
+        } else if (user.getIsProfessor()) {
+            return professorCallback.apply(user);
+        } else {
+            return studentCallback.apply(user);
+        }
     }
 
     /**
