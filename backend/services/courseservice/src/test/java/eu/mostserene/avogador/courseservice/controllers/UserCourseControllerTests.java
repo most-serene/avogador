@@ -54,7 +54,7 @@ public class UserCourseControllerTests {
     @Nested
     class JoinCourse{
         @Test
-        public void wrongCourseId_get400() throws Exception{
+        public void wrongCourseId_get404() throws Exception{
             when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
             when(courseService.getCourse(anyLong()))
@@ -62,7 +62,7 @@ public class UserCourseControllerTests {
 
             mvc.perform(put("/public/courses/11/join/joinCode"))
                     .andDo(print())
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isNotFound());
         }
 
         @Test
@@ -78,6 +78,19 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isForbidden())
                     .andExpect(status().reason("Wrong join code"));
+        }
+
+        @Test
+        public void archivedCourse_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(courseService.getCourse(anyLong()))
+                    .thenReturn(Optional.of(archivedCourse));
+
+            mvc.perform(put("/public/courses/1/join/joinCode"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("This course is archived"));
         }
 
         @Test
@@ -144,7 +157,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void promotedUserIsNotMember_get403() throws Exception{
+        public void promotedUserIsNotMember_get400() throws Exception{
             when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
@@ -157,6 +170,19 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason("User is not part of the course"));
+        }
+
+        @Test
+        public void archivedCourse_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(archivedAdmin));
+
+            mvc.perform(put("/public/courses/1/collaborators/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("This course is archived"));
         }
 
         @Test
@@ -208,7 +234,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void promotedUserIsNotMember_get403() throws Exception{
+        public void promotedUserIsNotMember_get400() throws Exception{
             when(userService.getRequestUser(any()))
                     .thenReturn(professorUser);
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), anyLong()))
@@ -221,6 +247,19 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason("User is not part of the course"));
+        }
+
+        @Test
+        public void archivedCourse_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(archivedAdmin));
+
+            mvc.perform(put("/public/courses/1/students/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("This course is archived"));
         }
 
         @Test
@@ -259,7 +298,7 @@ public class UserCourseControllerTests {
         public void everythingRight_get200() throws Exception{
             when(userService.getRequestUser(any()))
                     .thenReturn(studentUser);
-            when(userCourseService.getCoursesByUserId(anyLong()))
+            when(userCourseService.getCoursesByUserId(anyLong(), argThat(isArc -> Objects.equals(isArc, false))))
                     .thenReturn(List.of());
 
             mvc.perform(get("/public/courses/users/1"))
@@ -280,7 +319,7 @@ public class UserCourseControllerTests {
             mvc.perform(get("/public/courses/2/users"))
                     .andDo(print())
                     .andExpect(status().isForbidden())
-                    .andExpect(status().reason("You are not part of this course"));
+                    .andExpect(status().reason("You cannot see the participants of this course"));
         }
 
         @Test
@@ -338,6 +377,19 @@ public class UserCourseControllerTests {
                     .andDo(print())
                     .andExpect(status().isForbidden())
                     .andExpect(status().reason("You are not part of this course"));
+        }
+
+        @Test
+        public void archivedCourse_get403() throws Exception{
+            when(userService.getRequestUser(any()))
+                    .thenReturn(professorUser);
+            when(userCourseService.getUserCourse(anyLong(), anyLong()))
+                    .thenReturn(Optional.of(archivedAdmin));
+
+            mvc.perform(delete("/public/courses/1/users/1"))
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(status().reason("This course is archived"));
         }
 
         @Test
