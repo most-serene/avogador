@@ -76,9 +76,9 @@ pipeline {
                 // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
                 sh '''
                     cd frontend
-                    cp $JENKINS_HOME/.envvars/avogador/web.staging.env ./.env.production
+                    cp $JENKINS_HOME/.envvars/avogador/web.staging.env ./.env.staging
                     yarn
-                    yarn build
+                    yarn build:staging
                     tar -czvf webapp.tar.gz dist
                 '''
                 archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true

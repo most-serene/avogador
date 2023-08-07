@@ -126,10 +126,6 @@ services:
       dockerfile: Dockerfile.prod
       target: ${REACT_TARGET}
       network: host
-      args:
-        VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
-        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
-        OBFUSCATE_DIRECTIVE: ${OBFUSCATE_DIRECTIVE}
     logging:
       driver: json-file
       options:

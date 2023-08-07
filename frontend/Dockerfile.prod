@@ -2,18 +2,13 @@ FROM node:alpine AS develop
 
 WORKDIR /app
 
-#ARG VITE_AVOGADOR_BACKEND_API_ADDRESS
-#ENV VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
-
-#ARG VITE_GOOGLE_CLIENT_ID
-#ENV VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
 RUN apk update
 RUN apk add curl
 RUN yarn global add serve 
 
 RUN curl -k https://dev-server.sanve.mostserene.eu/jars/webapp.tar.gz --output webapp.tar.gz
 RUN tar -xzvf webapp.tar.gz -C . 
-RUN curl -k https://dev-server.sanve.mostserene.eu/jars/env/web.staging.env --output dist/.env.production
+RUN curl -k https://dev-server.sanve.mostserene.eu/jars/env/web.staging.env --output dist/.env.staging
 RUN ls
 ENV NODE_ENV production
 
