@@ -1,0 +1,25 @@
+FROM node:alpine AS develop
+
+WORKDIR /app
+
+ARG VITE_AVOGADOR_BACKEND_API_ADDRESS
+ENV VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
+
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+RUN apk update
+RUN apk add curl
+RUN yarn global add serve 
+
+RUN curl -k https://dev-server.sanve.mostserene.eu/jars/webapp.tar.gz --output webapp.tar.gz
+RUN tar -xzvf webapp.tar.gz -C . 
+RUN ls
+ENV NODE_ENV production
+
+CMD ["serve", "-s", "dist"]
+
+###
+
+#FROM develop as production
+#ARG OBFUSCATE_DIRECTIVE 
+#RUN yarn run obfuscate -- $OBFUSCATE_DIRECTIVE
