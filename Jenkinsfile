@@ -50,6 +50,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
                 }
                 
                 withGradle {
@@ -59,6 +60,7 @@ pipeline {
 
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
                 }
 
                 withGradle {
@@ -68,6 +70,7 @@ pipeline {
                         
                         ./gradlew clean assemble
                     '''
+                    archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
                 }
                 
                 // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
@@ -76,6 +79,7 @@ pipeline {
                     yarn
                     yarn build
                 '''
+                archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
                 script {
 
@@ -203,11 +207,6 @@ pipeline {
             discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
         success {
-            archiveArtifacts artifacts: 'backend/apigateway/build/libs/**/*.jar', fingerprint: true
-            archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/**/*.jar', fingerprint: true
-            archiveArtifacts artifacts: 'backend/services/userservice/build/libs/**/*.jar', fingerprint: true
-            archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
-
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
                 if (env.BRANCH_NAME == 'master') {
