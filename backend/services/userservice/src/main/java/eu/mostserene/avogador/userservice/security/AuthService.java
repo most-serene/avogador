@@ -144,7 +144,7 @@ public class AuthService {
 
     private String extractJwt(HttpServletRequest request) {
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
-                .filter(cookie -> "jwt".equals(cookie.getName()))
+                .filter(cookie -> "__Secure-jwt".equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
     }
 
