@@ -1,5 +1,9 @@
 package eu.mostserene.avogador.courseservice.users;
 
+import eu.mostserene.avogador.courseservice.security.ForbiddenException;
+import lombok.Data;
+
+@Data
 public class UserDto {
     private Long id;
     private String email;
@@ -20,47 +24,32 @@ public class UserDto {
         this.isSuperuser = isSuperuser;
     }
 
-    public Long getId() {
-        return id;
+
+    /**
+     * Ensures that the user has the give id
+     * @param requiredId the required id
+     * @throws ForbiddenException if the user has not the required id
+     */
+    public UserDto requireId(Long requiredId) {
+        if (getId().equals(requiredId)) return this;
+        throw new ForbiddenException(this);
     }
 
-    public String getEmail() {
-        return email;
+    /**
+     * Ensures that the user is a professor
+     * @throws ForbiddenException if the user is not a professor
+     */
+    public UserDto requireProfessor() {
+        if (getIsProfessor()) return this;
+        throw new ForbiddenException(this);
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public Boolean getIsProfessor() {
-        return isProfessor;
-    }
-
-    public void setIsProfessor(Boolean professor) {
-        isProfessor = professor;
-    }
-
-    public Boolean getIsSuperuser() {
-        return isSuperuser;
-    }
-
-    public void setIsSuperuser(Boolean superuser) {
-        isSuperuser = superuser;
+    /**
+     * Ensures that the user is a superuser
+     * @throws ForbiddenException if the user is not a superuser
+     */
+    public UserDto requireSuperuser() {
+        if (getIsSuperuser()) return this;
+        throw new ForbiddenException(this);
     }
 }
