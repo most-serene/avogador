@@ -85,7 +85,7 @@ public class UserController {
             );
         });
 
-        ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("jwt", authService.generateJWT(user, 0))
+        ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("__Secure-jwt", authService.generateJWT(user, 0))
                 .httpOnly(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
@@ -104,7 +104,7 @@ public class UserController {
 
     @GetMapping("/logout")
     private void logoutUser(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
+        Cookie cookie = new Cookie("__Secure-jwt", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);

@@ -36,7 +36,7 @@ public class CustomWebFilter implements WebFilter {
         String requestId = RandomStringUtils.randomAlphanumeric(10);
 
         if (isCSRF(exchange.getRequest())) {
-            ResponseCookie cookie = ResponseCookie.from("jwt", "")
+            ResponseCookie cookie = ResponseCookie.from("__Secure-jwt", "")
                     .path("/")
                     .httpOnly(true)
                     .maxAge(Duration.ZERO)
@@ -55,7 +55,7 @@ public class CustomWebFilter implements WebFilter {
                             .build());
         }
 
-        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("jwt");
+        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("__Secure-jwt");
 
         if (cookie != null) {
             log.info(cookie.getValue());
@@ -82,7 +82,7 @@ public class CustomWebFilter implements WebFilter {
     }
 
     private boolean isCSRF(ServerHttpRequest request) {
-        HttpCookie jwtCookie = request.getCookies().getFirst("jwt");
+        HttpCookie jwtCookie = request.getCookies().getFirst("__Secure-jwt");
 
         if (jwtCookie == null) return false;
 
