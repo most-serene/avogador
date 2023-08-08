@@ -1,4 +1,4 @@
 FROM openjdk AS run
 WORKDIR /app
 COPY entrypoint.sh entrypoint.sh
-ENTRYPOINT [".", "./entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]
