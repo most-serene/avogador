@@ -1,5 +1,10 @@
 package eu.mostserene.avogador.courseservice.users;
 
+import lombok.Data;
+
+import java.util.Optional;
+
+@Data
 public class UserDto {
     private Long id;
     private String email;
@@ -20,47 +25,32 @@ public class UserDto {
         this.isSuperuser = isSuperuser;
     }
 
-    public Long getId() {
-        return id;
+
+    /**
+     * Ensures that the user has the give id
+     * @param requiredId the required id
+     * @return this if granted, empty otherwise
+     */
+    public Optional<UserDto> requireId(Long requiredId) {
+        if (getId().equals(requiredId)) return Optional.of(this);
+        return Optional.empty();
     }
 
-    public String getEmail() {
-        return email;
+    /**
+     * Ensures that the user is a professor
+     * @return this if granted, empty otherwise
+     */
+    public Optional<UserDto> requireProfessor() {
+        if (getIsProfessor()) return Optional.of(this);
+        return Optional.empty();
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public Boolean getIsProfessor() {
-        return isProfessor;
-    }
-
-    public void setIsProfessor(Boolean professor) {
-        isProfessor = professor;
-    }
-
-    public Boolean getIsSuperuser() {
-        return isSuperuser;
-    }
-
-    public void setIsSuperuser(Boolean superuser) {
-        isSuperuser = superuser;
+    /**
+     * Ensures that the user is a superuser
+     * @return this if granted, empty otherwise
+     */
+    public Optional<UserDto> requireSuperuser() {
+        if (getIsSuperuser())  return Optional.of(this);
+        return Optional.empty();
     }
 }
