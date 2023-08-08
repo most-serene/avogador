@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +30,20 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
-    public List<ApiKey> getUserApiKey(User user) {
+    public List<ApiKey> getApiKeyByUser(User user) {
         return apiKeyRepository.findByUser(user);
+    }
+
+    @Override
+    public Optional<ApiKey> getApiKeyByHash(String hash) {
+        Optional<ApiKey> apiKeyOptional = apiKeyRepository.findByKeyHash(hash);
+
+        if (apiKeyOptional.isPresent() && apiKeyOptional.get()
+                .getExpirationTimestamp().compareTo(Timestamp.from(Instant.now())) < 0) {
+            deleteApiKey(apiKeyOptional.get());
+            return Optional.empty();
+        }
+        return apiKeyOptional;
     }
 
     @Override

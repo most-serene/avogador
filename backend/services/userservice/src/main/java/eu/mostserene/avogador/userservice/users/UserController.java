@@ -177,7 +177,7 @@ public class UserController {
         AuthUserDTO requester = authService.getRequestUser(request);
         requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
 
-        return apiKeyService.getUserApiKey(
+        return apiKeyService.getApiKeyByUser(
                 userService.getUserById(userId).orElseThrow(() -> new NotFoundException(userId.toString())))
                 .stream()
                 .map(apiKey -> new ApiKeyDTO(apiKey.getId(), apiKey.getName(), apiKey.getUser().getId()))

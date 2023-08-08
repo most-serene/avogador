@@ -2,6 +2,8 @@ package eu.mostserene.avogador.userservice.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.Hashing;
+import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
@@ -27,6 +29,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -40,6 +43,9 @@ public class AuthService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ApiKeyService apiKeyService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -203,6 +209,15 @@ public class AuthService {
         } else {
             return studentCallback.apply(user);
         }
+    }
+
+    public AuthUserDTO validateApiKey(String apiKey) {
+        return userService.getUserById(
+                apiKeyService.getApiKeyByHash(Hashing.sha256()
+                        .hashString(apiKey, StandardCharsets.UTF_8).toString())
+                        .orElseThrow(() -> new ForbiddenException("API key not valid"))
+                        .getId()
+        ).orElseThrow(() -> new ForbiddenException("API key not valid")).generateAuthUserDTO();
     }
 
     /**

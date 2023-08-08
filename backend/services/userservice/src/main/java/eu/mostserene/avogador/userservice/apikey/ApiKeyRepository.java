@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     Optional<ApiKey> findByUserAndName(@NonNull User user, @NonNull String name);
     List<ApiKey> findByUser(@NonNull User user);
+
+    Optional<ApiKey> findByKeyHash(@NonNull String keyHash);
+
 }
