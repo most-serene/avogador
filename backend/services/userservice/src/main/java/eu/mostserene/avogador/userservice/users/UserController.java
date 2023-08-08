@@ -2,7 +2,6 @@ package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.apikey.AlreadyExistingKeyException;
-import eu.mostserene.avogador.userservice.apikey.ApiKey;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyDTO;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
@@ -21,7 +20,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -199,7 +200,7 @@ public class UserController {
         return apiKeyService.generateApiKey(
                 userService.getUserById(requester.getId())
                         .orElseThrow(() -> new NotFoundException(userId.toString())),
-                apiKeyName.getApikeyName()
+                apiKeyName.getApikeyName(), apiKeyName.getExpiration()
         );
     }
 
@@ -231,9 +232,14 @@ public class UserController {
 
     private static class ApiKeyName {
         private String apikeyName;
+        private String expiration;
 
         public String getApikeyName() {
             return apikeyName;
+        }
+
+        public Timestamp getExpiration() {
+            return Timestamp.from(Instant.parse(expiration));
         }
     }
 

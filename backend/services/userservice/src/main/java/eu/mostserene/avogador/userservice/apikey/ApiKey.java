@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @Entity
 @Table(
         name = "ApiKey",
@@ -28,13 +31,20 @@ public class ApiKey {
     @NotNull
     private String keyHash;
 
+    @NotNull
+    private Timestamp creationTimestamp = Timestamp.from(Instant.now());
+
+    @NotNull
+    private Timestamp expirationTimestamp;
+
     public ApiKey() {
     }
 
-    public ApiKey(User user, String name, String keyHash) {
+    public ApiKey(User user, String name, String keyHash, Timestamp expirationTimestamp) {
         this.name = name;
         this.user = user;
         this.keyHash = keyHash;
+        this.expirationTimestamp = expirationTimestamp;
     }
 
     public Long getId() {
@@ -63,5 +73,13 @@ public class ApiKey {
 
     public void setKeyHash(String keyHash) {
         this.keyHash = keyHash;
+    }
+
+    public Timestamp getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public Timestamp getExpirationTimestamp() {
+        return expirationTimestamp;
     }
 }
