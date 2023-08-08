@@ -5,12 +5,10 @@ WORKDIR /app
 RUN apk update
 RUN apk add curl
 RUN yarn global add serve 
-
-RUN curl -k https://dev-server.sanve.mostserene.eu/jars/webapp.tar.gz --output webapp.tar.gz
-RUN tar -xzvf webapp.tar.gz -C . 
 ENV NODE_ENV production
 
-CMD ["serve", "-s", "dist"]
+COPY entrypoint.sh entrypoint.sh
+ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]
 
 ###
 

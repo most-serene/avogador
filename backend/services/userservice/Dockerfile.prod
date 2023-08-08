@@ -1,3 +1,4 @@
 FROM openjdk AS run
-RUN curl -k https://dev-server.sanve.mostserene.eu/jars/userservice.jar --output userservice.jar
-ENTRYPOINT ["java","-jar","/userservice.jar"]
+WORKDIR /app
+COPY entrypoint.sh entrypoint.sh
+ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]
