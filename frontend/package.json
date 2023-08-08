@@ -5,7 +5,7 @@
   "type": "module",
   "homepage": ".",
   "scripts": {
-    "start": "vite",
+    "start": "vite --mode develop",
     "start:staging": "vite --mode staging",
     "build": "tsc && vite build",
     "build:staging": "tsc && vite build --mode staging",
