@@ -137,7 +137,7 @@ public class AuthService {
      */
     private void checkIfRevoked(AuthUserDTO authUserDTO, Timestamp generationTimestamp) {
         if (userService.getUserById(authUserDTO.getId())
-                .orElseThrow(() -> new NotFoundException("User does not exist"))
+                .orElseThrow(() -> new ForbiddenException("The token is revoked"))
                 .getJwtValidity().compareTo(generationTimestamp) > 0) {
             throw new ForbiddenException("The token is revoked");
         }
