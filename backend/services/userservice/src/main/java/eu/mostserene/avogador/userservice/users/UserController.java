@@ -50,7 +50,7 @@ public class UserController {
                 student -> userService.getUserById(userId)
                         .map(user -> {
                             if (!student.getId().equals(userId)) {
-                                user.setEmail("xxx@xxx.xxx");
+                                user.setEmail(null);
                             }
                             return user;
                         }),
@@ -66,10 +66,10 @@ public class UserController {
      * @return the corresponding user
      */
     @GetMapping("/email/{userId}")
-    private User getUserByEmail(HttpServletRequest request, @PathVariable String email) {
+    private AuthUserDTO getUserByEmail(HttpServletRequest request, @PathVariable String email) {
         authService.getRequestUser(request);
         return userService.getUserByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User " + email));
+                .orElseThrow(() -> new NotFoundException("User " + email)).generateAuthUserDTO();
     }
 
     /**
@@ -80,14 +80,15 @@ public class UserController {
     private void deleteUser(HttpServletRequest request, @PathVariable Long userId) {
         AuthUserDTO authUserDTO = authService.getRequestUser(request);
 
-        if (authUserDTO.getId().equals(userId)) {
+        authUserDTO.requireSuperuser().ifPresentOrElse(superuser ->
             userService.deleteUser(userService.getUserById(userId)
-                    .orElseThrow(() -> new NotFoundException("User " + userId)));
-        } else {
-            authUserDTO.requireSuperuser();
-            userService.deleteUser(userService.getUserById(userId)
-                    .orElseThrow(() -> new NotFoundException("User " + userId)));
-        }
+                    .orElseThrow(() -> new NotFoundException("User " + userId))),
+                () -> {
+                    authUserDTO.requireId(userId)
+                            .orElseThrow(() -> new ForbiddenException(authUserDTO));
+                    userService.deleteUser(userService.getUserById(userId)
+                            .orElseThrow(() -> new NotFoundException("User " + userId)));
+        });
     }
 
     @PostMapping("/google-auth")

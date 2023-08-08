@@ -1,7 +1,8 @@
 package eu.mostserene.avogador.userservice.users;
 
-import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import lombok.Data;
+
+import java.util.Optional;
 
 @Data
 public class AuthUserDTO {
@@ -27,28 +28,28 @@ public class AuthUserDTO {
     /**
      * Ensures that the user has the give id
      * @param requiredId the required id
-     * @throws ForbiddenException if the user has not the required id
+     * @return this if granted, empty otherwise
      */
-    public AuthUserDTO requireId(Long requiredId) {
-        if (getId().equals(requiredId)) return this;
-        throw new ForbiddenException(this);
+    public Optional<AuthUserDTO> requireId(Long requiredId) {
+        if (getId().equals(requiredId)) return Optional.of(this);
+        return Optional.empty();
     }
 
     /**
      * Ensures that the user is a professor
-     * @throws ForbiddenException if the user is not a professor
+     * @return this if granted, empty otherwise
      */
-    public AuthUserDTO requireProfessor() {
-        if (getIsProfessor()) return this;
-        throw new ForbiddenException(this);
+    public Optional<AuthUserDTO> requireProfessor() {
+        if (getIsProfessor()) return Optional.of(this);
+        return Optional.empty();
     }
 
     /**
      * Ensures that the user is a superuser
-     * @throws ForbiddenException if the user is not a superuser
+     * @return this if granted, empty otherwise
      */
-    public AuthUserDTO requireSuperuser() {
-        if (getIsSuperuser()) return this;
-        throw new ForbiddenException(this);
+    public Optional<AuthUserDTO> requireSuperuser() {
+        if (getIsSuperuser())  return Optional.of(this);
+        return Optional.empty();
     }
 }
