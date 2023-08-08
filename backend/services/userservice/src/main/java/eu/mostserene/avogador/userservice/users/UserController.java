@@ -1,6 +1,10 @@
 package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
+import eu.mostserene.avogador.userservice.apikey.AlreadyExistingKeyException;
+import eu.mostserene.avogador.userservice.apikey.ApiKey;
+import eu.mostserene.avogador.userservice.apikey.ApiKeyDTO;
+import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -34,6 +39,9 @@ public class UserController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ApiKeyService apiKeyService;
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -157,12 +165,75 @@ public class UserController {
         authService.revokeUserJWTs(userId);
     }
 
+    /**
+     * Gets all the API key owned by a user
+     * @param request the current request
+     * @param userId the id of the user who owns the keys
+     * @return the list of the API keys
+     */
+    @GetMapping("/{userId}/api-key")
+    private List<ApiKeyDTO> getUserApiKeys(HttpServletRequest request, @PathVariable Long userId) {
+        AuthUserDTO requester = authService.getRequestUser(request);
+        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+
+        return apiKeyService.getUserApiKey(
+                userService.getUserById(userId).orElseThrow(() -> new NotFoundException(userId.toString())))
+                .stream()
+                .map(apiKey -> new ApiKeyDTO(apiKey.getId(), apiKey.getName(), apiKey.getUser().getId()))
+                .toList();
+    }
+
+    /**
+     * Generate an API key for the given user
+     * @param request the current request
+     * @param userId the id of the user who will own the key
+     * @param apiKeyName the firendly name of the key
+     * @return the generated key
+     * @throws AlreadyExistingKeyException if the pair user-name already exists
+     */
+    @PostMapping("/{userId}/api-key")
+    private String generateApiKey(HttpServletRequest request, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) throws AlreadyExistingKeyException {
+        AuthUserDTO requester = authService.getRequestUser(request);
+        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+
+        return apiKeyService.generateApiKey(
+                userService.getUserById(requester.getId())
+                        .orElseThrow(() -> new NotFoundException(userId.toString())),
+                apiKeyName.getApikeyName()
+        );
+    }
+
+    /**
+     * Delete an API key
+     * @param request the current request
+     * @param userId the id of the user who owns the key
+     * @param keyName the friendly name of the key
+     */
+    @DeleteMapping("/{userId}/api-key/{keyName}")
+    private void deleteApiKey(HttpServletRequest request, @PathVariable Long userId, @PathVariable String keyName) {
+        AuthUserDTO requester = authService.getRequestUser(request);
+        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+
+        apiKeyService.deleteApiKey(
+                apiKeyService.getApiKeyByName(
+                        userService.getUserById(userId).orElseThrow(() -> new NotFoundException("User " + userId)), keyName
+                ).orElseThrow(() -> new NotFoundException("ApiKey " + userId + "-" + keyName))
+        );
+    }
 
     private static class GoogleToken {
         private String googleToken;
 
         public String getGoogleToken() {
             return googleToken;
+        }
+    }
+
+    private static class ApiKeyName {
+        private String apikeyName;
+
+        public String getApikeyName() {
+            return apikeyName;
         }
     }
 

@@ -26,6 +26,7 @@ repositories {
 }
 
 dependencies {
+	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("org.springframework.boot:spring-boot-starter-mail:3.0.4")
 	implementation("com.google.guava:guava:31.1-jre")
 	implementation("javax.xml.bind:jaxb-api:2.3.1")
