@@ -21,4 +21,9 @@ public class InnerSecurityController {
         return authService.decodeJwt(jwtToValidate);
     }
 
+    @PostMapping("/validate-key")
+    private AuthUserDTO validateApiKey(@RequestBody String apiKey) {
+        return authService.validateApiKey(apiKey);
+    }
+
 }
