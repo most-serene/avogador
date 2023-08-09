@@ -180,7 +180,8 @@ public class UserController {
         return apiKeyService.getApiKeyByUser(
                 userService.getUserById(userId).orElseThrow(() -> new NotFoundException(userId.toString())))
                 .stream()
-                .map(apiKey -> new ApiKeyDTO(apiKey.getId(), apiKey.getName(), apiKey.getUser().getId()))
+                .map(apiKey -> new ApiKeyDTO(apiKey.getId(), apiKey.getName(),
+                        apiKey.getUser().getId(), apiKey.getCreationTimestamp(), apiKey.getExpirationTimestamp()))
                 .toList();
     }
 
