@@ -28,6 +28,12 @@ public class ApiGatewayApplication {
 				.route("course", r -> r.path("/courses/**")
 						.filters(f -> f.rewritePath("/courses/(?<segment>.*)", "/public/courses/${segment}"))
 						.uri("http://courses"))
+				.route("users-api", r -> r.path("/api/users/**")
+						.filters(f -> f.rewritePath("/api/users/(?<segment>.*)", "/public/users/${segment}"))
+						.uri("http://users"))
+				.route("courses-api", r -> r.path("/api/courses/**")
+						.filters(f -> f.rewritePath("/api/courses/(?<segment>.*)", "/public/courses/${segment}"))
+						.uri("http://courses"))
 				.build();
 	}
 
