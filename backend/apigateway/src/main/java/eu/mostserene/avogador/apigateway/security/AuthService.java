@@ -11,39 +11,53 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class AuthService {
 
-    public AuthUserDTO decodeAndValidateJWT(String jwtToken) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public Optional<AuthUserDTO> decodeAndValidateJWT(String jwtToken) {
+        var a = buildAuthRequest("validate-jwt", jwtToken);
+        if (a.isPresent()) {
+            return sendAuthRequest(a.get());
+        }
+        return Optional.empty();
+    }
 
-        HttpRequest httpRequest = null;
+    public Optional<AuthUserDTO> decodeAndValidateApiKey(String apiKey) {
+        var a = buildAuthRequest("validate-key", apiKey);
+        if (a.isPresent()) {
+            return sendAuthRequest(a.get());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<HttpRequest> buildAuthRequest(String authEndpoint, String claim) {
         try {
-
-            httpRequest = HttpRequest
+            log.info(new URI("http://users/security/" + authEndpoint).toString());
+            return Optional.of(HttpRequest
                     .newBuilder()
-                    .uri(new URI("http://users/security/validate-jwt"))
+                    .uri(new URI("http://users/security/" + authEndpoint))
                     .header("Content-Type", "text/plain")
-                    .POST(HttpRequest.BodyPublishers.ofString(jwtToken))
-                    .build();
+                    .POST(HttpRequest.BodyPublishers.ofString(claim))
+                    .build());
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            return Optional.empty();
         }
+    }
 
-        HttpResponse<String> content = null;
+    private Optional<AuthUserDTO> sendAuthRequest(HttpRequest httpRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            content = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            return Optional.of(objectMapper.readValue(
+                    HttpClient.newHttpClient()
+                            .send(httpRequest, HttpResponse.BodyHandlers.ofString())
+                            .body(), AuthUserDTO.class));
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            log.info(content.body());
-            return objectMapper.readValue(content.body(), AuthUserDTO.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            return Optional.empty();
         }
     }
 }

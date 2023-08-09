@@ -6,8 +6,10 @@ import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -20,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -28,15 +31,23 @@ public class CustomWebFilter implements WebFilter {
     @Autowired
     private AuthService authService;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
     @Override
     @NonNull
     @Order(5)
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String uri = exchange.getRequest().getURI().getPath();
         String requestId = RandomStringUtils.randomAlphanumeric(10);
+        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+
+        log.info("Request ID - " + requestId);
+
+        log.info("CSRF - " + isCSRF(exchange.getRequest()));
 
         if (isCSRF(exchange.getRequest())) {
-            ResponseCookie cookie = ResponseCookie.from("__Secure-jwt", "")
+            ResponseCookie cookie = ResponseCookie.from(cookieName, "")
                     .path("/")
                     .httpOnly(true)
                     .maxAge(Duration.ZERO)
@@ -46,7 +57,54 @@ public class CustomWebFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
 
-        if (uri.matches("^/|^/users/google-auth|^/users/logout")) {
+        log.info(uri);
+        log.info(String.valueOf(uri.matches("^/api.*")));
+        log.info(String.valueOf(!uri.matches("^/api/.*/api-key$")));
+
+        if (uri.matches("^/api.*") && !uri.matches("^/api/.*/api-key$")) {
+            if (exchange.getRequest().getCookies().getFirst(cookieName) != null) {
+                exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+                return exchange.getResponse().setComplete();
+            }
+            log.info("This is an API call");
+
+            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+            if (authHeader == null || !"Bearer".equals(authHeader.split("\\s+")[0]) ||
+                    authHeader.split("\\s+")[1] == null) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+
+            String apiKey = authHeader.split("\\s+")[1];
+
+            Optional<AuthUserDTO> user = authService.decodeAndValidateApiKey(apiKey);
+
+            if (user.isPresent()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    return chain.filter(
+                            exchange.mutate().request(
+                                            exchange.getRequest().mutate()
+                                                    .header("User", objectMapper.writeValueAsString(user.get()))
+                                                    .header("Request-ID", requestId)
+                                                    .build())
+                                    .build());
+                } catch (JsonProcessingException e) {
+                    log.error(e.getMessage());
+                    exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return exchange.getResponse().setComplete();
+                }
+            } else {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+        }
+
+        log.info("not api call");
+
+        if (uri.matches("^/|^/users/google-auth.*|^/users/logout.*")) {
+            log.info("user auth call");
             return chain.filter(
                     exchange.mutate().request(
                                     exchange.getRequest().mutate()
@@ -55,25 +113,31 @@ public class CustomWebFilter implements WebFilter {
                             .build());
         }
 
-        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("__Secure-jwt");
+        HttpCookie cookie = exchange.getRequest().getCookies().getFirst(cookieName);
 
-        if (cookie != null) {
-            log.info(cookie.getValue());
-            AuthUserDTO user = authService.decodeAndValidateJWT(cookie.getValue());
+        if (cookie == null) {
+            log.info("no JWT cookie");
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        Optional<AuthUserDTO> user = authService.decodeAndValidateJWT(cookie.getValue());
+        log.info(user.toString());
+        if (user.isPresent()) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                log.info(objectMapper.writeValueAsString(user));
-
-
+                log.info("Here's the user: " + user.get());
                 return chain.filter(
                         exchange.mutate().request(
                                         exchange.getRequest().mutate()
-                                                .header("User", objectMapper.writeValueAsString(user))
+                                                .header("User", objectMapper.writeValueAsString(user.get()))
                                                 .header("Request-ID", requestId)
                                                 .build())
                                 .build());
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
+                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                return exchange.getResponse().setComplete();
             }
         } else {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -82,7 +146,8 @@ public class CustomWebFilter implements WebFilter {
     }
 
     private boolean isCSRF(ServerHttpRequest request) {
-        HttpCookie jwtCookie = request.getCookies().getFirst("__Secure-jwt");
+        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+        HttpCookie jwtCookie = request.getCookies().getFirst(cookieName);
 
         if (jwtCookie == null) return false;
 
