@@ -6,6 +6,7 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyDTO;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
+import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
@@ -55,17 +56,12 @@ public class UserController {
      */
     @GetMapping("/{userId}")
     private AuthUserDTO getUserById(HttpServletRequest request, @PathVariable Long userId) {
-        return authService.executeOnRole(request,
-                student -> userService.getUserById(userId)
-                        .map(user -> {
-                            if (!student.getId().equals(userId)) {
-                                user.setEmail(null);
-                            }
-                            return user;
-                        }),
-                professor -> userService.getUserById(userId),
-                superuser -> userService.getUserById(userId)
-        ).orElseThrow(() -> new NotFoundException("User " + userId)).generateAuthUserDTO();
+        var user = authService.getRequestUser(request);
+        var responseUser = userService.getUserById(userId)
+                .orElseThrow(NotFoundException::new);
+        if (!user.getIsProfessor() && !user.getIsSuperuser() && !user.getId().equals(userId))
+            responseUser.setEmail(null);
+        return responseUser.generateAuthUserDTO();
     }
 
     /**
@@ -74,7 +70,7 @@ public class UserController {
      * @param email the email of the user
      * @return the corresponding user
      */
-    @GetMapping("/email/{userId}")
+    @GetMapping("/email/{email}")
     private AuthUserDTO getUserByEmail(HttpServletRequest request, @PathVariable String email) {
         authService.getRequestUser(request);
         return userService.getUserByEmail(email)
@@ -88,22 +84,23 @@ public class UserController {
     @DeleteMapping("/{userId}")
     private void deleteUser(HttpServletRequest request, @PathVariable Long userId) {
         AuthUserDTO authUserDTO = authService.getRequestUser(request);
+        var userToDelete = userService.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId));
 
-        authUserDTO.requireSuperuser().ifPresentOrElse(superuser ->
-            userService.deleteUser(userService.getUserById(userId)
-                    .orElseThrow(() -> new NotFoundException("User " + userId))),
+        authUserDTO.requireSuperuser().ifPresentOrElse(
+                superuser -> userService.deleteUser(userToDelete),
                 () -> {
                     authUserDTO.requireId(userId)
                             .orElseThrow(() -> new ForbiddenException(authUserDTO));
-                    userService.deleteUser(userService.getUserById(userId)
-                            .orElseThrow(() -> new NotFoundException("User " + userId)));
-        });
+                    userService.deleteUser(userToDelete);
+                }
+        );
     }
 
     @PostMapping("/google-auth")
     private AuthUserDTOImageHash authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
         log.info("token: "  + googleToken.getGoogleToken());
-        AuthService.GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
+        AuthServiceImpl.GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
         Optional<User> queriedUser = userService.getUserByEmail(googleUser.email());
 
         final User user = queriedUser.map(innerUser -> {
