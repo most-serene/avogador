@@ -50,6 +50,9 @@ public class AuthService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
     public GoogleUser getGoogleUser(String googleToken) throws InvalidDomainException {
         try {
             HttpRequest httpRequest = HttpRequest
@@ -150,8 +153,9 @@ public class AuthService {
     }
 
     private String extractJwt(HttpServletRequest request) {
+        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
-                .filter(cookie -> "__Secure-jwt".equals(cookie.getName()))
+                .filter(cookie -> cookieName.equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
     }
 
