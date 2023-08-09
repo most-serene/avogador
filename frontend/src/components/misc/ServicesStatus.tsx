@@ -9,13 +9,6 @@ export default function ServicesStatus() {
   const [coursesStatus, setCoursesStatus] = useState<string>("offline");
 
   useEffect(() => {
-    const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
-    if (storedCSRF !== null) {
-      avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = storedCSRF;
-    }
-  }, []);
-
-  useEffect(() => {
     const i = setInterval(() => {
       avogadorApi
         .get("/status")

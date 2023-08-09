@@ -1,6 +1,5 @@
 #root {
   margin: 0 auto;
-  text-align: center;
 }
 
 html, body, #root, .App {
@@ -9,6 +8,10 @@ html, body, #root, .App {
 
 .full-page-without-header{
   height: calc(100% - 69px);
+}
+
+.full-page-without-header-and-footer{
+  height: calc(100% - 69px - 92px);
 }
 
 body {

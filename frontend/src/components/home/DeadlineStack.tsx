@@ -1,5 +1,4 @@
 import { Card, Stack, useTheme } from "@mui/material";
-import TrialDeadline from "../trials/TrialDeadline.tsx";
 
 export default function DeadlineStack() {
   const theme = useTheme();
@@ -12,12 +11,7 @@ export default function DeadlineStack() {
           backgroundColor: theme.palette.secondary.light,
         }}
       >
-        <Stack>
-          <TrialDeadline />
-          <TrialDeadline />
-          <TrialDeadline />
-          <TrialDeadline />
-        </Stack>
+        <Stack></Stack>
       </Card>
     </>
   );
