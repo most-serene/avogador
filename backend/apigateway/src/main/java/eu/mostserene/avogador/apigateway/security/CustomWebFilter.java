@@ -46,7 +46,7 @@ public class CustomWebFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
 
-        if ("/users/google-auth".equals(uri) || "/users/logout".equals(uri) || "/".equals(uri)) {
+        if (uri.matches("^/|^/users/google-auth|^/users/logout")) {
             return chain.filter(
                     exchange.mutate().request(
                                     exchange.getRequest().mutate()
