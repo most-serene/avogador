@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Forbidden")
 @Slf4j
-public class ForbiddenException extends RuntimeException{
+public class ForbiddenException extends RuntimeException {
     public ForbiddenException(AuthUserDTO user) {
         super("Forbidden");
         /*log.info(LoggerColors.error("Forbidden access caught from " + user.getEmail() +

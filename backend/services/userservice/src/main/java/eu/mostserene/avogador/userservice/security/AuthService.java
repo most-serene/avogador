@@ -216,7 +216,7 @@ public class AuthService {
                 apiKeyService.getApiKeyByHash(Hashing.sha256()
                         .hashString(apiKey, StandardCharsets.UTF_8).toString())
                         .orElseThrow(() -> new ForbiddenException("API key not valid"))
-                        .getId()
+                        .getUser().getId()
         ).orElseThrow(() -> new ForbiddenException("API key not valid")).generateAuthUserDTO();
     }
 

@@ -194,7 +194,7 @@ public class UserController {
      * @throws AlreadyExistingKeyException if the pair user-name already exists
      */
     @PostMapping("/{userId}/api-key")
-    private String generateApiKey(HttpServletRequest request, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) throws AlreadyExistingKeyException {
+    private String generateApiKey(HttpServletRequest request, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) {
         AuthUserDTO requester = authService.getRequestUser(request);
         requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
 

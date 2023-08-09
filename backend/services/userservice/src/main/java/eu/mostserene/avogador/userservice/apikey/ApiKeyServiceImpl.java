@@ -47,7 +47,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
-    public String generateApiKey(User user, String name, Timestamp expiration) throws AlreadyExistingKeyException {
+    public String generateApiKey(User user, String name, Timestamp expiration) {
         if (apiKeyRepository.findByUserAndName(user, name).isPresent()) {
             throw new AlreadyExistingKeyException();
         }
