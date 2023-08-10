@@ -83,6 +83,20 @@ pipeline {
                 '''
                 archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
+
+                //! REMOVE-BEFORE-FLIGHT
+                echo "Building Storybook"
+                sh """
+                    cp frontend
+                    yarn build-storybook
+                    tar -czvf storybook.tar.gz storybook-static
+                """
+
+                sh """
+                    cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
+                """
+                //! REMOVE-BEFORE-FLIGHT
+
                 script {
 
                     if (env.BRANCH_NAME == 'master') {
