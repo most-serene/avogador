@@ -18,6 +18,7 @@ public interface AuthService {
      */
     AuthUserDTO decodeJwt(String jwt);
 
+
     /**
      * Get the request associated to the current request
      * @param request the current request
