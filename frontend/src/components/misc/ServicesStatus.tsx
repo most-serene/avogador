@@ -34,7 +34,7 @@ export default function ServicesStatus() {
         .catch(() => {
           setCoursesStatus("offline");
         });
-    }, 60000);
+    }, 2000);
 
     return () => {
       clearInterval(i);
