@@ -199,14 +199,14 @@ public class UserController {
         AuthUserDTO requester = authService.getRequestUser(request);
         requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
 
-        if (apiKeyName.getApikeyName().split("\\s+").length > 1) {
+        if (apiKeyName.getName().split("\\s+").length > 1) {
             throw new BadRequestException("ApiKey name cannot contain spaces");
         }
 
         return apiKeyService.generateApiKey(
                 userService.getUserById(requester.getId())
                         .orElseThrow(() -> new NotFoundException(userId.toString())),
-                apiKeyName.getApikeyName(), apiKeyName.getExpiration()
+                apiKeyName.getName(), apiKeyName.getExpiration()
         );
     }
 
@@ -237,11 +237,11 @@ public class UserController {
     }
 
     private static class ApiKeyName {
-        private String apikeyName;
+        private String name;
         private String expiration;
 
-        public String getApikeyName() {
-            return apikeyName;
+        public String getName() {
+            return name;
         }
 
         public Timestamp getExpiration() {
