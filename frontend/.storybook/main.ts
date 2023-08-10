@@ -8,12 +8,19 @@ const config: StorybookConfig = {
     "@storybook/addon-onboarding",
     "@storybook/addon-interactions",
   ],
+  core: {
+    builder: '@storybook/builder-vite',
+  },
   framework: {
     name: "@storybook/react-vite",
     options: {},
   },
   docs: {
     autodocs: "tag",
+  },
+  async viteFinal(config, options) {
+    // Add your configuration here
+    return config;
   },
 };
 export default config;
