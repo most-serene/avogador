@@ -84,14 +84,22 @@ pipeline {
                 archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
                 script {
-
                     if (env.BRANCH_NAME == 'master') {
+                        echo "Building Storybook"
+                        sh """
+                            cd frontend
+                            yarn build-storybook
+                            tar -czvf storybook.tar.gz storybook-static
+                        """
+
                         echo "Publish artifacts"
                         sh """
                             cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
                             cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
                             cp backend/services/userservice/build/libs/* /share/jars/userservice.jar
-							cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
+							
+                            cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
+                            cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
                         """
                     }
 
