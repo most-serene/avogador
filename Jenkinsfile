@@ -87,7 +87,7 @@ pipeline {
                 //! REMOVE-BEFORE-FLIGHT
                 echo "Building Storybook"
                 sh """
-                    cp frontend
+                    cd frontend
                     yarn build-storybook
                     tar -czvf storybook.tar.gz storybook-static
                 """
