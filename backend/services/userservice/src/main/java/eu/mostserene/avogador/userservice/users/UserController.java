@@ -9,6 +9,7 @@ import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
+import eu.mostserene.avogador.userservice.utils.BadRequestException;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -122,7 +123,9 @@ public class UserController {
             );
         });
 
-        ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from("__Secure-jwt", authService.generateJWT(user, 0))
+        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+
+        ResponseCookie.ResponseCookieBuilder jwtBuilder = ResponseCookie.from(cookieName, authService.generateJWT(user, 0))
                 .httpOnly(true)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
@@ -141,7 +144,8 @@ public class UserController {
 
     @GetMapping("/logout")
     private void logoutUser(HttpServletResponse response) {
-        Cookie cookie = new Cookie("__Secure-jwt", null);
+        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+        Cookie cookie = new Cookie(cookieName, null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
@@ -195,10 +199,14 @@ public class UserController {
         AuthUserDTO requester = authService.getRequestUser(request);
         requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
 
+        if (apiKeyName.getName().split("\\s+").length > 1) {
+            throw new BadRequestException("ApiKey name cannot contain spaces");
+        }
+
         return apiKeyService.generateApiKey(
                 userService.getUserById(requester.getId())
                         .orElseThrow(() -> new NotFoundException(userId.toString())),
-                apiKeyName.getApikeyName(), apiKeyName.getExpiration()
+                apiKeyName.getName(), apiKeyName.getExpiration()
         );
     }
 
@@ -229,11 +237,11 @@ public class UserController {
     }
 
     private static class ApiKeyName {
-        private String apikeyName;
+        private String name;
         private String expiration;
 
-        public String getApikeyName() {
-            return apikeyName;
+        public String getName() {
+            return name;
         }
 
         public Timestamp getExpiration() {
