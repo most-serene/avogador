@@ -307,7 +307,7 @@ public class UserControllerTests {
         }
 
         @Test
-        public void nameWithSpaces_get404() throws Exception {
+        public void nameWithSpaces_get400() throws Exception {
             when(authService.getRequestUser(any()))
                     .thenReturn(student1Dto);
             when(userService.getUserById(anyLong()))
