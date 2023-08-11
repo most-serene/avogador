@@ -22,13 +22,14 @@ public class ProfileManager {
      */
     @Bean
     private void checkProfile() throws InvalidProfileException {
-        if (EnumUtils.isValidEnum(AvogadorProfile.class, activeProfiles)) {
+        log.info(activeProfiles);
+        if (!EnumUtils.isValidEnum(AvogadorProfile.class, activeProfiles.toUpperCase())) {
             throw new InvalidProfileException();
         }
     }
 
     /**
-     * Executes one of the callback given the current profile
+     * Executes one of the callbacks given the current profile
      *
      * @param onDevelop    callback to be executed under develop profile
      * @param onTesting    callback to be executed under develop profile
