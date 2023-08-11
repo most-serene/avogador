@@ -24,6 +24,7 @@ public class UserServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(UserServiceApplication.class, args);
+		log.info("\n\n\t> Server started\n");
 	}
 
 }
