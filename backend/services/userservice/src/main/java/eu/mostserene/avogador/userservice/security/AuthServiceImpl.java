@@ -71,13 +71,13 @@ public class AuthServiceImpl implements AuthService{
 
             // log.info(LoggerColors.warn("Login attempt from " + email + " (" + name + ")"));
 
-            if ("unive.it".equals(domain) || "stud.unive.it".equals(domain)) {
-                // log.info(LoggerColors.success("Login granted to " + email));
-                return new GoogleUser(email, domain, givenName, familyName, picture);
-            } else {
+            if (!"unive.it".equals(domain) && !"stud.unive.it".equals(domain)) {
                 // log.error(LoggerColors.error("Login denied to " + email));
                 throw new InvalidDomainException();
             }
+
+            // log.info(LoggerColors.success("Login granted to " + email));
+            return new GoogleUser(email, domain, givenName, familyName, picture);
         } catch (IOException | ParseException | URISyntaxException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -113,6 +113,12 @@ public class AuthServiceImpl implements AuthService{
         return builder.compact();
     }
 
+    /**
+     *
+     * @param jwt the json web token expressed as string
+     * @return the authenticated user DTO
+     * @throws ForbiddenException thrown if the jwt has been revoked
+     */
     public AuthUserDTO decodeJwt(String jwt) {
         final ObjectMapper mapper = new ObjectMapper();
 
@@ -123,25 +129,27 @@ public class AuthServiceImpl implements AuthService{
 
         AuthUserDTO authUserDTO = mapper.convertValue(jwsMap.get("user"), AuthUserDTO.class);
         Timestamp generationTimestamp = mapper.convertValue(jwsMap.get("generation_timestamp"), Timestamp.class);
-        checkIfRevoked(authUserDTO, generationTimestamp);
+
+        User authUser = userService.getUserById(authUserDTO.getId())
+                .orElseThrow(() -> new ForbiddenException("The token is revoked"));
+
+        if (isJwtRevoked(authUser, generationTimestamp)){
+            throw new ForbiddenException("The token is revoked");
+        }
         return authUserDTO;
     }
 
     /**
      * If the jwt creation timestamp is before the user jwtValidity timestamp, a ForbiddenException is thrown
-     * @param authUserDTO the user claimed by the jwt
+     * @param user the user claimed by the jwt
      * @param generationTimestamp the timestamp included in the jwt
-     * @throws ForbiddenException thrown if the jwt has been revoked
-     * @throws NotFoundException if the user has been deleted previously
      */
-    private void checkIfRevoked(AuthUserDTO authUserDTO, Timestamp generationTimestamp) {
-        if (userService.getUserById(authUserDTO.getId())
-                .orElseThrow(() -> new ForbiddenException("The token is revoked"))
-                .getJwtValidity().compareTo(generationTimestamp) > 0) {
-            throw new ForbiddenException("The token is revoked");
-        }
+    private boolean isJwtRevoked(User user, Timestamp generationTimestamp) {
+        return user.getJwtValidity().compareTo(generationTimestamp) > 0;
+
     }
 
+    @Deprecated(since = "0.1.0-a.2", forRemoval = true)
     private String extractJwt(HttpServletRequest request) {
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
                 .filter(cookie -> "__Secure-jwt".equals(cookie.getName()))
