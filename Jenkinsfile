@@ -84,14 +84,22 @@ pipeline {
                 archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
 
                 script {
-
                     if (env.BRANCH_NAME == 'master') {
+                        echo "Building Storybook"
+                        sh """
+                            cd frontend
+                            yarn build-storybook
+                            tar -czvf storybook.tar.gz storybook-static
+                        """
+
                         echo "Publish artifacts"
                         sh """
                             cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
                             cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
                             cp backend/services/userservice/build/libs/* /share/jars/userservice.jar
-							cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
+							
+                            cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
+                            cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
                         """
                     }
 
@@ -162,7 +170,7 @@ pipeline {
                 withEnv(readFile("$JENKINS_HOME/.envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
                     DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/staging.env build
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/staging.env up -d
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/staging.env up -d --force-recreate
                     DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker container ls -a
                     """
                 }
