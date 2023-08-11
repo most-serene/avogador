@@ -6,7 +6,7 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyDTO;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
-import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
+import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.utils.BadRequestException;
@@ -101,7 +101,7 @@ public class UserController {
     @PostMapping("/google-auth")
     private AuthUserDTOImageHash authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
         log.info("token: "  + googleToken.getGoogleToken());
-        AuthServiceImpl.GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
+        GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
         Optional<User> queriedUser = userService.getUserByEmail(googleUser.email());
 
         final User user = queriedUser.map(innerUser -> {

@@ -5,8 +5,6 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
 import eu.mostserene.avogador.userservice.users.*;
-import eu.mostserene.avogador.userservice.utils.NotFoundException;
-import io.jsonwebtoken.JwsHeader;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -306,6 +304,20 @@ public class UserControllerTests {
                             .content("{\"name\": \"key\", \"expiration\": \"2016-02-16 11:00:02\"}"))
                     .andDo(print())
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void nameWithSpaces_get404() throws Exception {
+            when(authService.getRequestUser(any()))
+                    .thenReturn(student1Dto);
+            when(userService.getUserById(anyLong()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(post("/public/users/1/api-key")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"name\": \"key with spaces\", \"expiration\": \"2016-02-16 11:00:02\"}"))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
         }
 
         @Test

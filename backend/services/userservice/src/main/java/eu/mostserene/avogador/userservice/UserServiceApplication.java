@@ -1,7 +1,6 @@
 package eu.mostserene.avogador.userservice;
 
 import eu.mostserene.avogador.userservice.security.AuthService;
-import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

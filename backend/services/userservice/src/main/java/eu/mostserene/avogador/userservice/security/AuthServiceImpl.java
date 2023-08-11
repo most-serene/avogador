@@ -20,7 +20,6 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
