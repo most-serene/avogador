@@ -5,6 +5,7 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl;
 import eu.mostserene.avogador.userservice.users.*;
+import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,6 +36,7 @@ public class UserControllerTests {
     private @MockBean EmailService emailService;
     private @MockBean UserService userService;
     private @MockBean ApiKeyService apiKeyService;
+    private @MockBean ProfileManager profileManager;
 
 
     private final AuthUserDTO student1Dto = new AuthUserDTO(1L, "student1@stud.unive.it", "Andy", "Bernard", false, false);
@@ -42,6 +47,14 @@ public class UserControllerTests {
     private final User student2 = new User("student2@stud.unive.it", "Angela", "Martin");
     private final User professor = new User("professor@unive.it", "Dwight", "Schrute");
     private final User superuser = new User("superuser@stud.unive.it", "Michael", "Scott");
+    private final ResponseCookie cookie = ResponseCookie.from("testing-jwt")
+            .value(null)
+            .httpOnly(true)
+            .path("/")
+            .secure(false)
+            .maxAge(Duration.ofSeconds(1))
+            .sameSite("None")
+            .build();
 
     @Nested
     class GetUserById {
@@ -56,6 +69,7 @@ public class UserControllerTests {
                     .andDo(print())
                     .andExpect(status().isNotFound());
         }
+
         @Test
         public void fromDifferentStudent_get200() throws Exception {
             when(authService.getRequestUser(any()))
@@ -68,6 +82,7 @@ public class UserControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.email").isEmpty());
         }
+
         @Test
         public void fromSelf_get200() throws Exception {
             when(authService.getRequestUser(any()))
@@ -190,10 +205,13 @@ public class UserControllerTests {
 
     @Test
     public void logoutUser() throws Exception {
+        when(profileManager.executeOnProfile(any(), any(), any(), any()))
+                .thenReturn(cookie);
+
         mvc.perform(get("/public/users/logout"))
                 .andDo(print())
-                .andExpect(cookie().exists("__Secure-jwt"))
-                .andExpect(cookie().maxAge("__Secure-jwt", 0));
+                .andExpect(cookie().exists("testing-jwt"))
+                .andExpect(cookie().maxAge("testing-jwt", 1));
     }
 
     @Nested
