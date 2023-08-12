@@ -51,7 +51,7 @@ public class UserControllerTests {
             .value(null)
             .httpOnly(true)
             .path("/")
-            .secure(false)
+            .secure(true)
             .maxAge(Duration.ofSeconds(1))
             .sameSite("None")
             .build();

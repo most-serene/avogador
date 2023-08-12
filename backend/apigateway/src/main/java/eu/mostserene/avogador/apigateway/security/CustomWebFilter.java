@@ -163,7 +163,7 @@ public class CustomWebFilter implements WebFilter {
                 .httpOnly(true)
                 .path("/")
                 .domain("localhost")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();
@@ -174,7 +174,7 @@ public class CustomWebFilter implements WebFilter {
                 .value(null)
                 .httpOnly(true)
                 .path("/")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();
@@ -186,7 +186,7 @@ public class CustomWebFilter implements WebFilter {
                 .httpOnly(true)
                 .path("/")
                 .domain("api.avogador.staging.mostserene.eu")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();

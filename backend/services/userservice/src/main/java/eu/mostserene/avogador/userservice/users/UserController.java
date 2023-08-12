@@ -167,7 +167,7 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .domain("localhost")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofDays(7))
                 .sameSite("None")
                 .build();
@@ -178,7 +178,7 @@ public class UserController {
                 .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(8)))
                 .httpOnly(true)
                 .path("/")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofDays(7))
                 .sameSite("None")
                 .build();
@@ -190,7 +190,7 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .domain("api.avogador.staging.mostserene.eu")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofDays(7))
                 .sameSite("None")
                 .build();
@@ -230,7 +230,7 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .domain("localhost")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();
@@ -241,7 +241,7 @@ public class UserController {
                 .value(null)
                 .httpOnly(true)
                 .path("/")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();
@@ -253,7 +253,7 @@ public class UserController {
                 .httpOnly(true)
                 .path("/")
                 .domain("api.avogador.staging.mostserene.eu")
-                .secure(false)
+                .secure(true)
                 .maxAge(Duration.ofSeconds(1))
                 .sameSite("None")
                 .build();
