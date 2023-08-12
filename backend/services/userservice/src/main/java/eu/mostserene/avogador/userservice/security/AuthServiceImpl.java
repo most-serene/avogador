@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private UserService userService;
@@ -103,8 +103,7 @@ public class AuthServiceImpl implements AuthService{
                 .signWith(signatureAlgorithm, signingKey);
 
         if (ttlMillis > 0) {
-            long expMillis = nowMillis + ttlMillis;
-            Date exp = new Date(expMillis);
+            Date exp = new Date(nowMillis + ttlMillis);
             builder.setExpiration(exp);
         }
 
@@ -114,7 +113,6 @@ public class AuthServiceImpl implements AuthService{
     }
 
     /**
-     *
      * @param jwt the json web token expressed as string
      * @return the authenticated user DTO
      * @throws ForbiddenException thrown if the jwt has been revoked
@@ -133,7 +131,7 @@ public class AuthServiceImpl implements AuthService{
         User authUser = userService.getUserById(authUserDTO.getId())
                 .orElseThrow(() -> new ForbiddenException("The token is revoked"));
 
-        if (isJwtRevoked(authUser, generationTimestamp)){
+        if (isJwtRevoked(authUser, generationTimestamp)) {
             throw new ForbiddenException("The token is revoked");
         }
         return authUserDTO;
@@ -141,7 +139,8 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * If the jwt creation timestamp is before the user jwtValidity timestamp, a ForbiddenException is thrown
-     * @param user the user claimed by the jwt
+     *
+     * @param user                the user claimed by the jwt
      * @param generationTimestamp the timestamp included in the jwt
      */
     private boolean isJwtRevoked(User user, Timestamp generationTimestamp) {
@@ -191,7 +190,7 @@ public class AuthServiceImpl implements AuthService{
     public AuthUserDTO validateApiKey(String apiKey) {
         return userService.getUserById(
                 apiKeyService.getApiKeyByHash(Hashing.sha256()
-                        .hashString(apiKey, StandardCharsets.UTF_8).toString())
+                                .hashString(apiKey, StandardCharsets.UTF_8).toString())
                         .orElseThrow(() -> new ForbiddenException("API key not valid"))
                         .getUser().getId()
         ).orElseThrow(() -> new ForbiddenException("API key not valid")).generateAuthUserDTO();
@@ -199,12 +198,14 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * Record representing the GoogleUser returned by the call to the Google Auth API
+     *
      * @param email
      * @param domain
      * @param givenName
      * @param familyName
      * @param picture
      */
-    public record GoogleUser(String email, String domain, String givenName, String familyName, String picture) { }
+    public record GoogleUser(String email, String domain, String givenName, String familyName, String picture) {
+    }
 
 }
