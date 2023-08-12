@@ -47,13 +47,15 @@ public class CustomWebFilter implements WebFilter {
         log.info("CSRF - " + isCSRF(exchange.getRequest()));
 
         if (isCSRF(exchange.getRequest())) {
+            log.info(" -- CSRF detected?!");
             ResponseCookie cookie = profileManager.executeOnProfile(
                     this::developLogout,
                     this::testingLogout,
                     this::stagingLogout,
                     this::productionLogout
             );
-            exchange.getResponse().addCookie(cookie);
+            // FIXME
+            // exchange.getResponse().addCookie(cookie);
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
