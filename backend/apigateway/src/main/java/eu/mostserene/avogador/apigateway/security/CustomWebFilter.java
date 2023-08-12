@@ -3,10 +3,10 @@ package eu.mostserene.avogador.apigateway.security;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
+import eu.mostserene.avogador.apigateway.utils.ProfileManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
@@ -31,8 +31,8 @@ public class CustomWebFilter implements WebFilter {
     @Autowired
     private AuthService authService;
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
+    @Autowired
+    private ProfileManager profileManager;
 
     @Override
     @NonNull
@@ -40,18 +40,19 @@ public class CustomWebFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         String uri = exchange.getRequest().getURI().getPath();
         String requestId = RandomStringUtils.randomAlphanumeric(10);
-        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+        String cookieName = getCookieName();
 
         log.info("Request ID - " + requestId);
 
         log.info("CSRF - " + isCSRF(exchange.getRequest()));
 
         if (isCSRF(exchange.getRequest())) {
-            ResponseCookie cookie = ResponseCookie.from(cookieName, "")
-                    .path("/")
-                    .httpOnly(true)
-                    .maxAge(Duration.ZERO)
-                    .build();
+            ResponseCookie cookie = profileManager.executeOnProfile(
+                    this::developLogout,
+                    this::testingLogout,
+                    this::stagingLogout,
+                    this::productionLogout
+            );
             exchange.getResponse().addCookie(cookie);
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
@@ -145,8 +146,64 @@ public class CustomWebFilter implements WebFilter {
         }
     }
 
+    private String getCookieName() {
+        return profileManager.executeOnProfile(
+                () -> "develop-jwt",
+                () -> "testing-jwt",
+                () -> "staging-jwt",
+                () -> "__Secure-jwt"
+        );
+    }
+
+    private ResponseCookie developLogout() {
+        return ResponseCookie.from("develop-jwt")
+                .value(null)
+                .httpOnly(true)
+                .path("/")
+                .domain("localhost")
+                .secure(false)
+                .maxAge(Duration.ofSeconds(1))
+                .sameSite("None")
+                .build();
+    }
+
+    private ResponseCookie testingLogout() {
+        return ResponseCookie.from("testing-jwt")
+                .value(null)
+                .httpOnly(true)
+                .path("/")
+                .secure(false)
+                .maxAge(Duration.ofSeconds(1))
+                .sameSite("None")
+                .build();
+    }
+
+    private ResponseCookie stagingLogout() {
+        return ResponseCookie.from("staging-jwt")
+                .value(null)
+                .httpOnly(true)
+                .path("/")
+                .domain("api.avogador.staging.mostserene.eu")
+                .secure(false)
+                .maxAge(Duration.ofSeconds(1))
+                .sameSite("None")
+                .build();
+    }
+
+    private ResponseCookie productionLogout() {
+        return ResponseCookie.from("__Secure-jwt")
+                .value(null)
+                .httpOnly(true)
+                .path("/")
+                // .domain("api.avogador.mostserene.eu")
+                .secure(true)
+                .maxAge(Duration.ofSeconds(1))
+                .sameSite("Lax")
+                .build();
+    }
+
     private boolean isCSRF(ServerHttpRequest request) {
-        String cookieName = "develop".equals(activeProfile) ? "jwt" : "__Secure-jwt";
+        String cookieName = getCookieName();
         HttpCookie jwtCookie = request.getCookies().getFirst(cookieName);
 
         if (jwtCookie == null) return false;

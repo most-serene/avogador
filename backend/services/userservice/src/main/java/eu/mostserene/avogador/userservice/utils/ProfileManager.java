@@ -99,6 +99,5 @@ public class ProfileManager {
             case "production" -> onProduction.accept(t);
             default -> throw new RuntimeException("This should never happen");
         }
-        ;
     }
 }

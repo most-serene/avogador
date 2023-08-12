@@ -10,6 +10,7 @@ import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.utils.BadRequestException;
+import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import jakarta.servlet.http.Cookie;
@@ -147,6 +148,8 @@ public class UserController {
                 this::buildProductionJWT,
                 user
         );
+
+        log.info(LoggerColors.error(jwtCookie.toString()));
 
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
