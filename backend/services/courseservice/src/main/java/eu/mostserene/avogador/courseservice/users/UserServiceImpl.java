@@ -1,5 +1,7 @@
 package eu.mostserene.avogador.courseservice.users;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getRequestUser(HttpServletRequest request) {
-        throw new UnsupportedOperationException("Method not implemented");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(request.getHeader("User"), UserDto.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
