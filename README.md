@@ -1,5 +1,5 @@
 ![build](https://status-api.mostserene.eu/projects/5?)
-# avogador
+# Avogador
 A system to perform coding exercises
 
 *   [staging app deployed](https://avogador.staging.mostserene.eu/)
