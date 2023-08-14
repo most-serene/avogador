@@ -57,6 +57,16 @@ public class UserController {
     private String activeProfile;
 
     /**
+     * Get the user claimed by the current JWT cookie
+     * @param request the current HTTP request
+     * @return the related AuthUserDTO
+     */
+    @GetMapping("/current")
+    private AuthUserDTO getCurrentUser(HttpServletRequest request) {
+        return authService.decodeJwt(authService.extractJwt(request));
+    }
+
+    /**
      * Get a user by id, if called by a student, and he's not himself, the email is obfuscated
      *
      * @param request the current request
