@@ -8,6 +8,7 @@ import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
+import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -47,9 +48,13 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private ApiKeyService apiKeyService;
 
+    @Autowired
+    private ProfileManager profileManager;
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Override
     public GoogleUser getGoogleUser(String googleToken) throws InvalidDomainException {
         try {
             HttpRequest httpRequest = HttpRequest
@@ -84,6 +89,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
+    @Override
     public String generateJWT(User user, long ttlMillis) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
@@ -112,11 +118,7 @@ public class AuthServiceImpl implements AuthService {
         return builder.compact();
     }
 
-    /**
-     * @param jwt the json web token expressed as string
-     * @return the authenticated user DTO
-     * @throws ForbiddenException thrown if the jwt has been revoked
-     */
+    @Override
     public AuthUserDTO decodeJwt(String jwt) {
         final ObjectMapper mapper = new ObjectMapper();
 
@@ -148,13 +150,19 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    @Deprecated(since = "0.1.0-a.2", forRemoval = true)
-    private String extractJwt(HttpServletRequest request) {
+    @Override
+    public String extractJwt(HttpServletRequest request) {
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
-                .filter(cookie -> "__Secure-jwt".equals(cookie.getName()))
+                .filter(cookie -> (profileManager.executeOnProfile(
+                        () -> "develop-jwt",
+                        () -> "testing-jwt",
+                        () -> "staging-jwt",
+                        () -> "__Secure-jwt"
+                )).equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
     }
 
+    @Override
     public AuthUserDTO getRequestUser(HttpServletRequest request) {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -164,16 +172,19 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
     public String getRequestID(HttpServletRequest request) {
         return request.getHeader("Request-ID");
     }
 
+    @Override
     public void revokeUserJWTs(Long userId) {
         User user = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("User " + userId));
         user.setJwtValidity(Timestamp.from(Instant.now()));
         userService.updateUser(user);
     }
 
+    @Override
     public <T> T executeOnRole(AuthUserDTO user,
                                Function<AuthUserDTO, T> studentCallback,
                                Function<AuthUserDTO, T> professorCallback,
@@ -187,6 +198,7 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
     public AuthUserDTO validateApiKey(String apiKey) {
         return userService.getUserById(
                 apiKeyService.getApiKeyByHash(Hashing.sha256()

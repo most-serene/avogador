@@ -19,6 +19,14 @@ public interface AuthService {
     AuthUserDTO decodeJwt(String jwt);
 
     /**
+     * Extract the JWT Cookie from a request and return it as a string
+     * @param request the current HTTP request
+     * @return the JWT as String
+     * @throws MissingJwtException if no JWT cookie is present
+     */
+    String extractJwt(HttpServletRequest request);
+
+    /**
      * Get the request associated to the current request
      * @param request the current request
      * @return the corresponding user
