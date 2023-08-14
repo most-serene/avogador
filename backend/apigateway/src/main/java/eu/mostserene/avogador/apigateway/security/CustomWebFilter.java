@@ -106,7 +106,7 @@ public class CustomWebFilter implements WebFilter {
 
         log.info("not api call");
 
-        if (uri.matches("^/|^/users/google-auth.*|^/users/logout.*")) {
+        if (uri.matches("^/|^/users/google-auth.*|^/users/logout.*|^/users/current.*")) {
             log.info("user auth call");
             return chain.filter(
                     exchange.mutate().request(
