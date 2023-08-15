@@ -5,4 +5,12 @@ interface Course {
   isArchived: boolean;
 }
 
-export type { Course };
+interface GetCoursesResponse {
+  course: Course;
+  id: number;
+  joinDate: Date;
+  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+  user: number;
+}
+
+export type { Course, GetCoursesResponse };
