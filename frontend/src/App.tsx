@@ -9,10 +9,10 @@ import { avogadorApi } from "./utils/axiosConf.ts";
 import Footer from "./components/misc/Footer.tsx";
 import { User } from "./components/authentication/types.ts";
 
-export const UserContext = createContext<User | null>(null);
+export const UserContext = createContext<User | null | undefined>(undefined);
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>();
 
   useEffect(() => {
     const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
@@ -23,11 +23,10 @@ function App() {
     avogadorApi
       .get("/users/current")
       .then(({ data }: { data: User }) => {
-        console.log(data);
         setUser(data);
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
+        setUser(null);
       });
   }, []);
 
