@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { avogadorApi } from "../../utils/axiosConf.ts";
 import CourseItem from "../courses/CourseItem.tsx";
 import { Course, GetCoursesResponse } from "../courses/types.ts";
-import { useUser } from "../../hooks.ts";
 import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
+import useUser from "../../hooks/useUser.ts";
 
 export default function CoursesPreview() {
   const user = useUser();
@@ -17,13 +17,12 @@ export default function CoursesPreview() {
     avogadorApi
       .get(`/courses/users/${user.id}`)
       .then(({ data }: { data: GetCoursesResponse[] }) => {
-        console.log(data);
         const resCourses = data.map((elem) => elem.course);
         setCourses(resCourses);
         localStorage.setItem("coursesNumber", String(resCourses.length));
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }, [user]);
 

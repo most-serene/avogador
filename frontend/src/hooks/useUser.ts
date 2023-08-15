@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { UserContext } from "./App.tsx";
+import { UserContext } from "../App.tsx";
 
-export const useUser = () => {
+export default () => {
   return useContext(UserContext);
 };
