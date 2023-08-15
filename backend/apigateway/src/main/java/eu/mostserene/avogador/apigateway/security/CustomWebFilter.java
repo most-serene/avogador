@@ -56,8 +56,8 @@ public class CustomWebFilter implements WebFilter {
             );
             // FIXME
             // exchange.getResponse().addCookie(cookie);
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            // exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            // return exchange.getResponse().setComplete();
         }
 
         log.info(uri);
