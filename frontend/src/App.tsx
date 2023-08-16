@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Container } from "@mui/material";
 import HomeScreen from "./components/home/HomeScreen";
 import Navbar from "./components/misc/Navbar";
@@ -10,6 +10,15 @@ import Footer from "./components/misc/Footer.tsx";
 import { User } from "./components/authentication/types.ts";
 
 export const UserContext = createContext<User | null | undefined>(undefined);
+
+const NotFound = () => {
+  const navigate = useNavigate();
+
+  navigate('/')
+  
+  return <>
+  </>
+}
 
 function App() {
   const [user, setUser] = useState<User | null>();
@@ -58,6 +67,7 @@ function App() {
                 </Container>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </UserContext.Provider>
