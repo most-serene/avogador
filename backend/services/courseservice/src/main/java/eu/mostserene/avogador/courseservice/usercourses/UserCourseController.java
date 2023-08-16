@@ -4,6 +4,7 @@ package eu.mostserene.avogador.courseservice.usercourses;
 import eu.mostserene.avogador.courseservice.courses.ArchivedCourseException;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class UserCourseController {
     private FileSystemService fileSystemService;
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the course to join
      * @param reqJoinCode the provided join code string
      * @return the fresh user-course relation or the already existing one
@@ -36,8 +37,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(500) if problems occurred while generating the join code
      * */
     @PutMapping("/{courseId}/join/{reqJoinCode}")
-    private UserCourse joinCourse(HttpServletRequest request, @PathVariable Long courseId, @PathVariable String reqJoinCode){
-        var user = userService.getRequestUser(request);
+    private UserCourse joinCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable String reqJoinCode){
         var course = courseService.getCourse(courseId)
                 .orElseThrow(NotFoundException::new);
 
@@ -57,7 +57,7 @@ public class UserCourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course
      * @param userId the id of the user to promote
      * @return the updated user-course relation with role COLLABORATOR
@@ -65,8 +65,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/collaborators/{userId}")
-    private UserCourse promoteToCollaborator(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
-        var user = userService.getRequestUser(request);
+    private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course"));
 
@@ -84,7 +83,7 @@ public class UserCourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course
      * @param userId the id of the user to demote
      * @return the updated user-course relation with role STUDENT
@@ -92,8 +91,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/students/{userId}")
-    private UserCourse demoteToStudent(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
-        var user = userService.getRequestUser(request);
+    private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot demote users in this course"));
 
@@ -112,14 +110,13 @@ public class UserCourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param userId the id of the user
      * @return the courses to which the user belongs
      * @throws ResponseStatusException(400) if the userId doesn't match the requester id
      * */
     @GetMapping("/users/{userId}")
-    private List<UserCourse> getCoursesByUser(HttpServletRequest request, @PathVariable Long userId){
-        var user = userService.getRequestUser(request);
+    private List<UserCourse> getCoursesByUser(@RequestHeader(name = "User") UserDto user, @PathVariable Long userId){
         if (!userId.equals(user.getId())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
@@ -128,14 +125,13 @@ public class UserCourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course
      * @return the users subscribed to the course
      * @throws ResponseStatusException(403) if the user is not part of the course or is a student
      * */
     @GetMapping("/{courseId}/users")
-    private List<UserCourse> getUsersByCourse(HttpServletRequest request, @PathVariable Long courseId){
-        var user = userService.getRequestUser(request);
+    private List<UserCourse> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
         var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course"));
         if (userCourse.getRole() == CourseRole.STUDENT){
@@ -146,14 +142,13 @@ public class UserCourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the course id
      * @param userId the user to be removed from the course
      * @throws ResponseStatusException(403) if the course is archived, the removed user has greater or equal clearance than the requester
      */
     @DeleteMapping("/{courseId}/users/{userId}")
-    private void leaveCourse(HttpServletRequest request, @PathVariable Long courseId, @PathVariable Long userId){
-        var user = userService.getRequestUser(request);
+    private void leaveCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId).
                 orElseThrow(NotMemberException::new);
 
