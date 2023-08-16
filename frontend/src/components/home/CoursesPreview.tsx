@@ -7,7 +7,7 @@ import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
 import useUser from "../../hooks/useUser.ts";
 
 export default function CoursesPreview() {
-  const user = useUser();
+  const { user } = useUser();
   const [courses, setCourses] = useState<Course[]>();
 
   useEffect(() => {

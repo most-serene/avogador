@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { avogadorApi } from "../../utils/axiosConf.ts";
-import Button from "@mui/material/Button";
-import LoginGoogle from "../authentication/LoginGoogle/LoginGoogle.tsx";
 
 export default function ServicesStatus() {
   const [gatewayStatus, setGatewayStatus] = useState<string>("offline");
@@ -48,24 +46,6 @@ export default function ServicesStatus() {
       <p>gateway {gatewayStatus}</p>
       <p>users {usersStatus}</p>
       <p>gateway {coursesStatus}</p>
-      <div className="card">
-        <LoginGoogle />
-        <Button
-          variant="outlined"
-          onClick={() => {
-            avogadorApi
-              .get("/users/logout")
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }}
-        >
-          Logout
-        </Button>
-      </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
