@@ -13,7 +13,6 @@ import eu.mostserene.avogador.userservice.utils.BadRequestException;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @RestController
 @Slf4j
@@ -67,15 +65,14 @@ public class UserController {
     }
 
     /**
-     * Get a user by id, if called by a student, and he's not himself, the email is obfuscated
+     * Get a user by id, if called by a student, and it's not themselves, the email is obfuscated
      *
-     * @param request the current request
+     * @param user the current user from the header
      * @param userId  the id of the user
      * @return the corresponding user
      */
     @GetMapping("/{userId}")
-    private AuthUserDTO getUserById(HttpServletRequest request, @PathVariable Long userId) {
-        var user = authService.getRequestUser(request);
+    private AuthUserDTO getUserById(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
         var responseUser = userService.getUserById(userId)
                 .orElseThrow(NotFoundException::new);
         if (!user.getIsProfessor() && !user.getIsSuperuser() && !user.getId().equals(userId))
@@ -84,35 +81,32 @@ public class UserController {
     }
 
     /**
-     * Get a user by his email
+     * Get a user by their email
      *
-     * @param request the current request
-     * @param email   the email of the user
+     * @param email the email of the user
      * @return the corresponding user
      */
     @GetMapping("/email/{email}")
-    private AuthUserDTO getUserByEmail(HttpServletRequest request, @PathVariable String email) {
-        authService.getRequestUser(request);
+    private AuthUserDTO getUserByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User " + email)).generateAuthUserDTO();
     }
 
     /**
-     * Delete a user by id. Only a superuser or the user himself are allowed to do that.
+     * Delete a user by id. Only a superuser or the user itself are allowed to do that.
      *
      * @param userId the id of the user
      */
     @DeleteMapping("/{userId}")
-    private void deleteUser(HttpServletRequest request, @PathVariable Long userId) {
-        AuthUserDTO authUserDTO = authService.getRequestUser(request);
+    private void deleteUser(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
         var userToDelete = userService.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User " + userId));
 
-        authUserDTO.requireSuperuser().ifPresentOrElse(
+        user.requireSuperuser().ifPresentOrElse(
                 superuser -> userService.deleteUser(userToDelete),
                 () -> {
-                    authUserDTO.requireId(userId)
-                            .orElseThrow(() -> new ForbiddenException(authUserDTO));
+                    user.requireId(userId)
+                            .orElseThrow(() -> new ForbiddenException(user));
                     userService.deleteUser(userToDelete);
                 }
         );
@@ -283,32 +277,30 @@ public class UserController {
 
 
     /**
-     * Revokes all the existing jwt for the user in param.
-     * This call is allowed only from a superuser or the user himself
+     * Revoke all the existing JWTs for the user.
+     * This call is allowed only from a superuser or the user itself
      *
-     * @param request the request
+     * @param user    the request user
      * @param userId  the id of the user whose tokens have to be revoked
      */
     @PatchMapping("/{userId}/revoke-jwt")
-    private void revokeJWTs(HttpServletRequest request, @PathVariable Long userId) {
-        AuthUserDTO requestUser = authService.getRequestUser(request);
-        if (!requestUser.getIsSuperuser() && !Objects.equals(requestUser.getId(), userId)) {
-            throw new ForbiddenException(requestUser);
+    private void revokeJWTs(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+        if (!user.getIsSuperuser() && !Objects.equals(user.getId(), userId)) {
+            throw new ForbiddenException(user);
         }
         authService.revokeUserJWTs(userId);
     }
 
     /**
-     * Gets all the API key owned by a user
+     * Get all the API key owned by a user
      *
-     * @param request the current request
+     * @param user    the current request user
      * @param userId  the id of the user who owns the keys
      * @return the list of the API keys
      */
     @GetMapping("/{userId}/api-key")
-    private List<ApiKeyDTO> getUserApiKeys(HttpServletRequest request, @PathVariable Long userId) {
-        AuthUserDTO requester = authService.getRequestUser(request);
-        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+    private List<ApiKeyDTO> getUserApiKeys(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+        user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         return apiKeyService.getApiKeyByUser(
                         userService.getUserById(userId).orElseThrow(() -> new NotFoundException(userId.toString())))
@@ -321,23 +313,22 @@ public class UserController {
     /**
      * Generate an API key for the given user
      *
-     * @param request    the current request
+     * @param user       the current request user
      * @param userId     the id of the user who will own the key
-     * @param apiKeyName the firendly name of the key
+     * @param apiKeyName the friendly name of the key
      * @return the generated key
      * @throws AlreadyExistingKeyException if the pair user-name already exists
      */
     @PostMapping("/{userId}/api-key")
-    private String generateApiKey(HttpServletRequest request, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) {
-        AuthUserDTO requester = authService.getRequestUser(request);
-        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+    private String generateApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) {
+        user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         if (apiKeyName.getName().split("\\s+").length > 1) {
             throw new BadRequestException("ApiKey name cannot contain spaces");
         }
 
         return apiKeyService.generateApiKey(
-                userService.getUserById(requester.getId())
+                userService.getUserById(user.getId())
                         .orElseThrow(() -> new NotFoundException(userId.toString())),
                 apiKeyName.getName(), apiKeyName.getExpiration()
         );
@@ -346,14 +337,13 @@ public class UserController {
     /**
      * Delete an API key
      *
-     * @param request the current request
+     * @param user    the current request
      * @param userId  the id of the user who owns the key
      * @param keyName the friendly name of the key
      */
     @DeleteMapping("/{userId}/api-key/{keyName}")
-    private void deleteApiKey(HttpServletRequest request, @PathVariable Long userId, @PathVariable String keyName) {
-        AuthUserDTO requester = authService.getRequestUser(request);
-        requester.requireId(userId).orElseThrow(() -> new ForbiddenException(requester));
+    private void deleteApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId, @PathVariable String keyName) {
+        user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         apiKeyService.deleteApiKey(
                 apiKeyService.getApiKeyByName(
