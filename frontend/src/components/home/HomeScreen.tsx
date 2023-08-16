@@ -2,11 +2,12 @@ import CoursesPreview from "./CoursesPreview.tsx";
 import Grid from "@mui/material/Grid";
 import DeadlineStack from "./DeadlineStack.tsx";
 import { useEffect } from "react";
-import useUser from "../../hooks/useUser.ts";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import userAtom from "../authentication/userAtom.ts";
 
 export default function HomeScreen() {
-  const { user } = useUser();
+  const [user] = useAtom(userAtom);
   const navigate = useNavigate();
 
   useEffect(() => {

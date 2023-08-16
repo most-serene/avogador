@@ -1,9 +1,10 @@
-import useUser from "../../../hooks/useUser";
 import { avogadorApi } from "../../../utils/axiosConf";
 import { User } from "../types";
+import { useAtom } from "jotai";
+import userAtom from "../userAtom";
 
 export const useAuthService = () => {
-  const { setUser } = useUser();
+  const [user, setUser] = useAtom(userAtom);
 
   const getCurrent = () => {
     avogadorApi
@@ -50,6 +51,7 @@ export const useAuthService = () => {
       .get("/users/logout")
       .then((res) => {
         console.log(res);
+        console.log(user);
         setUser(null);
       })
       .catch((err) => {

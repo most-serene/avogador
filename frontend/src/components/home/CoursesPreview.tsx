@@ -4,10 +4,11 @@ import { avogadorApi } from "../../utils/axiosConf.ts";
 import CourseItem from "../courses/CourseItem.tsx";
 import { Course, GetCoursesResponse } from "../courses/types.ts";
 import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
-import useUser from "../../hooks/useUser.ts";
+import { useAtom } from "jotai";
+import userAtom from "../authentication/userAtom.ts";
 
 export default function CoursesPreview() {
-  const { user } = useUser();
+  const [user] = useAtom(userAtom);
   const [courses, setCourses] = useState<Course[]>();
 
   useEffect(() => {
