@@ -31,6 +31,7 @@ public interface AuthService {
      * @param request the current request
      * @return the corresponding user
      */
+    @Deprecated(since = "0.1.0-a.2", forRemoval = true)
     AuthUserDTO getRequestUser(HttpServletRequest request);
 
     /**

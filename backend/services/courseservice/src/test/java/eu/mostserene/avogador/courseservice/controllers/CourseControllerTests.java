@@ -40,30 +40,39 @@ public class CourseControllerTests {
     private @MockBean UserService userService;
     private @MockBean FileSystemService fileSystemService;
 
+    // COURSES
     private final Course course = new Course("course", "2023/2024", false);
     private final Course archivedCourse = new Course("archivedCourse", "2023/2024", true);
     private final Course updatedCourse = new Course("course2", "2023/2024", false);
+    // COURSES (JSON)
     private final String courseJSON = "{\"name\": \"course\", \"year\": \"2023/2024\"}";
     private final String updatedCourseJSON = "{\"id\": 1, \"name\": \"course2\", \"year\": \"2023/2024\"}";
     private final String hackedCourseJSON = "{\"id\": 1, \"name\": \"course\", \"year\": \"2023/2024\", \"isArchived\": true}";
-    private final UserDto studentUser = new UserDto(1L, "student@stud.unive.it", "Student", "1", false, false);
-    private final UserDto collaboratorUser = new UserDto(2L, "collaborator@stud.unive.it", "Collaborator", "1", false, false);
-    private final UserDto professorUser = new UserDto(3L, "professor@unive.it", "Professor", "1", true, false);
+    // USERS
+    private final UserDto studentUser = new UserDto(1L, "student@stud.unive.it", "Andy", "Bernard", false, false);
+    private final UserDto collaboratorUser = new UserDto(2L, "collaborator@stud.unive.it", "Dwight", "Schrute", false, false);
+    private final UserDto professorUser = new UserDto(3L, "professor@unive.it", "Michael", "Scott", true, false);
+    // COURSE-USERS
     private final UserCourse student = new UserCourse(studentUser, course, CourseRole.STUDENT);
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
     private final UserCourse archivedAdmin = new UserCourse(professorUser, archivedCourse, CourseRole.ADMIN);
+    // USER HEADERS
+    private final String studentHeader = "{\"id\":1, \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
+    private final String collaboratorHeader = "{\"id\":2, \"email\":\"collaborator@stud.unive.it\", \"givenName\":\"Dwight\", \"familyName\":\"Schrute\", \"isProfessor\":false, \"isSuperuser\":false}";
+    private final String professorHeader = "{\"id\":3, \"email\":\"professor@stud.unive.it\", \"givenName\":\"Michael\", \"familyName\":\"Scott\", \"isProfessor\":true, \"isSuperuser\":false}";
+
+
 
     @Nested
     class CreateCourse{
         @Test
         public void fromStudent_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(courseService.createCourse(any()))
                 .thenReturn(course);
 
             mvc.perform(post("/public/courses")
+                            .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(courseJSON)
                     )
@@ -73,12 +82,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromProfessor_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(professorUser);
             when(courseService.createCourse(any()))
                 .thenReturn(course);
 
             mvc.perform(post("/public/courses")
+                            .header("User", professorHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(courseJSON)
                     )
@@ -88,12 +96,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromProfessor_withArchivedTrue_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(courseService.createCourse(any()))
                     .thenReturn(course);
 
             mvc.perform(post("/public/courses")
+                            .header("User", professorHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(hackedCourseJSON)
                     )
@@ -107,12 +114,11 @@ public class CourseControllerTests {
     class UpdateCourse{
         @Test
         public void wrongId_get400() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/2")
+                            .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -122,12 +128,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromOutside_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/1")
+                            .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -137,12 +142,11 @@ public class CourseControllerTests {
 
         @Test
         public void fromStudent_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(student));
 
             mvc.perform(put("/public/courses/1")
+                            .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -152,12 +156,11 @@ public class CourseControllerTests {
 
         @Test
         public void withArchivedTrue_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(archivedAdmin));
 
             mvc.perform(put("/public/courses/1")
+                            .header("User", professorHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -167,14 +170,13 @@ public class CourseControllerTests {
 
         @Test
         public void fromCollaborator_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(collaboratorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(collaborator));
             when(courseService.updateCourse(anyLong(), any()))
                 .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
+                            .header("User", collaboratorHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -184,14 +186,13 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(admin));
             when(courseService.updateCourse(anyLong(), any()))
                 .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/1")
+                            .header("User", professorHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(updatedCourseJSON)
                     )
@@ -205,62 +206,52 @@ public class CourseControllerTests {
 
         @Test
         public void notMember_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromStudent_archivedCourse_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(new UserCourse(studentUser, archivedCourse, CourseRole.STUDENT)));
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromAdmin_archivedCourse_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(archivedAdmin));
             when(courseService.getJoinCode(anyLong()))
                         .thenReturn(Optional.of("joincode"));
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isOk());
         }
 
         @Test
         public void isMember_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                 .thenReturn(Optional.of(student));
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isOk());
         }
 
         @Test
         public void isStudent_get200_nullJoinCode() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(student));
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.joinCode").isEmpty());
@@ -268,14 +259,12 @@ public class CourseControllerTests {
 
         @Test
         public void isAdmin_get200_nullJoinCode() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
             when(courseService.getJoinCode(anyLong()))
                     .thenReturn(Optional.of("joincode"));
 
-            mvc.perform(get("/public/courses/1"))
+            mvc.perform(get("/public/courses/1").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.joinCode").isNotEmpty());
@@ -286,48 +275,40 @@ public class CourseControllerTests {
     class DeleteCourse{
         @Test
         public void fromOutside_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(delete("/public/courses/1"))
+            mvc.perform(delete("/public/courses/1").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromStudent_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(student));
 
-            mvc.perform(delete("/public/courses/1"))
+            mvc.perform(delete("/public/courses/1").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromCollaborator_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(collaboratorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(collaborator));
 
-            mvc.perform(delete("/public/courses/1"))
+            mvc.perform(delete("/public/courses/1").header("User", collaboratorHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
 
-            mvc.perform(delete("/public/courses/1"))
+            mvc.perform(delete("/public/courses/1").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isOk());
         }
@@ -337,48 +318,40 @@ public class CourseControllerTests {
     class ArchiveCourse {
         @Test
         public void fromOutside_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(put("/public/courses/1/archive"))
+            mvc.perform(put("/public/courses/1/archive").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromStudent_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(studentUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(student));
 
-            mvc.perform(put("/public/courses/1/archive"))
+            mvc.perform(put("/public/courses/1/archive").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromCollaborator_get403() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(collaboratorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(collaborator));
 
-            mvc.perform(put("/public/courses/1/archive"))
+            mvc.perform(put("/public/courses/1/archive").header("User", collaboratorHeader))
                     .andDo(print())
                     .andExpect(status().isForbidden());
         }
 
         @Test
         public void fromAdmin_get200() throws Exception{
-            when(userService.getRequestUser(any()))
-                    .thenReturn(professorUser);
             when(userCourseService.getUserCourse(anyLong(), anyLong()))
                     .thenReturn(Optional.of(admin));
 
-            mvc.perform(put("/public/courses/1/archive"))
+            mvc.perform(put("/public/courses/1/archive").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isArchived").value(true));

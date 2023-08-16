@@ -4,8 +4,8 @@ import eu.mostserene.avogador.courseservice.courses.dtos.CourseDetailDto;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
+import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -27,14 +27,13 @@ public class CourseController {
 
 
     /**
-     * @param request the requests object
+     * @param user the request user
      * @param reqCourse the course from the body of the request
      * @return the freshly created course with status code 200
      * @throws ResponseStatusException(403) if the user is not professor
      */
     @PostMapping("")
-    private Course createCourse(HttpServletRequest request, @RequestBody Course reqCourse) {
-        var user = userService.getRequestUser(request);
+    private Course createCourse(@RequestHeader(name = "User") UserDto user, @RequestBody Course reqCourse) {
         if(!user.getIsProfessor()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot create a course");
         }
@@ -47,7 +46,7 @@ public class CourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course to update
      * @param reqCourse the updated course from the body of the request
      * @return the updated course
@@ -56,12 +55,11 @@ public class CourseController {
      * @throws ResponseStatusException(403) if the course is archived
      * */
     @PutMapping("/{courseId}")
-    private Course updateCourse(HttpServletRequest request, @PathVariable Long courseId, @RequestBody Course reqCourse){
+    private Course updateCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @RequestBody Course reqCourse){
         if (!Objects.equals(reqCourse.getId(), courseId)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course Id mismatch");
         }
 
-        var user = userService.getRequestUser(request);
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
@@ -78,16 +76,14 @@ public class CourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course
      * @return the course corresponding to the id together with the joinCode
      * @throws ResponseStatusException(403) if the UserCourse relation does not exist
      * @throws ResponseStatusException(500) if the CourseService couldn't create a join code
      * */
     @GetMapping("/{courseId}")
-    private CourseDetailDto getCourseById(HttpServletRequest request, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
-        var user = userService.getRequestUser(request);
-
+    private CourseDetailDto getCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
         var userCourse =  userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"));
@@ -106,13 +102,12 @@ public class CourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course to delete
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
      * */
     @DeleteMapping("/{courseId}")
-    private void deleteCourseById(HttpServletRequest request, @PathVariable Long courseId){
-        var user = userService.getRequestUser(request);
+    private void deleteCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
@@ -126,14 +121,13 @@ public class CourseController {
     }
 
     /**
-     * @param request the request object
+     * @param user the request user
      * @param courseId the id of the course to archive
      * @return the archived course
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
      * */
     @PutMapping("/{courseId}/archive")
-    private Course archiveCourseById(HttpServletRequest request, @PathVariable Long courseId){
-        var user = userService.getRequestUser(request);
+    private Course archiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course"));
