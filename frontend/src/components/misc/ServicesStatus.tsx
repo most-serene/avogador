@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { avogadorApi } from "../../utils/axiosConf.ts";
 import Button from "@mui/material/Button";
-import LoginGoogle from "../authentication/LoginGoogle.tsx";
+import LoginGoogle from "../authentication/LoginGoogle/LoginGoogle.tsx";
 
 export default function ServicesStatus() {
   const [gatewayStatus, setGatewayStatus] = useState<string>("offline");

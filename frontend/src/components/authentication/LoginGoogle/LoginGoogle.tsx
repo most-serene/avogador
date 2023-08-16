@@ -1,6 +1,6 @@
 //import { Card, CardActions, CardContent, Typography, Grid, Alert} from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
-import { avogadorApi } from "../../utils/axiosConf";
+import { avogadorApi } from "../../../utils/axiosConf";
 import { useState } from "react";
 
 const LoginGoogle = () => {
