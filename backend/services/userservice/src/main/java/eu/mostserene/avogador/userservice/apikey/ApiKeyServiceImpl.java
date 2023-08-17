@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ApiKeyServiceImpl implements ApiKeyService {
@@ -20,7 +21,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
 
     @Override
-    public Optional<ApiKey> getApiKey(Long apikeyId) {
+    public Optional<ApiKey> getApiKey(UUID apikeyId) {
         return apiKeyRepository.findById(apikeyId);
     }
 

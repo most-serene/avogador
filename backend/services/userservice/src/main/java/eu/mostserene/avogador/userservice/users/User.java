@@ -4,20 +4,18 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "Users")
 public class User {
 
     @Id
-    @GeneratedValue(generator="increment")
-    @GenericGenerator(name="increment")
-    @Column(columnDefinition = "serial")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Email(message = "Please provide a valid email address")
     @Pattern(regexp=".+@(stud\\.)?unive\\.it", message="Please provide a valid email address")
@@ -28,10 +26,8 @@ public class User {
     @NotNull
     private String givenName;
 
-
     @NotNull
     private String familyName;
-
 
     @NotNull
     private Boolean isProfessor = false;
@@ -52,7 +48,7 @@ public class User {
         this.jwtValidity = Timestamp.from(Instant.now());
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

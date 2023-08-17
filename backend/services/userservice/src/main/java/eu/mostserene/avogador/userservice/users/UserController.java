@@ -1,15 +1,11 @@
 package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
-import eu.mostserene.avogador.userservice.apikey.AlreadyExistingKeyException;
-import eu.mostserene.avogador.userservice.apikey.ApiKeyDTO;
-import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
-import eu.mostserene.avogador.userservice.utils.BadRequestException;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
@@ -23,12 +19,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -69,7 +63,7 @@ public class UserController {
      * @return the corresponding user
      */
     @GetMapping("/{userId}")
-    private AuthUserDTO getUserById(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+    private AuthUserDTO getUserById(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
         var responseUser = userService.getUserById(userId)
                 .orElseThrow(NotFoundException::new);
         if (!user.getIsProfessor() && !user.getIsSuperuser() && !user.getId().equals(userId))
@@ -95,7 +89,7 @@ public class UserController {
      * @param userId the id of the user
      */
     @DeleteMapping("/{userId}")
-    private void deleteUser(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+    private void deleteUser(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
         var userToDelete = userService.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User " + userId));
 
@@ -281,7 +275,7 @@ public class UserController {
      * @param userId  the id of the user whose tokens have to be revoked
      */
     @PatchMapping("/{userId}/revoke-jwt")
-    private void revokeJWTs(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+    private void revokeJWTs(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
         if (!user.getIsSuperuser() && !Objects.equals(user.getId(), userId)) {
             throw new ForbiddenException(user);
         }
@@ -304,7 +298,7 @@ public class UserController {
         private String hash;
 
 
-        public AuthUserDTOImageHash(Long id, String email, String givenName, String familyName,
+        public AuthUserDTOImageHash(UUID id, String email, String givenName, String familyName,
                                     Boolean isProfessor, Boolean isSuperuser, String picture, String hash) {
             super(id, email, givenName, familyName, isProfessor, isSuperuser);
             this.setPicture(picture);
