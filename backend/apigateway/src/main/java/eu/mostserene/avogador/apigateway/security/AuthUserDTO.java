@@ -2,9 +2,11 @@ package eu.mostserene.avogador.apigateway.security;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class AuthUserDTO {
-    private Long id;
+    private UUID id;
     private String email;
     private String givenName;
     private String familyName;
@@ -14,7 +16,7 @@ public class AuthUserDTO {
     public AuthUserDTO() {
     }
 
-    public AuthUserDTO(Long id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+    public AuthUserDTO(UUID id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
         this.id = id;
         this.email = email;
         this.givenName = givenName;
