@@ -7,13 +7,13 @@ import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/public/courses")
@@ -37,7 +37,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(500) if problems occurred while generating the join code
      * */
     @PutMapping("/{courseId}/join/{reqJoinCode}")
-    private UserCourse joinCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable String reqJoinCode){
+    private UserCourse joinCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable String reqJoinCode){
         var course = courseService.getCourse(courseId)
                 .orElseThrow(NotFoundException::new);
 
@@ -65,7 +65,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/collaborators/{userId}")
-    private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
+    private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course"));
 
@@ -91,7 +91,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/students/{userId}")
-    private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
+    private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot demote users in this course"));
 
@@ -116,7 +116,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(400) if the userId doesn't match the requester id
      * */
     @GetMapping("/users/{userId}")
-    private List<UserCourse> getCoursesByUser(@RequestHeader(name = "User") UserDto user, @PathVariable Long userId){
+    private List<UserCourse> getCoursesByUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
         if (!userId.equals(user.getId())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
@@ -131,7 +131,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(403) if the user is not part of the course or is a student
      * */
     @GetMapping("/{courseId}/users")
-    private List<UserCourse> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
+    private List<UserCourse> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
         var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course"));
         if (userCourse.getRole() == CourseRole.STUDENT){
@@ -148,7 +148,7 @@ public class UserCourseController {
      * @throws ResponseStatusException(403) if the course is archived, the removed user has greater or equal clearance than the requester
      */
     @DeleteMapping("/{courseId}/users/{userId}")
-    private void leaveCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @PathVariable Long userId){
+    private void leaveCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId).
                 orElseThrow(NotMemberException::new);
 
@@ -160,7 +160,7 @@ public class UserCourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "An admin cannot remove themselves");
         }
         if (userId.equals(user.getId())){
-            userCourseService.removeRealation(reqUserCourse);
+            userCourseService.removeRelation(reqUserCourse);
             return;
         }
 
@@ -170,7 +170,7 @@ public class UserCourseController {
         if (targetUserCourse.getRole().getClearance() >= reqUserCourse.getRole().getClearance()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot remove this user");
         }
-        userCourseService.removeRealation(targetUserCourse);
+        userCourseService.removeRelation(targetUserCourse);
     }
 
 }

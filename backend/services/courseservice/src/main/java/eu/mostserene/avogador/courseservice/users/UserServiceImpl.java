@@ -6,10 +6,12 @@ import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UserServiceImpl implements UserService {
     @Override
-    public UserDto getUser(Long id) throws NotFoundException {
+    public UserDto getUser(UUID id) throws NotFoundException {
         throw new UnsupportedOperationException("Method not implemented");
     }
 

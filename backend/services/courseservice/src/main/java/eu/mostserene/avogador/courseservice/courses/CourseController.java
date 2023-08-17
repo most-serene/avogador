@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/public/courses")
@@ -55,7 +56,7 @@ public class CourseController {
      * @throws ResponseStatusException(403) if the course is archived
      * */
     @PutMapping("/{courseId}")
-    private Course updateCourse(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId, @RequestBody Course reqCourse){
+    private Course updateCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @RequestBody Course reqCourse){
         if (!Objects.equals(reqCourse.getId(), courseId)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course Id mismatch");
         }
@@ -83,7 +84,7 @@ public class CourseController {
      * @throws ResponseStatusException(500) if the CourseService couldn't create a join code
      * */
     @GetMapping("/{courseId}")
-    private CourseDetailDto getCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId) { // TODO: this will eventually return more data, such as list of trials
+    private CourseDetailDto getCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) { // TODO: this will eventually return more data, such as list of trials
         var userCourse =  userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"));
@@ -107,7 +108,7 @@ public class CourseController {
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
      * */
     @DeleteMapping("/{courseId}")
-    private void deleteCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
+    private void deleteCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
@@ -127,7 +128,7 @@ public class CourseController {
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
      * */
     @PutMapping("/{courseId}/archive")
-    private Course archiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable Long courseId){
+    private Course archiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course"));

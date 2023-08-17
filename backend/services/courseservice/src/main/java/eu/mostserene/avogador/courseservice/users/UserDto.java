@@ -3,10 +3,11 @@ package eu.mostserene.avogador.courseservice.users;
 import lombok.Data;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Data
 public class UserDto {
-    private Long id;
+    private UUID id;
     private String email;
     private String givenName;
     private String familyName;
@@ -16,7 +17,7 @@ public class UserDto {
     public UserDto() {
     }
 
-    public UserDto(Long id,  String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+    public UserDto(UUID id,  String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
         this.id = id;
         this.email = email;
         this.givenName = givenName;
@@ -31,7 +32,7 @@ public class UserDto {
      * @param requiredId the required id
      * @return this if granted, empty otherwise
      */
-    public Optional<UserDto> requireId(Long requiredId) {
+    public Optional<UserDto> requireId(UUID requiredId) {
         if (getId().equals(requiredId)) return Optional.of(this);
         return Optional.empty();
     }
