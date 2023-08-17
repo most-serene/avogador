@@ -6,20 +6,22 @@ import userAtom from "../userAtom";
 export const useAuthService = () => {
   const [user, setUser] = useAtom(userAtom);
 
-  const getCurrent = () => {
-    avogadorApi
-      .get("/users/current")
-      .then(({ data: user }: { data: User }) => {
-        setUser(user);
-        const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
-        if (storedCSRF !== null) {
-          avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = storedCSRF;
-        }
-      })
-      .catch(() => {
-        console.log("not logged");
-        setUser(null);
-      });
+  const getCurrent = async () => {
+    try {
+      const { data: responseUser }: { data: User } = await avogadorApi.get(
+        "/users/current",
+      );
+      setUser(responseUser);
+      const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
+      if (storedCSRF !== null) {
+        avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = storedCSRF;
+      }
+      return responseUser;
+    } catch {
+      console.log("not logged");
+      setUser(null);
+      return null;
+    }
   };
 
   const login: (googleToken: string) => Promise<User> = async (
