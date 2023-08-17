@@ -6,8 +6,9 @@ import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
+public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
     Optional<ApiKey> findByUserAndName(@NonNull User user, @NonNull String name);
     List<ApiKey> findByUser(@NonNull User user);
 
