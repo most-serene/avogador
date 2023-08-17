@@ -178,7 +178,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void revokeUserJWTs(Long userId) {
+    public void revokeUserJWTs(UUID userId) {
         User user = userService.getUserById(userId).orElseThrow(() -> new NotFoundException("User " + userId));
         user.setJwtValidity(Timestamp.from(Instant.now()));
         userService.updateUser(user);

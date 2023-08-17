@@ -12,10 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,7 @@ public class CourseServiceTests {
             when(repository.save(argThat(course -> !course.getIsArchived())))
                     .thenReturn(course);
 
-            var result = courseService.updateCourse(1L, course);
+            var result = courseService.updateCourse(UUID.fromString("00000000-0000-0000-0000-000000000001"), course);
             assertFalse(result.getIsArchived());
         }
 
@@ -66,7 +66,7 @@ public class CourseServiceTests {
             when(repository.save(argThat(course -> !course.getIsArchived())))
                 .thenReturn(course);
 
-            var result = courseService.updateCourse(1L, hackedCourse);
+            var result = courseService.updateCourse(UUID.fromString("00000000-0000-0000-0000-000000000001"), hackedCourse);
             assertFalse(result.getIsArchived());
         }
     }
@@ -78,23 +78,23 @@ public class CourseServiceTests {
             var courseWithId = new Course("course", "2023/2024", false);
             Field id = courseWithId.getClass().getDeclaredField("id");
             id.setAccessible(true);
-            id.set(courseWithId, 1L);
+            id.set(courseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
-            when(repository.findById(anyLong()))
+            when(repository.findById(any()))
                     .thenReturn(Optional.of(courseWithId));
 
-            var result = courseService.getCourse(1L);
+            var result = courseService.getCourse(UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
             assertTrue(result.isPresent());
-            assertEquals(1L, result.get().getId());
+            assertEquals(UUID.fromString("00000000-0000-0000-0000-000000000001"), result.get().getId());
         }
 
         @Test
         void courseNotExists() throws Exception {
-            when(repository.findById(anyLong()))
+            when(repository.findById(any()))
                     .thenReturn(Optional.empty());
 
-            var result = courseService.getCourse(2L);
+            var result = courseService.getCourse(UUID.fromString("00000000-0000-0000-0000-000000000002"));
 
             assertTrue(result.isEmpty());
         }

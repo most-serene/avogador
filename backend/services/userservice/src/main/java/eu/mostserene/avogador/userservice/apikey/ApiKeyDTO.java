@@ -3,19 +3,20 @@ package eu.mostserene.avogador.userservice.apikey;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Data
 public class ApiKeyDTO {
-    private Long id;
+    private UUID id;
     private String name;
-    private Long userId;
+    private UUID userId;
     private Timestamp creationTimestamp;
     private Timestamp expirationTimestamp;
 
     public ApiKeyDTO() {
     }
 
-    public ApiKeyDTO(Long id, String name, Long userId, Timestamp creationTimestamp, Timestamp expirationTimestamp) {
+    public ApiKeyDTO(UUID id, String name, UUID userId, Timestamp creationTimestamp, Timestamp expirationTimestamp) {
         this.id = id;
         this.name = name;
         this.userId = userId;

@@ -14,13 +14,11 @@ import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -35,17 +33,19 @@ public class AuthServiceIntegrationTests {
         var userWithId = new User("jim.halpert@unive.it", "Jim", "Halpert");
         Field id = userWithId.getClass().getDeclaredField("id");
         id.setAccessible(true);
-        id.set(userWithId, 1L);
+        UUID generatedId = UUID.randomUUID();
+        System.out.println("\t-- Generated UUID: " + generatedId);
+        id.set(userWithId, generatedId);
         userWithId.setJwtValidity(Timestamp.from(Instant.ofEpochMilli(1691784501555L)));
 
-        when(userService.getUserById(anyLong()))
+        when(userService.getUserById(any()))
                 .thenReturn(Optional.of(userWithId));
 
         var generatedJwt = assertDoesNotThrow(() -> authService.generateJWT(userWithId, 1000L));
         System.out.println("\t-- Generated JWT: " + generatedJwt);
 
         var decodedJwt = authService.decodeJwt(generatedJwt);
-        assertEquals(1L, decodedJwt.getId());
+        assertEquals(generatedId, decodedJwt.getId());
         assertEquals("jim.halpert@unive.it", decodedJwt.getEmail());
         assertEquals("Jim", decodedJwt.getGivenName());
         assertEquals("Halpert", decodedJwt.getFamilyName());
@@ -56,10 +56,12 @@ public class AuthServiceIntegrationTests {
         var userWithId = new User("jim.halpert@unive.it", "Jim", "Halpert");
         Field id = userWithId.getClass().getDeclaredField("id");
         id.setAccessible(true);
-        id.set(userWithId, 1L);
+        UUID generatedId = UUID.randomUUID();
+        System.out.println("\t-- Generated UUID: " + generatedId);
+        id.set(userWithId, generatedId);
         userWithId.setJwtValidity(Timestamp.from(Instant.ofEpochMilli(27217845015550L)));
 
-        when(userService.getUserById(anyLong()))
+        when(userService.getUserById(any()))
                 .thenReturn(Optional.of(userWithId));
 
         var generatedJwt = assertDoesNotThrow(() -> authService.generateJWT(userWithId, 1000L));

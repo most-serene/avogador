@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserCourseServiceImpl implements UserCourseService {
@@ -14,12 +15,7 @@ public class UserCourseServiceImpl implements UserCourseService {
     private UserCourseRepository repository;
 
     @Override
-    public Optional<UserCourse> getUserCourse(UserDto user, Course course) {
-        return getUserCourse(user.getId(), course.getId());
-    }
-
-    @Override
-    public Optional<UserCourse> getUserCourse(Long userId, Long courseId) {
+    public Optional<UserCourse> getUserCourse(UUID userId, UUID courseId) {
         return repository.findByUserIdAndCourse_Id(userId, courseId);
     }
 
@@ -46,17 +42,17 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public List<UserCourse> getCoursesByUserId(Long userId, Boolean isArchived) {
+    public List<UserCourse> getCoursesByUserId(UUID userId, Boolean isArchived) {
         return repository.findByUserIdAndCourse_IsArchived(userId, isArchived);
     }
 
     @Override
-    public List<UserCourse> getUsersByCourseId(Long courseId) {
+    public List<UserCourse> getUsersByCourseId(UUID courseId) {
         return repository.findByCourse_Id(courseId);
     }
 
     @Override
-    public void removeRealation(UserCourse userCourse) {
+    public void removeRelation(UserCourse userCourse) {
         repository.delete(userCourse);
     }
 }

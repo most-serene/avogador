@@ -1,11 +1,12 @@
 package eu.mostserene.avogador.courseservice.courses;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface CourseService {
     Course createCourse(Course course);
-    Course updateCourse(Long id, Course course);
-    Optional<Course> getCourse(Long id);
-    void deleteCourse(Long courseId);
-    Optional<String> getJoinCode(Long courseId);
+    Course updateCourse(UUID id, Course course);
+    Optional<Course> getCourse(UUID id);
+    void deleteCourse(UUID courseId);
+    Optional<String> getJoinCode(UUID courseId);
 }

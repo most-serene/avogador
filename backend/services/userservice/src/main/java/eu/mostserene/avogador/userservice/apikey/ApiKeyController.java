@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -31,7 +32,7 @@ public class ApiKeyController {
      * @return the list of the API keys
      */
     @GetMapping("")
-    private List<ApiKeyDTO> getUserApiKeys(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId) {
+    private List<ApiKeyDTO> getUserApiKeys(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
         user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         return apiKeyService.getApiKeyByUser(
@@ -52,7 +53,7 @@ public class ApiKeyController {
      * @throws AlreadyExistingKeyException if the pair user-name already exists
      */
     @PostMapping("")
-    private String generateApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId, @RequestBody ApiKeyName apiKeyName) {
+    private String generateApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId, @RequestBody ApiKeyName apiKeyName) {
         user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         if (apiKeyName.getName().split("\\s+").length > 1) {
@@ -74,7 +75,7 @@ public class ApiKeyController {
      * @param keyName the friendly name of the key
      */
     @DeleteMapping("/{keyName}")
-    private void deleteApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable Long userId, @PathVariable String keyName) {
+    private void deleteApiKey(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId, @PathVariable String keyName) {
         user.requireId(userId).orElseThrow(() -> new ForbiddenException(user));
 
         apiKeyService.deleteApiKey(

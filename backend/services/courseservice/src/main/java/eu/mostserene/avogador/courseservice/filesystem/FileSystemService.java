@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.courseservice.filesystem;
 
-import eu.mostserene.avogador.courseservice.courses.Course;
+import java.util.UUID;
 
 public interface FileSystemService {
-    Integer createCourse(Long courseId);
-    Integer deleteCourse(Long courseId);
-    Integer archiveCourse(Long courseId);
+    Integer createCourse(UUID courseId);
+    Integer deleteCourse(UUID courseId);
+    Integer archiveCourse(UUID courseId);
 }

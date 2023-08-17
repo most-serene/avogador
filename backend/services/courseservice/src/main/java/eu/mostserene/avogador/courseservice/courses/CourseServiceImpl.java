@@ -9,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CourseServiceImpl implements CourseService{
@@ -25,23 +26,23 @@ public class CourseServiceImpl implements CourseService{
     }
 
     @Override
-    public Course updateCourse(Long id, Course course) {
+    public Course updateCourse(UUID id, Course course) {
         course.setIsArchived(false);
         return repository.save(course);
     }
 
     @Override
-    public Optional<Course> getCourse(Long id) {
+    public Optional<Course> getCourse(UUID id) {
         return repository.findById(id);
     }
 
     @Override
-    public void deleteCourse(Long courseId) {
+    public void deleteCourse(UUID courseId) {
         repository.deleteById(courseId);
     }
 
     @Override
-    public Optional<String> getJoinCode(Long courseId){
+    public Optional<String> getJoinCode(UUID courseId){
         Mac mac;
         String algorithm = "HmacSHA256";
         SecretKeySpec secretKeySpec = new SecretKeySpec(joinCodeSecret.getBytes(), algorithm);

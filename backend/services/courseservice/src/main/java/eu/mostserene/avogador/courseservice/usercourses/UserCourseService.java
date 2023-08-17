@@ -5,15 +5,15 @@ import eu.mostserene.avogador.courseservice.users.UserDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserCourseService {
-    Optional<UserCourse> getUserCourse(UserDto user, Course course);
-    Optional<UserCourse> getUserCourse(Long userId, Long courseId);
+    Optional<UserCourse> getUserCourse(UUID userId, UUID courseId);
     UserCourse createAdmin(UserDto user, Course course);
     UserCourse createStudent(UserDto user, Course course);
     UserCourse promoteToCollaborator(UserCourse userCourse);
     UserCourse demoteToStudent(UserCourse userCourse);
-    List<UserCourse> getCoursesByUserId(Long userId, Boolean isArchived);
-    List<UserCourse> getUsersByCourseId(Long courseId);
-    void removeRealation(UserCourse userCourse);
+    List<UserCourse> getCoursesByUserId(UUID userId, Boolean isArchived);
+    List<UserCourse> getUsersByCourseId(UUID courseId);
+    void removeRelation(UserCourse userCourse);
 }

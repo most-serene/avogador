@@ -3,10 +3,11 @@ package eu.mostserene.avogador.userservice.users;
 import lombok.Data;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Data
 public class AuthUserDTO {
-    private Long id;
+    private UUID id;
     private String email;
     private String givenName;
     private String familyName;
@@ -16,7 +17,7 @@ public class AuthUserDTO {
     public AuthUserDTO() {
     }
 
-    public AuthUserDTO(Long id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
+    public AuthUserDTO(UUID id, String email, String givenName, String familyName, Boolean isProfessor, Boolean isSuperuser) {
         this.id = id;
         this.email = email;
         this.givenName = givenName;
@@ -30,7 +31,7 @@ public class AuthUserDTO {
      * @param requiredId the required id
      * @return this if granted, empty otherwise
      */
-    public Optional<AuthUserDTO> requireId(Long requiredId) {
+    public Optional<AuthUserDTO> requireId(UUID requiredId) {
         if (getId().equals(requiredId)) return Optional.of(this);
         return Optional.empty();
     }

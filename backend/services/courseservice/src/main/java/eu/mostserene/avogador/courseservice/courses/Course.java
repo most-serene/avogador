@@ -2,16 +2,15 @@ package eu.mostserene.avogador.courseservice.courses;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.GenericGenerator;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "Courses")
 public class Course {
     @Id
-    @GeneratedValue(generator="increment")
-    @GenericGenerator(name="increment")
-    @Column(columnDefinition = "serial")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @NotNull
     private String name;
@@ -31,7 +30,7 @@ public class Course {
         this.isArchived = isArchived;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

@@ -4,6 +4,8 @@ import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.users.User;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.UUID;
 import java.util.function.Function;
 
 public interface AuthService {
@@ -45,7 +47,7 @@ public interface AuthService {
      * Revokes all the existing jwt of a user by setting at now the jwtValidity timestamp of the user
      * @param userId the id of the user whose tokens have to be revoked
      */
-    void revokeUserJWTs(Long userId);
+    void revokeUserJWTs(UUID userId);
 
     /**
      * Executes the given callbacks based on the authorization scope of the request user

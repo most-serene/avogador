@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -16,13 +17,11 @@ import java.util.Date;
 )
 public class UserCourse {
     @Id
-    @GeneratedValue(generator="increment")
-    @GenericGenerator(name="increment")
-    @Column(columnDefinition = "serial")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @NotNull
-    private Long userId;
+    private UUID userId;
 
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     @ManyToOne
@@ -44,18 +43,18 @@ public class UserCourse {
         this.role = role;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public Long getUser() {
+    public UUID getUser() {
         return userId;
     }
 
     public void setUser(UserDto user) {
         this.userId = user.getId();
     }
-    public void setUser(Long id) {
+    public void setUser(UUID id) {
         this.userId = id;
     }
 

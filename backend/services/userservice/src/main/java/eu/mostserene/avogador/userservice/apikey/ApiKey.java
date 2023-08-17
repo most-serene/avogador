@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -15,10 +16,8 @@ import java.time.Instant;
 )
 public class ApiKey {
     @Id
-    @GeneratedValue(generator="increment")
-    @GenericGenerator(name="increment")
-    @Column(columnDefinition = "serial")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @NotNull
     private String name;
@@ -47,7 +46,7 @@ public class ApiKey {
         this.expirationTimestamp = expirationTimestamp;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
