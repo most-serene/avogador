@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import { useAuthService } from "./components/authentication/hooks/useAuthService.tsx";
+import { User } from "./components/authentication/types.ts";
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -19,8 +20,11 @@ function App() {
   const { getCurrent } = useAuthService();
 
   useEffect(() => {
-    getCurrent();
-    console.log("df");
+    getCurrent().then((u: User | null) => {
+      if (u === null && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
