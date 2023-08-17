@@ -8,8 +8,9 @@ export const useAuthService = () => {
 
   const getCurrent = async () => {
     try {
-      const { data: responseUser } = await avogadorApi
-        .get("/users/current");
+      const { data: responseUser }: { data: User } = await avogadorApi.get(
+        "/users/current",
+      );
       setUser(responseUser);
       const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
       if (storedCSRF !== null) {

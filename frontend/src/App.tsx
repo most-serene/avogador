@@ -20,11 +20,15 @@ function App() {
   const { getCurrent } = useAuthService();
 
   useEffect(() => {
-    getCurrent().then((u: User | null) => {
-      if (u === null && window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
-    })
+    getCurrent()
+      .then((u: User | null) => {
+        if (u === null && window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
