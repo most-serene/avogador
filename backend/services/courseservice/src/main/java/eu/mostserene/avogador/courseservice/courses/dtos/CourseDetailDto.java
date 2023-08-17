@@ -4,9 +4,11 @@ import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class CourseDetailDto {
-    private Long id;
+    private UUID id;
     private String name;
     private String year;
     private Boolean isArchived;

@@ -4,11 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
-    List<UserCourse> findByUserIdAndCourse_IsArchived(Long userId, Boolean isArchived);
-    List<UserCourse> findByCourse_Id(Long id);
-    Optional<UserCourse> findByUserIdAndCourse_Id(Long userId, Long id);
-    List<UserCourse> findByUserId(Long userId);
+public interface UserCourseRepository extends JpaRepository<UserCourse, UUID> {
+    List<UserCourse> findByUserIdAndCourse_IsArchived(UUID userId, Boolean isArchived);
+    List<UserCourse> findByCourse_Id(UUID id);
+    Optional<UserCourse> findByUserIdAndCourse_Id(UUID userId, UUID id);
+    List<UserCourse> findByUserId(UUID userId);
 
 }
