@@ -137,9 +137,9 @@ pipeline {
                     if (env.BRANCH_NAME != 'master') {
                         echo "Publish javadoc"
                         sh '''
-                            cp -r backend/apigateway/build/docs /share/javadoc/apigateway/
-                            cp -r backend/services/courseservice/build/docs /share/javadoc/courseService/
-                            cp -r backend/services/userservice/build/docs /share/javadoc/userService/
+                            cp -r backend/apigateway/build/docs/javadoc/* /share/javadoc/apigateway/
+                            cp -r backend/services/courseservice/build/docs/javadoc/* /share/javadoc/courseService/
+                            cp -r backend/services/userservice/build/docs/javadoc/* /share/javadoc/userService/
                         '''
                     }
 
