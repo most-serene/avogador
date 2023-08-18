@@ -52,8 +52,7 @@ pipeline {
                     '''
                     archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
                     script {
-                        //! FIXME before flight
-                        if (env.BRANCH_NAME != 'master') {
+                        if (env.BRANCH_NAME == 'master') {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/apigateway
@@ -72,8 +71,7 @@ pipeline {
                     '''
                     archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
                     script {
-                        //! FIXME before flight
-                        if (env.BRANCH_NAME != 'master') {
+                        if (env.BRANCH_NAME == 'master') {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/courseservice
@@ -92,8 +90,7 @@ pipeline {
                     '''
                     archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
                     script {
-                        //! FIXME before flight
-                        if (env.BRANCH_NAME != 'master') {
+                        if (env.BRANCH_NAME == 'master') {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/userservice
@@ -131,10 +128,7 @@ pipeline {
                             cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
                             cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
                         """
-                    }
-
-                    //! FIXME before flight
-                    if (env.BRANCH_NAME != 'master') {
+                        
                         echo "Publish javadoc"
                         sh '''
                             cp -r backend/apigateway/build/docs/javadoc/* /share/javadoc/apigateway/
