@@ -1,6 +1,6 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
-import { Container } from "@mui/material";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Container, Grid, Typography } from "@mui/material";
 import HomeScreen from "./components/home/HomeScreen";
 import Navbar from "./components/misc/Navbar";
 import ServicesStatus from "./components/misc/ServicesStatus";
@@ -9,9 +9,23 @@ import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
 
 const NotFound = () => {
-  const navigate = useNavigate();
-  navigate("/");
-  return <></>;
+  return (
+    <>
+      <Grid container style={{ marginTop: "2rem" }}>
+        <Grid
+          item
+          xs
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Typography variant="body1">
+            404 - Not found: nothing to see here
+          </Typography>
+        </Grid>
+      </Grid>
+    </>
+  );
 };
 
 function App() {
