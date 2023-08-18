@@ -31,7 +31,7 @@ export default function Navbar() {
   const { logout } = useAuthService();
   const navigate = useNavigate();
   const [user] = useAtom(userAtom);
-  const picture = localStorage.getItem("picture");
+  const profilePicture = localStorage.getItem("profile-picture");
 
   const pages: PageItem[] = [
     {
@@ -203,11 +203,7 @@ export default function Navbar() {
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar
-                  src={
-                    user !== null && user !== undefined && picture !== null
-                      ? picture
-                      : ""
-                  }
+                  src={user && profilePicture !== null ? profilePicture : ""}
                 />
               </IconButton>
             </Tooltip>

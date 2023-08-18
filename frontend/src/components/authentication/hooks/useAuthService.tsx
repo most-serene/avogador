@@ -41,7 +41,7 @@ export const useAuthService = () => {
           console.log(user);
           avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = user.hash;
           localStorage.setItem("Jwt-CSRF-Hash", user.hash);
-          localStorage.setItem("picture", user.picture);
+          localStorage.setItem("profile-picture", user.picture);
           const u: User = {
             id: user.id,
             email: user.email,
