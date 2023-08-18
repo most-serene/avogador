@@ -1,10 +1,11 @@
-import { avogadorApi } from "../../../utils/axiosConf";
 import { User } from "../types";
 import { useAtom } from "jotai";
 import userAtom from "../userAtom";
+import { useAvogadorApi } from "../../../hooks/useAvogadorApi";
 
 export const useAuthService = () => {
   const [user, setUser] = useAtom(userAtom);
+  const avogadorApi = useAvogadorApi();
 
   const getCurrent = async () => {
     try {

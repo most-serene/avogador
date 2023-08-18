@@ -2,12 +2,13 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
-import { avogadorApi } from "../../utils/axiosConf.ts";
 import { useNavigate } from "react-router-dom";
+import { useAvogadorApi } from "../../hooks/useAvogadorApi";
 
 export default function Footer() {
   const [apiVersion, setApiVersion] = useState<string>("");
   const navigate = useNavigate();
+  const avogadorApi = useAvogadorApi();
 
   useEffect(() => {
     avogadorApi
@@ -18,7 +19,7 @@ export default function Footer() {
       .catch(() => {
         setApiVersion("API Offline");
       });
-  }, []);
+  }, [avogadorApi]);
 
   return (
     <Box
