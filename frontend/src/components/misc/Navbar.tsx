@@ -14,6 +14,8 @@ import { Code } from "@mui/icons-material";
 import { useAuthService } from "../authentication/hooks/useAuthService";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import userAtom from "../authentication/userAtom";
 
 interface PageItem {
   name: string;
@@ -28,6 +30,8 @@ interface SettingsItem {
 export default function Navbar() {
   const { logout } = useAuthService();
   const navigate = useNavigate();
+  const [user] = useAtom(userAtom);
+  const profilePicture = localStorage.getItem("profile-picture");
 
   const pages: PageItem[] = [
     {
@@ -198,7 +202,9 @@ export default function Navbar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar
+                  src={user && profilePicture !== null ? profilePicture : ""}
+                />
               </IconButton>
             </Tooltip>
             <Menu

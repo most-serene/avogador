@@ -32,21 +32,28 @@ export const useAuthService = () => {
       .post("/users/google-auth", {
         googleToken: googleToken,
       })
-      .then(({ data: user }: { data: User & { hash: string } }) => {
-        console.log(user);
-        avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = user.hash;
-        localStorage.setItem("Jwt-CSRF-Hash", user.hash);
-        const u: User = {
-          id: user.id,
-          email: user.email,
-          givenName: user.givenName,
-          familyName: user.familyName,
-          isProfessor: user.isProfessor,
-          isSuperuser: user.isSuperuser,
-        };
-        setUser(u);
-        return u;
-      });
+      .then(
+        ({
+          data: user,
+        }: {
+          data: User & { hash: string; picture: string };
+        }) => {
+          console.log(user);
+          avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = user.hash;
+          localStorage.setItem("Jwt-CSRF-Hash", user.hash);
+          localStorage.setItem("profile-picture", user.picture);
+          const u: User = {
+            id: user.id,
+            email: user.email,
+            givenName: user.givenName,
+            familyName: user.familyName,
+            isProfessor: user.isProfessor,
+            isSuperuser: user.isSuperuser,
+          };
+          setUser(u);
+          return u;
+        },
+      );
   };
 
   const logout = () => {
