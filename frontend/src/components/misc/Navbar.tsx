@@ -12,10 +12,53 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Code } from "@mui/icons-material";
 import { useAuthService } from "../authentication/hooks/useAuthService";
-import { Link } from "@mui/material";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const settings = ["Profile", "Account", "Dashboard"];
+interface PageItem {
+  name: string;
+  callback: () => void;
+}
+
+interface SettingsItem {
+  name: string;
+  callback: () => void;
+}
+
 export default function Navbar() {
+  const { logout } = useAuthService();
+  const navigate = useNavigate();
+
+  const pages: PageItem[] = [
+    {
+      name: "Courses",
+      callback: () => {
+        navigate("/courses");
+      },
+    },
+  ];
+  const settings: SettingsItem[] = [
+    {
+      name: "Profile",
+      callback: () => {
+        /*empty function*/
+      },
+    },
+    {
+      name: "Account",
+      callback: () => {
+        /*empty function*/
+      },
+    },
+    {
+      name: "Dashboard",
+      callback: () => {
+        /*empty function*/
+      },
+    },
+    { name: "Logout", callback: logout },
+  ];
+
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null,
   );
@@ -38,92 +81,119 @@ export default function Navbar() {
     setAnchorElUser(null);
   };
 
-  const { logout } = useAuthService();
+  const DesktopNavbar = () => {
+    return (
+      <>
+        <Code sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+        <Typography
+          variant="h6"
+          noWrap
+          component="a"
+          href="/"
+          sx={{
+            mr: 2,
+            display: { xs: "none", md: "flex" },
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
+          }}
+        >
+          Avogador
+        </Typography>
+        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleOpenNavMenu}
+            color="inherit"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            sx={{
+              display: { xs: "block", md: "none" },
+            }}
+          >
+            {pages.map((page) => (
+              <MenuItem
+                key={page.name}
+                onClick={() => {
+                  handleCloseNavMenu();
+                  page.callback();
+                }}
+              >
+                <Typography textAlign="center">{page.name}</Typography>
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      </>
+    );
+  };
+
+  const MobileNavbar = () => {
+    return (
+      <>
+        <Code sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+        <Typography
+          variant="h5"
+          noWrap
+          component="a"
+          href="/"
+          sx={{
+            mr: 2,
+            display: { xs: "flex", md: "none" },
+            flexGrow: 1,
+            fontFamily: "monospace",
+            fontWeight: 700,
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
+          }}
+        >
+          Avogador
+        </Typography>
+        <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          {pages.map((page) => (
+            <Button
+              key={page.name}
+              onClick={() => {
+                handleCloseNavMenu();
+                page.callback();
+              }}
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              {page.name}
+            </Button>
+          ))}
+        </Box>
+      </>
+    );
+  };
 
   return (
     <AppBar position="static" style={{ marginBottom: 8 }} elevation={0}>
       <Container maxWidth={false}>
         <Toolbar disableGutters>
-          <Code sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            Avogador
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Typography textAlign="center">Courses</Typography>
-              </MenuItem>
-            </Menu>
-          </Box>
-          <Code sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            Avogador
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <Link
-              href={"/courses"}
-              sx={{ my: 2, color: "white", display: "block" }}
-            >
-              COURSES
-            </Link>
-          </Box>
+          <DesktopNavbar />
+          <MobileNavbar />
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
@@ -148,8 +218,14 @@ export default function Navbar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                <MenuItem
+                  key={setting.name}
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    setting.callback();
+                  }}
+                >
+                  <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               ))}
               <MenuItem key={"logout"} onClick={logout}>
