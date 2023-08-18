@@ -228,9 +228,6 @@ export default function Navbar() {
                   <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               ))}
-              <MenuItem key={"logout"} onClick={logout}>
-                <Typography textAlign="center">Logout</Typography>
-              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
