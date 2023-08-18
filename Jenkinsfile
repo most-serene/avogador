@@ -51,6 +51,15 @@ pipeline {
                         ./gradlew clean assemble
                     '''
                     archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
+                    script {
+                        if (env.BRANCH_NAME == 'master') {
+                            echo "Generate javadoc"
+                            sh '''
+                                cd backend/apigateway
+                                ./gradlew javadoc
+                            '''
+                        }
+                    }
                 }
                 
                 withGradle {
@@ -61,6 +70,15 @@ pipeline {
                         ./gradlew clean assemble
                     '''
                     archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
+                    script {
+                        if (env.BRANCH_NAME == 'master') {
+                            echo "Generate javadoc"
+                            sh '''
+                                cd backend/services/courseservice
+                                ./gradlew javadoc
+                            '''
+                        }
+                    }
                 }
 
                 withGradle {
@@ -71,6 +89,15 @@ pipeline {
                         ./gradlew clean assemble
                     '''
                     archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
+                    script {
+                        if (env.BRANCH_NAME == 'master') {
+                            echo "Generate javadoc"
+                            sh '''
+                                cd backend/services/userservice
+                                ./gradlew javadoc
+                            '''
+                        }
+                    }
                 }
                 
                 // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
@@ -101,6 +128,13 @@ pipeline {
                             cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
                             cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
                         """
+                        
+                        echo "Publish javadoc"
+                        sh '''
+                            cp -r backend/apigateway/build/docs/javadoc/* /share/javadoc/apigateway/
+                            cp -r backend/services/courseservice/build/docs/javadoc/* /share/javadoc/courseService/
+                            cp -r backend/services/userservice/build/docs/javadoc/* /share/javadoc/userService/
+                        '''
                     }
 
                 }
