@@ -29,7 +29,7 @@ services:
       spring.profiles.active: ${APIGATEWAY_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
-      # security.allowed.origins: ${APIGATEWAY_ALLOWED_ORIGINS}
+      security.allowed.origins: ${APIGATEWAY_ALLOWED_ORIGINS}
       # multipart.enabled: false
     ports:
       - "${APIGATEWAY_PORT}:80"
