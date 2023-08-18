@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { avogadorApi } from "../../utils/axiosConf.ts";
+import { useAvogadorApi } from "../../hooks/useAvogadorApi";
 
 export default function ServicesStatus() {
   const [gatewayStatus, setGatewayStatus] = useState<string>("offline");
   const [usersStatus, setUsersStatus] = useState<string>("offline");
   const [coursesStatus, setCoursesStatus] = useState<string>("offline");
+  const avogadorApi = useAvogadorApi();
 
   useEffect(() => {
     const i = setInterval(() => {
@@ -37,7 +38,7 @@ export default function ServicesStatus() {
     return () => {
       clearInterval(i);
     };
-  }, []);
+  }, [avogadorApi]);
 
   return (
     <>

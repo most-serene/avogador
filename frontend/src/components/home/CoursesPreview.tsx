@@ -1,15 +1,16 @@
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
-import { avogadorApi } from "../../utils/axiosConf.ts";
 import CourseItem from "../courses/CourseItem.tsx";
 import { Course, GetCoursesResponse } from "../courses/types.ts";
 import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom.ts";
+import { useAvogadorApi } from "../../hooks/useAvogadorApi.tsx";
 
 export default function CoursesPreview() {
   const [user] = useAtom(userAtom);
   const [courses, setCourses] = useState<Course[]>();
+  const avogadorApi = useAvogadorApi();
 
   useEffect(() => {
     if (!user) {
@@ -25,7 +26,7 @@ export default function CoursesPreview() {
       .catch((err) => {
         console.error(err);
       });
-  }, [user]);
+  }, [user, avogadorApi]);
 
   if (user === null) {
     return <h1>Log in to view this content</h1>;
