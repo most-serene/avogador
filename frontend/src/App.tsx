@@ -3,10 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Container, Grid, Typography } from "@mui/material";
 import HomeScreen from "./components/home/HomeScreen";
 import Navbar from "./components/misc/Navbar";
-import ServicesStatus from "./components/misc/ServicesStatus";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
+import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 
 const NotFound = () => {
   return (
@@ -49,14 +49,7 @@ function App() {
                 </>
               }
             />
-            <Route
-              path="/status"
-              element={
-                <Container>
-                  <ServicesStatus />
-                </Container>
-              }
-            />
+            <Route path="/status" element={<StatusPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
