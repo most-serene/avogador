@@ -33,13 +33,8 @@ const useApiKeyService = () => {
     return key;
   };
 
-  const deleteUserApiKey = (
-    user: User,
-    keyName: string
-  ) => {
-    return avogadorApi.delete(
-      `/public/users/${user.id}/api-key/${keyName}`
-    );
+  const deleteUserApiKey = (user: User, keyName: string) => {
+    return avogadorApi.delete(`/public/users/${user.id}/api-key/${keyName}`);
   };
 
   return {
