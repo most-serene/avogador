@@ -1,12 +1,9 @@
 import {
-  Alert,
   Button,
   Card,
   CardContent,
-  Collapse,
   Divider,
   Grid,
-  IconButton,
   Stack,
   TextField,
   Tooltip,
@@ -20,7 +17,7 @@ import useApiKeyService from "./hooks/useApiKeyService";
 import { useEffect, useState } from "react";
 // import {format} from 'date-fns'
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ApiKeyModal from "./ApiKeyModal.tsx";
 
 const userKeysAtom = atom<ApiKey[]>([]);
 
@@ -114,33 +111,7 @@ const CreateNewKey = ({ user }: { user?: User | null }) => {
           </Button>
         </Grid>
       </Grid>
-      <Collapse in={key !== undefined}>
-        <Alert
-          action={
-            <IconButton
-              onClick={() => {
-                if (key !== undefined) {
-                  setKey(undefined);
-                  navigator.clipboard
-                    .writeText(key)
-                    .then((res) => {
-                      console.log(res);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }
-              }}
-            >
-              <ContentCopyIcon />
-            </IconButton>
-          }
-          severity="info"
-        >
-          {" "}
-          Key Generated: {key}
-        </Alert>
-      </Collapse>
+      <ApiKeyModal apiKey={key} />
     </>
   );
 };
