@@ -48,6 +48,9 @@ services:
       options:
         max-file: "10"
         max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     environment:
       # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
       # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
@@ -93,6 +96,9 @@ services:
       options:
         max-file: "10"
         max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     environment:
       # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
       # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
@@ -118,6 +124,29 @@ services:
     networks:
       - avogador-inner-network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 15s
+      retries: 3
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    networks:
+      - avogador-inner-network
+    volumes:
+      - avogador-rabbitmq-data:/var/lib/rabbitmq/
+    ports:
+      # - "5672:5672"
+      - "15672:15672"
+
   webapp:
     image: avogador-webapp:${BRANCH:-latest}
     restart: always
@@ -133,6 +162,10 @@ services:
         max-size: "5m"
     ports:
       - "${REACT_PORT}:3000"
+
+volumes:
+  avogador-rabbitmq-data:
+    external: true
 
 networks:
   avogador-inner-network:
