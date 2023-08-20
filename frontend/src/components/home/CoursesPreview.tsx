@@ -43,18 +43,22 @@ export default function CoursesPreview() {
       });
   }, [user, avogadorApi]);
 
-  if (user === null || user === undefined) {
+  if (user === null) {
     return <h1>Log in to view this content</h1>;
   }
 
-  const coursesNumber = parseInt(localStorage.getItem("coursesNumber") ?? "0");
-  let gridContent = [...Array(coursesNumber).keys()].map((i) => (
-    <Grid item key={i} xs={4}>
-      <CourseItemSkeleton />
-    </Grid>
-  ));
+  let gridContent;
+  if (!courses) {
+    const coursesNumber = parseInt(
+      localStorage.getItem("coursesNumber") ?? "0",
+    );
 
-  if (courses) {
+    gridContent = [...Array(coursesNumber).keys()].map((i) => (
+      <Grid item key={i} xs={4}>
+        <CourseItemSkeleton />
+      </Grid>
+    ));
+  } else {
     gridContent = courses.map((course) => (
       <Grid item key={course.id} xs={4}>
         <CourseItem course={course} />
@@ -64,7 +68,7 @@ export default function CoursesPreview() {
 
   return (
     <Grid container spacing={1} display={"flex"} style={{ height: "100%" }}>
-      {gridContent.length === 0 ? (
+      {user && gridContent.length === 0 ? (
         <EmptyCoursesHome user={user} />
       ) : (
         gridContent
