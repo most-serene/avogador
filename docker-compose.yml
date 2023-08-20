@@ -131,6 +131,7 @@ services:
       - avogador-inner-network
 
   rabbitmq:
+    hostname: avogador-rabbitmq
     image: rabbitmq:3-management
     logging:
       driver: json-file
