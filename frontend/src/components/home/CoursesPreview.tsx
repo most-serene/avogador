@@ -15,7 +15,7 @@ const EmptyCoursesHome = ({ user }: { user: User }) => {
       <Grid item xs={12} display={"flex"} justifyContent={"center"}>
         <Typography variant="h6">
           Hi {user.givenName}! <br />
-          Your home is so empty! time to join a course!
+          Your home is so empty! Time to join a course!
         </Typography>
       </Grid>
     </Grid>
