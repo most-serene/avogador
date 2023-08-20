@@ -1,6 +1,7 @@
 import { Grid } from "@mui/material";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom";
+import ApiKeyManager from "./ApiKeyManager/ApiKeyManager";
 import Profile from "./Profile";
 
 const ProfileScreen = () => {
@@ -15,7 +16,7 @@ const ProfileScreen = () => {
         </Grid>
 
         <Grid item xs display="flex" justifyContent="center">
-          API Key manager
+          <ApiKeyManager user={user} />
         </Grid>
       </Grid>
     </>
