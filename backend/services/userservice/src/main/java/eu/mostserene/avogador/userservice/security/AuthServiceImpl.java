@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.userservice.security;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
@@ -34,7 +33,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -160,16 +161,6 @@ public class AuthServiceImpl implements AuthService {
                         () -> "__Secure-jwt"
                 )).equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
-    }
-
-    @Override
-    public AuthUserDTO getRequestUser(HttpServletRequest request) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(request.getHeader("User"), AuthUserDTO.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

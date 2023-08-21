@@ -1,7 +1,7 @@
 {
   "name": "avogador-webapp",
   "private": true,
-  "version": "0.1.0-a.2",
+  "version": "0.1.0-a.3",
   "type": "module",
   "homepage": ".",
   "scripts": {
