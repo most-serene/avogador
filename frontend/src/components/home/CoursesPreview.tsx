@@ -6,6 +6,21 @@ import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom.ts";
 import { useAvogadorApi } from "../../hooks/useAvogadorApi.tsx";
+import { Typography } from "@mui/material";
+import { User } from "../authentication/types.ts";
+
+const EmptyCoursesHome = ({ user }: { user: User }) => {
+  return (
+    <Grid container alignContent={"center"}>
+      <Grid item xs={12} display={"flex"} justifyContent={"center"}>
+        <Typography variant="h6">
+          Hi {user.givenName}! <br />
+          Your home is so empty! Time to join a course!
+        </Typography>
+      </Grid>
+    </Grid>
+  );
+};
 
 export default function CoursesPreview() {
   const [user] = useAtom(userAtom);
@@ -32,14 +47,18 @@ export default function CoursesPreview() {
     return <h1>Log in to view this content</h1>;
   }
 
-  const coursesNumber = parseInt(localStorage.getItem("coursesNumber") ?? "0");
-  let gridContent = [...Array(coursesNumber).keys()].map((i) => (
-    <Grid item key={i} xs={4}>
-      <CourseItemSkeleton />
-    </Grid>
-  ));
+  let gridContent;
+  if (!courses) {
+    const coursesNumber = parseInt(
+      localStorage.getItem("coursesNumber") ?? "0",
+    );
 
-  if (courses) {
+    gridContent = [...Array(coursesNumber).keys()].map((i) => (
+      <Grid item key={i} xs={4}>
+        <CourseItemSkeleton />
+      </Grid>
+    ));
+  } else {
     gridContent = courses.map((course) => (
       <Grid item key={course.id} xs={4}>
         <CourseItem course={course} />
@@ -48,8 +67,12 @@ export default function CoursesPreview() {
   }
 
   return (
-    <Grid container spacing={1}>
-      {gridContent}
+    <Grid container spacing={1} display={"flex"} style={{ height: "100%" }}>
+      {user && gridContent.length === 0 ? (
+        <EmptyCoursesHome user={user} />
+      ) : (
+        gridContent
+      )}
     </Grid>
   );
 }
