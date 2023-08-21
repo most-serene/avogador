@@ -20,18 +20,9 @@ public class UserServiceImpl implements UserService {
         throw new UnsupportedOperationException("Method not implemented");
     }
 
-    @Override
-    public UserDto getRequestUser(HttpServletRequest request) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(request.getHeader("User"), UserDto.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Get the ID of a request
+     *
      * @param request the current request
      * @return the ID as String
      */
