@@ -1,7 +1,7 @@
 import { Alert, Box, Button, IconButton, Modal } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const style = {
   position: "absolute" as const,
@@ -28,6 +28,19 @@ export default function ApiKeyModal({ apiKey }: ApiKeyModalProps) {
     setKeyState(undefined);
   };
 
+  const copyKeyToClipboard = useCallback(() => {
+    if (keyState !== undefined) {
+      navigator.clipboard
+        .writeText(keyState)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [keyState]);
+
   return (
     <Modal open={keyState !== undefined} onClose={handleOnClose}>
       <Box sx={style}>
@@ -41,16 +54,7 @@ export default function ApiKeyModal({ apiKey }: ApiKeyModalProps) {
             <IconButton
               onClick={(event) => {
                 event.preventDefault();
-                if (keyState !== undefined) {
-                  navigator.clipboard
-                    .writeText(keyState)
-                    .then((res) => {
-                      console.log(res);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }
+                copyKeyToClipboard();
               }}
             >
               <ContentCopyIcon />
