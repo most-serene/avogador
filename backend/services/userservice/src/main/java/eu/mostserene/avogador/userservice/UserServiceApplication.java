@@ -19,9 +19,8 @@ public class UserServiceApplication {
 	private AuthService authService;
 
 	@GetMapping("/public/users/status")
-	String getStatus(@RequestHeader(name = "User") AuthUserDTO user) {
-		log.info(user.getGivenName());
-		return "userService online";
+	String getStatus() {
+		return "online";
 	}
 
 	public static void main(String[] args) {

@@ -1,0 +1,11 @@
+# /bin/bash
+set -e
+
+echo "-- pre-push hook started --"
+branch=$(git branch --show-current)
+
+if [[ "$branch" == "master" ]];
+then
+    echo "You cannot push master, open a PR"
+    exit 1
+fi

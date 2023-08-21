@@ -3,11 +3,12 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Container, Grid, Typography } from "@mui/material";
 import HomeScreen from "./components/home/HomeScreen";
 import Navbar from "./components/misc/Navbar";
-import ServicesStatus from "./components/misc/ServicesStatus";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
 import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
+import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
+import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -54,7 +55,7 @@ function App() {
               path="/status"
               element={
                 <Container>
-                  <ServicesStatus />
+                  <StatusPage />
                 </Container>
               }
             />
@@ -62,6 +63,7 @@ function App() {
               <Route path={":courseId"} element={<CourseDetailScreen />} />
             </Route>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile" element={<ProfileScreen />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthWrapper>
