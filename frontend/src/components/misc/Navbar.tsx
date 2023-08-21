@@ -45,19 +45,7 @@ export default function Navbar() {
     {
       name: "Profile",
       callback: () => {
-        /*empty function*/
-      },
-    },
-    {
-      name: "Account",
-      callback: () => {
-        /*empty function*/
-      },
-    },
-    {
-      name: "Dashboard",
-      callback: () => {
-        /*empty function*/
+        navigate("/profile");
       },
     },
     { name: "Logout", callback: logout },

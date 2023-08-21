@@ -7,6 +7,7 @@ import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
+import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -51,6 +52,7 @@ function App() {
             />
             <Route path="/status" element={<StatusPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile" element={<ProfileScreen />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthWrapper>
