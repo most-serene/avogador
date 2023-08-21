@@ -17,10 +17,6 @@ export default function CourseItemSkeleton() {
           <Typography variant={"body2"}>
             <Skeleton />
           </Typography>
-          <Typography>
-            {" "}
-            <Skeleton />
-          </Typography>
         </CardContent>
       </CardActionArea>
     </Card>

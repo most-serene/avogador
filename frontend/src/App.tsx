@@ -7,6 +7,7 @@ import ServicesStatus from "./components/misc/ServicesStatus";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
+import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -57,6 +58,9 @@ function App() {
                 </Container>
               }
             />
+            <Route path="courses">
+              <Route path={":courseId"} element={<CourseDetailScreen />} />
+            </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
