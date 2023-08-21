@@ -32,7 +32,7 @@ export default function CourseDetailScreen() {
       .catch((err) => {
         console.error(err);
       });
-  }, [courseId]);
+  }, [avogadorApi, courseId]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
@@ -54,7 +54,7 @@ export default function CourseDetailScreen() {
         aria-label="basic tabs example"
       >
         {tabs.map((tab, i) => (
-          <Tab label={tab} {...a11yProps(i)} />
+          <Tab key={i} label={tab} {...a11yProps(i)} />
         ))}
       </Tabs>
       <Container maxWidth={false}>
