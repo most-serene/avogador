@@ -6,6 +6,7 @@ import Navbar from "./components/misc/Navbar";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
+import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 
@@ -50,7 +51,17 @@ function App() {
                 </>
               }
             />
-            <Route path="/status" element={<StatusPage />} />
+            <Route
+              path="/status"
+              element={
+                <Container>
+                  <StatusPage />
+                </Container>
+              }
+            />
+            <Route path="courses">
+              <Route path={":courseId"} element={<CourseDetailScreen />} />
+            </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={<ProfileScreen />} />
             <Route path="*" element={<NotFound />} />

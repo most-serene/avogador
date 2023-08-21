@@ -7,11 +7,11 @@ html, body, #root, .App {
 }
 
 .full-page-without-header{
-  height: calc(100% - 69px);
+  height: calc(100% - 77px);
 }
 
 .full-page-without-header-and-footer{
-  height: calc(100% - 69px - 92px);
+  height: calc(100% - 77px - 92px);
 }
 
 body {
