@@ -12,29 +12,20 @@ import {
 } from "@mui/material";
 
 const StatusPage = () => {
-  const { getMicroservicesStatus } = useStatusService();
+  const { getMicroservicesStatus, getBackendVersion } = useStatusService();
   const [microServices, setMicroServices] = useState<MicroService[]>([]);
   const [gatewayError, setGatewayError] = useState<boolean>(false);
-
-  const GatewayAddressCard = () => {
-    return (
-      <>
-        <Card sx={{ width: "32rem" }} raised>
-          <CardContent>
-            <Typography variant="h5">API gateway address:</Typography>
-            <Grid container justifyContent="center">
-              <Typography variant="body1">
-                {import.meta.env.VITE_AVOGADOR_BACKEND_API_ADDRESS}
-              </Typography>
-            </Grid>
-          </CardContent>
-        </Card>
-      </>
-    );
-  };
+  const [version, setVersion] = useState<string>();
 
   useEffect(() => {
     const checkInterval = setInterval(() => {
+      getBackendVersion()
+        .then((res) => {
+          setVersion(res);
+        })
+        .catch(() => {
+          // empty function
+        });
       getMicroservicesStatus()
         .then((res) => {
           setMicroServices(res);
@@ -47,7 +38,25 @@ const StatusPage = () => {
     return () => {
       clearInterval(checkInterval);
     };
-  }, [getMicroservicesStatus]);
+  }, [getMicroservicesStatus, getBackendVersion]);
+
+  const GatewayAddressCard = () => {
+    return (
+      <>
+        <Card sx={{ width: "32rem" }} raised>
+          <CardContent>
+            <Typography variant="h5">API gateway address:</Typography>
+            <Grid container justifyContent="center">
+              <Typography variant="body1" textAlign={"center"}>
+                {import.meta.env.VITE_AVOGADOR_BACKEND_API_ADDRESS} <br />
+                {version}
+              </Typography>
+            </Grid>
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
 
   if (microServices.length === 0) {
     return (
