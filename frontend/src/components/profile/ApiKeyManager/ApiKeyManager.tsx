@@ -1,14 +1,16 @@
 import { Card, CardContent, Divider, Typography } from "@mui/material";
 import { User } from "../../authentication/types";
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import useApiKeyService from "./hooks/useApiKeyService";
 import { useEffect } from "react";
 import CreateNewKey from "./CreateNewKey.tsx";
 import KeysList from "./KeysList.tsx";
-import { userKeysAtom } from "./userKeysAtom.ts";
+import { ApiKey } from "./types.ts";
+
+const userKeysAtom = atom<ApiKey[]>([]);
 
 const ApiKeyManager = ({ user }: { user?: User | null }) => {
-  const [userKeys, setUserKeys] = useAtom(userKeysAtom);
+  const [, setUserKeys] = useAtom(userKeysAtom);
   const { getUserApiKeys } = useApiKeyService();
 
   useEffect(() => {
@@ -29,9 +31,9 @@ const ApiKeyManager = ({ user }: { user?: User | null }) => {
         <CardContent>
           <Typography variant="h5">Your API Keys</Typography>
           <Divider />
-          <CreateNewKey user={user} />
+          <CreateNewKey user={user} userKeysAtom={userKeysAtom} />
           <Divider sx={{ marginTop: "1rem" }} />
-          <KeysList user={user} keys={userKeys} />
+          <KeysList user={user} userKeysAtom={userKeysAtom} />
         </CardContent>
       </Card>
     </>

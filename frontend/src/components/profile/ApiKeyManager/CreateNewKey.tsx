@@ -1,11 +1,11 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import { User } from "../../authentication/types";
 import { DateField } from "@mui/x-date-pickers/DateField";
-import { useAtom } from "jotai";
+import { PrimitiveAtom, useAtom } from "jotai";
 import useApiKeyService from "./hooks/useApiKeyService";
 import { useCallback, useState } from "react";
 import ApiKeyModal from "./ApiKeyModal.tsx";
-import { userKeysAtom } from "./userKeysAtom.ts";
+import { ApiKey } from "./types.ts";
 
 const isValid: (name?: string, expiration?: Date) => boolean = (
   name?: string,
@@ -25,7 +25,13 @@ const isNameValid: (name?: string) => boolean = (name?: string) => {
   return name === undefined || (name.split(" ").length == 1 && name !== "");
 };
 
-const CreateNewKey = ({ user }: { user?: User | null }) => {
+const CreateNewKey = ({
+  user,
+  userKeysAtom,
+}: {
+  user?: User | null;
+  userKeysAtom: PrimitiveAtom<ApiKey[]>;
+}) => {
   const { getUserApiKeys, createUserApiKey } = useApiKeyService();
 
   const [name, setName] = useState<string>();
