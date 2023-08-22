@@ -21,7 +21,6 @@ export default function CourseItem({ course }: CourseItemProps) {
         <CardContent>
           <Typography variant={"h5"}>{course.name}</Typography>
           <Typography variant={"body2"}>({course.year})</Typography>
-          <Typography> Prof. Professorsname</Typography>
         </CardContent>
       </CardActionArea>
     </Card>
