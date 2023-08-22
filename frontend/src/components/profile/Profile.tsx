@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import { User } from "../authentication/types";
+import { useEffect, useState } from "react";
 
 const Profile = ({
   user,
@@ -18,6 +19,25 @@ const Profile = ({
   user?: User | null;
   profilePicture?: string;
 }) => {
+  const [roles, setRoles] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (!user.isProfessor && !user.isSuperuser) {
+      setRoles(["Student"]);
+      return;
+    }
+    const r: string[] = [];
+    if (user.isProfessor) {
+      r.push("Professor");
+    }
+    if (user.isSuperuser) {
+      r.push("Superuser");
+    }
+    setRoles(r);
+  }, [user, setRoles]);
+
   return (
     <>
       <Card raised sx={{ width: "32rem" }}>
@@ -57,35 +77,15 @@ const Profile = ({
               <Grid item xs={12}>
                 {user ? (
                   <Grid container sx={{ marginTop: "1rem" }}>
-                    {user.isProfessor && (
-                      <Grid item xs={6}>
+                    {roles.map((r) => (
+                      <Grid item xs={6} key={r}>
                         <Chip
-                          label="Professor"
+                          label={r}
                           color="primary"
                           icon={<SecurityIcon />}
                         />
                       </Grid>
-                    )}
-
-                    {user.isSuperuser && (
-                      <Grid item xs={6}>
-                        <Chip
-                          label="Superuser"
-                          color="primary"
-                          icon={<SecurityIcon />}
-                        />
-                      </Grid>
-                    )}
-
-                    {!user.isProfessor && !user.isSuperuser && (
-                      <Grid item xs={6}>
-                        <Chip
-                          label="Student"
-                          color="primary"
-                          icon={<SecurityIcon />}
-                        />
-                      </Grid>
-                    )}
+                    ))}
                   </Grid>
                 ) : (
                   <Grid container sx={{ marginTop: "1rem" }}>
