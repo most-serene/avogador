@@ -124,6 +124,39 @@ services:
     networks:
       - avogador-inner-network
 
+  filesystem:
+    image: "avogador-filesystemservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/filesystemservice
+      dockerfile: Dockerfile.prod
+      target: ${FILESYSTEMSERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
+      # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
+      server.port: 80
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
+      # spring.servlet.multipart.max-file-size: 2GB
+      # spring.servlet.multipart.max-request-size: 2GB
+      spring.profiles.active: ${FILESYSTEMSERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      # security.allowed.origins: ${COURSESERVICE_ALLOWED_ORIGINS}
+      # multipart.enabled: false
+    networks:
+      - avogador-inner-network
+
   rabbitmq:
     hostname: avogador-rabbitmq
     image: rabbitmq:3-management
