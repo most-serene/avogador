@@ -1,56 +1,62 @@
-import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { Box, Button } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Button, Container, Grid, Paper, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useAvogadorApi } from "../../hooks/useAvogadorApi";
 
 export default function Footer() {
-  const [apiVersion, setApiVersion] = useState<string>("");
   const navigate = useNavigate();
-  const avogadorApi = useAvogadorApi();
-
-  useEffect(() => {
-    avogadorApi
-      .get("/")
-      .then(({ data }) => {
-        setApiVersion(data as string);
-      })
-      .catch(() => {
-        setApiVersion("API Offline");
-      });
-  }, [avogadorApi]);
 
   return (
-    <Box
+    <Paper
       sx={{
         backgroundColor: (theme) =>
           theme.palette.mode === "light"
             ? theme.palette.grey[200]
             : theme.palette.grey[800],
-        p: 3,
+        width: "100%",
+        position: "fixed",
+        bottom: 0,
+        marginTop: 0,
       }}
       component="footer"
+      square
+      variant="outlined"
     >
-      <Container
-        maxWidth="sm"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div>
-          <Typography variant="body2" color="text.secondary" align="center">
-            {apiVersion}
-          </Typography>
-
-          <Button
-            sx={{ justifyContent: "center" }}
-            onClick={() => {
-              navigate("/status");
-            }}
+      <Container maxWidth="lg">
+        <Grid container display={"flex"}>
+          <Grid item xs={4}></Grid>
+          <Grid
+            item
+            xs={4}
+            display={"flex"}
+            justifyContent={"center"}
+            alignContent={"center"}
           >
-            <Typography align="center">Current API status</Typography>
-          </Button>
-        </div>
+            <Button
+              sx={{ justifyContent: "center", margin: 0 }}
+              onClick={() => {
+                navigate("/status");
+              }}
+            >
+              <Typography align="center" margin={0}>
+                System status
+              </Typography>
+            </Button>
+          </Grid>
+          <Grid
+            item
+            xs={4}
+            display={"flex"}
+            justifyContent={"flex-end"}
+            alignContent={"center"}
+          >
+            <Stack direction="column" justifyContent="center">
+              <Typography variant="body2" color="text.secondary">
+                {import.meta.env.APP_VERSION}
+              </Typography>
+            </Stack>
+          </Grid>
+        </Grid>
       </Container>
-    </Box>
+    </Paper>
   );
 }
