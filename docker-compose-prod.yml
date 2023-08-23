@@ -154,6 +154,8 @@ services:
       server.shutdown: graceful
       # security.allowed.origins: ${COURSESERVICE_ALLOWED_ORIGINS}
       # multipart.enabled: false
+    volumes:
+      - filesystem-volume:/avogador
     networks:
       - avogador-inner-network
 
@@ -176,7 +178,7 @@ services:
     networks:
       - avogador-inner-network
     volumes:
-      - avogador-rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-data:/var/lib/rabbitmq/
     ports:
       # - "5672:5672"
       - "15672:15672"
@@ -198,8 +200,14 @@ services:
       - "${REACT_PORT}:3000"
 
 volumes:
-  avogador-rabbitmq-data:
-    external: true
+  rabbitmq-data:
+
+  filesystem-volume:
+    driver: local
+    driver_opts:
+      type: cifs    
+      device: //${FILESYSTEMSERVICE_VOLUME_ADDRESS}/${FILESYSTEMSERVICE_VOLUME_NAME}
+      o: "addr=${FILESYSTEMSERVICE_VOLUME_ADDRESS},username=${FILESYSTEMSERVICE_VOLUME_USER},password=${FILESYSTEMSERVICE_VOLUME_PASS},file_mode=0777,dir_mode=0777"
 
 networks:
   avogador-inner-network:
