@@ -1,5 +1,8 @@
 package eu.mostserene.avogador.userservice.users;
 
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,4 +12,5 @@ public interface UserService {
     User createUser(User user);
     User updateUser(User user);
     void deleteUser(User user);
+    List<User> getUsersByIds(List<UUID> ids, Pageable sort);
 }
