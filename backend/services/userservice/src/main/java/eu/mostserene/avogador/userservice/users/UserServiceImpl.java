@@ -1,8 +1,10 @@
 package eu.mostserene.avogador.userservice.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,5 +36,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(User user) {
         repository.delete(user);
+    }
+
+    @Override
+    public List<User> getUsersByIds(List<UUID> ids, Pageable sort) {
+        return repository.findByIdIn(ids, sort);
     }
 }
