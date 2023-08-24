@@ -155,7 +155,7 @@ services:
       # security.allowed.origins: ${COURSESERVICE_ALLOWED_ORIGINS}
       # multipart.enabled: false
     volumes:
-      - filesystem-volume:/avogador
+      - avogador-filesystem-volume:/avogador
     networks:
       - avogador-inner-network
 
@@ -178,7 +178,7 @@ services:
     networks:
       - avogador-inner-network
     volumes:
-      - rabbitmq-data:/var/lib/rabbitmq/
+      - avogador-rabbitmq-data:/var/lib/rabbitmq/
     ports:
       # - "5672:5672"
       - "15672:15672"
@@ -200,14 +200,11 @@ services:
       - "${REACT_PORT}:3000"
 
 volumes:
-  rabbitmq-data:
+  avogador-rabbitmq-data:
+    external: true
 
-  filesystem-volume:
-    driver: local
-    driver_opts:
-      type: cifs    
-      device: //${FILESYSTEMSERVICE_VOLUME_ADDRESS}/${FILESYSTEMSERVICE_VOLUME_NAME}
-      o: "addr=${FILESYSTEMSERVICE_VOLUME_ADDRESS},username=${FILESYSTEMSERVICE_VOLUME_USER},password=${FILESYSTEMSERVICE_VOLUME_PASS},file_mode=0777,dir_mode=0777"
+  avogador-filesystem-volume:
+    external: true
 
 networks:
   avogador-inner-network:
