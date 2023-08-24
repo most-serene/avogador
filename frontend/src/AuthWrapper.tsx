@@ -22,8 +22,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
       .catch((err) => {
         console.log(err);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, getCurrent, navigate]);
 
   return <>{children}</>;
 }
