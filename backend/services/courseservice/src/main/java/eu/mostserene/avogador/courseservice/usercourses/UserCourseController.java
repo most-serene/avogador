@@ -7,16 +7,23 @@ import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/public/courses")
+@Slf4j
 public class UserCourseController {
     @Autowired
     private UserService userService;
@@ -131,14 +138,47 @@ public class UserCourseController {
      * @throws ResponseStatusException(403) if the user is not part of the course or is a student
      * */
     @GetMapping("/{courseId}/users")
-    private List<UserCourse> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
+    private List<UserCourseDetailDto> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @RequestParam Optional<Integer> limit,
+                                                       @RequestParam Optional<Integer> offset, @RequestParam Optional<String> orderBy, @RequestParam Optional<String> direction){
+
         var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course"));
         if (userCourse.getRole() == CourseRole.STUDENT){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course");
         }
 
-        return userCourseService.getUsersByCourseId(courseId);
+        int offsetVal = offset.orElse(0);
+        int limitVal = limit.orElse(25);
+        var orderByVal = orderBy.orElse("joinDate");
+
+        if (orderByVal.equals("joinDate") || orderByVal.equals("role")){
+            String directionVal = direction.orElse("ASC");
+            if (!directionVal.equals("ASC") && !directionVal.equals("DESC")){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong order direction");
+            }
+
+            return preOrderedGetUsersByCourse(courseId, limitVal, offsetVal, orderByVal, directionVal);
+        }
+
+        List<UserCourse> userCourses = userCourseService.getUsersByCourseId(courseId);
+        Map<UUID, UserCourse> userCoursesMap = userCourses.stream().collect(Collectors.toMap(UserCourse::getUser, uc -> uc));
+
+        List<UserDto> userDetails = userService.getUsersFromIdList(userCoursesMap.keySet().stream().toList(), limit, offset, orderBy, direction);
+
+        return userDetails.stream().map(u -> userCoursesMap.get(u.getId()).generateDto(u)).toList();
+    }
+
+    private List<UserCourseDetailDto> preOrderedGetUsersByCourse(UUID courseId, Integer limit, Integer offset, String orderBy, String direction){
+
+        Sort sort = Sort.by(direction.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, orderBy);
+        List<UserCourse> userCourses = userCourseService.getUsersByCourseId(courseId, PageRequest.of(offset, limit, sort));
+
+        List<UserDto> userDetails = userService.getUsersFromIdList(userCourses.stream().map(UserCourse::getUser).toList());
+        Map<UUID, UserDto> userDetailsMap = userDetails.stream().collect(Collectors.toMap(UserDto::getId, u -> u));
+
+        return userCourses.stream()
+                .map(userCourse -> userCourse.generateDto(userDetailsMap.get(userCourse.getUser())) )
+                .toList();
     }
 
     /**
