@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.userservice.users;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class InternalUserController {
     private @Autowired UserService userService;
 
@@ -28,8 +30,8 @@ public class InternalUserController {
         if (offsetVal < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative offset");
         }
-        if (limit.orElse(25) <= 0){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit too low");
+        if (limitVal < 0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative limit");
         }
 
         if (orderBy.isPresent()){
@@ -39,10 +41,10 @@ public class InternalUserController {
             }
 
             sort = Sort.by(directionVal.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, orderBy.get());
-            users = userService.getUsersByIds(ids, PageRequest.of(offsetVal, limitVal, sort));
+            users = userService.getUsersByIds(ids, PageRequest.of(offsetVal, limitVal == 0 ? ids.size() : limitVal, sort));
         }
         else {
-            users = userService.getUsersByIds(ids, PageRequest.of(offsetVal, limitVal));
+            users = userService.getUsersByIds(ids, PageRequest.of(offsetVal, limitVal == 0 ? ids.size() : limitVal));
         }
 
         return users.stream().map(User::generateAuthUserDTO).toList();

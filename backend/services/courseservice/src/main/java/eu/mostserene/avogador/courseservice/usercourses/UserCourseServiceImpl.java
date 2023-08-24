@@ -3,6 +3,7 @@ package eu.mostserene.avogador.courseservice.usercourses;
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,6 +50,11 @@ public class UserCourseServiceImpl implements UserCourseService {
     @Override
     public List<UserCourse> getUsersByCourseId(UUID courseId) {
         return repository.findByCourse_Id(courseId);
+    }
+
+    @Override
+    public List<UserCourse> getUsersByCourseId(UUID courseId, Pageable pageable) {
+        return repository.findByCourse_Id(courseId, pageable);
     }
 
     @Override

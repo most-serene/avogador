@@ -26,6 +26,7 @@ repositories {
 }
 
 dependencies {
+	implementation("org.apache.httpcomponents.client5:httpclient5:5.0.3")
 	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
