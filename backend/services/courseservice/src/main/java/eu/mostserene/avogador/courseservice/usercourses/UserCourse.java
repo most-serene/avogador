@@ -81,4 +81,8 @@ public class UserCourse {
     public void setJoinDate(Date joinDate) {
         this.joinDate = joinDate;
     }
+
+    public UserCourseDetailDto generateDto(UserDto user){
+        return new UserCourseDetailDto(id, user, course.getId(), role, joinDate);
+    }
 }
