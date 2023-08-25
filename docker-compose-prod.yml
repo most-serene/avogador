@@ -140,9 +140,9 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
-      # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
-      # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${FILESYSTEMSERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${FILESYSTEMSERVICE_RABBITMQ_PASSWORD}
       server.port: 80
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
