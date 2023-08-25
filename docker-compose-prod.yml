@@ -100,9 +100,9 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
-      # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
-      # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${COURSES_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${COURSES_RABBITMQ_PASSWORD}
       server.port: 80
       spring.datasource.url: ${COURSESERVICE_DATASOURCE_URL}
       spring.datasource.username: ${COURSESERVICE_DATASOURCE_USERNAME}

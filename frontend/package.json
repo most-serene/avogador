@@ -24,6 +24,7 @@
     "@mui/material": "^5.14.3",
     "@mui/x-date-pickers": "^6.11.2",
     "@react-oauth/google": "^0.11.1",
+    "@sentry/browser": "^7.64.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "eslint-plugin-react": "^7.33.0",
