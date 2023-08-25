@@ -11,10 +11,13 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import { connectToGlitchTip } from "./conf/Glitchtip.ts";
 
 const root = document.getElementById("root");
 
 if (root) {
+  connectToGlitchTip();
+
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
