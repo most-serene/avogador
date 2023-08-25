@@ -15,6 +15,7 @@ services:
         max-file: "10"
         max-size: "5m"
     environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
       # spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
       # spring.rabbitmq.username: ${RABBITMQ_USERNAME}
       # spring.rabbitmq.password: ${RABBITMQ_PASSWORD}
