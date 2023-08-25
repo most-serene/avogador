@@ -28,6 +28,7 @@ repositories {
 extra["springCloudVersion"] = "2022.0.3"
 
 dependencies {
+	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("com.google.guava:guava:31.1-jre")
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway")

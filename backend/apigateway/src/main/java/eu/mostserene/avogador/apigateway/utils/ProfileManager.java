@@ -30,6 +30,15 @@ public class ProfileManager {
         }
     }
 
+
+    /**
+     * Get the current active profiles
+     * @return the current active profiles
+     */
+    public String getActiveProfiles() {
+        return activeProfiles;
+    }
+
     /**
      * Executes one of the callbacks given the current profile
      *

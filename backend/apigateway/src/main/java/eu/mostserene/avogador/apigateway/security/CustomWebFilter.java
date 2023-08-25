@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.apigateway.utils.ProfileManager;
+import io.sentry.Sentry;
+import io.sentry.SentryLevel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +98,7 @@ public class CustomWebFilter implements WebFilter {
                 } catch (JsonProcessingException e) {
                     log.error(e.getMessage());
                     exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                    Sentry.captureException(e, scope -> scope.setLevel(SentryLevel.ERROR));
                     return exchange.getResponse().setComplete();
                 }
             } else {
@@ -140,6 +143,7 @@ public class CustomWebFilter implements WebFilter {
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
                 exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                Sentry.captureException(e, scope -> scope.setLevel(SentryLevel.ERROR));
                 return exchange.getResponse().setComplete();
             }
         } else {
