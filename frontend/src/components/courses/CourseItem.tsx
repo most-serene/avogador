@@ -7,14 +7,14 @@ interface CourseItemProps {
 }
 
 export default function CourseItem({ course }: CourseItemProps) {
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
   console.log(course);
 
   return (
     <Card
       onClick={() => {
-        navigator(`/courses/${course.id}`);
+        navigate(`/courses/${course.id}`);
       }}
     >
       <CardActionArea>
