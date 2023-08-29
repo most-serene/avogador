@@ -9,6 +9,7 @@ import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -32,6 +33,8 @@ public class ApiKeyControllerTests {
     private @MockBean UserService userService;
     private @MockBean ApiKeyService apiKeyService;
     private @MockBean ProfileManager profileManager;
+
+    private @MockBean BuildProperties buildProperties;
 
     private final User student1 = new User("student1@stud.unive.it", "Andy", "Bernard");
     private final String student1Header = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student1@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
