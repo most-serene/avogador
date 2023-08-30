@@ -6,12 +6,15 @@ import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseRepository;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseServiceImpl;
 import eu.mostserene.avogador.courseservice.users.UserDto;
+import eu.mostserene.avogador.courseservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -41,6 +44,9 @@ public class UserCourseServiceTests {
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
     private final UserCourse newAdmin = new UserCourse(outsiderUser, course, CourseRole.ADMIN);
+    private @MockBean ProfileManager profileManager;
+
+    private @MockBean BuildProperties buildProperties;
 
     @Nested
     class GetUserCourse {

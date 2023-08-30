@@ -1,11 +1,14 @@
 package eu.mostserene.avogador.courseservice.services;
 
 import eu.mostserene.avogador.courseservice.courses.CourseService;
+import eu.mostserene.avogador.courseservice.utils.ProfileManager;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.UUID;
 import java.util.stream.Stream;
