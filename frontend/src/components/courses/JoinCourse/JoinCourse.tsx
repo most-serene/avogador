@@ -32,7 +32,7 @@ const JoinCourse = () => {
     joinCourse(course, joinCode)
       .then((res) => {
         if (res) {
-          enqueueSnackbar(`You joined ${course.id} successfully!`, {
+          enqueueSnackbar(`You joined ${course.name} successfully!`, {
             variant: "success",
           });
           navigate(`/courses/${course.id}`);
@@ -64,7 +64,7 @@ const JoinCourse = () => {
       <CardContent>
         <Stack spacing={2}>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            Join the course of {course?.name}{" "}
+            Join the course: {course?.name}{" "}
           </Typography>
 
           <TextField
