@@ -3,12 +3,15 @@ package eu.mostserene.avogador.courseservice.services;
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseRepository;
 import eu.mostserene.avogador.courseservice.courses.CourseServiceImpl;
+import eu.mostserene.avogador.courseservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -25,6 +28,9 @@ public class CourseServiceTests {
     CourseServiceImpl courseService;
     @Mock
     CourseRepository repository;
+    private @MockBean ProfileManager profileManager;
+
+    private @MockBean BuildProperties buildProperties;
 
     private final Course course = new Course("course", "2023/2024", false);
     private final Course hackedCourse = new Course("course", "2023/2024", true);

@@ -10,9 +10,11 @@ import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
+import eu.mostserene.avogador.courseservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,6 +41,9 @@ public class CourseControllerTests {
     private @MockBean CourseService courseService;
     private @MockBean UserService userService;
     private @MockBean FileSystemService fileSystemService;
+    private @MockBean ProfileManager profileManager;
+
+    private @MockBean BuildProperties buildProperties;
 
     // COURSES
     private final Course course = new Course("course", "2023/2024", false);

@@ -92,6 +92,7 @@ public class CustomWebFilter implements WebFilter {
                             exchange.mutate().request(
                                             exchange.getRequest().mutate()
                                                     .header("User", objectMapper.writeValueAsString(user.get()))
+                                                    .header("Source", "Rest-Api")
                                                     .header("Request-ID", requestId)
                                                     .build())
                                     .build());
@@ -114,6 +115,7 @@ public class CustomWebFilter implements WebFilter {
             return chain.filter(
                     exchange.mutate().request(
                                     exchange.getRequest().mutate()
+                                            .header("Source", "React-App")
                                             .header("Request-ID", requestId)
                                             .build())
                             .build());
@@ -137,6 +139,7 @@ public class CustomWebFilter implements WebFilter {
                         exchange.mutate().request(
                                         exchange.getRequest().mutate()
                                                 .header("User", objectMapper.writeValueAsString(user.get()))
+                                                .header("Source", "React-App")
                                                 .header("Request-ID", requestId)
                                                 .build())
                                 .build());
