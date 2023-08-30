@@ -10,6 +10,7 @@ import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 import JoinCourseScreen from "./components/courses/JoinCourse/JoinCourseScreen.tsx";
+import { SnackbarProvider } from "notistack";
 
 const NotFound = () => {
   return (
@@ -34,42 +35,44 @@ const NotFound = () => {
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Navbar />
-        <AuthWrapper>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <Container
-                    className={"full-page-without-header-and-footer"}
-                    maxWidth={false}
-                  >
-                    <HomeScreen />
+      <SnackbarProvider preventDuplicate={true}>
+        <BrowserRouter>
+          <Navbar />
+          <AuthWrapper>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Container
+                      className={"full-page-without-header-and-footer"}
+                      maxWidth={false}
+                    >
+                      <HomeScreen />
+                    </Container>
+                    <Footer />
+                  </>
+                }
+              />
+              <Route
+                path="/status"
+                element={
+                  <Container>
+                    <StatusPage />
                   </Container>
-                  <Footer />
-                </>
-              }
-            />
-            <Route
-              path="/status"
-              element={
-                <Container>
-                  <StatusPage />
-                </Container>
-              }
-            />
-            <Route path="courses">
-              <Route path={":courseId"} element={<CourseDetailScreen />} />
-              <Route path={":courseId/join"} element={<JoinCourseScreen />} />
-            </Route>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile" element={<ProfileScreen />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthWrapper>
-      </BrowserRouter>
+                }
+              />
+              <Route path="courses">
+                <Route path={":courseId"} element={<CourseDetailScreen />} />
+                <Route path={":courseId/join"} element={<JoinCourseScreen />} />
+              </Route>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthWrapper>
+        </BrowserRouter>
+      </SnackbarProvider>
     </div>
   );
 }
