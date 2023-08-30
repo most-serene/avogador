@@ -10,12 +10,14 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Code } from "@mui/icons-material";
+import { Code, DarkMode, LightMode } from "@mui/icons-material";
 import { useAuthService } from "../authentication/hooks/useAuthService";
-import { Button } from "@mui/material";
+import { Button, ButtonGroup, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom";
+import colorModeAtom from "../theme/colorModeAtom.ts";
+import { useEffect } from "react";
 
 interface PageItem {
   name: string;
@@ -31,7 +33,13 @@ export default function Navbar() {
   const { logout } = useAuthService();
   const navigate = useNavigate();
   const [user] = useAtom(userAtom);
+  const [colorMode, setColorMode] = useAtom(colorModeAtom);
   const profilePicture = localStorage.getItem("profile-picture");
+
+  useEffect(() => {
+    const mode = localStorage.getItem("colorMode");
+    setColorMode(mode === "dark" || mode === "light" ? mode : "light");
+  }, [setColorMode]);
 
   const pages: PageItem[] = [
     {
@@ -71,6 +79,11 @@ export default function Navbar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleChangeColorMode = (mode: "dark" | "light") => {
+    setColorMode(mode);
+    localStorage.setItem("colorMode", mode);
   };
 
   const DesktopNavbar = () => {
@@ -181,7 +194,7 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" style={{ marginBottom: 8 }} elevation={0}>
+    <AppBar position="static" style={{ marginBottom: 8 }}>
       <Container maxWidth={false}>
         <Toolbar disableGutters>
           <DesktopNavbar />
@@ -222,6 +235,25 @@ export default function Navbar() {
                   <Typography textAlign="center">{setting.name}</Typography>
                 </MenuItem>
               ))}
+              <Divider />
+              <ButtonGroup sx={{ mx: 2 }}>
+                <Button
+                  variant={colorMode === "light" ? "contained" : "outlined"}
+                  onClick={() => {
+                    handleChangeColorMode("light");
+                  }}
+                >
+                  <LightMode />
+                </Button>
+                <Button
+                  variant={colorMode === "dark" ? "contained" : "outlined"}
+                  onClick={() => {
+                    handleChangeColorMode("dark");
+                  }}
+                >
+                  <DarkMode />
+                </Button>
+              </ButtonGroup>
             </Menu>
           </Box>
         </Toolbar>
