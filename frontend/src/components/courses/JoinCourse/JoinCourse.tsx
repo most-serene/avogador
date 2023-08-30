@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useCourseService from "../hook/useCourseService";
 import { GetCoursesDetailResponse } from "../types";
+import { enqueueSnackbar } from "notistack";
 
 const JoinCourse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,6 +20,7 @@ const JoinCourse = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState<GetCoursesDetailResponse>();
+  const [error, setError] = useState<boolean>(false);
 
   const joinCode = useMemo<string>(() => {
     const code = searchParams.get("code");
@@ -30,10 +32,13 @@ const JoinCourse = () => {
     joinCourse(course, joinCode)
       .then((res) => {
         if (res) {
-          //TODO: send notification
+          enqueueSnackbar(`You joined ${course.id} successfully!`, {
+            variant: "success",
+          });
           navigate(`/courses/${course.id}`);
         } else {
-          //TODO: send notification
+          setError(true);
+          enqueueSnackbar(`Your join code is wrong`, { variant: "error" });
         }
       })
       .catch((e) => {
@@ -58,17 +63,17 @@ const JoinCourse = () => {
     <Card sx={{ width: "32rem" }} raised>
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h5">Join Course</Typography>
-
-          <Typography variant="body2">
-            You are joining {course?.name}
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            Join the course of {course?.name}{" "}
           </Typography>
 
           <TextField
             fullWidth
             value={joinCode}
+            error={error}
             label="Join code"
             onChange={(event) => {
+              setError(false);
               setSearchParams({
                 code: event.target.value,
               });
