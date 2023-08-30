@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom.ts";
+import { Skeleton, Typography } from "@mui/material";
 
 export default function HomeScreen() {
   const [user] = useAtom(userAtom);
@@ -20,7 +21,10 @@ export default function HomeScreen() {
   return (
     <>
       <Grid container spacing={2} style={{ height: "100%" }}>
-        <Grid item xs={9}>
+        <Grid item xs={9} marginTop={"1rem"}>
+          <Typography variant={"h4"}>
+            {user ? `Welcome back ${user.givenName}!` : <Skeleton />}
+          </Typography>
           <CoursesPreview />
         </Grid>
 

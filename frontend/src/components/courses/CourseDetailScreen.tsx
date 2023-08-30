@@ -4,7 +4,7 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import { CourseDetail } from "./types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "../misc/TabPanel.tsx";
-import useCourseService from "./hook/useCourseService.tsx";
+import useCourseService from "./hooks/useCourseService.tsx";
 
 function a11yProps(index: number) {
   return {

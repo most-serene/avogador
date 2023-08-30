@@ -1,12 +1,10 @@
-import { Grid } from "@mui/material";
 import LoginGoogle from "../LoginGoogle/LoginGoogle";
+import Box from "@mui/material/Box";
 
 export const LoginPage = () => {
   return (
-    <Grid container style={{ marginTop: "2rem" }}>
-      <Grid item xs display="flex" justifyContent="center" alignItems="center">
-        <LoginGoogle />
-      </Grid>
-    </Grid>
+    <Box display="flex" justifyContent="center" marginTop={"2rem"}>
+      <LoginGoogle />
+    </Box>
   );
 };

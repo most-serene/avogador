@@ -21,7 +21,7 @@ export default function Footer() {
       square
       variant="outlined"
     >
-      <Container maxWidth="lg">
+      <Container maxWidth={false}>
         <Grid container display={"flex"}>
           <Grid item xs={4}></Grid>
           <Grid

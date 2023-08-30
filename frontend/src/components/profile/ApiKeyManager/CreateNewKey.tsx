@@ -6,6 +6,7 @@ import useApiKeyService from "./hooks/useApiKeyService";
 import { useCallback, useState } from "react";
 import ApiKeyModal from "./ApiKeyModal.tsx";
 import { ApiKey } from "./types.ts";
+import Box from "@mui/material/Box";
 
 const isValid: (name?: string, expiration?: Date) => boolean = (
   name?: string,
@@ -77,48 +78,44 @@ const CreateNewKey = ({
 
   return (
     <>
-      <Grid container>
-        <Grid item xs={12}>
-          <Typography>Create new API Key</Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Grid container>
-            <Grid item xs={5} sx={{ margin: "1rem" }}>
-              <TextField
-                error={!isNameValid(name)}
-                fullWidth
-                label="Key name"
-                id="keyName"
-                onChange={(newValue) => {
-                  setName(newValue.target.value);
-                }}
-              />
-            </Grid>
-            <Grid item xs={5} sx={{ margin: "1rem" }}>
-              <DateField
-                label="Expiration date"
-                value={expiration}
-                disablePast
-                format="dd/MM/yyyy"
-                onChange={(newValue) => {
-                  setExpiration(newValue ?? undefined);
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} display={"flex"} justifyContent={"flex-end"}>
-          <Button
-            variant="outlined"
-            disabled={!isValid(name, expiration)}
-            onClick={() => {
-              createKey(user);
+      <Typography>Create new API Key</Typography>
+      <Grid container spacing={2} sx={{ py: 2 }}>
+        <Grid item xs={6}>
+          <TextField
+            error={!isNameValid(name)}
+            fullWidth
+            label="Key name"
+            id="keyName"
+            onChange={(newValue) => {
+              setName(newValue.target.value);
             }}
-          >
-            Create
-          </Button>
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <DateField
+            fullWidth
+            label="Expiration date"
+            value={expiration}
+            disablePast
+            format="dd/MM/yyyy"
+            onChange={(newValue) => {
+              setExpiration(newValue ?? undefined);
+            }}
+          />
         </Grid>
       </Grid>
+      <Box sx={{ display: "flex", justifyContent: "end" }}>
+        <Button
+          variant="outlined"
+          disabled={!isValid(name, expiration)}
+          onClick={() => {
+            createKey(user);
+          }}
+        >
+          Create
+        </Button>
+      </Box>
+
       <ApiKeyModal apiKey={key} />
     </>
   );

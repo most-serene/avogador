@@ -1,18 +1,18 @@
 import {
   Button,
   Card,
-  CardActions,
   CardContent,
-  Grid,
+  Skeleton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import useCourseService from "../hook/useCourseService";
+import useCourseService from "../hooks/useCourseService";
 import { GetCoursesDetailResponse } from "../types";
 import { enqueueSnackbar } from "notistack";
+import Box from "@mui/material/Box";
 
 const JoinCourse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -63,8 +63,8 @@ const JoinCourse = () => {
     <Card sx={{ width: "32rem" }} raised>
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-            Join the course: {course?.name}{" "}
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            {course ? `Join the course: ${course.name}` : <Skeleton />}
           </Typography>
 
           <TextField
@@ -80,22 +80,15 @@ const JoinCourse = () => {
             }}
           />
         </Stack>
-        <CardActions>
-          <Grid
-            item
-            xs
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
+        <Box display="flex" justifyContent="center" marginTop=".5rem">
+          <Button
+            disabled={course === undefined || joinCode === ""}
+            onClick={joinHandler}
+            variant={"outlined"}
           >
-            <Button
-              disabled={course === undefined || joinCode === ""}
-              onClick={joinHandler}
-            >
-              Join
-            </Button>
-          </Grid>
-        </CardActions>
+            Join
+          </Button>
+        </Box>
       </CardContent>
     </Card>
   );

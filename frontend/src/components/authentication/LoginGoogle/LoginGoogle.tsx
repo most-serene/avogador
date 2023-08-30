@@ -16,7 +16,7 @@ const LoginGoogle = () => {
   return (
     <Card sx={{ maxWidth: "32rem" }} raised>
       <CardContent>
-        <Typography variant="body1" color="text.secondary" gutterBottom>
+        <Typography variant="h5" color="text.secondary" gutterBottom>
           Login with Google
         </Typography>
         <Typography variant="body2">

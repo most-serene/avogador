@@ -7,14 +7,12 @@ import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom.ts";
 import { useAvogadorApi } from "../../hooks/useAvogadorApi.tsx";
 import { Typography } from "@mui/material";
-import { User } from "../authentication/types.ts";
 
-const EmptyCoursesHome = ({ user }: { user: User }) => {
+const EmptyCoursesHome = () => {
   return (
     <Grid container alignContent={"center"}>
       <Grid item xs={12} display={"flex"} justifyContent={"center"}>
         <Typography variant="h6">
-          Hi {user.givenName}! <br />
           Your home is so empty! Time to join a course!
         </Typography>
       </Grid>
@@ -67,12 +65,14 @@ export default function CoursesPreview() {
   }
 
   return (
-    <Grid container spacing={1} display={"flex"} style={{ height: "100%" }}>
-      {user && gridContent.length === 0 ? (
-        <EmptyCoursesHome user={user} />
-      ) : (
-        gridContent
-      )}
+    <Grid
+      container
+      marginTop={"1rem"}
+      spacing={1}
+      display={"flex"}
+      style={{ height: "100%" }}
+    >
+      {user && gridContent.length === 0 ? <EmptyCoursesHome /> : gridContent}
     </Grid>
   );
 }
