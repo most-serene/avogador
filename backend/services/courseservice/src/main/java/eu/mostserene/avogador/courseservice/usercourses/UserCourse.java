@@ -29,6 +29,7 @@ public class UserCourse {
     private Course course;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private CourseRole role = CourseRole.STUDENT;
 
     @NotNull
