@@ -3,6 +3,7 @@ package eu.mostserene.avogador.courseservice.courses;
 import eu.mostserene.avogador.courseservice.courses.dtos.CourseDetailDto;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
+import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
@@ -85,20 +86,27 @@ public class CourseController {
      * */
     @GetMapping("/{courseId}")
     private CourseDetailDto getCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) { // TODO: this will eventually return more data, such as list of trials
-        var userCourse =  userCourseService
-                .getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"));
+        var course = courseService.getCourse(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This course doesn't exists"));
 
-        if (userCourse.getCourse().getIsArchived() && userCourse.getRole() != CourseRole.ADMIN)
+        var userCourse =  userCourseService
+                .getUserCourse(user.getId(), courseId);
+        if (userCourse.isEmpty() && !course.getIsArchived())
+            return new CourseDetailDto(course, CourseRole.EXTERNAL);
+        var userRole = userCourse
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"))
+                .getRole();
+
+        if (course.getIsArchived() && userRole != CourseRole.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
 
-        if (userCourse.getRole() == CourseRole.STUDENT){
-            return new CourseDetailDto(userCourse.getCourse(), userCourse.getRole());
+        if (userRole == CourseRole.STUDENT){
+            return new CourseDetailDto(course, userRole);
         }
         var joinCode = courseService.getJoinCode(courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        return new CourseDetailDto(userCourse.getCourse(), joinCode, userCourse.getRole());
+        return new CourseDetailDto(course, joinCode, userRole);
 
     }
 

@@ -203,19 +203,33 @@ public class CourseControllerTests {
 
     @Nested
     class GetCourseById{
+        @Test
+        public void wrongCourseId_get404() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000000").header("User", studentHeader))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
 
         @Test
-        public void notMember_get403() throws Exception{
+        public void notMember_get200_externalRole() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                 .thenReturn(Optional.empty());
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.role").value("EXTERNAL"));
         }
 
         @Test
         public void fromStudent_archivedCourse_get403() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(new UserCourse(studentUser, archivedCourse, CourseRole.STUDENT)));
 
@@ -226,6 +240,8 @@ public class CourseControllerTests {
 
         @Test
         public void fromAdmin_archivedCourse_get200() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
             when(courseService.getJoinCode(any()))
@@ -238,6 +254,8 @@ public class CourseControllerTests {
 
         @Test
         public void isMember_get200() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                 .thenReturn(Optional.of(student));
 
@@ -248,6 +266,8 @@ public class CourseControllerTests {
 
         @Test
         public void isStudent_get200_nullJoinCode() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student));
 
@@ -259,6 +279,8 @@ public class CourseControllerTests {
 
         @Test
         public void isAdmin_get200_nullJoinCode() throws Exception{
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
             when(courseService.getJoinCode(any()))

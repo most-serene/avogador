@@ -29,6 +29,7 @@ public class UserCourse {
     private Course course;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private CourseRole role = CourseRole.STUDENT;
 
     @NotNull
@@ -39,6 +40,12 @@ public class UserCourse {
 
     public UserCourse(UserDto user, Course course, CourseRole role) {
         this.userId = user.getId();
+        this.course = course;
+        this.role = role;
+    }
+
+    public UserCourse(UUID userId, Course course, CourseRole role) {
+        this.userId = userId;
         this.course = course;
         this.role = role;
     }
