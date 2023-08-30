@@ -9,6 +9,7 @@ import AuthWrapper from "./AuthWrapper.tsx";
 import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 import ProfileScreen from "./components/profile/ProfileScreen.tsx";
+import JoinCourseScreen from "./components/courses/JoinCourse/JoinCourseScreen.tsx";
 import { SnackbarProvider } from "notistack";
 
 const NotFound = () => {
@@ -63,6 +64,7 @@ function App() {
               />
               <Route path="courses">
                 <Route path={":courseId"} element={<CourseDetailScreen />} />
+                <Route path={":courseId/join"} element={<JoinCourseScreen />} />
               </Route>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/profile" element={<ProfileScreen />} />

@@ -1,10 +1,10 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useState } from "react";
-import { useAvogadorApi } from "../../hooks/useAvogadorApi.tsx";
-import { CourseDetail, GetCoursesDetailResponse } from "./types.ts";
+import { CourseDetail } from "./types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "../misc/TabPanel.tsx";
+import useCourseService from "./hook/useCourseService.tsx";
 
 function a11yProps(index: number) {
   return {
@@ -14,7 +14,7 @@ function a11yProps(index: number) {
 }
 
 export default function CourseDetailScreen() {
-  const avogadorApi = useAvogadorApi();
+  const { getCourseById } = useCourseService();
   const { courseId } = useParams();
 
   const [course, setCourse] = useState<CourseDetail>();
@@ -23,16 +23,15 @@ export default function CourseDetailScreen() {
   const tabs = ["Overview", "Tests", "Members", "Settings"];
 
   useEffect(() => {
-    avogadorApi
-      .get(`/courses/${courseId}`)
-      .then(({ data }: { data: GetCoursesDetailResponse }) => {
-        setCourse(data);
-        console.log(data);
+    if (courseId === undefined) return;
+    getCourseById(courseId)
+      .then((c) => {
+        setCourse(c);
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [avogadorApi, courseId]);
+  }, [getCourseById, courseId]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
