@@ -43,6 +43,12 @@ public class UserCourse {
         this.role = role;
     }
 
+    public UserCourse(UUID userId, Course course, CourseRole role) {
+        this.userId = userId;
+        this.course = course;
+        this.role = role;
+    }
+
     public UUID getId() {
         return id;
     }
