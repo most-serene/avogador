@@ -3,9 +3,11 @@ package eu.mostserene.avogador.userservice.controllers;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.users.InternalUserController;
 import eu.mostserene.avogador.userservice.users.UserService;
+import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +25,8 @@ public class InternalUserControllerTests {
     private @Autowired MockMvc mvc;
     private @MockBean AuthService authService;
     private @MockBean UserService userService;
+    private @MockBean BuildProperties buildProperties;
+    private @MockBean ProfileManager profileManager;
 
     @Nested
     class GetUsersFromIdList {

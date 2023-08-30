@@ -10,4 +10,8 @@ To activate our custom pre commit hooks:
 
 ```git config core.hooksPath hooks```
 
+At the moment, there are two hooks:
+*  pre-commit executes unit tests on staged parts of the codebase
+*  pre-push prevents push on master
+
 From the repository root
