@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom";
 import colorModeAtom from "../theme/colorModeAtom.ts";
-import { useEffect } from "react";
+import { forwardRef, useEffect } from "react";
 
 interface PageItem {
   name: string;
@@ -29,7 +29,7 @@ interface SettingsItem {
   callback: () => void;
 }
 
-export default function Navbar() {
+const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
   const { logout } = useAuthService();
   const navigate = useNavigate();
   const [user] = useAtom(userAtom);
@@ -194,7 +194,7 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" style={{ marginBottom: 8 }}>
+    <AppBar ref={ref} id="navbar" position="static" style={{ marginBottom: 8 }}>
       <Container maxWidth={false}>
         <Toolbar disableGutters>
           <DesktopNavbar />
@@ -260,4 +260,6 @@ export default function Navbar() {
       </Container>
     </AppBar>
   );
-}
+});
+
+export default Navbar;

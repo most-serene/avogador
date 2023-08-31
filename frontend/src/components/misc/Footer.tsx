@@ -1,12 +1,14 @@
 import Typography from "@mui/material/Typography";
 import { Button, Container, Grid, Paper, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { forwardRef } from "react";
 
-export default function Footer() {
+const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
   const navigate = useNavigate();
 
   return (
     <Paper
+      ref={ref}
       sx={{
         backgroundColor: (theme) =>
           theme.palette.mode === "light"
@@ -59,4 +61,6 @@ export default function Footer() {
       </Container>
     </Paper>
   );
-}
+});
+
+export default Footer;

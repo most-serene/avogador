@@ -1,5 +1,5 @@
-import { Box, Typography } from "@mui/material";
-import { ReactNode } from "react";
+import { Box } from "@mui/material";
+import { ReactNode, useLayoutEffect, useState } from "react";
 
 interface TabPanelProps {
   children?: ReactNode;
@@ -9,20 +9,29 @@ interface TabPanelProps {
 
 export default function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
+  const [occupiedHeight, setOccupiedHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    const courseTitle =
+      document.getElementById("courseTitle")?.getBoundingClientRect().height ??
+      0;
+    setOccupiedHeight(courseTitle);
+  }, []);
 
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`vertical-tabpanel-${index}`}
       aria-labelledby={`vertical-tab-${index}`}
       {...other}
+      height={`calc(100% - ${occupiedHeight}px)`}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+        <Box padding={3} height="100%">
+          {children}
         </Box>
       )}
-    </div>
+    </Box>
   );
 }

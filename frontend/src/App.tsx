@@ -6,11 +6,13 @@ import Navbar from "./components/misc/Navbar";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
-import CourseDetailScreen from "./components/courses/CourseDetailScreen.tsx";
+import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 import JoinCourseScreen from "./components/courses/JoinCourse/JoinCourseScreen.tsx";
 import { SnackbarProvider } from "notistack";
+import Box from "@mui/material/Box";
+import { useEffect, useRef, useState } from "react";
 
 const NotFound = () => {
   return (
@@ -33,44 +35,60 @@ const NotFound = () => {
 };
 
 function App() {
+  const navbarRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+
+  const [occupiedHeight, setOccupiedHeight] = useState(0);
+
+  useEffect(() => {
+    setOccupiedHeight(
+      8 * 2 +
+        (navbarRef.current?.clientHeight ?? 0) +
+        (footerRef.current?.clientHeight ?? 0),
+    );
+  }, [navbarRef, footerRef]);
+
   return (
     <div className="App">
       <SnackbarProvider preventDuplicate={true}>
         <BrowserRouter>
-          <Navbar />
+          <Navbar ref={navbarRef} />
           <AuthWrapper>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Container
-                      className={"full-page-without-header-and-footer"}
-                      maxWidth={false}
-                    >
+            <Box
+              id="fullScreenWrapper"
+              height={`calc(100vh - ${occupiedHeight}px)`}
+            >
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <Container maxWidth={false} sx={{ height: "100%" }}>
                       <HomeScreen />
                     </Container>
-                    <Footer />
-                  </>
-                }
-              />
-              <Route
-                path="/status"
-                element={
-                  <Container>
-                    <StatusPage />
-                  </Container>
-                }
-              />
-              <Route path="courses">
-                <Route path={":courseId"} element={<CourseDetailScreen />} />
-                <Route path={":courseId/join"} element={<JoinCourseScreen />} />
-              </Route>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/profile" element={<ProfileScreen />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                  }
+                />
+                <Route
+                  path="/status"
+                  element={
+                    <Container>
+                      <StatusPage />
+                    </Container>
+                  }
+                />
+                <Route path="courses">
+                  <Route path={":courseId"} element={<CourseDetailScreen />} />
+                  <Route
+                    path={":courseId/join"}
+                    element={<JoinCourseScreen />}
+                  />
+                </Route>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Box>
           </AuthWrapper>
+          <Footer ref={footerRef} />
         </BrowserRouter>
       </SnackbarProvider>
     </div>
