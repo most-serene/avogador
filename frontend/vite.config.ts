@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Avogador',
         display: 'standalone',
         description: 'A system for academic untrusted code execution',  
-        theme_color: '#42b883',  
+        theme_color: '#009393',  
         background_color: '#ffffff',  
         start_url: '/',  
         icons: [ {
