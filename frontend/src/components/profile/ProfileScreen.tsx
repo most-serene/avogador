@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom";
 import ApiKeyManager from "./ApiKeyManager/ApiKeyManager";
@@ -10,17 +10,22 @@ const ProfileScreen = () => {
 
   return (
     <>
-      <Grid container style={{ marginTop: "2rem" }} spacing={2}>
-        <Grid item xs display="flex" justifyContent="center">
-          <Box>
-            <Profile user={user} profilePicture={profilePicture ?? undefined} />
-          </Box>
-        </Grid>
+      <Container>
+        <Grid container style={{ marginTop: "2rem" }} spacing={2}>
+          <Grid item lg={6} xs={12} display="flex" justifyContent="center">
+            <Box>
+              <Profile
+                user={user}
+                profilePicture={profilePicture ?? undefined}
+              />
+            </Box>
+          </Grid>
 
-        <Grid item xs display="flex" justifyContent="center">
-          <ApiKeyManager user={user} />
+          <Grid item lg={6} xs={12} display="flex" justifyContent="center">
+            <ApiKeyManager user={user} />
+          </Grid>
         </Grid>
-      </Grid>
+      </Container>
     </>
   );
 };

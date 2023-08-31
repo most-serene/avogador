@@ -1,21 +1,11 @@
-import { Grid } from "@mui/material";
 import JoinCourse from "./JoinCourse";
+import Box from "@mui/material/Box";
 
 const JoinCourseScreen = () => {
   return (
-    <>
-      <Grid container style={{ marginTop: "2rem" }}>
-        <Grid
-          item
-          xs
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <JoinCourse />
-        </Grid>
-      </Grid>
-    </>
+    <Box display={"flex"} justifyContent={"center"} marginTop={"2rem"}>
+      <JoinCourse />
+    </Box>
   );
 };
 

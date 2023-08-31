@@ -30,9 +30,9 @@ const ApiKeyManager = ({ user }: { user?: User | null }) => {
       <Card raised sx={{ width: "32rem" }}>
         <CardContent>
           <Typography variant="h5">Your API Keys</Typography>
-          <Divider />
+          <Divider sx={{ mb: ".5rem" }} />
           <CreateNewKey user={user} userKeysAtom={userKeysAtom} />
-          <Divider sx={{ marginTop: "1rem" }} />
+          <Divider sx={{ my: "1rem" }} />
           <KeysList user={user} userKeysAtom={userKeysAtom} />
         </CardContent>
       </Card>
