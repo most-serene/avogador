@@ -30,9 +30,25 @@ interface GetCoursesDetailResponse {
   joinCode?: string;
 }
 
+interface CourseMemberDetail {
+  id: string;
+  user: {
+    id: string;
+    email: string;
+    givenName: string;
+    familyName: string;
+    isProfessor: boolean;
+    isSuperuser: boolean;
+  };
+  courseId: string;
+  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+  joinDate: string;
+}
+
 export type {
   Course,
   CourseDetail,
   GetCoursesResponse,
   GetCoursesDetailResponse,
+  CourseMemberDetail,
 };

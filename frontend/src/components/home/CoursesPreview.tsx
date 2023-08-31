@@ -65,13 +65,7 @@ export default function CoursesPreview() {
   }
 
   return (
-    <Grid
-      container
-      marginTop={"1rem"}
-      spacing={1}
-      display={"flex"}
-      style={{ height: "100%" }}
-    >
+    <Grid container spacing={2} display={"flex"} style={{ height: "100%" }}>
       {user && gridContent.length === 0 ? <EmptyCoursesHome /> : gridContent}
     </Grid>
   );

@@ -1,10 +1,11 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useState } from "react";
-import { CourseDetail } from "./types.ts";
+import { CourseDetail } from "../types.ts";
 import Container from "@mui/material/Container";
-import TabPanel from "../misc/TabPanel.tsx";
-import useCourseService from "./hooks/useCourseService.tsx";
+import TabPanel from "../../misc/TabPanel.tsx";
+import useCourseService from "../hooks/useCourseService.tsx";
+import CourseMembersTab from "./CourseMembersTab.tsx";
 
 function a11yProps(index: number) {
   return {
@@ -13,14 +14,14 @@ function a11yProps(index: number) {
   };
 }
 
+const tabs = ["Overview", "Tests", "Members", "Settings"];
+
 export default function CourseDetailScreen() {
   const { getCourseById } = useCourseService();
   const { courseId } = useParams();
 
   const [course, setCourse] = useState<CourseDetail>();
-  const [openTab, setOpenTab] = useState(0);
-
-  const tabs = ["Overview", "Tests", "Members", "Settings"];
+  const [openTab, setOpenTab] = useState(2);
 
   useEffect(() => {
     if (courseId === undefined) return;
@@ -40,7 +41,7 @@ export default function CourseDetailScreen() {
 
   return (
     <Box
-      className={"full-page-without-header"}
+      height="100%"
       sx={{
         flexGrow: 1,
         display: "flex",
@@ -57,12 +58,25 @@ export default function CourseDetailScreen() {
         ))}
       </Tabs>
       <Container maxWidth={false}>
-        <Typography variant={"h3"} align={"center"}>
+        <Typography id="courseTitle" variant="h3" align="center">
           {course ? `${course.name} (${course.year})` : <Skeleton />}
         </Typography>
         <TabPanel value={openTab} index={0}>
           <Typography variant={"h4"} color={"secondary"} align={"center"}>
-            Tab Coming Soon
+            Overview Tab Coming Soon
+          </Typography>
+        </TabPanel>
+        <TabPanel value={openTab} index={1}>
+          <Typography variant={"h4"} color={"secondary"} align={"center"}>
+            Tests Tab Coming Soon
+          </Typography>
+        </TabPanel>
+        <TabPanel value={openTab} index={2}>
+          <CourseMembersTab courseId={courseId} />
+        </TabPanel>
+        <TabPanel value={openTab} index={3}>
+          <Typography variant={"h4"} color={"secondary"} align={"center"}>
+            Settings Tab Coming Soon
           </Typography>
         </TabPanel>
       </Container>

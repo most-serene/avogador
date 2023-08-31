@@ -20,8 +20,8 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Grid container spacing={2} style={{ height: "100%" }}>
-        <Grid item xs={9} marginTop={"1rem"}>
+      <Grid container height="100%">
+        <Grid item xs={9}>
           <Typography variant={"h4"}>
             {user ? `Welcome back ${user.givenName}!` : <Skeleton />}
           </Typography>
