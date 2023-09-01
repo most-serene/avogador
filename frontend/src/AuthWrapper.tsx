@@ -2,6 +2,8 @@ import { ReactNode, useEffect } from "react";
 import { User } from "./components/authentication/types.ts";
 import { useAuthService } from "./components/authentication/hooks/useAuthService.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import userAtom from "./components/authentication/userAtom.ts";
 
 interface AuthWrapperProps {
   children: ReactNode;
@@ -11,18 +13,24 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   const { getCurrent } = useAuthService();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [user] = useAtom(userAtom);
 
   useEffect(() => {
-    getCurrent()
-      .then((u: User | null) => {
-        if (u === null && pathname !== "/login") {
-          navigate("/login");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [pathname, getCurrent, navigate]);
+    const allowedPaths = ["/", "/login", "/status"];
+    if (user === undefined) {
+      getCurrent()
+        .then((u: User | null) => {
+          if (u === null && !allowedPaths.includes(pathname)) {
+            navigate("/login");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (user === null && !allowedPaths.includes(pathname)) {
+      navigate("/login");
+    }
+  }, [pathname, user, getCurrent, navigate]);
 
   return <>{children}</>;
 }
