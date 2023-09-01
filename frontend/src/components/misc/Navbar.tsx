@@ -56,7 +56,13 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
         navigate("/profile");
       },
     },
-    { name: "Logout", callback: logout },
+    {
+      name: "Logout",
+      callback: () => {
+        logout();
+        navigate("/login");
+      },
+    },
   ];
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
