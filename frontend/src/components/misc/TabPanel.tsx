@@ -1,22 +1,15 @@
 import { Box } from "@mui/material";
-import { ReactNode, useLayoutEffect, useState } from "react";
+import { ReactNode } from "react";
 
 interface TabPanelProps {
   children?: ReactNode;
   index: number;
   value: number;
+  occupiedHeight: number;
 }
 
 export default function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  const [occupiedHeight, setOccupiedHeight] = useState(0);
-
-  useLayoutEffect(() => {
-    const courseTitle =
-      document.getElementById("courseTitle")?.getBoundingClientRect().height ??
-      0;
-    setOccupiedHeight(courseTitle);
-  }, []);
+  const { children, value, index, occupiedHeight, ...other } = props;
 
   return (
     <Box

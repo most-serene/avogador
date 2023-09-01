@@ -13,12 +13,12 @@ interface CourseDetail {
   role: "STUDENT" | "COLLABORATOR" | "ADMIN";
 }
 
-interface GetCoursesResponse {
+interface UserCourse {
   course: Course;
-  id: number;
+  id: string;
   joinDate: Date;
   role: "STUDENT" | "COLLABORATOR" | "ADMIN";
-  user: number;
+  user: string;
 }
 
 interface GetCoursesDetailResponse {
@@ -48,7 +48,7 @@ interface CourseMemberDetail {
 export type {
   Course,
   CourseDetail,
-  GetCoursesResponse,
+  UserCourse,
   GetCoursesDetailResponse,
   CourseMemberDetail,
 };

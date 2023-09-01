@@ -14,10 +14,6 @@ export const useAuthService = () => {
         "/users/current",
       );
       setUser(responseUser);
-      const storedCSRF = localStorage.getItem("Jwt-CSRF-Hash");
-      if (storedCSRF !== null) {
-        avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = storedCSRF;
-      }
       return responseUser;
     } catch {
       setUser(null);

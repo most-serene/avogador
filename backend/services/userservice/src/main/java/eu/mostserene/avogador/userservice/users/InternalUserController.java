@@ -25,7 +25,7 @@ public class InternalUserController {
         List<User> users;
 
         int offsetVal = offset.orElse(0);
-        int limitVal = limit.orElse(25);
+        int limitVal = limit.orElse(0);
 
         if (offsetVal < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Negative offset");
