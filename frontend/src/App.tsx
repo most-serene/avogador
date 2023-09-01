@@ -6,13 +6,13 @@ import Navbar from "./components/misc/Navbar";
 import Footer from "./components/misc/Footer.tsx";
 import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
-import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
 import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
 import ProfileScreen from "./components/profile/ProfileScreen.tsx";
 import JoinCourseScreen from "./components/courses/JoinCourse/JoinCourseScreen.tsx";
 import { SnackbarProvider } from "notistack";
 import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
+import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
 
 const NotFound = () => {
   return (
