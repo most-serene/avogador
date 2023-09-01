@@ -61,6 +61,7 @@ export const useAuthService = () => {
       .get("/users/logout")
       .then(() => {
         setUser(null);
+        localStorage.removeItem("profile-picture");
       })
       .catch((err) => {
         console.log(err);
