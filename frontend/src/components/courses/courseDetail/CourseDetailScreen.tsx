@@ -1,6 +1,6 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { CourseDetail } from "../types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "../../misc/TabPanel.tsx";
@@ -19,6 +19,7 @@ const tabs = ["Overview", "Tests", "Members", "Settings"];
 export default function CourseDetailScreen() {
   const { getCourseById } = useCourseService();
   const { courseId } = useParams();
+  const courseTitleRef = useRef<HTMLElement>(null);
 
   const [course, setCourse] = useState<CourseDetail>();
   const [openTab, setOpenTab] = useState(2);
@@ -58,23 +59,44 @@ export default function CourseDetailScreen() {
         ))}
       </Tabs>
       <Container maxWidth={false}>
-        <Typography id="courseTitle" variant="h3" align="center">
+        <Typography
+          ref={courseTitleRef}
+          id="courseTitle"
+          variant="h3"
+          align="center"
+        >
           {course ? `${course.name} (${course.year})` : <Skeleton />}
         </Typography>
-        <TabPanel value={openTab} index={0}>
+        <TabPanel
+          value={openTab}
+          index={0}
+          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+        >
           <Typography variant={"h4"} color={"secondary"} align={"center"}>
             Overview Tab Coming Soon
           </Typography>
         </TabPanel>
-        <TabPanel value={openTab} index={1}>
+        <TabPanel
+          value={openTab}
+          index={1}
+          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+        >
           <Typography variant={"h4"} color={"secondary"} align={"center"}>
             Tests Tab Coming Soon
           </Typography>
         </TabPanel>
-        <TabPanel value={openTab} index={2}>
+        <TabPanel
+          value={openTab}
+          index={2}
+          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+        >
           <CourseMembersTab courseId={courseId} />
         </TabPanel>
-        <TabPanel value={openTab} index={3}>
+        <TabPanel
+          value={openTab}
+          index={3}
+          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+        >
           <Typography variant={"h4"} color={"secondary"} align={"center"}>
             Settings Tab Coming Soon
           </Typography>

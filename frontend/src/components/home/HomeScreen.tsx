@@ -21,14 +21,14 @@ export default function HomeScreen() {
   return (
     <>
       <Grid container height="100%">
-        <Grid item xs={9}>
-          <Typography variant={"h4"}>
+        <Grid item xs={9} paddingRight={1}>
+          <Typography variant={"h4"} marginY={2}>
             {user ? `Welcome back ${user.givenName}!` : <Skeleton />}
           </Typography>
           <CoursesPreview />
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={3} paddingLeft={1}>
           <DeadlineStack />
         </Grid>
       </Grid>
