@@ -8,6 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
+import { AxiosError } from "axios";
 
 const LoginGoogle = () => {
   const { login } = useAuthService();
@@ -41,12 +43,21 @@ const LoginGoogle = () => {
                     navigate("/");
                   })
                   .catch((err) => {
-                    console.log(err);
+                    if (
+                      err instanceof AxiosError &&
+                      err.response?.status === 400
+                    ) {
+                      enqueueSnackbar("Login failed: not an UniVe email", {
+                        variant: "error",
+                      });
+                    } else {
+                      enqueueSnackbar("Login failed", { variant: "error" });
+                    }
                   });
               }
             }}
             onError={() => {
-              console.log("Login Failed");
+              enqueueSnackbar("Login failed", { variant: "error" });
             }}
             useOneTap
           />
