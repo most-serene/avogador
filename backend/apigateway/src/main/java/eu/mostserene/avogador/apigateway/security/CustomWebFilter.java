@@ -56,10 +56,10 @@ public class CustomWebFilter implements WebFilter {
                     this::stagingLogout,
                     this::productionLogout
             );
-            // FIXME
-            // exchange.getResponse().addCookie(cookie);
-            // exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            // return exchange.getResponse().setComplete();
+
+            exchange.getResponse().addCookie(cookie);
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
         }
 
         log.info(uri);
