@@ -33,13 +33,13 @@ public class UserCourseServiceImpl implements UserCourseService {
     @Override
     public UserCourse promoteToCollaborator(UserCourse userCourse) {
         userCourse.setRole(CourseRole.COLLABORATOR);
-        return userCourse;
+        return repository.save(userCourse);
     }
 
     @Override
     public UserCourse demoteToStudent(UserCourse userCourse) {
         userCourse.setRole(CourseRole.STUDENT);
-        return userCourse;
+        return repository.save(userCourse);
     }
 
     @Override
