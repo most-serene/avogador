@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 import CourseItem from "../courses/CourseItem.tsx";
-import { Course, GetCoursesResponse } from "../courses/types.ts";
+import { Course, UserCourse } from "../courses/types.ts";
 import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
 import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom.ts";
@@ -31,7 +31,7 @@ export default function CoursesPreview() {
     }
     avogadorApi
       .get(`/courses/users/${user.id}`)
-      .then(({ data }: { data: GetCoursesResponse[] }) => {
+      .then(({ data }: { data: UserCourse[] }) => {
         const resCourses = data.map((elem) => elem.course);
         setCourses(resCourses);
         localStorage.setItem("coursesNumber", String(resCourses.length));
@@ -65,7 +65,7 @@ export default function CoursesPreview() {
   }
 
   return (
-    <Grid container spacing={2} display={"flex"} style={{ height: "100%" }}>
+    <Grid container spacing={2} display={"flex"}>
       {user && gridContent.length === 0 ? <EmptyCoursesHome /> : gridContent}
     </Grid>
   );

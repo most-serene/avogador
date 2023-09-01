@@ -148,7 +148,6 @@ public class UserCourseController {
         }
 
         int offsetVal = offset.orElse(0);
-        int limitVal = limit.orElse(25);
         var orderByVal = orderBy.orElse("joinDate");
 
         if (orderByVal.equals("joinDate") || orderByVal.equals("role")){
@@ -157,7 +156,7 @@ public class UserCourseController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong order direction");
             }
 
-            return preOrderedGetUsersByCourse(courseId, limitVal, offsetVal, orderByVal, directionVal);
+            return preOrderedGetUsersByCourse(courseId, limit.orElse(0), offsetVal, orderByVal, directionVal);
         }
 
         List<UserCourse> userCourses = userCourseService.getUsersByCourseId(courseId);
@@ -171,7 +170,8 @@ public class UserCourseController {
     private List<UserCourseDetailDto> preOrderedGetUsersByCourse(UUID courseId, Integer limit, Integer offset, String orderBy, String direction){
 
         Sort sort = Sort.by(direction.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, orderBy);
-        List<UserCourse> userCourses = userCourseService.getUsersByCourseId(courseId, PageRequest.of(offset, limit, sort));
+
+        List<UserCourse> userCourses = userCourseService.getUsersByCourseId(courseId, PageRequest.of(offset, limit == 0 ? Integer.MAX_VALUE : limit, sort));
 
         List<UserDto> userDetails = userService.getUsersFromIdList(userCourses.stream().map(UserCourse::getUser).toList());
         Map<UUID, UserDto> userDetailsMap = userDetails.stream().collect(Collectors.toMap(UserDto::getId, u -> u));

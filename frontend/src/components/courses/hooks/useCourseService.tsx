@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "../../../hooks/useAvogadorApi";
-import { Course, CourseMemberDetail, GetCoursesDetailResponse } from "../types";
+import {
+  Course,
+  CourseMemberDetail,
+  GetCoursesDetailResponse,
+  UserCourse,
+} from "../types";
 import { AxiosError } from "axios";
 
 const useCourseService = () => {
@@ -46,10 +51,38 @@ const useCourseService = () => {
       [avogadorApi],
     );
 
+  const promoteUser: (courseId: string, userId: string) => Promise<UserCourse> =
+    useCallback(
+      async (courseId: string, userId: string) => {
+        console.log(userId);
+        const { data }: { data: UserCourse } = await avogadorApi.put(
+          `courses/${courseId}/collaborators/${userId}`,
+        );
+
+        return data;
+      },
+      [avogadorApi],
+    );
+
+  const demoteUser: (courseId: string, userId: string) => Promise<UserCourse> =
+    useCallback(
+      async (courseId: string, userId: string) => {
+        console.log(userId);
+        const { data }: { data: UserCourse } = await avogadorApi.put(
+          `courses/${courseId}/students/${userId}`,
+        );
+
+        return data;
+      },
+      [avogadorApi],
+    );
+
   return {
     getCourseById,
     joinCourse,
     getCourseMembers,
+    promoteUser,
+    demoteUser,
   };
 };
 
