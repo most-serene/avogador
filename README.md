@@ -9,9 +9,8 @@ A system to perform coding exercises
 To activate our custom pre commit hooks:
 
 ```git config core.hooksPath hooks```
+From the repository root
 
 At the moment, there are two hooks:
 *  pre-commit executes unit tests on staged parts of the codebase
 *  pre-push prevents push on master
-
-From the repository root
