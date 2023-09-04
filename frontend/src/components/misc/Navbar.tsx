@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Code, DarkMode, LightMode } from "@mui/icons-material";
+import { DarkMode, LightMode } from "@mui/icons-material";
 import { useAuthService } from "../authentication/hooks/useAuthService";
 import { Button, ButtonGroup, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,8 @@ import { useAtom } from "jotai";
 import userAtom from "../authentication/userAtom";
 import colorModeAtom from "../theme/colorModeAtom.ts";
 import { forwardRef, useEffect } from "react";
+
+import Logo from "@assets/images/logo.png";
 
 interface PageItem {
   name: string;
@@ -65,22 +67,12 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
     },
   ];
 
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null,
-  );
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null,
   );
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
@@ -95,25 +87,52 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
   const DesktopNavbar = () => {
     return (
       <>
-        <Code sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-        <Typography
-          variant="h6"
-          noWrap
-          component="a"
-          href="/"
-          sx={{
-            mr: 2,
-            display: { xs: "none", md: "flex" },
-            fontFamily: "monospace",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-            color: "inherit",
-            textDecoration: "none",
-          }}
-        >
-          Avogador
-        </Typography>
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+        <Button sx={{ display: { xs: "none", md: "flex" } }}>
+          <Box
+            component="img"
+            onClick={() => {
+              navigate("/");
+            }}
+            sx={{
+              height: 30,
+              display: { xs: "none", md: "flex" },
+              mr: 1,
+            }}
+            src={Logo}
+          />
+        </Button>
+
+        <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          {pages.map((page) => (
+            <Button
+              key={page.name}
+              onClick={() => {
+                page.callback();
+              }}
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              {page.name}
+            </Button>
+          ))}
+        </Box>
+      </>
+    );
+  };
+
+  const MobileNavbar = () => {
+    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+      null,
+    );
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElNav(event.currentTarget);
+    };
+    const handleCloseNavMenu = () => {
+      setAnchorElNav(null);
+    };
+
+    return (
+      <>
+        <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -121,17 +140,18 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
             aria-haspopup="true"
             onClick={handleOpenNavMenu}
             color="inherit"
+            style={{ width: 40, height: 40 }}
           >
             <MenuIcon />
           </IconButton>
           <Menu
             id="menu-appbar"
+            keepMounted
             anchorEl={anchorElNav}
             anchorOrigin={{
               vertical: "bottom",
               horizontal: "left",
             }}
-            keepMounted
             transformOrigin={{
               vertical: "top",
               horizontal: "left",
@@ -155,52 +175,34 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
             ))}
           </Menu>
         </Box>
-      </>
-    );
-  };
 
-  const MobileNavbar = () => {
-    return (
-      <>
-        <Code sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-        <Typography
-          variant="h5"
-          noWrap
-          component="a"
-          href="/"
-          sx={{
-            mr: 2,
-            display: { xs: "flex", md: "none" },
-            flexGrow: 1,
-            fontFamily: "monospace",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-            color: "inherit",
-            textDecoration: "none",
-          }}
-        >
-          Avogador
-        </Typography>
-        <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-          {pages.map((page) => (
-            <Button
-              key={page.name}
+        <Box sx={{ flexGrow: 1 }} justifyContent={"center"} display={"flex"}>
+          <Button>
+            <Box
+              component="img"
               onClick={() => {
-                handleCloseNavMenu();
-                page.callback();
+                navigate("/");
               }}
-              sx={{ my: 2, color: "white", display: "block" }}
-            >
-              {page.name}
-            </Button>
-          ))}
+              sx={{
+                height: 30,
+                display: { xs: "flex", md: "none" },
+              }}
+              src={Logo}
+            />
+          </Button>
         </Box>
       </>
     );
   };
 
   return (
-    <AppBar ref={ref} id="navbar" position="static" style={{ marginBottom: 8 }}>
+    <AppBar
+      ref={ref}
+      id="navbar"
+      position="static"
+      style={{ marginBottom: 8 }}
+      enableColorOnDark
+    >
       <Container maxWidth={false}>
         <Toolbar disableGutters>
           <DesktopNavbar />

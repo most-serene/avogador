@@ -6,6 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "types": ["vite/client"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -14,7 +15,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-
+    "baseUrl": "./",
+    "paths": {
+      "@assets": ["src/assets/"],
+    },
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
