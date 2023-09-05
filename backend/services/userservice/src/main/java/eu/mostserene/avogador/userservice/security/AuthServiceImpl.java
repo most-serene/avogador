@@ -8,10 +8,8 @@ import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.sentry.Sentry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -122,11 +120,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthUserDTO decodeJwt(String jwt) {
         final ObjectMapper mapper = new ObjectMapper();
+        Claims jwsMap = null;
 
-        Claims jwsMap = Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encode(jwtSecret.getBytes()))
-                .parseClaimsJws(jwt)
-                .getBody();
+        try {
+            jwsMap = Jwts.parser()
+                    .setSigningKey(Base64.getEncoder().encode(jwtSecret.getBytes()))
+                    .parseClaimsJws(jwt)
+                    .getBody();
+        } catch (JwtException jwtException) {
+            Sentry.captureException(jwtException);
+            throw new ForbiddenException(jwtException.getMessage());
+        }
 
         AuthUserDTO authUserDTO = mapper.convertValue(jwsMap.get("user"), AuthUserDTO.class);
         Timestamp generationTimestamp = mapper.convertValue(jwsMap.get("generation_timestamp"), Timestamp.class);
