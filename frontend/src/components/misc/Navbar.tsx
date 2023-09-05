@@ -109,7 +109,7 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
               onClick={() => {
                 page.callback();
               }}
-              sx={{ my: 2, color: "white", display: "block" }}
+              sx={{ my: 2, color: "black", display: "block" }}
             >
               {page.name}
             </Button>
@@ -142,7 +142,7 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
             color="inherit"
             style={{ width: 40, height: 40 }}
           >
-            <MenuIcon />
+            <MenuIcon style={{ color: "black" }} />
           </IconButton>
           <Menu
             id="menu-appbar"
@@ -232,18 +232,19 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting.name}
-                  onClick={() => {
-                    handleCloseUserMenu();
-                    setting.callback();
-                  }}
-                >
-                  <Typography textAlign="center">{setting.name}</Typography>
-                </MenuItem>
-              ))}
-              <Divider />
+              {user &&
+                settings.map((setting) => (
+                  <MenuItem
+                    key={setting.name}
+                    onClick={() => {
+                      handleCloseUserMenu();
+                      setting.callback();
+                    }}
+                  >
+                    <Typography textAlign="center">{setting.name}</Typography>
+                  </MenuItem>
+                ))}
+              {user && <Divider />}
               <ButtonGroup sx={{ mx: 2 }}>
                 <Button
                   variant={colorMode === "light" ? "contained" : "outlined"}
