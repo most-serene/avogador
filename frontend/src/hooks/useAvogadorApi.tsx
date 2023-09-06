@@ -26,7 +26,6 @@ export const useAvogadorApi = () => {
       if (error.response && error.response.status >= 500) {
         globalErrorSetter(error);
       }
-
       throw error;
     },
   );

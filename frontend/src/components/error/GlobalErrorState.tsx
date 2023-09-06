@@ -4,5 +4,7 @@ export const globalErrorAtom = atom<Error | undefined>(undefined);
 
 export const useGlobalErrorSetter = () => {
   const [, setGlobalError] = useAtom(globalErrorAtom);
-  return setGlobalError;
+  return (error: Error) => {
+    setGlobalError(error);
+  };
 };
