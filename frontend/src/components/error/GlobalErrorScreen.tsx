@@ -23,10 +23,10 @@ const getErrorCardMessage = (error: Error): string => {
 };
 
 const ServerError = () => {
-  const [globalError, setGlobalError] = useAtom(globalErrorAtom);
+  const [globalError] = useAtom(globalErrorAtom);
 
-  const dismissErrorPage = () => {
-    setGlobalError(undefined);
+  const reloadApplication = () => {
+    window.location.reload();
   };
 
   if (globalError === undefined) return <> </>;
@@ -49,8 +49,8 @@ const ServerError = () => {
             {getErrorCardMessage(globalError)}
           </Typography>
           <Box display="flex" justifyContent="center" marginTop=".5rem">
-            <Button onClick={dismissErrorPage} variant={"outlined"}>
-              Dismiss
+            <Button onClick={reloadApplication} variant={"outlined"}>
+              Reload
             </Button>
           </Box>
         </CardContent>

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import ServerError from "./components/error/GlobalErrorScreen.tsx";
 import { useLocation } from "react-router-dom";
@@ -11,10 +11,21 @@ interface ErrorHandlerWrapperProps {
 export default function ErrorHandlerWrapper({
   children,
 }: ErrorHandlerWrapperProps) {
-  const [globalError] = useAtom(globalErrorAtom);
-  const { pathname } = useLocation();
+  const [globalError, setGlobalError] = useAtom(globalErrorAtom);
+  const location = useLocation();
+  const [previousLocation, setPreviousLocation] = useState(location);
 
-  if (globalError && pathname != "/status") {
+  useEffect(() => {
+    console.log(previousLocation);
+    console.log(location);
+
+    if (previousLocation.key !== location.key) {
+      setGlobalError(undefined);
+      setPreviousLocation(location);
+    }
+  }, [previousLocation, setPreviousLocation, location, setGlobalError]);
+
+  if (globalError && location.pathname != "/status") {
     return <ServerError />;
   }
   return <> {children} </>;
