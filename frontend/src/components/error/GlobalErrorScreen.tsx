@@ -22,7 +22,7 @@ const getErrorCardMessage = (error: Error): string => {
   return `Raw message: ${error.message}`;
 };
 
-const ServerError = () => {
+const GlobalErrorScreen = () => {
   const [globalError] = useAtom(globalErrorAtom);
 
   const reloadApplication = () => {
@@ -59,4 +59,4 @@ const ServerError = () => {
   );
 };
 
-export default ServerError;
+export default GlobalErrorScreen;
