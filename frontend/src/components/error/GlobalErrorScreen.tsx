@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { useAtom } from "jotai";
 import { AxiosError } from "axios";
-import { globalErrorAtom } from "./serverErrorState";
+import { globalErrorAtom } from "./GlobalErrorState";
 
 const getErrorCardTitle = (error: Error): string => {
   if (!(error instanceof AxiosError) || error.response === undefined) {

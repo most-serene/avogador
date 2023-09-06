@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { useAtom } from "jotai";
-import ServerError from "./components/error/ServerError.tsx";
+import ServerError from "./components/error/GlobalErrorScreen.tsx";
 import { useLocation } from "react-router-dom";
-import { globalErrorAtom } from "./components/error/serverErrorState.tsx";
+import { globalErrorAtom } from "./components/error/GlobalErrorState.tsx";
 
 interface ErrorHandlerWrapperProps {
   children: ReactNode;
