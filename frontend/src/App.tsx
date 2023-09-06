@@ -13,6 +13,7 @@ import { SnackbarProvider } from "notistack";
 import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
 import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
+import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 
 const NotFound = () => {
   return (
@@ -53,41 +54,46 @@ function App() {
       <SnackbarProvider preventDuplicate={true}>
         <BrowserRouter>
           <Navbar ref={navbarRef} />
-          <AuthWrapper>
-            <Box
-              id="fullScreenWrapper"
-              height={`calc(100vh - ${occupiedHeight}px)`}
-            >
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <Container maxWidth={false} sx={{ height: "100%" }}>
-                      <HomeScreen />
-                    </Container>
-                  }
-                />
-                <Route
-                  path="/status"
-                  element={
-                    <Container>
-                      <StatusPage />
-                    </Container>
-                  }
-                />
-                <Route path="courses">
-                  <Route path={":courseId"} element={<CourseDetailScreen />} />
+          <ErrorHandlerWrapper>
+            <AuthWrapper>
+              <Box
+                id="fullScreenWrapper"
+                height={`calc(100vh - ${occupiedHeight}px)`}
+              >
+                <Routes>
                   <Route
-                    path={":courseId/join"}
-                    element={<JoinCourseScreen />}
+                    path="/"
+                    element={
+                      <Container maxWidth={false} sx={{ height: "100%" }}>
+                        <HomeScreen />
+                      </Container>
+                    }
                   />
-                </Route>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/profile" element={<ProfileScreen />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Box>
-          </AuthWrapper>
+                  <Route
+                    path="/status"
+                    element={
+                      <Container>
+                        <StatusPage />
+                      </Container>
+                    }
+                  />
+                  <Route path="courses">
+                    <Route
+                      path={":courseId"}
+                      element={<CourseDetailScreen />}
+                    />
+                    <Route
+                      path={":courseId/join"}
+                      element={<JoinCourseScreen />}
+                    />
+                  </Route>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/profile" element={<ProfileScreen />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Box>
+            </AuthWrapper>
+          </ErrorHandlerWrapper>
           <Footer ref={footerRef} />
         </BrowserRouter>
       </SnackbarProvider>
