@@ -7,7 +7,7 @@ services:
     build:
       context: ./backend/apigateway
       network: host
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.staging
       target: ${APIGATEWAY_TARGET}
     logging:
       driver: json-file
@@ -42,7 +42,7 @@ services:
     restart: always
     build:
       context: ./backend/services/userservice
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.staging
       target: ${USERSERVICE_TARGET}
     logging:
       driver: json-file
@@ -91,7 +91,7 @@ services:
     restart: always
     build:
       context: ./backend/services/courseservice
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.staging
       target: ${COURSESERVICE_TARGET}
     logging:
       driver: json-file
@@ -132,7 +132,7 @@ services:
     restart: always
     build:
       context: ./backend/services/filesystemservice
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.staging
       target: ${FILESYSTEMSERVICE_TARGET}
     logging:
       driver: json-file
@@ -191,7 +191,7 @@ services:
     restart: always
     build:
       context: ./frontend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.staging
       target: ${REACT_TARGET}
       network: host
     logging:
