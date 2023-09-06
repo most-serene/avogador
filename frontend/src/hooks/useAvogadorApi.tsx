@@ -1,5 +1,6 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { atom, useAtom } from "jotai";
+import { useGlobalErrorSetter } from "../components/error/GlobalErrorState";
 
 const avogadorApiClientAtom = atom(() => {
   const client = axios.create({
@@ -17,6 +18,17 @@ const avogadorApiClientAtom = atom(() => {
 
 export const useAvogadorApi = () => {
   const [avogadorApi] = useAtom(avogadorApiClientAtom);
+  const globalErrorSetter = useGlobalErrorSetter();
+
+  avogadorApi.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+      if (error.response && error.response.status >= 500) {
+        globalErrorSetter(error);
+      }
+      throw error;
+    },
+  );
 
   return avogadorApi;
 };
