@@ -13,6 +13,9 @@ import { SnackbarProvider } from "notistack";
 import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
 import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
+import useGlitchTip from "./hooks/useGlitchTip.tsx";
+import { useAtom } from "jotai";
+import userAtom from "./components/authentication/userAtom.ts";
 import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 
 const NotFound = () => {
@@ -40,6 +43,15 @@ function App() {
   const footerRef = useRef<HTMLElement>(null);
 
   const [occupiedHeight, setOccupiedHeight] = useState(0);
+
+  const { connectToGlitchTip } = useGlitchTip();
+  const [user] = useAtom(userAtom);
+
+  useEffect(() => {
+    if (user) {
+      connectToGlitchTip(user);
+    }
+  }, [user, connectToGlitchTip]);
 
   useEffect(() => {
     setOccupiedHeight(
