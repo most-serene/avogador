@@ -1,5 +1,5 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
-import { User } from "../../authentication/types";
+import { User } from "@components/authentication/types";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { PrimitiveAtom, useAtom } from "jotai";
 import useApiKeyService from "./hooks/useApiKeyService";

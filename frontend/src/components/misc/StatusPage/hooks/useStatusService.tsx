@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAvogadorApi } from "../../../../hooks/useAvogadorApi";
+import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import { MicroService } from "../types";
 
 export const useStatusService = () => {

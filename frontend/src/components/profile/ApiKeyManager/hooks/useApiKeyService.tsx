@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { useAvogadorApi } from "../../../../hooks/useAvogadorApi";
-import { User } from "../../../authentication/types";
+import { useAvogadorApi } from "@hooks/useAvogadorApi";
+import { User } from "@components/authentication/types";
 import { ApiKey } from "../types";
 import { parseJSON } from "date-fns";
 

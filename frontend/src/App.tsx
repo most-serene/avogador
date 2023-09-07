@@ -1,21 +1,21 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Container, Grid, Typography } from "@mui/material";
-import HomeScreen from "./components/home/HomeScreen";
-import Navbar from "./components/misc/Navbar";
-import Footer from "./components/misc/Footer.tsx";
-import { LoginPage } from "./components/authentication/LoginPage/LoginPage.tsx";
+import HomeScreen from "@components/home/HomeScreen";
+import Navbar from "@components/misc/Navbar";
+import Footer from "@components/misc/Footer.tsx";
+import { LoginPage } from "@components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
-import StatusPage from "./components/misc/StatusPage/StatusPage.tsx";
-import ProfileScreen from "./components/profile/ProfileScreen.tsx";
-import JoinCourseScreen from "./components/courses/JoinCourse/JoinCourseScreen.tsx";
+import StatusPage from "@components/misc/StatusPage/StatusPage.tsx";
+import ProfileScreen from "@components/profile/ProfileScreen.tsx";
+import JoinCourseScreen from "@components/courses/JoinCourse/JoinCourseScreen.tsx";
 import { SnackbarProvider } from "notistack";
 import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
-import CourseDetailScreen from "./components/courses/courseDetail/CourseDetailScreen.tsx";
-import useGlitchTip from "./hooks/useGlitchTip.tsx";
+import CourseDetailScreen from "@components/courses/courseDetail/CourseDetailScreen.tsx";
+import useGlitchTip from "@hooks/useGlitchTip.tsx";
 import { useAtom } from "jotai";
-import userAtom from "./components/authentication/userAtom.ts";
+import userAtom from "@components/authentication/userAtom.ts";
 import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 
 const NotFound = () => {

@@ -1,4 +1,4 @@
-import LoginGoogle from "../LoginGoogle/LoginGoogle";
+import LoginGoogle from "@components/authentication/LoginGoogle/LoginGoogle";
 import Box from "@mui/material/Box";
 
 export const LoginPage = () => {

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { atom, useAtom } from "jotai";
-import { useGlobalErrorSetter } from "../components/error/GlobalErrorState";
+import { useGlobalErrorSetter } from "@components/error/GlobalErrorState";
 
 const avogadorApiClientAtom = atom(() => {
   const client = axios.create({

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/browser";
 import { useCallback } from "react";
-import { User } from "src/components/authentication/types";
+import { User } from "@components/authentication/types";
 
 const useGlitchTip = () => {
   const connectToGlitchTip = useCallback((appUser: User) => {

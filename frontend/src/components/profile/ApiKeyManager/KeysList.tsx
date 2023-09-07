@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { User } from "../../authentication/types";
+import { User } from "@components/authentication/types";
 import { ApiKey } from "./types";
 import { PrimitiveAtom, useAtom } from "jotai";
 import useApiKeyService from "./hooks/useApiKeyService";

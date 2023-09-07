@@ -14,7 +14,7 @@ import { Card, Skeleton } from "@mui/material";
 import useCourseService from "../hooks/useCourseService.tsx";
 import { CourseMemberDetail } from "../types.ts";
 import { useAtom } from "jotai";
-import ColorModeAtom from "../../theme/colorModeAtom.ts";
+import ColorModeAtom from "@components/theme/colorModeAtom.ts";
 import { format, parseJSON } from "date-fns";
 import { GetApp, Publish } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";

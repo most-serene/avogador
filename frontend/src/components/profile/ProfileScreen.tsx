@@ -1,6 +1,6 @@
 import { Box, Container, Grid } from "@mui/material";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom";
+import userAtom from "@components/authentication/userAtom";
 import ApiKeyManager from "./ApiKeyManager/ApiKeyManager";
 import Profile from "./Profile";
 

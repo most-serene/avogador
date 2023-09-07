@@ -35,10 +35,13 @@ export default defineConfig({
   resolve: {
     alias:
       {
-        "@": fileURLToPath(new URL("./", import.meta.url)), 
+        //"@": fileURLToPath(new URL("./", import.meta.url)),
         '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+        '@assets/*': fileURLToPath(new URL('./src/assets/*', import.meta.url)),
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
+        '@components/*': fileURLToPath(new URL('./src/components/*', import.meta.url)),
         '@hooks': fileURLToPath(new URL('./src/hooks', import.meta.url)),
+        '@hooks/*': fileURLToPath(new URL('./src/hooks/*', import.meta.url)),
       },
   },
   define: {

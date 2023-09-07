@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import { CourseDetail } from "../types.ts";
 import Container from "@mui/material/Container";
-import TabPanel from "../../misc/TabPanel.tsx";
-import useCourseService from "../hooks/useCourseService.tsx";
+import TabPanel from "@components/misc/TabPanel.tsx";
+import useCourseService from "@components/courses/hooks/useCourseService.tsx";
 import CourseMembersTab from "./CourseMembersTab.tsx";
 
 function a11yProps(index: number) {

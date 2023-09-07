@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { useAuthService } from "../hooks/useAuthService";
+import { useAuthService } from "@components/authentication/hooks/useAuthService";
 import {
   Card,
   CardActions,

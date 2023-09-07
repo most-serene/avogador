@@ -11,12 +11,12 @@ import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { DarkMode, LightMode } from "@mui/icons-material";
-import { useAuthService } from "../authentication/hooks/useAuthService";
+import { useAuthService } from "@components/authentication/hooks/useAuthService";
 import { Button, ButtonGroup, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom";
-import colorModeAtom from "../theme/colorModeAtom.ts";
+import userAtom from "@components/authentication/userAtom";
+import colorModeAtom from "@components/theme/colorModeAtom.ts";
 import { forwardRef, useEffect } from "react";
 
 import Logo from "@assets/images/logo.png";

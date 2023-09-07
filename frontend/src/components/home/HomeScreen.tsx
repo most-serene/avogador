@@ -4,7 +4,7 @@ import DeadlineStack from "./DeadlineStack.tsx";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom.ts";
+import userAtom from "@components/authentication/userAtom.ts";
 import { Skeleton, Typography } from "@mui/material";
 
 export default function HomeScreen() {

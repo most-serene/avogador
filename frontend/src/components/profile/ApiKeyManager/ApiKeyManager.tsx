@@ -1,5 +1,5 @@
 import { Card, CardContent, Divider, Typography } from "@mui/material";
-import { User } from "../../authentication/types";
+import { User } from "@components/authentication/types";
 import { atom, useAtom } from "jotai";
 import useApiKeyService from "./hooks/useApiKeyService";
 import { useEffect } from "react";

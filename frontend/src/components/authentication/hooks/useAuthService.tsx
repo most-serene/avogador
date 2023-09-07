@@ -1,7 +1,7 @@
 import { User } from "../types";
 import { useAtom } from "jotai";
 import userAtom from "../userAtom";
-import { useAvogadorApi } from "../../../hooks/useAvogadorApi";
+import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import { useCallback } from "react";
 
 export const useAuthService = () => {
