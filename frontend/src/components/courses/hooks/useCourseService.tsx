@@ -5,7 +5,7 @@ import {
   CourseMemberDetail,
   GetCoursesDetailResponse,
   UserCourse,
-} from "../types";
+} from "@courses/types";
 import { AxiosError } from "axios";
 
 const useCourseService = () => {

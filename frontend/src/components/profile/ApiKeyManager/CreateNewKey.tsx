@@ -1,11 +1,11 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
-import { User } from "@components/authentication/types";
+import { User } from "@authentication/types";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import { PrimitiveAtom, useAtom } from "jotai";
-import useApiKeyService from "./hooks/useApiKeyService";
+import useApiKeyService from "@profile/ApiKeyManager/hooks/useApiKeyService";
 import { useCallback, useState } from "react";
-import ApiKeyModal from "./ApiKeyModal.tsx";
-import { ApiKey } from "./types.ts";
+import ApiKeyModal from "@profile/ApiKeyManager/ApiKeyModal.tsx";
+import { ApiKey } from "@profile/ApiKeyManager/types.ts";
 import Box from "@mui/material/Box";
 
 const isValid: (name?: string, expiration?: Date) => boolean = (

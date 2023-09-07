@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
-import { User } from "@components/authentication/types";
+import { User } from "@authentication/types";
 import { useEffect, useState } from "react";
 
 const Profile = ({

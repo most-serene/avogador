@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
-import { Course } from "./types.ts";
+import { Course } from "@courses/types.ts";
 
 interface CourseItemProps {
   course: Course;

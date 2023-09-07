@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import useCourseService from "../hooks/useCourseService";
-import { GetCoursesDetailResponse } from "../types";
+import useCourseService from "@courses/hooks/useCourseService";
+import { GetCoursesDetailResponse } from "@courses/types";
 import { enqueueSnackbar } from "notistack";
 import Box from "@mui/material/Box";
 

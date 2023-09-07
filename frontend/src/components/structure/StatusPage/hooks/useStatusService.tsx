@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
-import { MicroService } from "../types";
+import { MicroService } from "@structure/StatusPage/types";
 
 export const useStatusService = () => {
   const avogadorApi = useAvogadorApi();

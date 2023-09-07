@@ -19,6 +19,14 @@
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
+      "@authentication/*": ["src/components/authentication/*"],
+      "@courses/*": ["src/components/courses/*"],
+      "@error/*": ["src/components/error/*"],
+      "@home/*": ["src/components/home/*"],
+      "@profile/*": ["src/components/profile/*"],
+      "@structure/*": ["src/components/structure/*"],
+      "@theme/*": ["src/components/theme/*"],
+      "@trials/*": ["src/components/trials/*"],
       "@hooks/*": ["src/hooks/*"]
     },
     /* Linting */

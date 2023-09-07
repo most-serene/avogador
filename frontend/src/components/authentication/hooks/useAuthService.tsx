@@ -1,6 +1,6 @@
-import { User } from "../types";
+import { User } from "@authentication/types";
 import { useAtom } from "jotai";
-import userAtom from "../userAtom";
+import userAtom from "@authentication/userAtom";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import { useCallback } from "react";
 
