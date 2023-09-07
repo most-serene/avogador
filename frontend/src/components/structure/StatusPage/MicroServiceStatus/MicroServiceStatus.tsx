@@ -1,5 +1,5 @@
 import { Card, CardContent, Grid, Tooltip, Typography } from "@mui/material";
-import { MicroService } from "../types";
+import { MicroService } from "@structure/StatusPage/types";
 import { CheckCircle } from "@mui/icons-material";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";

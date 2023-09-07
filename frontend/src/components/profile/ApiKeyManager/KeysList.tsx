@@ -7,10 +7,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { User } from "../../authentication/types";
-import { ApiKey } from "./types";
+import { User } from "@authentication/types";
+import { ApiKey } from "@profile/ApiKeyManager/types";
 import { PrimitiveAtom, useAtom } from "jotai";
-import useApiKeyService from "./hooks/useApiKeyService";
+import useApiKeyService from "@profile/ApiKeyManager/hooks/useApiKeyService";
 import { format } from "date-fns";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useCallback } from "react";

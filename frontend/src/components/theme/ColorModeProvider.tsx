@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import colorModeAtom from "./colorModeAtom.ts";
+import colorModeAtom from "@theme/colorModeAtom.ts";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ReactNode } from "react";
 import { createTheme } from "@mui/material/styles";

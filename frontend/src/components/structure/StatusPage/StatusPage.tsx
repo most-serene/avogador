@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import MicroServiceStatus from "./MicroServiceStatus/MicroServiceStatus";
-import { useStatusService } from "./hooks/useStatusService";
-import { MicroService } from "./types";
+import MicroServiceStatus from "@structure/StatusPage/MicroServiceStatus/MicroServiceStatus";
+import { useStatusService } from "@structure/StatusPage/hooks/useStatusService";
+import { MicroService } from "@structure/StatusPage/types";
 import {
   Card,
   CardContent,

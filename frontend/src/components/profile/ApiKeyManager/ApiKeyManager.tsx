@@ -1,11 +1,11 @@
 import { Card, CardContent, Divider, Typography } from "@mui/material";
-import { User } from "../../authentication/types";
+import { User } from "@authentication/types";
 import { atom, useAtom } from "jotai";
-import useApiKeyService from "./hooks/useApiKeyService";
+import useApiKeyService from "@profile/ApiKeyManager/hooks/useApiKeyService";
 import { useEffect } from "react";
-import CreateNewKey from "./CreateNewKey.tsx";
-import KeysList from "./KeysList.tsx";
-import { ApiKey } from "./types.ts";
+import CreateNewKey from "@profile/ApiKeyManager/CreateNewKey.tsx";
+import KeysList from "@profile/ApiKeyManager/KeysList.tsx";
+import { ApiKey } from "@profile/ApiKeyManager/types.ts";
 
 const userKeysAtom = atom<ApiKey[]>([]);
 

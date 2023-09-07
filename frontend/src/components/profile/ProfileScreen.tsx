@@ -1,8 +1,8 @@
 import { Box, Container, Grid } from "@mui/material";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom";
-import ApiKeyManager from "./ApiKeyManager/ApiKeyManager";
-import Profile from "./Profile";
+import userAtom from "@components/authentication/userAtom";
+import ApiKeyManager from "@profile/ApiKeyManager/ApiKeyManager";
+import Profile from "@profile/Profile";
 
 const ProfileScreen = () => {
   const [user] = useAtom(userAtom);

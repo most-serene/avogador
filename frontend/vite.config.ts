@@ -35,8 +35,29 @@ export default defineConfig({
   resolve: {
     alias:
       {
-        "@": fileURLToPath(new URL("./", import.meta.url)), 
-        '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)) 
+        //"@": fileURLToPath(new URL("./", import.meta.url)),
+        '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+        '@assets/*': fileURLToPath(new URL('./src/assets/*', import.meta.url)),
+        '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
+        '@components/*': fileURLToPath(new URL('./src/components/*', import.meta.url)),
+        '@authentication': fileURLToPath(new URL('./src/components/authentication', import.meta.url)),
+        '@authentication/*': fileURLToPath(new URL('./src/components/authentication/*', import.meta.url)),
+        '@courses': fileURLToPath(new URL('./src/components/courses', import.meta.url)),
+        '@courses/*': fileURLToPath(new URL('./src/components/courses/*', import.meta.url)),
+        '@error': fileURLToPath(new URL('./src/components/error', import.meta.url)),
+        '@error/*': fileURLToPath(new URL('./src/components/error/*', import.meta.url)),
+        '@home': fileURLToPath(new URL('./src/components/home', import.meta.url)),
+        '@home/*': fileURLToPath(new URL('./src/components/home/*', import.meta.url)),
+        '@profile': fileURLToPath(new URL('./src/components/profile', import.meta.url)),
+        '@profile/*': fileURLToPath(new URL('./src/components/profile/*', import.meta.url)),
+        '@structure': fileURLToPath(new URL('./src/components/structure', import.meta.url)),
+        '@structure/*': fileURLToPath(new URL('./src/components/structure/*', import.meta.url)),
+        '@theme': fileURLToPath(new URL('./src/components/theme', import.meta.url)),
+        '@theme/*': fileURLToPath(new URL('./src/components/theme/*', import.meta.url)),
+        '@trials': fileURLToPath(new URL('./src/components/trials', import.meta.url)),
+        '@trials/*': fileURLToPath(new URL('./src/components/trials/*', import.meta.url)),
+        '@hooks': fileURLToPath(new URL('./src/hooks', import.meta.url)),
+        '@hooks/*': fileURLToPath(new URL('./src/hooks/*', import.meta.url)),
       },
   },
   define: {

@@ -1,4 +1,4 @@
-import JoinCourse from "./JoinCourse";
+import JoinCourse from "@courses/JoinCourse/JoinCourse";
 import Box from "@mui/material/Box";
 
 const JoinCourseScreen = () => {

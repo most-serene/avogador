@@ -1,11 +1,11 @@
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
-import CourseItem from "../courses/CourseItem.tsx";
-import { Course, UserCourse } from "../courses/types.ts";
-import CourseItemSkeleton from "../courses/CourseItemSkeleton.tsx";
+import CourseItem from "@courses/CourseItem.tsx";
+import { Course, UserCourse } from "@courses/types.ts";
+import CourseItemSkeleton from "@courses/CourseItemSkeleton.tsx";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom.ts";
-import { useAvogadorApi } from "../../hooks/useAvogadorApi.tsx";
+import userAtom from "@authentication/userAtom.ts";
+import { useAvogadorApi } from "@hooks/useAvogadorApi.tsx";
 import { Typography } from "@mui/material";
 
 const EmptyCoursesHome = () => {

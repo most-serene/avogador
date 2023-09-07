@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import { useAvogadorApi } from "../../../hooks/useAvogadorApi";
+import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import {
   Course,
   CourseMemberDetail,
   GetCoursesDetailResponse,
   UserCourse,
-} from "../types";
+} from "@courses/types";
 import { AxiosError } from "axios";
 
 const useCourseService = () => {

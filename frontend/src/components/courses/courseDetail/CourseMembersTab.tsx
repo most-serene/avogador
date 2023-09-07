@@ -11,10 +11,10 @@ import {
 } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Card, Skeleton } from "@mui/material";
-import useCourseService from "../hooks/useCourseService.tsx";
-import { CourseMemberDetail } from "../types.ts";
+import useCourseService from "@courses/hooks/useCourseService.tsx";
+import { CourseMemberDetail } from "@courses/types.ts";
 import { useAtom } from "jotai";
-import ColorModeAtom from "../../theme/colorModeAtom.ts";
+import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { format, parseJSON } from "date-fns";
 import { GetApp, Publish } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";

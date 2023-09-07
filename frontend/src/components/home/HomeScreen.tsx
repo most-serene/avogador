@@ -1,10 +1,10 @@
-import CoursesPreview from "./CoursesPreview.tsx";
+import CoursesPreview from "@home/CoursesPreview.tsx";
 import Grid from "@mui/material/Grid";
-import DeadlineStack from "./DeadlineStack.tsx";
+import DeadlineStack from "@home/DeadlineStack.tsx";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import userAtom from "../authentication/userAtom.ts";
+import userAtom from "@authentication/userAtom.ts";
 import { Skeleton, Typography } from "@mui/material";
 
 export default function HomeScreen() {
