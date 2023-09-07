@@ -1,9 +1,9 @@
 import { ReactNode, useEffect } from "react";
-import { User } from "./components/authentication/types.ts";
-import { useAuthService } from "./components/authentication/hooks/useAuthService.tsx";
+import { User } from "@authentication/types.ts";
+import { useAuthService } from "@authentication/hooks/useAuthService.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
-import userAtom from "./components/authentication/userAtom.ts";
+import userAtom from "@authentication/userAtom.ts";
 
 interface AuthWrapperProps {
   children: ReactNode;
