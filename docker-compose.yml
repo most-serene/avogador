@@ -163,6 +163,7 @@ services:
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
       # multipart.enabled: false
+      fs.root: /avogador
     ports:
       - "${FILESYSTEMSERVICE_PORT}:80"
     volumes:

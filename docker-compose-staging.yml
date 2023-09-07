@@ -157,6 +157,7 @@ services:
       server.shutdown: graceful
       # security.allowed.origins: ${COURSESERVICE_ALLOWED_ORIGINS}
       # multipart.enabled: false
+      fs.root: /avogador
     volumes:
       - avogador-filesystem-volume:/avogador
     networks:
