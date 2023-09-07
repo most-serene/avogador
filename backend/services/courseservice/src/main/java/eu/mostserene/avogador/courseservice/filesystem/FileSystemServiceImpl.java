@@ -1,15 +1,16 @@
 package eu.mostserene.avogador.courseservice.filesystem;
 
-import eu.mostserene.avogador.courseservice.courses.Course;
+import eu.mostserene.avogador.courseservice.amqp.Sender;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class FileSystemServiceImpl implements FileSystemService{
+public class FileSystemServiceImpl implements FileSystemService {
     @Override
-    public Integer createCourse(UUID courseId) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public void createCourse(UUID courseId) {
+        (new Sender())
+                .send("filesystem", "fs.course.create", courseId.toString());
     }
 
     @Override
