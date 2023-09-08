@@ -6,6 +6,7 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
+import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import io.jsonwebtoken.*;
@@ -33,6 +34,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -53,6 +55,9 @@ public class AuthServiceImpl implements AuthService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("#{'${customer.domains}'.split(',')}")
+    private Set<String> customerDomains;
+
     @Override
     public GoogleUser getGoogleUser(String googleToken) throws InvalidDomainException {
         try {
@@ -67,20 +72,24 @@ public class AuthServiceImpl implements AuthService {
             JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
             final JSONObject response = (JSONObject) parser.parse(content.body());
 
-            final String domain = (String) response.get("hd");
+            String domain = (String) response.get("hd");
             final String email = (String) response.get("email");
             final String givenName = (String) response.get("given_name");
             final String familyName = (String) response.get("family_name");
             final String picture = (String) response.get("picture");
 
-            // log.info(LoggerColors.warn("Login attempt from " + email + " (" + name + ")"));
+            log.info(LoggerColors.warn("Login attempt from " + email + " (" + givenName + " " + familyName + ")"));
 
-            if (!"unive.it".equals(domain) && !"stud.unive.it".equals(domain)) {
-                // log.error(LoggerColors.error("Login denied to " + email));
+            if (domain == null) {
+                domain = email.split("@")[1];
+            }
+
+            if (!customerDomains.contains(domain)) {
+                log.error(LoggerColors.error("Login denied to " + email));
                 throw new InvalidDomainException();
             }
 
-            // log.info(LoggerColors.success("Login granted to " + email));
+            log.info(LoggerColors.success("Login granted to " + email));
             return new GoogleUser(email, domain, givenName, familyName, picture);
         } catch (IOException | ParseException | URISyntaxException | InterruptedException e) {
             throw new RuntimeException(e);

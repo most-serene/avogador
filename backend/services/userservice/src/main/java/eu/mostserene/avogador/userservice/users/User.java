@@ -18,7 +18,6 @@ public class User {
     private UUID id;
 
     @Email(message = "Please provide a valid email address")
-    @Pattern(regexp=".+@(stud\\.)?unive\\.it", message="Please provide a valid email address")
     @NotNull
     @Column(unique = true)
     private String email;
