@@ -22,9 +22,14 @@ const LoginGoogle = () => {
           Login with Google
         </Typography>
         <Typography variant="body2">
-          This application only supports the login through you academic account.
+          This application only supports the login through your organization
+          account.
           <br />
-          Please login using your @stud.unive.it or @unive.it account.
+          Please login using your{" "}
+          {(import.meta.env.VITE_CUSTOMER_DOMAINS as string)
+            .split(",")
+            .join("/")}{" "}
+          account.
         </Typography>
       </CardContent>
       <CardActions>
@@ -47,9 +52,12 @@ const LoginGoogle = () => {
                       err instanceof AxiosError &&
                       err.response?.status === 400
                     ) {
-                      enqueueSnackbar("Login failed: not an UniVe email", {
-                        variant: "error",
-                      });
+                      enqueueSnackbar(
+                        "Login failed: not an valid email domain",
+                        {
+                          variant: "error",
+                        },
+                      );
                     } else {
                       enqueueSnackbar("Login failed", { variant: "error" });
                     }
