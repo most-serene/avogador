@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { ResourceNotFoundError } from "../types";
+import { ResourceNotFoundError } from "@error/types";
 
 export interface ErrorCard404Props {
   error: ResourceNotFoundError;

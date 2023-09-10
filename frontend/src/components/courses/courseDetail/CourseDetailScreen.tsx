@@ -1,7 +1,7 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
-import { CourseDetail } from "../types.ts";
+import { CourseDetail } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";

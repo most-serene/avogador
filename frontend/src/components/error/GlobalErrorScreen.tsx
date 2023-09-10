@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import { useAtom } from "jotai";
 import { globalErrorAtom } from "@error/GlobalErrorState";
-import GlobalErrorCard from "./errorCards/GlobalErrorCard";
-import ErrorCard404 from "./errorCards/ErrorCard404";
-import { ResourceNotFoundError } from "./types";
+import GlobalErrorCard from "@error/errorCards/GlobalErrorCard";
+import ErrorCard404 from "@error/errorCards/ErrorCard404";
+import { ResourceNotFoundError } from "@error/types";
 
 const getErrorCard = (error: Error) => {
   if (error instanceof ResourceNotFoundError) {
