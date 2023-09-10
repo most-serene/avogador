@@ -6,6 +6,8 @@ RUN apk update
 RUN apk add curl
 RUN yarn global add serve 
 ENV NODE_ENV production
+ARG REPOSITORY_CREDENTIALS
+ENV REPOSITORY_CREDENTIALS $REPOSITORY_CREDENTIALS
 
 COPY entrypoint.sh entrypoint.sh
 ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]

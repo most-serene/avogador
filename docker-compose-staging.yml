@@ -193,6 +193,8 @@ services:
     restart: always
     build:
       context: ./frontend
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
       dockerfile: Dockerfile.staging
       target: ${REACT_TARGET}
       network: host
