@@ -9,6 +9,8 @@ services:
       network: host
       dockerfile: Dockerfile.staging
       target: ${APIGATEWAY_TARGET}
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
     logging:
       driver: json-file
       options:
@@ -44,6 +46,8 @@ services:
       context: ./backend/services/userservice
       dockerfile: Dockerfile.staging
       target: ${USERSERVICE_TARGET}
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
     logging:
       driver: json-file
       options:
@@ -94,6 +98,8 @@ services:
       context: ./backend/services/courseservice
       dockerfile: Dockerfile.staging
       target: ${COURSESERVICE_TARGET}
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
     logging:
       driver: json-file
       options:
@@ -135,6 +141,8 @@ services:
       context: ./backend/services/filesystemservice
       dockerfile: Dockerfile.staging
       target: ${FILESYSTEMSERVICE_TARGET}
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
     logging:
       driver: json-file
       options:
@@ -193,6 +201,8 @@ services:
     restart: always
     build:
       context: ./frontend
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
       dockerfile: Dockerfile.staging
       target: ${REACT_TARGET}
       network: host

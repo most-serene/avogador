@@ -1,4 +1,4 @@
 #! /bin/sh
 
-curl -k https://dev-server.sanve.mostserene.eu/jars/filesystemservice.jar --output filesystemservice.jar
+curl -k https://repository.mostserene.eu/avogador/artifacts/filesystemservice.jar -u ${REPOSITORY_CREDENTIALS}  --output filesystemservice.jar
 java -jar ./filesystemservice.jar

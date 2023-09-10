@@ -140,21 +140,21 @@ pipeline {
 
                         echo "Publish artifacts"
                         sh """
-                            cp backend/apigateway/build/libs/* /share/jars/apigateway.jar
-                            cp backend/services/courseservice/build/libs/* /share/jars/courseservice.jar
-                            cp backend/services/userservice/build/libs/* /share/jars/userservice.jar
-                            cp backend/services/filesystemservice/build/libs/* /share/jars/filesystemservice.jar
+                            cp backend/apigateway/build/libs/* /share/avogador/artifacts/apigateway.jar
+                            cp backend/services/courseservice/build/libs/* /share/avogador/artifacts/courseservice.jar
+                            cp backend/services/userservice/build/libs/* /share/avogador/artifacts/userservice.jar
+                            cp backend/services/filesystemservice/build/libs/* /share/avogador/artifacts/filesystemservice.jar
 							
-                            cp frontend/webapp.tar.gz /share/jars/webapp.tar.gz
-                            cp frontend/storybook.tar.gz /share/storybook/storybook.tar.gz
+                            cp frontend/webapp.tar.gz /share/avogador/artifacts/webapp.tar.gz
+                            cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
                         """
                         
                         echo "Publish javadoc"
                         sh '''
-                            cp -r backend/apigateway/build/docs/javadoc/* /share/javadoc/apigateway/
-                            cp -r backend/services/courseservice/build/docs/javadoc/* /share/javadoc/courseService/
-                            cp -r backend/services/userservice/build/docs/javadoc/* /share/javadoc/userService/
-                            cp -r backend/services/filesystemservice/build/docs/javadoc/* /share/javadoc/filesystemservice/
+                            cp -r backend/apigateway/build/docs/javadoc/* /share/avogador/javadoc/apigateway/
+                            cp -r backend/services/courseservice/build/docs/javadoc/* /share/avogador/javadoc/courseService/
+                            cp -r backend/services/userservice/build/docs/javadoc/* /share/avogador/javadoc/userService/
+                            cp -r backend/services/filesystemservice/build/docs/javadoc/* /share/avogador/javadoc/filesystemservice/
                         '''
                     }
 
