@@ -21,12 +21,16 @@ tasks.getByName<Jar>("jar") {
 	enabled = false
 }
 
+springBoot {
+	buildInfo()
+}
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("com.google.guava:guava:31.1-jre")
