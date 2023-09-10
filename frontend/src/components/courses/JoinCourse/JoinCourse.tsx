@@ -13,6 +13,9 @@ import useCourseService from "@courses/hooks/useCourseService";
 import { GetCoursesDetailResponse } from "@courses/types";
 import { enqueueSnackbar } from "notistack";
 import Box from "@mui/material/Box";
+import { useGlobalErrorSetter } from "@components/error/GlobalErrorState";
+import { ResourceNotFoundError } from "@components/error/types";
+import { AxiosError } from "axios";
 
 const JoinCourse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,6 +24,7 @@ const JoinCourse = () => {
   const navigate = useNavigate();
   const [course, setCourse] = useState<GetCoursesDetailResponse>();
   const [error, setError] = useState<boolean>(false);
+  const globalErrorSetter = useGlobalErrorSetter();
 
   const joinCode = useMemo<string>(() => {
     const code = searchParams.get("code");
@@ -56,8 +60,17 @@ const JoinCourse = () => {
       })
       .catch((err) => {
         console.error(err);
+        if (err instanceof AxiosError && err.response?.status === 404) {
+          globalErrorSetter(
+            new ResourceNotFoundError(
+              { id: courseId },
+              "Course",
+              `Course ${courseId} not found`,
+            ),
+          );
+        }
       });
-  }, [getCourseById, courseId]);
+  }, [getCourseById, courseId, globalErrorSetter]);
 
   return (
     <Card sx={{ width: "32rem" }} raised>
