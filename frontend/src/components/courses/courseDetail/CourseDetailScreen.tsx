@@ -1,11 +1,14 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
-import { CourseDetail } from "../types.ts";
+import { CourseDetail } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import CourseMembersTab from "@courses/courseDetail/CourseMembersTab.tsx";
+import { AxiosError } from "axios";
+import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
+import { ResourceNotFoundError } from "@components/error/types.ts";
 
 function a11yProps(index: number) {
   return {
@@ -20,6 +23,7 @@ export default function CourseDetailScreen() {
   const { getCourseById } = useCourseService();
   const { courseId } = useParams();
   const courseTitleRef = useRef<HTMLElement>(null);
+  const globalErrorSetter = useGlobalErrorSetter();
 
   const [course, setCourse] = useState<CourseDetail>();
   const [openTab, setOpenTab] = useState(2);
@@ -32,8 +36,17 @@ export default function CourseDetailScreen() {
       })
       .catch((err) => {
         console.error(err);
+        if (err instanceof AxiosError && err.response?.status === 404) {
+          globalErrorSetter(
+            new ResourceNotFoundError(
+              { id: courseId },
+              "Course",
+              `Course ${courseId} not found`,
+            ),
+          );
+        }
       });
-  }, [getCourseById, courseId]);
+  }, [getCourseById, courseId, globalErrorSetter]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
