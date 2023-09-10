@@ -151,6 +151,7 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
       spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
       spring.rabbitmq.username: ${FILESYSTEMSERVICE_RABBITMQ_USERNAME}
       spring.rabbitmq.password: ${FILESYSTEMSERVICE_RABBITMQ_PASSWORD}
