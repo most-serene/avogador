@@ -11,9 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @Slf4j
+@RestController("/")
 public class FilesystemserviceApplication {
 
 	@Value("${sentry.dsn}")
@@ -46,6 +49,11 @@ public class FilesystemserviceApplication {
 	private void closeSentry() {
 		Sentry.close();
 		log.info(LoggerColors.cyan("Sentry closed"));
+	}
+
+	@GetMapping("/public/storage/status")
+	String getStatus() {
+		return "online";
 	}
 
 	public static void main(String[] args) {
