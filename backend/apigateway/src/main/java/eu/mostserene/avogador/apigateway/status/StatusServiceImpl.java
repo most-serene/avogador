@@ -15,7 +15,9 @@ public class StatusServiceImpl implements StatusService {
 
     private static final List<MicroService> endpoints = List.of(
             new MicroService("Users", "http://users/public/users/status"),
-            new MicroService("Courses", "http://courses/public/courses/status")
+            new MicroService("Courses", "http://courses/public/courses/status"),
+            new MicroService("Exercise", "http://exercises/public/exercises/status"),
+            new MicroService("Storage", "http://filesystem/public/storage/status")
     );
 
     @Override
