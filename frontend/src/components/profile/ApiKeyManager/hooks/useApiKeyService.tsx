@@ -2,7 +2,6 @@ import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import { User } from "@authentication/types";
 import { ApiKey } from "@profile/ApiKeyManager/types";
-import { parseJSON } from "date-fns";
 
 const useApiKeyService = () => {
   const avogadorApi = useAvogadorApi();
@@ -19,8 +18,8 @@ const useApiKeyService = () => {
             id: k.id,
             name: k.name,
             userId: k.userId,
-            creationTimestamp: parseJSON(k.creationTimestamp),
-            expirationTimestamp: parseJSON(k.expirationTimestamp),
+            creationTimestamp: k.creationTimestamp,
+            expirationTimestamp: k.expirationTimestamp,
           };
           return key;
         }),

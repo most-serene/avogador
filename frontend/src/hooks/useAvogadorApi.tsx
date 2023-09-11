@@ -21,7 +21,12 @@ export const useAvogadorApi = () => {
   const globalErrorSetter = useGlobalErrorSetter();
 
   avogadorApi.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      if (response.data instanceof Object) {
+        handleDates(response.data);
+      }
+      return response;
+    },
     (error: AxiosError) => {
       if (error.response && error.response.status >= 500) {
         globalErrorSetter(error);
@@ -32,3 +37,22 @@ export const useAvogadorApi = () => {
 
   return avogadorApi;
 };
+
+/*
+const isoDateFormat = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)((-(\d{2}):(\d{2})|Z)?)$/;
+
+function isIsoDateString(value: any): boolean {
+  return value && typeof value === "string" && isoDateFormat.test(value);
+}
+*/
+
+/* eslint-disable */
+const handleDates = (body: any) => {  
+  for (const key of Object.keys(body)) {
+    const value = body[key];
+    if (!isNaN(Date.parse(value))) {
+      body[key] = new Date(value);
+    } else if (typeof value === "object") handleDates(value);
+  }
+};
+/* eslint-enable */
