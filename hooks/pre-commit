@@ -53,6 +53,18 @@ then
     echo "hook on CourseService service done"
 fi
 
+SRC_PATTERN_EXERCISESERVICE="backend/services/exerciseservice/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_EXERCISESERVICE"
+then
+    echo "detected changes in ExerciseService service"
+    
+    cd $SRC_PATTERN_EXERCISESERVICE
+    ./gradlew clean test 
+    cd ../../../
+
+    echo "hook on ExerciseService service done"
+fi
+
 SRC_PATTERN_FILESYSTEMSERVICE="backend/services/filesystemservice/"
 if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_FILESYSTEMSERVICE"
 then
