@@ -1,12 +1,12 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import { User } from "@authentication/types";
-import { DateField } from "@mui/x-date-pickers/DateField";
 import { PrimitiveAtom, useAtom } from "jotai";
 import useApiKeyService from "@profile/ApiKeyManager/hooks/useApiKeyService";
 import { useCallback, useState } from "react";
 import ApiKeyModal from "@profile/ApiKeyManager/ApiKeyModal.tsx";
 import { ApiKey } from "@profile/ApiKeyManager/types.ts";
 import Box from "@mui/material/Box";
+import { DatePicker } from "@mui/x-date-pickers";
 
 const isValid: (name?: string, expiration?: Date) => boolean = (
   name?: string,
@@ -21,8 +21,6 @@ const isValid: (name?: string, expiration?: Date) => boolean = (
 };
 
 const isNameValid: (name?: string) => boolean = (name?: string) => {
-  console.log(name);
-
   return name === undefined || (name.split(" ").length == 1 && name !== "");
 };
 
@@ -92,8 +90,7 @@ const CreateNewKey = ({
           />
         </Grid>
         <Grid item xs={6}>
-          <DateField
-            fullWidth
+          <DatePicker
             label="Expiration date"
             value={expiration}
             disablePast
