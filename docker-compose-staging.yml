@@ -134,6 +134,46 @@ services:
     networks:
       - avogador-inner-network
 
+  exercises:
+    image: "avogador-exerciseservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/exerciseservice
+      dockerfile: Dockerfile.staging
+      target: ${EXERCISESERVICE_TARGET}
+      args:
+        - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${EXERCISES_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${EXERCISES_RABBITMQ_PASSWORD}
+      server.port: 80
+      spring.datasource.url: ${EXERCISESERVICE_DATASOURCE_URL}
+      spring.datasource.username: ${EXERCISESERVICE_DATASOURCE_USERNAME}
+      spring.datasource.password: ${EXERCISESERVICE_DATASOURCE_PASSWORD}
+      spring.jpa.hibernate.ddl-auto: ${EXERCISESERVICE_JPA_HIBERNATE_DDL_AUTO}
+      spring.jpa.properties.hibernate.dialect: ${EXERCISESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
+      # spring.servlet.multipart.max-file-size: 2GB
+      # spring.servlet.multipart.max-request-size: 2GB
+      spring.profiles.active: ${EXERCISESERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      # multipart.enabled: false
+    networks:
+      - avogador-inner-network
+
   filesystem:
     image: "avogador-filesystemservice:${BRANCH:-latest}" 
     restart: always
