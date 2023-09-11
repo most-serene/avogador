@@ -102,6 +102,25 @@ pipeline {
 
                 withGradle {
                     sh '''
+                        cd backend/services/exerciseservice
+                        gradle wrapper
+                        
+                        ./gradlew clean assemble
+                    '''
+                    archiveArtifacts artifacts: 'backend/services/exerciseservice/build/libs/*.jar', fingerprint: true
+                    script {
+                        if (env.BRANCH_NAME == 'master') {
+                            echo "Generate javadoc"
+                            sh '''
+                                cd backend/services/exerciseservice
+                                ./gradlew javadoc
+                            '''
+                        }
+                    }
+                }
+
+                withGradle {
+                    sh '''
                         cd backend/services/filesystemservice
                         gradle wrapper
                         
@@ -143,6 +162,7 @@ pipeline {
                             cp backend/apigateway/build/libs/* /share/avogador/artifacts/apigateway.jar
                             cp backend/services/courseservice/build/libs/* /share/avogador/artifacts/courseservice.jar
                             cp backend/services/userservice/build/libs/* /share/avogador/artifacts/userservice.jar
+                            cp backend/services/exerciseservice/build/libs/* /share/avogador/artifacts/exerciseservice.jar
                             cp backend/services/filesystemservice/build/libs/* /share/avogador/artifacts/filesystemservice.jar
 							
                             cp frontend/webapp.tar.gz /share/avogador/artifacts/webapp.tar.gz
@@ -154,6 +174,7 @@ pipeline {
                             cp -r backend/apigateway/build/docs/javadoc/* /share/avogador/javadoc/apigateway/
                             cp -r backend/services/courseservice/build/docs/javadoc/* /share/avogador/javadoc/courseService/
                             cp -r backend/services/userservice/build/docs/javadoc/* /share/avogador/javadoc/userService/
+                            cp -r backend/services/exerciseservice/build/docs/javadoc/* /share/avogador/javadoc/exerciseService/
                             cp -r backend/services/filesystemservice/build/docs/javadoc/* /share/avogador/javadoc/filesystemservice/
                         '''
                     }
@@ -191,6 +212,16 @@ pipeline {
                         mkdir -p backend/services/userservice/src/test/resources
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
+                        
+                        ./gradlew clean test
+                    '''
+                }
+
+                withGradle {
+                    sh '''
+                        mkdir -p backend/services/exerciseservice/src/test/resources
+                        cp $JENKINS_HOME/.envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
+                        cd backend/services/exerciseservice
                         
                         ./gradlew clean test
                     '''
