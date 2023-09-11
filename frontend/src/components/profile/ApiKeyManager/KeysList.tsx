@@ -52,11 +52,12 @@ const KeysList = ({
                   <Typography variant="h6">{k.name}</Typography>
 
                   <Typography>
-                    Creation: {format(k.creationTimestamp, "dd/MM/yyyy")}
+                    Creation: {format(k.creationTimestamp, "dd/MM/yyyy HH:mm")}
                   </Typography>
 
                   <Typography>
-                    Expiration: {format(k.expirationTimestamp, "dd/MM/yyyy")}
+                    Expiration:{" "}
+                    {format(k.expirationTimestamp, "dd/MM/yyyy HH:mm")}
                   </Typography>
                 </Grid>
 
