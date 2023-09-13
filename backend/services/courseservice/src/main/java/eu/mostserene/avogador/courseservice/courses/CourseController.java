@@ -39,7 +39,11 @@ public class CourseController {
         if(!user.getIsProfessor()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot create a course");
         }
-        
+
+        if (courseService.getByNameAndYear(reqCourse.getName(), reqCourse.getYear()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Already existing course");
+        }
+
         var course = courseService.createCourse(reqCourse);
         fileSystemService.createCourse(course.getId());
         userCourseService.createAdmin(user, course);
