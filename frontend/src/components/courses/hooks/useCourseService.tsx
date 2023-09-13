@@ -54,7 +54,6 @@ const useCourseService = () => {
   const promoteUser: (courseId: string, userId: string) => Promise<UserCourse> =
     useCallback(
       async (courseId: string, userId: string) => {
-        console.log(userId);
         const { data }: { data: UserCourse } = await avogadorApi.put(
           `courses/${courseId}/collaborators/${userId}`,
         );
@@ -67,11 +66,33 @@ const useCourseService = () => {
   const demoteUser: (courseId: string, userId: string) => Promise<UserCourse> =
     useCallback(
       async (courseId: string, userId: string) => {
-        console.log(userId);
         const { data }: { data: UserCourse } = await avogadorApi.put(
           `courses/${courseId}/students/${userId}`,
         );
 
+        return data;
+      },
+      [avogadorApi],
+    );
+
+  const getUserCourses: (userId: string) => Promise<UserCourse[]> = useCallback(
+    async (userId: string) => {
+      const { data }: { data: UserCourse[] } = await avogadorApi.get(
+        `/courses/users/${userId}`,
+      );
+      localStorage.setItem("coursesNumber", String(data.length));
+      return data;
+    },
+    [avogadorApi],
+  );
+
+  const createCourse: (name: string, year: string) => Promise<Course> =
+    useCallback(
+      async (name: string, year: string) => {
+        const { data }: { data: Course } = await avogadorApi.post("/courses", {
+          name,
+          year,
+        });
         return data;
       },
       [avogadorApi],
@@ -83,6 +104,8 @@ const useCourseService = () => {
     getCourseMembers,
     promoteUser,
     demoteUser,
+    getUserCourses,
+    createCourse,
   };
 };
 

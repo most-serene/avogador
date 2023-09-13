@@ -74,4 +74,8 @@ public class CourseServiceImpl implements CourseService{
         return hexString.toString();
     }
 
+    @Override
+    public Optional<Course> getByNameAndYear(String name, String year) {
+        return repository.findByNameAndYear(name, year);
+    }
 }

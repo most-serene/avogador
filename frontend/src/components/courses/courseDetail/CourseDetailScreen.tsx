@@ -36,7 +36,10 @@ export default function CourseDetailScreen() {
       })
       .catch((err) => {
         console.error(err);
-        if (err instanceof AxiosError && err.response?.status === 404) {
+        if (
+          err instanceof AxiosError &&
+          (err.response?.status === 404 || err.response?.status === 400)
+        ) {
           globalErrorSetter(
             new ResourceNotFoundError(
               { id: courseId },

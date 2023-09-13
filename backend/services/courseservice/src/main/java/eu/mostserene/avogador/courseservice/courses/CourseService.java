@@ -9,4 +9,5 @@ public interface CourseService {
     Optional<Course> getCourse(UUID id);
     void deleteCourse(UUID courseId);
     Optional<String> getJoinCode(UUID courseId);
+    Optional<Course> getByNameAndYear(String name, String year);
 }

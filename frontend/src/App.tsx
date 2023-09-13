@@ -17,6 +17,8 @@ import useGlitchTip from "@hooks/useGlitchTip.tsx";
 import { useAtom } from "jotai";
 import userAtom from "@components/authentication/userAtom.ts";
 import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
+import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.tsx";
+import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -90,6 +92,22 @@ function App() {
                     }
                   />
                   <Route path="courses">
+                    <Route
+                      path={""}
+                      element={
+                        <Container maxWidth={"xl"}>
+                          <CoursesScreen />
+                        </Container>
+                      }
+                    />
+                    <Route
+                      path={"new"}
+                      element={
+                        <Container maxWidth={"xl"}>
+                          <CourseCreationScreen />
+                        </Container>
+                      }
+                    />
                     <Route
                       path={":courseId"}
                       element={<CourseDetailScreen />}
