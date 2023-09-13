@@ -7,30 +7,18 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  IconButton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { useNavigate } from "react-router-dom";
-
-const getCourseYear = (delta = 0) => {
-  const now = new Date();
-  if (now.getMonth() < 6) {
-    return `${getYearFromNow(delta - 1)}/${getYearFromNow(delta)}}`;
-  }
-  return `${getYearFromNow(delta)}/${getYearFromNow(delta + 1)}`;
-};
-
-const getYearFromNow = (delta: number) => {
-  return new Date(
-    new Date().setFullYear(new Date().getFullYear() + delta),
-  ).getFullYear();
-};
+import { AxiosError } from "axios";
+import { enqueueSnackbar } from "notistack";
+import AcademicYearPicker from "@structure/AcademicYearPicker/AcademicYearPicker.tsx";
+import { getCourseYear } from "@structure/AcademicYearPicker/utils.ts";
 
 export default function CourseCreationScreen() {
   const navigate = useNavigate();
@@ -39,17 +27,31 @@ export default function CourseCreationScreen() {
   const { createCourse } = useCourseService();
   const [name, setName] = useState("");
   const [year, setYear] = useState(getCourseYear());
-
+  const [isError, setIsError] = useState(false);
   const [isRequestProcessing, setIsRequestProcessing] = useState(false);
 
   const handleSubmit = () => {
     setIsRequestProcessing(true);
     createCourse(name, year)
       .then((course) => {
+        enqueueSnackbar(`Course ${name} (${year}) created successfully`, {
+          variant: "success",
+        });
         navigate(`/courses/${course.id}`);
       })
       .catch((err) => {
-        console.error(err);
+        console.log(err);
+        if (
+          err instanceof AxiosError &&
+          err.response?.status === 400 &&
+          (err.response.data as { message: string }).message ===
+            "Already existing course"
+        ) {
+          setIsError(true);
+          enqueueSnackbar("Duplicate course name and year", {
+            variant: "error",
+          });
+        }
       })
       .finally(() => {
         setIsRequestProcessing(false);
@@ -75,16 +77,25 @@ export default function CourseCreationScreen() {
               <Grid container spacing={1}>
                 <Grid item xs={12} md={8}>
                   <TextField
+                    error={isError}
                     fullWidth
                     label="Name"
                     value={name}
                     onChange={(event) => {
+                      setIsError(false);
                       setName(event.target.value);
                     }}
                   />
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <YearPicker value={year} onChange={setYear} />
+                  <AcademicYearPicker
+                    value={year}
+                    onChange={(val) => {
+                      setYear(val);
+                      setIsError(false);
+                    }}
+                    error={isError}
+                  />
                 </Grid>
               </Grid>
             </Box>
@@ -95,7 +106,7 @@ export default function CourseCreationScreen() {
                 onClick={handleSubmit}
               >
                 {isRequestProcessing && (
-                  <CircularProgress size={"1rem"} sx={{ pr: 1 }} />
+                  <CircularProgress size={"1rem"} sx={{ mr: 1 }} />
                 )}
                 Create
               </Button>
@@ -106,50 +117,3 @@ export default function CourseCreationScreen() {
     </Box>
   );
 }
-
-interface YearPickerProps {
-  value: string;
-  onChange: (val: string) => void;
-}
-
-const YearPicker = ({ value: year, onChange: setYear }: YearPickerProps) => {
-  const [currentYearDelta, setCurrentYearDelta] = useState(0);
-  const updateYearDelta = (newDelta: 1 | -1) => {
-    setYear(getCourseYear(currentYearDelta + newDelta));
-    setCurrentYearDelta(currentYearDelta + newDelta);
-  };
-
-  return (
-    <TextField
-      disabled
-      fullWidth
-      label="Year"
-      value={year}
-      inputProps={{ style: { textAlign: "center" } }}
-      onChange={(event) => {
-        setYear(event.target.value);
-      }}
-      InputProps={{
-        startAdornment: (
-          <IconButton
-            disabled={currentYearDelta < 0}
-            onClick={() => {
-              updateYearDelta(-1);
-            }}
-          >
-            <ChevronLeft fontSize="small" />
-          </IconButton>
-        ),
-        endAdornment: (
-          <IconButton
-            onClick={() => {
-              updateYearDelta(1);
-            }}
-          >
-            <ChevronRight fontSize="small" />
-          </IconButton>
-        ),
-      }}
-    />
-  );
-};

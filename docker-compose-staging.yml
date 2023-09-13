@@ -25,6 +25,7 @@ services:
       # logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       logging.level.org.springframework.cloud.gateway: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
       # jwt.secret: ${JWT_SECRET}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
@@ -69,6 +70,7 @@ services:
       spring.jpa.properties.hibernate.dialect: ${USERSERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
       logging.level.org.springframework.cloud.gateway: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
       jwt.secret: ${JWT_SECRET}
       customer.domains: ${CUSTOMER_DOMAINS}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
@@ -121,6 +123,7 @@ services:
       spring.jpa.properties.hibernate.dialect: ${COURSESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
       joinCode.secret: ${JOINCODE_SECRET}
       # jwt.secret: ${JWT_SECRET}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
@@ -164,6 +167,7 @@ services:
       spring.jpa.properties.hibernate.dialect: ${EXERCISESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
       # spring.servlet.multipart.max-request-size: 2GB
@@ -199,6 +203,7 @@ services:
       server.port: 80
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
       # spring.servlet.multipart.max-request-size: 2GB
