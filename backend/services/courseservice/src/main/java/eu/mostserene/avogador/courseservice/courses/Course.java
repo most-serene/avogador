@@ -6,7 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Courses")
+@Table(
+        name = "Courses",
+        uniqueConstraints = @UniqueConstraint(columnNames={"name", "year"})
+)
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

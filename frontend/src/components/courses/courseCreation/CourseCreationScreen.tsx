@@ -60,7 +60,7 @@ export default function CourseCreationScreen() {
     if (user && !(user.isProfessor || user.isSuperuser)) {
       globalErrorSetter(new Error());
     }
-  }, [user]);
+  }, [user, globalErrorSetter]);
 
   return (
     <Box display="flex" justifyContent="center" paddingTop={2}>
