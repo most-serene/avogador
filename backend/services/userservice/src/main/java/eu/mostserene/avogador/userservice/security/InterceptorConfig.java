@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 public class InterceptorConfig implements WebMvcConfigurer {
     @Autowired
-    LoggerInterceptor loggerInterceptor;
+    private LoggerInterceptor loggerInterceptor;
 
     @Autowired
-    RequestSourceInterceptor requestSourceInterceptor;
+    private RequestSourceInterceptor requestSourceInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
