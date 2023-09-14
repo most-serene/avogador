@@ -6,6 +6,7 @@ import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
+import eu.mostserene.avogador.userservice.security.restapicontrol.DisablePublicRestAPI;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
@@ -51,7 +52,8 @@ public class UserController {
      * @return the related AuthUserDTO
      */
     @GetMapping("/current")
-    private AuthUserDTO getCurrentUser(HttpServletRequest request) {
+    @DisablePublicRestAPI
+    public AuthUserDTO getCurrentUser(HttpServletRequest request) {
         return authService.decodeJwt(authService.extractJwt(request));
     }
 
