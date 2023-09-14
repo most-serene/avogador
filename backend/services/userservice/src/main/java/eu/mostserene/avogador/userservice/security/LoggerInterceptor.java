@@ -1,14 +1,6 @@
 package eu.mostserene.avogador.userservice.security;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.mostserene.avogador.userservice.users.AuthUserDTO;
-import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.LoggerUtils;
-import io.sentry.Scope;
-import io.sentry.Sentry;
-import io.sentry.SentryLevel;
-import io.sentry.protocol.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
