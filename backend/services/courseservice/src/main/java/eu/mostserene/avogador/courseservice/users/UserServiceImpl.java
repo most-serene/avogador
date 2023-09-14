@@ -28,16 +28,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public UserDto getUser(UUID id) throws NotFoundException {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
-    @Override
-    public UserDto getUser(String email) {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
-
     /**
      * Get the ID of a request
      *
