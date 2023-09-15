@@ -260,12 +260,30 @@ services:
     ports:
       - "${REACT_PORT}:3000"
 
+  kuma:
+    hostname: uptime-kuma
+    image: louislam/uptime-kuma:1
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    ports:
+      - 8081:3001
+    networks:
+      - avogador-inner-network
+    volumes:
+      - uptime-kuma:/app/data 
+
 volumes:
   avogador-rabbitmq-data:
     external: true
 
   avogador-filesystem-volume:
     external: true
+
+  uptime-kuma:
 
 networks:
   avogador-inner-network:
