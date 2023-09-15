@@ -270,7 +270,7 @@ services:
         max-file: "10"
         max-size: "5m"
     ports:
-      - 8081:3001
+      - ${KUMA_PORT}:3001
     networks:
       - avogador-inner-network
     volumes:
