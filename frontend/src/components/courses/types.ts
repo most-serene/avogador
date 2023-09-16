@@ -21,12 +21,7 @@ interface UserCourse {
   user: string;
 }
 
-interface GetCoursesDetailResponse {
-  id: string;
-  isArchived: boolean;
-  name: string;
-  year: string;
-  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+interface GetCoursesDetailResponse extends CourseDetail {
   joinCode?: string;
 }
 
