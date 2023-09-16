@@ -14,14 +14,16 @@ import {
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { enqueueSnackbar } from "notistack";
 import AcademicYearPicker from "@structure/AcademicYearPicker/AcademicYearPicker.tsx";
 import { getCourseYear } from "@structure/AcademicYearPicker/utils.ts";
+import { ForbiddenError } from "@error/types.ts";
 
 export default function CourseCreationScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user] = useAtom(userAtom);
   const globalErrorSetter = useGlobalErrorSetter();
   const { createCourse } = useCourseService();
@@ -29,6 +31,7 @@ export default function CourseCreationScreen() {
   const [year, setYear] = useState(getCourseYear());
   const [isError, setIsError] = useState(false);
   const [isRequestProcessing, setIsRequestProcessing] = useState(false);
+  const [isUserFetched, setIsUserFetched] = useState(false);
 
   const handleSubmit = () => {
     setIsRequestProcessing(true);
@@ -40,7 +43,6 @@ export default function CourseCreationScreen() {
         navigate(`/courses/${course.id}`);
       })
       .catch((err) => {
-        console.log(err);
         if (
           err instanceof AxiosError &&
           err.response?.status === 400 &&
@@ -59,10 +61,27 @@ export default function CourseCreationScreen() {
   };
 
   useEffect(() => {
-    if (user && !(user.isProfessor || user.isSuperuser)) {
-      globalErrorSetter(new Error());
+    if (user == null) {
+      setIsUserFetched(false);
+      return;
     }
-  }, [user, globalErrorSetter]);
+
+    setIsUserFetched(true);
+    if (!(user.isProfessor || user.isSuperuser)) {
+      globalErrorSetter(
+        new ForbiddenError(location.pathname, `You cannot access this page`),
+      );
+    }
+  }, [user, globalErrorSetter, location.pathname]);
+
+  if (!isUserFetched) {
+    return (
+      <Box display="flex" justifyContent="center" paddingTop={2}>
+        {" "}
+        <CircularProgress />{" "}
+      </Box>
+    );
+  }
 
   return (
     <Box display="flex" justifyContent="center" paddingTop={2}>
