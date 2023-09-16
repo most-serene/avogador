@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   apigateway:
-    image: "avogador-apigateway:dev-${BRANCH:-latest}" 
+    image: "avogador-apigateway:dev-latest"
     restart: always
     build:
       context: ./backend/apigateway
@@ -39,7 +39,7 @@ services:
       - avogador-inner-network
 
   users:
-    image: "avogador-userservice:dev-${BRANCH:-latest}" 
+    image: "avogador-userservice:dev-latest" 
     restart: always
     build:
       context: ./backend/services/userservice
@@ -93,7 +93,7 @@ services:
       - avogador-inner-network
 
   courses:
-    image: "avogador-courseservice:dev-${BRANCH:-latest}" 
+    image: "avogador-courseservice:dev-latest" 
     restart: always
     build:
       context: ./backend/services/courseservice
@@ -138,7 +138,7 @@ services:
       - avogador-inner-network
 
   exercises:
-    image: "avogador-exerciseservice:dev-${BRANCH:-latest}" 
+    image: "avogador-exerciseservice:dev-latest" 
     restart: always
     build:
       context: ./backend/services/exerciseservice
@@ -180,7 +180,7 @@ services:
       - avogador-inner-network
 
   filesystem:
-    image: "avogador-filesystemservice:dev-${BRANCH:-latest}" 
+    image: "avogador-filesystemservice:dev-latest" 
     restart: always
     build:
       context: ./backend/services/filesystemservice
