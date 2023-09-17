@@ -7,6 +7,7 @@ const style = {
   position: "absolute" as const,
   top: "50%",
   left: "50%",
+  border: 1,
   transform: "translate(-50%, -50%)",
   bgcolor: "background.paper",
   boxShadow: 24,
