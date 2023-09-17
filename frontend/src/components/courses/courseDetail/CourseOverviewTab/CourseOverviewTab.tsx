@@ -9,7 +9,10 @@ interface CourseOverviewTabProps {
 const CourseOverviewTab = ({ course }: CourseOverviewTabProps) => {
   return (
     <Box display={"flex"} justifyContent={"center"}>
-      <JoinCourseLinkVisualizer course={course} />
+      {course &&
+        (course.role === "COLLABORATOR" || course.role === "ADMIN") && (
+          <JoinCourseLinkVisualizer course={course} />
+        )}
     </Box>
   );
 };
