@@ -10,16 +10,15 @@ class DevUtilsCmd(Cmd):
     intro = colored("Welcome to devUtil tool " + os.environ['USER'], "cyan")
 
     def do_localDevelopMode(self, inp):
-        branch = Repository('.').head.shorthand
         currDir = os.getcwd()
-        appscript.app('Terminal').do_script('cd ' + currDir + f'; BRANCH={branch} docker compose up --build')
+        appscript.app('Terminal').do_script('cd ' + currDir + f'; docker compose up --build')
         # os.system('docker compose up --build -d')
 
     def do_stopLocalDevelopMode(self, inp):
-        os.system('BRANCH={branch} docker compose stop')
+        os.system('docker compose stop')
     
     def do_downLocalDevelopMode(self, inp):
-        os.system('BRANCH={branch} docker compose down')
+        os.system('docker compose down')
 
     def do_executeTests(self, inp):
         os.system('cd backend/apigateway; gradle test')
@@ -30,29 +29,25 @@ class DevUtilsCmd(Cmd):
         return True
     
     def do_start(self, inp: str):
-        branch = Repository('.').head.shorthand
         if inp == '':
             return
         for s in inp.split(' '):
-            os.system(f'BRANCH={branch} docker compose start {s}')
+            os.system(f'docker compose start {s}')
     
     def do_restart(self, inp: str):
-        branch = Repository('.').head.shorthand
         if inp == '':
             return
         for s in inp.split(' '):
-            os.system(f'BRANCH={branch} docker compose build {s} && BRANCH={branch} docker compose create {s} && BRANCH={branch} docker compose restart {s}')
+            os.system(f'docker compose build {s} && docker compose create {s} && docker compose restart {s}')
 
     def do_stop(self, inp: str):
-        branch = Repository('.').head.shorthand
         if inp == '':
             return
         for s in inp.split(' '):
-            os.system(f'BRANCH={branch} docker compose stop {s}')
+            os.system(f'docker compose stop {s}')
 
     def do_list_services(self, inp):
-        branch = Repository('.').head.shorthand
-        os.system(f'BRANCH={branch} docker compose config --services')
+        os.system(f'docker compose config --services')
 
     #### ----- ####
 

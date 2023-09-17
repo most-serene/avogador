@@ -36,7 +36,6 @@ export default function CourseDetailScreen() {
         setCourse(c);
       })
       .catch((err) => {
-        console.error(err);
         if (
           err instanceof AxiosError &&
           (err.response?.status === 404 || err.response?.status === 400)
