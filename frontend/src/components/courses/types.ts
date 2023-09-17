@@ -5,11 +5,7 @@ interface Course {
   isArchived: boolean;
 }
 
-interface CourseDetail {
-  id: string;
-  name: string;
-  year: string;
-  isArchived: boolean;
+interface CourseDetail extends Course {
   role: "STUDENT" | "COLLABORATOR" | "ADMIN";
 }
 
