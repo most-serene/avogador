@@ -1,7 +1,7 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
-import { CourseDetail } from "@courses/types.ts";
+import { GetCoursesDetailResponse } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
@@ -9,6 +9,7 @@ import CourseMembersTab from "@courses/courseDetail/CourseMembersTab.tsx";
 import { AxiosError } from "axios";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
 import { ResourceNotFoundError } from "@components/error/types.ts";
+import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab";
 
 function a11yProps(index: number) {
   return {
@@ -25,8 +26,8 @@ export default function CourseDetailScreen() {
   const courseTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
 
-  const [course, setCourse] = useState<CourseDetail>();
-  const [openTab, setOpenTab] = useState(2);
+  const [course, setCourse] = useState<GetCoursesDetailResponse>();
+  const [openTab, setOpenTab] = useState(0);
 
   useEffect(() => {
     if (courseId === undefined) return;
@@ -87,9 +88,7 @@ export default function CourseDetailScreen() {
           index={0}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <Typography variant={"h4"} color={"secondary"} align={"center"}>
-            Overview Tab Coming Soon
-          </Typography>
+          <CourseOverviewTab course={course} />
         </TabPanel>
         <TabPanel
           value={openTab}

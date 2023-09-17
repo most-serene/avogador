@@ -5,11 +5,7 @@ interface Course {
   isArchived: boolean;
 }
 
-interface CourseDetail {
-  id: string;
-  name: string;
-  year: string;
-  isArchived: boolean;
+interface CourseDetail extends Course {
   role: "STUDENT" | "COLLABORATOR" | "ADMIN";
 }
 
@@ -21,12 +17,7 @@ interface UserCourse {
   user: string;
 }
 
-interface GetCoursesDetailResponse {
-  id: string;
-  isArchived: boolean;
-  name: string;
-  year: string;
-  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+interface GetCoursesDetailResponse extends CourseDetail {
   joinCode?: string;
 }
 
