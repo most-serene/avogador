@@ -46,12 +46,12 @@ const JoinCourse = () => {
         }
       })
       .catch((e) => {
-        console.log(e);
+        console.error(e);
+        enqueueSnackbar("An error has occurred", { variant: "error" });
       });
   };
 
   useEffect(() => {
-    console.log(courseId);
     if (courseId === undefined) return;
 
     getCourseById(courseId)
