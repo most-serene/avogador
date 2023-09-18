@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "Trials")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Trial {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
