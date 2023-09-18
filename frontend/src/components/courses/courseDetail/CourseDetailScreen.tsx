@@ -1,22 +1,23 @@
 import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  SyntheticEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { GetCoursesDetailResponse } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
-import CourseMembersTab from "@courses/courseDetail/CourseMembersTab.tsx";
+import CourseMembersTab from "@courses/courseDetail/CourseMemebersTab/CourseMembersTab.tsx";
 import { AxiosError } from "axios";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
 import { ResourceNotFoundError } from "@components/error/types.ts";
 import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab";
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
+import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSettingsTab";
+import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab";
 
 const tabs = ["Overview", "Tests", "Members", "Settings"];
 
@@ -25,12 +26,28 @@ export default function CourseDetailScreen() {
   const { courseId } = useParams();
   const courseTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const getInitialTab = useCallback(() => {
+    const paramTab = Number(searchParams.get("tab"));
+    if (isNaN(paramTab) || paramTab >= tabs.length) {
+      setSearchParams({
+        tab: "0",
+      });
+      return 0;
+    }
+    setSearchParams({
+      tab: paramTab.toString(),
+    });
+    return paramTab;
+  }, [searchParams, setSearchParams]);
 
   const [course, setCourse] = useState<GetCoursesDetailResponse>();
   const [openTab, setOpenTab] = useState(0);
 
   useEffect(() => {
     if (courseId === undefined) return;
+    setOpenTab(getInitialTab());
     getCourseById(courseId)
       .then((c) => {
         setCourse(c);
@@ -49,11 +66,14 @@ export default function CourseDetailScreen() {
           );
         }
       });
-  }, [getCourseById, courseId, globalErrorSetter]);
+  }, [getCourseById, courseId, globalErrorSetter, getInitialTab]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
     setOpenTab(newValue);
+    setSearchParams({
+      tab: newValue.toString(),
+    });
   };
 
   return (
@@ -64,14 +84,9 @@ export default function CourseDetailScreen() {
         display: "flex",
       }}
     >
-      <Tabs
-        orientation="vertical"
-        value={openTab}
-        onChange={handleTabChange}
-        aria-label="basic tabs example"
-      >
+      <Tabs orientation="vertical" value={openTab} onChange={handleTabChange}>
         {tabs.map((tab, i) => (
-          <Tab key={i} label={tab} {...a11yProps(i)} />
+          <Tab key={i} label={tab} />
         ))}
       </Tabs>
       <Container maxWidth={false}>
@@ -95,9 +110,7 @@ export default function CourseDetailScreen() {
           index={1}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <Typography variant={"h4"} color={"secondary"} align={"center"}>
-            Tests Tab Coming Soon
-          </Typography>
+          <CourseTrialsTab />
         </TabPanel>
         <TabPanel
           value={openTab}
@@ -111,9 +124,7 @@ export default function CourseDetailScreen() {
           index={3}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <Typography variant={"h4"} color={"secondary"} align={"center"}>
-            Settings Tab Coming Soon
-          </Typography>
+          <CourseSettingsTab />
         </TabPanel>
       </Container>
     </Box>
