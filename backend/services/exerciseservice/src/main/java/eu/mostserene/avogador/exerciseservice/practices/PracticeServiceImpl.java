@@ -16,4 +16,9 @@ public class PracticeServiceImpl implements PracticeService {
     public Optional<Practice> getPractice(UUID practiceId) {
         return practiceRepository.findById(practiceId);
     }
+
+    @Override
+    public Practice createPractice(Practice practice) {
+        return practiceRepository.save(practice);
+    }
 }

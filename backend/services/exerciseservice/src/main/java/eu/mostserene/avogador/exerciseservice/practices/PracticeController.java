@@ -58,7 +58,13 @@ public class PracticeController {
      */
     @PostMapping("")
     private Practice createPractice(@RequestHeader(name = "User") UserDto user, @RequestBody Practice practice) {
-        throw new UnsupportedOperationException();
+        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
+            return practiceService.createPractice(practice);
+        }
+        throw new ForbiddenException(user);
     }
 
     /**
