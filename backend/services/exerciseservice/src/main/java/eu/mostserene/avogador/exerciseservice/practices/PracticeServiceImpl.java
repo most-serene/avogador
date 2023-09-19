@@ -21,4 +21,9 @@ public class PracticeServiceImpl implements PracticeService {
     public Practice createOrUpdatePractice(Practice practice) {
         return practiceRepository.save(practice);
     }
+
+    @Override
+    public void deletePractice(Practice practice) {
+        practiceRepository.delete(practice);
+    }
 }

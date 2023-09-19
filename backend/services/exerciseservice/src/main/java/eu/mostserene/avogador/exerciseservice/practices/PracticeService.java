@@ -9,4 +9,6 @@ public interface PracticeService {
     Optional<Practice> getPractice(UUID practiceId);
 
     Practice createOrUpdatePractice(Practice practice);
+
+    void deletePractice(Practice practice);
 }

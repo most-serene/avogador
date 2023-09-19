@@ -110,7 +110,17 @@ public class PracticeController {
      */
     @DeleteMapping("/{practiceId}")
     private void deletePractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
-        throw new UnsupportedOperationException();
+        Practice practice = practiceService.getPractice(practiceId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
+            practiceService.deletePractice(practice);
+            return;
+        }
+        throw new ForbiddenException(user);
     }
 }
 
