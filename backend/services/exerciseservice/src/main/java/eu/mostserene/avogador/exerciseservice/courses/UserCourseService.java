@@ -5,6 +5,6 @@ import java.util.UUID;
 
 public interface UserCourseService {
 
-    Optional<CourseRole> getUserCourse(UUID courseId, UUID userId);
+    Optional<CourseRole> getUserCourseRole(UUID courseId, UUID userId);
 
 }
