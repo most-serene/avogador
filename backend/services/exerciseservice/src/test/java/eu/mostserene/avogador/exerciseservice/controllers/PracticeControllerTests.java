@@ -28,8 +28,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,7 +60,7 @@ public class PracticeControllerTests {
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
 
     @Nested
-    class getPractice {
+    class GetPractice {
         @Test
         public void notExisting_gets404() throws Exception{
             when(practiceService.getPractice(any()))
@@ -170,7 +169,7 @@ public class PracticeControllerTests {
 
 
     @Nested
-    class createPractice {
+    class CreatePractice {
         @Test
         public void fromExternal_create403() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
@@ -236,4 +235,93 @@ public class PracticeControllerTests {
         }
     }
 
+    @Nested
+    class UpdatePractice {
+        @Test
+        public void practiceNotExisting_update404() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.empty());
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void fromStudent_update403() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_update200() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(practiceService.createOrUpdatePractice(any()))
+                    .thenReturn(notVisibilePractice);
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(notVisibilePractice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isVisible").value(false));
+        }
+
+        @Test
+        public void fromSuperuser_create200() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(practiceService.createOrUpdatePractice(any()))
+                    .thenReturn(notVisibilePractice);
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", superUserHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(notVisibilePractice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isVisible").value(false));
+        }
+
+    }
+
+    
 }

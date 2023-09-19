@@ -78,8 +78,8 @@ public class PracticeController {
      */
     @PutMapping("/{practiceId}")
     private Practice updatePractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId, @RequestBody Practice practice) {
-        var p = practiceService.getPractice(practiceId);
-        if (p.isEmpty()) throw new NotFoundException(practiceId.toString());
+        var storedPractice = practiceService.getPractice(practiceId);
+        if (storedPractice.isEmpty()) throw new NotFoundException(practiceId.toString());
 
         CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
