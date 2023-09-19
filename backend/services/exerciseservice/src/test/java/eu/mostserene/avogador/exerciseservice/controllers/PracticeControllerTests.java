@@ -168,17 +168,17 @@ public class PracticeControllerTests {
 
     }
 
-    /*
+
     @Nested
     class createPractice {
         @Test
-        public void fromExternal_gets403() throws Exception {
+        public void fromExternal_create403() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.EXTERNAL));
 
-            mvc.perform(post("/public/trials/practices/")
+            mvc.perform(post("/public/trials/practices")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(practice))
@@ -187,7 +187,53 @@ public class PracticeControllerTests {
                     .andExpect(status().isForbidden());
         }
 
+        @Test
+        public void fromStudent_create403() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+
+            mvc.perform(post("/public/trials/practices")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_create200() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(post("/public/trials/practices")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromSuperuser_create200() throws Exception {
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(post("/public/trials/practices")
+                            .header("User", superUserHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practice))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
     }
-   
-     */
+
 }
