@@ -1,10 +1,12 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class UserCourseServiceImpl implements UserCourseService {
     @Override
     public Optional<CourseRole> getUserCourseRole(UUID courseId, UUID userId) {
