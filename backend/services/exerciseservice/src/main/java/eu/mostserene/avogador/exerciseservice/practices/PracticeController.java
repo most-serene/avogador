@@ -5,6 +5,7 @@ import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,17 @@ public class PracticeController {
      */
     @GetMapping("/{practiceId}/exercises")
     private List<Exercise> getPracticeExercises(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Join a practice
+     * @param user the requesting user
+     * @param practiceId the id of practice
+     * @return the new UserTrial relation
+     */
+    @PutMapping("/{practiceId}/join")
+    private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         throw new UnsupportedOperationException();
     }
 
