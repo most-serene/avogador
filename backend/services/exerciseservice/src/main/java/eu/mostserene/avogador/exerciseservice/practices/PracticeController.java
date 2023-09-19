@@ -9,6 +9,7 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -62,7 +63,7 @@ public class PracticeController {
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            return practiceService.createPractice(practice);
+            return practiceService.createOrUpdatePractice(practice);
         }
         throw new ForbiddenException(user);
     }
@@ -77,7 +78,16 @@ public class PracticeController {
      */
     @PutMapping("/{practiceId}")
     private Practice updatePractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId, @RequestBody Practice practice) {
-        throw new UnsupportedOperationException();
+        var p = practiceService.getPractice(practiceId);
+        if (p.isEmpty()) throw new NotFoundException(practiceId.toString());
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
+            return practiceService.createOrUpdatePractice(practice);
+        }
+        throw new ForbiddenException(user);
     }
 
     /**

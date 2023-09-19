@@ -18,7 +18,7 @@ public class PracticeServiceImpl implements PracticeService {
     }
 
     @Override
-    public Practice createPractice(Practice practice) {
+    public Practice createOrUpdatePractice(Practice practice) {
         return practiceRepository.save(practice);
     }
 }
