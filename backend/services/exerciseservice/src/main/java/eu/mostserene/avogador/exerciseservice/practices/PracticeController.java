@@ -34,8 +34,7 @@ public class PracticeController {
     private Practice createPractice(@RequestHeader(name = "User") UserDto user, @RequestBody Practice practice) {
         throw new UnsupportedOperationException();
     }
-
-
+    
     /**
      * Updates a practice given the id
      * @param user the requesting user
