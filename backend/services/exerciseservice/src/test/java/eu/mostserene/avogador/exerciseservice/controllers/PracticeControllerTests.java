@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -62,7 +61,7 @@ public class PracticeControllerTests {
     @Nested
     class GetPractice {
         @Test
-        public void notExisting_gets404() throws Exception{
+        public void notExisting_gets404() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.empty());
 
@@ -74,9 +73,8 @@ public class PracticeControllerTests {
         }
 
 
-
         @Test
-        public void fromSuperuser_gets200() throws Exception{
+        public void fromSuperuser_gets200() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
@@ -88,7 +86,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromExternalGet_gets403() throws Exception{
+        public void fromExternalGet_gets403() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
@@ -146,25 +144,7 @@ public class PracticeControllerTests {
                     .andDo(print())
                     .andExpect(status().isOk());
         }
-
-        /*
-        @Test
-        public void fromProfessor_withArchivedTrue_get200() throws Exception{
-            when(courseService.createCourse(any()))
-                    .thenReturn(course);
-
-            mvc.perform(post("/public/courses")
-                            .header("User", professorHeader)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(hackedCourseJSON)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isArchived").value(false));
-        }
-
-         */
-
+        
     }
 
 
@@ -326,11 +306,11 @@ public class PracticeControllerTests {
     @Nested
     class DeletePractice {
         @Test
-        public void notExisting_gets404() throws Exception{
+        public void notExisting_gets404() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.empty());
 
-            when(userCourseService.getUserCourseRole(any(),any()))
+            when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.COLLABORATOR));
 
             mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
@@ -341,11 +321,11 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromSuperuser_gets200() throws Exception{
+        public void fromSuperuser_gets200() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
-            when(userCourseService.getUserCourseRole(any(),any()))
+            when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.EXTERNAL));
 
             mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
@@ -356,7 +336,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromExternalGet_gets403() throws Exception{
+        public void fromExternalGet_gets403() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
