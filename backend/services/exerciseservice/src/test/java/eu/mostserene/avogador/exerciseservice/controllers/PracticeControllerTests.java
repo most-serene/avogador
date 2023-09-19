@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeRepository;
@@ -42,6 +43,7 @@ public class PracticeControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
+    private @MockBean FileSystemService fileSystemService;
 
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
@@ -277,7 +279,7 @@ public class PracticeControllerTests {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
-            when(practiceService.createOrUpdatePractice(any()))
+            when(practiceService.updatePractice(any()))
                     .thenReturn(notVisibilePractice);
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -294,7 +296,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromSuperuser_create200() throws Exception {
+        public void fromSuperuser_update200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
@@ -308,7 +310,7 @@ public class PracticeControllerTests {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
-            when(practiceService.createOrUpdatePractice(any()))
+            when(practiceService.updatePractice(any()))
                     .thenReturn(notVisibilePractice);
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -339,7 +341,7 @@ public class PracticeControllerTests {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
-            when(practiceService.createOrUpdatePractice(any()))
+            when(practiceService.updatePractice(any()))
                     .thenReturn(notVisibilePractice);
 
             when(userCourseService.getUserCourseRole(any(), any()))

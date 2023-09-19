@@ -65,7 +65,7 @@ public class PracticeController {
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            return practiceService.createOrUpdatePractice(practice);
+            return practiceService.createPractice(practice);
         }
         throw new ForbiddenException(user);
     }
@@ -91,7 +91,7 @@ public class PracticeController {
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            return practiceService.createOrUpdatePractice(practice);
+            return practiceService.updatePractice(practice);
         }
         throw new ForbiddenException(user);
     }
