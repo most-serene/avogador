@@ -19,8 +19,8 @@ public class InternalUserCourseController {
     private UserCourseService userCourseService;
 
     @GetMapping("{courseId}/users/{userId}")
-    private UserCourse getUserCourseByIds(@PathVariable UUID courseId, @PathVariable UUID userId) {
-        return userCourseService.getUserCourse(userId, courseId).orElseThrow(NotFoundException::new);
+    private CourseRole getUserCourseByIds(@PathVariable UUID courseId, @PathVariable UUID userId) {
+        return userCourseService.getUserCourse(userId, courseId).orElseThrow(NotFoundException::new).getRole();
     }
 
 }
