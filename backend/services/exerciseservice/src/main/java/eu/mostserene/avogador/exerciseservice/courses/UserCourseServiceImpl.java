@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public class UserCourseServiceImpl implements UserCourseService {
     @Override
-    public Optional<UserCourseDto> getUserCourse(UUID courseId, UUID userId) {
-        UserCourseDto userCourse = new RestTemplateBuilder()
+    public Optional<CourseRole> getUserCourse(UUID courseId, UUID userId) {
+        CourseRole courseRole = new RestTemplateBuilder()
                 .build()
-                .getForObject("http://courses/" + courseId + "/users/" + userId, UserCourseDto.class);
+                .getForObject("http://courses/" + courseId + "/users/" + userId, CourseRole.class);
 
-        return userCourse != null ? Optional.of(userCourse) : Optional.empty();
+        return courseRole != null ? Optional.of(courseRole) : Optional.empty();
     }
 }
