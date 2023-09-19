@@ -6,6 +6,7 @@ import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,8 +80,12 @@ public class PracticeController {
      */
     @PutMapping("/{practiceId}")
     private Practice updatePractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId, @RequestBody Practice practice) {
-        var storedPractice = practiceService.getPractice(practiceId);
-        if (storedPractice.isEmpty()) throw new NotFoundException(practiceId.toString());
+        var storedPractice = practiceService.getPractice(practiceId)
+                .orElseThrow(() -> new NotFoundException(practiceId.toString()));
+
+        if (!storedPractice.getId().equals(practice.getId())) {
+            throw new BadRequestException("Id mismatch");
+        }
 
         CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
