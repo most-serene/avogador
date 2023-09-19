@@ -323,5 +323,81 @@ public class PracticeControllerTests {
 
     }
 
-    
+    @Nested
+    class DeletePractice {
+        @Test
+        public void notExisting_gets404() throws Exception{
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.empty());
+
+            when(userCourseService.getUserCourseRole(any(),any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void fromSuperuser_gets200() throws Exception{
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(userCourseService.getUserCourseRole(any(),any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", superUserHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromExternalGet_gets403() throws Exception{
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromStudent_gets403() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+
+            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_gets202() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000000")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
 }
