@@ -8,6 +8,7 @@ import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,12 @@ public class ExerciseController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        userTrialService.getUserTrial(exercise.getTrial(), user)
+        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
+
+        if (CourseRole.STUDENT.getClearance() > courseRole.getClearance()) {
+            throw new ForbiddenException(user);
+        }
 
         return exercise;
     }
@@ -79,7 +84,33 @@ public class ExerciseController {
      */
     @PutMapping("/{exerciseId}")
     private Exercise updateExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody ExerciseDto exercise) {
-        throw new UnsupportedOperationException();
+        Trial trial = trialService.getTrialById(exercise.getTrialId())
+                .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        Exercise existingExercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(() -> new NotFoundException("Exercise " + exerciseId + " not found"));
+
+        if (!existingExercise.getId().equals(exercise.getId())) {
+            throw new BadRequestException("Exercise Id mismatch");
+        }
+
+        if (!existingExercise.getTrial().getId().equals(exercise.getTrialId())) {
+            throw new BadRequestException("Trial Id mismatch");
+        }
+
+        existingExercise.setName(exercise.getName());
+        existingExercise.setStatement(exercise.getStatement());
+        existingExercise.setIsVisible(exercise.getIsVisible());
+        existingExercise.setTimeLimit(exercise.getTimeLimit());
+
+        return exerciseService.updateExercise(existingExercise);
     }
 
     /**
@@ -89,7 +120,20 @@ public class ExerciseController {
      * @return the deleted exercise
      */
     @DeleteMapping("/{exerciseId}")
-    private Exercise deleteExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        throw new UnsupportedOperationException();
+    private void deleteExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        Trial trial = trialService.getTrialById(exercise.getTrial().getId())
+                .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        exerciseService.deleteExercise(exercise);
     }
 }
