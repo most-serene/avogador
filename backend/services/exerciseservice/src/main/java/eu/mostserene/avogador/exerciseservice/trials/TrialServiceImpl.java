@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-package eu.mostserene.avogador.exerciseservice.trials;public class TrialServiceImpl {
-=======
 package eu.mostserene.avogador.exerciseservice.trials;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,5 +15,4 @@ public class TrialServiceImpl implements TrialService {
     public Optional<Trial> getTrialById(UUID trialId) {
         return repository.findById(trialId);
     }
->>>>>>> Stashed changes
 }
