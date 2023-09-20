@@ -1,7 +1,14 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
+import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
+import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
+import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -11,6 +18,12 @@ import java.util.UUID;
 @Slf4j
 public class ExerciseController {
 
+    @Autowired
+    private ExerciseService exerciseService;
+
+    @Autowired
+    private UserTrialService userTrialService;
+
     /**
      * Returns the exercise given the exercise ID
      * @param user the requesting user
@@ -19,7 +32,13 @@ public class ExerciseController {
      */
     @GetMapping("/{exerciseId}")
     private Exercise getExerciseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        throw new UnsupportedOperationException();
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        userTrialService.getUserTrial(exercise.getTrial(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        return exercise;
     }
 
     /**
