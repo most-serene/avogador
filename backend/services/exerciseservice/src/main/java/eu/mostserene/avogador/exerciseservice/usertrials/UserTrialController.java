@@ -3,7 +3,6 @@ package eu.mostserene.avogador.exerciseservice.usertrials;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
-import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.users.UserService;
@@ -40,7 +39,7 @@ public class UserTrialController {
         if (userRole.getClearance() <= CourseRole.STUDENT.getClearance())
             throw new ForbiddenException(user);
 
-        var userTrials = userTrialService.getUsersFromTrialId(trialId);
+        var userTrials = userTrialService.getUsersFromTrial(trial);
         var users = userService.getUsersFromIdList(userTrials.stream().map(UserTrial::getUserId).toList()).
                 stream().collect(Collectors.toMap(UserDto::getId, u -> u));
 
@@ -55,7 +54,7 @@ public class UserTrialController {
             throw new ForbiddenException(user);
         }
 
-        return userTrialService.getTrialsFromUserId(userId);
+        return userTrialService.getTrialsFromUser(user);
     }
 
 }

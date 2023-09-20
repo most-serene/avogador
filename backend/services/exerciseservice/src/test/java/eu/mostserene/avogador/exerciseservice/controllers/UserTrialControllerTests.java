@@ -3,9 +3,7 @@ package eu.mostserene.avogador.exerciseservice.controllers;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
-import eu.mostserene.avogador.exerciseservice.practices.PracticeController;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
-import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.users.UserService;
@@ -112,7 +110,7 @@ public class UserTrialControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.COLLABORATOR));
-            when(userTrialService.getUsersFromTrialId(any()))
+            when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
             when(userService.getUsersFromIdList(anyList()))
                     .thenReturn(List.of(studentUser));
@@ -129,7 +127,7 @@ public class UserTrialControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.ADMIN));
-            when(userTrialService.getUsersFromTrialId(any()))
+            when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
             when(userService.getUsersFromIdList(anyList()))
                     .thenReturn(List.of(studentUser));
@@ -154,7 +152,7 @@ public class UserTrialControllerTests {
 
         @Test
         public void userIsSuperuser_get200() throws Exception {
-            when(userTrialService.getUsersFromTrialId(any()))
+            when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
 
             mvc.perform(get("/public/trials/users/00000000-0000-0000-0000-000000000042")
@@ -165,7 +163,7 @@ public class UserTrialControllerTests {
 
         @Test
         public void correctId_get200() throws Exception {
-            when(userTrialService.getUsersFromTrialId(any()))
+            when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
 
             mvc.perform(get("/public/trials/users/00000000-0000-0000-0000-000000000001")

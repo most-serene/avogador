@@ -14,7 +14,7 @@ import java.util.UUID;
 public class UserTrialDetailDto {
     private UUID id;
     private UserDto user;
-    private Trial trial;
+    private UUID trialId;
     private Date startTime;
     private Date finishTime;
     private Date deadline;
@@ -24,7 +24,7 @@ public class UserTrialDetailDto {
     public UserTrialDetailDto(UserTrial userTrial, UserDto user) {
         this.id = userTrial.getId();
         this.user = user;
-        this.trial = userTrial.getTrial();
+        this.trialId = userTrial.getTrial().getId();
         this.startTime = userTrial.getStartTime();
         this.finishTime = userTrial.getFinishTime();
         this.deadline = userTrial.getDeadline();
