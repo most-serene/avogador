@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -96,4 +97,9 @@ public class UserTrial {
     public void setHasExtraTime(Boolean hasExtraTime) {
         this.hasExtraTime = hasExtraTime;
     }
+
+    public UserTrialDetailDto getUserTrialDetail(UserDto userDto){
+        return new UserTrialDetailDto(this, userDto);
+    }
+
 }
