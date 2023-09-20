@@ -6,7 +6,6 @@ import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
-import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
@@ -35,7 +34,8 @@ public class ExerciseController {
 
     /**
      * Returns the exercise given the exercise ID
-     * @param user the requesting user
+     *
+     * @param user       the requesting user
      * @param exerciseId the id of the exercise
      * @return the exercise
      */
@@ -51,12 +51,18 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
+        if (CourseRole.STUDENT.getClearance().equals(courseRole.getClearance()) &&
+                !exercise.getIsVisible()) {
+            throw new ForbiddenException(user);
+        }
+
         return exercise;
     }
 
     /**
      * Creates an exercise in a given trial
-     * @param user the requesting user
+     *
+     * @param user     the requesting user
      * @param exercise the DTO of the exercise to create
      * @return the created exercise
      */
@@ -77,9 +83,10 @@ public class ExerciseController {
 
     /**
      * Updates an existing exercise
-     * @param user the requesting user
+     *
+     * @param user       the requesting user
      * @param exerciseId the id of the exercise to update
-     * @param exercise the updated exercise
+     * @param exercise   the updated exercise
      * @return the saved updated exercise
      */
     @PutMapping("/{exerciseId}")
@@ -115,7 +122,8 @@ public class ExerciseController {
 
     /**
      * Deletes an exercise
-     * @param user the requesting exercise
+     *
+     * @param user       the requesting exercise
      * @param exerciseId the id of the exercise
      * @return the deleted exercise
      */
