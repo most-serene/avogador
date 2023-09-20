@@ -1,5 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
+import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
+import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
@@ -23,6 +25,12 @@ public class ExerciseController {
 
     @Autowired
     private UserTrialService userTrialService;
+
+    @Autowired
+    private UserCourseService userCourseService;
+
+    @Autowired
+    private TrialService trialService;
 
     /**
      * Returns the exercise given the exercise ID
@@ -49,7 +57,17 @@ public class ExerciseController {
      */
     @PostMapping("")
     private Exercise createExercise(@RequestHeader(name = "User") UserDto user, @RequestBody ExerciseDto exercise) {
-        throw new UnsupportedOperationException();
+        Trial trial = trialService.getTrialById(exercise.getTrialId())
+                .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        return exerciseService.createExercise(exercise);
     }
 
     /**
