@@ -22,13 +22,10 @@ import java.util.stream.Collectors;
 public class UserTrialController {
     @Autowired
     private UserTrialService userTrialService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private UserCourseService userCourseService;
-
     @Autowired
     private TrialService trialService;
 
@@ -52,9 +49,9 @@ public class UserTrialController {
                 .toList();
     }
 
-    @PutMapping("/users/{userId}")
+    @GetMapping("/users/{userId}")
     private List<UserTrial> getTrialsFromUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
-        if (user.getId() != userId && !user.getIsSuperuser()){
+        if (!user.getId().equals(userId) && !user.getIsSuperuser()){
             throw new ForbiddenException(user);
         }
 
