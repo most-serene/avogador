@@ -6,5 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserTrialService {
-    List<UserTrial> getUsersFromTrialId(UUID trial);
+    List<UserTrial> getUsersFromTrialId(UUID trialId);
+    List<UserTrial> getTrialsFromUserId(UUID userId);
+
 }

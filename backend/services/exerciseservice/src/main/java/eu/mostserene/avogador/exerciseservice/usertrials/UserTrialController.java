@@ -52,4 +52,13 @@ public class UserTrialController {
                 .toList();
     }
 
+    @PutMapping("/users/{userId}")
+    private List<UserTrial> getTrialsFromUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
+        if (user.getId() != userId && !user.getIsSuperuser()){
+            throw new ForbiddenException(user);
+        }
+
+        return userTrialService.getTrialsFromUserId(userId);
+    }
+
 }
