@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.lang.reflect.Field;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -32,8 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ExerciseController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -205,5 +205,276 @@ public class ExerciseControllerTests {
                     .andExpect(status().isOk());
         }
     }
+
+    @Nested
+    class UpdateExercise {
+        @Test
+        public void wrongTrialId_get404() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyCourseRole_get403() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromStudent_get403() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void wrongExerciseId_get404() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void fromCollaboratorAndExerciseIdMismatch_get403() throws Exception {
+            var exerciseWithId = new Exercise(practice, "Exercise1", "Given a print b", 1, true);
+            Field id = exerciseWithId.getClass().getDeclaredField("id");
+            id.setAccessible(true);
+            id.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000002"));
+
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(exerciseWithId));
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        public void fromCollaboratorAndTrialIdMismatch_get403() throws Exception {
+            var trialWithId = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+                    true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            Field tId = trialWithId.getClass().getSuperclass().getDeclaredField("id");
+            tId.setAccessible(true);
+            tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000002"));
+
+            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
+            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            eId.setAccessible(true);
+            eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(trialWithId));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(exerciseWithId));
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        public void fromCollaborator_get200() throws Exception {
+            var trialWithId = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+                    true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            Field tId = trialWithId.getClass().getSuperclass().getDeclaredField("id");
+            tId.setAccessible(true);
+            tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
+            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            eId.setAccessible(true);
+            eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(trialWithId));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(exerciseWithId));
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromAdmin_get200() throws Exception {
+            var trialWithId = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+                    true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            Field tId = trialWithId.getClass().getSuperclass().getDeclaredField("id");
+            tId.setAccessible(true);
+            tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
+            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            eId.setAccessible(true);
+            eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(trialWithId));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.ADMIN));
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(exerciseWithId));
+
+            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class DeleteExercise {
+        @Test
+        public void wrongExerciseId_get404() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyExerciseTrial_get404() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyCourseRole_get403() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn((Optional.empty()));
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsExternal_get403() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn((Optional.of(CourseRole.EXTERNAL)));
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsStudent_get403() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn((Optional.of(CourseRole.STUDENT)));
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsCollaborator_get200() throws Exception{
+            when(exerciseService.getExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn((Optional.of(CourseRole.COLLABORATOR)));
+
+            mvc.perform(delete("/public/exercises/00000000-0000-0000-0000-000000000001")
+                        .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+    }
+
 
 }

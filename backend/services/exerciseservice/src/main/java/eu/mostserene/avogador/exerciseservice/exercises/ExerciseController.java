@@ -125,7 +125,6 @@ public class ExerciseController {
      *
      * @param user       the requesting exercise
      * @param exerciseId the id of the exercise
-     * @return the deleted exercise
      */
     @DeleteMapping("/{exerciseId}")
     private void deleteExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
