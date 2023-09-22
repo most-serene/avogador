@@ -78,7 +78,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        return exerciseService.createExercise(exercise);
+        return exerciseService.createExercise(exercise, trial);
     }
 
     /**

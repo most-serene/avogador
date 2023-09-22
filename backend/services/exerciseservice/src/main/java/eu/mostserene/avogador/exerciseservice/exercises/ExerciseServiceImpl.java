@@ -32,10 +32,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public Exercise createExercise(ExerciseDto exerciseDto) {
-        Trial trial = trialService.getTrialById(exerciseDto.getTrialId())
-                .orElseThrow(() -> new BadRequestException("TrialId not valid"));
-
+    public Exercise createExercise(ExerciseDto exerciseDto, Trial trial) {
         Exercise exercise = new Exercise(trial, exerciseDto.getName(), exerciseDto.getStatement(),
                 exerciseDto.getTimeLimit(), exerciseDto.getIsVisible());
 

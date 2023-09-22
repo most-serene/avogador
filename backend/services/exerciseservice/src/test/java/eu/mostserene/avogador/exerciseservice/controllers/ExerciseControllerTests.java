@@ -195,6 +195,8 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.createExercise(any(), any()))
+                    .thenReturn(visibleExercise);
 
             mvc.perform(post("/public/exercises")
                             .header("User", studentHeader)
@@ -343,6 +345,8 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(CourseRole.COLLABORATOR));
             when(exerciseService.getExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
+            when(exerciseService.updateExercise(any()))
+                    .thenReturn(visibleExercise);
 
             mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
@@ -372,6 +376,8 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(CourseRole.ADMIN));
             when(exerciseService.getExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
+            when(exerciseService.updateExercise(any()))
+                    .thenReturn(visibleExercise);
 
             mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
