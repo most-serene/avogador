@@ -1,4 +1,4 @@
-import { GetCoursesDetailResponse } from "@courses/types";
+import { UserCourseDetail } from "@courses/types";
 import Box from "@mui/material/Box";
 import QRCode from "react-qr-code";
 import { Button, Modal } from "@mui/material";
@@ -17,14 +17,14 @@ const modalStyle = {
 };
 
 interface JoinCodeQRCodeModalProps {
-  course: GetCoursesDetailResponse;
+  course: UserCourseDetail;
   showQrJoinCode: boolean;
   setShowQrJoinCode: (
     value: ((prevState: boolean) => boolean) | boolean,
   ) => void;
 }
 
-const downloadQrCode = (course: GetCoursesDetailResponse) => {
+const downloadQrCode = (course: UserCourseDetail) => {
   const svg = document.getElementById("QRCode") as Node;
   const svgData = new XMLSerializer().serializeToString(svg);
   const canvas = document.createElement("canvas");

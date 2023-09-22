@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useCourseService from "@courses/hooks/useCourseService";
-import { GetCoursesDetailResponse } from "@courses/types";
+import { UserCourseDetail } from "@courses/types";
 import { enqueueSnackbar } from "notistack";
 import Box from "@mui/material/Box";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState";
@@ -22,7 +22,7 @@ const JoinCourse = () => {
   const { getCourseById, joinCourse } = useCourseService();
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const [course, setCourse] = useState<GetCoursesDetailResponse>();
+  const [course, setCourse] = useState<UserCourseDetail>();
   const [error, setError] = useState<boolean>(false);
   const globalErrorSetter = useGlobalErrorSetter();
 

@@ -9,10 +9,10 @@ import {
   GridRowsProp,
   GridToolbar,
 } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Card, Skeleton } from "@mui/material";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
-import { CourseMemberDetail } from "@courses/types.ts";
+import { CourseMemberDetail, UserCourseDetail } from "@courses/types.ts";
 import { useAtom } from "jotai";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { format, parseJSON } from "date-fns";
@@ -20,8 +20,14 @@ import { GetApp, Publish } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
 
+declare global {
+  interface Array<T> {
+    pushIfRole(o: T, role: "ADMIN" | "COLLABORATOR"): T[];
+  }
+}
+
 interface CourseMembersTabProps {
-  courseId: string | undefined;
+  userCourse: UserCourseDetail | undefined;
 }
 
 const columns: GridColDef<CourseMemberDetail>[] = [
@@ -65,22 +71,24 @@ const columns: GridColDef<CourseMemberDetail>[] = [
   },
 ];
 
-export default function CourseMembersTab({ courseId }: CourseMembersTabProps) {
+export default function CourseMembersTab({
+  userCourse,
+}: CourseMembersTabProps) {
   const [colorMode] = useAtom(ColorModeAtom);
   const { getCourseMembers, promoteUser, demoteUser } = useCourseService();
   const [rows, setRows] = useState<GridRowsProp<CourseMemberDetail>>();
 
   useEffect(() => {
-    if (courseId == null) return;
+    if (userCourse == null) return;
 
-    getCourseMembers(courseId)
+    getCourseMembers(userCourse.id)
       .then((data) => {
         setRows(data);
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [getCourseMembers, courseId]);
+  }, [getCourseMembers, userCourse]);
 
   const handlePromote = (member: CourseMemberDetail) => {
     promoteUser(member.courseId, member.user.id)
@@ -126,29 +134,54 @@ export default function CourseMembersTab({ courseId }: CourseMembersTabProps) {
     field: "actions",
     type: "actions",
     width: 10,
-    getActions: (params: GridRowParams<CourseMemberDetail>) => [
-      <GridActionsCellItem
-        key={"promote"}
-        icon={<Publish />}
-        label="Promote"
-        onClick={() => {
-          handlePromote(params.row);
-        }}
-        disabled={params.row.role !== "STUDENT"}
-        showInMenu
-      />,
-      <GridActionsCellItem
-        key="demote"
-        icon={<GetApp />}
-        label="Demote"
-        onClick={() => {
-          handleDemote(params.row);
-        }}
-        disabled={params.row.role !== "COLLABORATOR"}
-        showInMenu
-      />,
-    ],
+    getActions: (params: GridRowParams<CourseMemberDetail>) => {
+      const actions: ReactElement[] = [];
+      actions.pushIfRole = function (element, role) {
+        if (
+          userCourse?.role === "ADMIN" ||
+          (role === "COLLABORATOR" && userCourse?.role === "COLLABORATOR")
+        ) {
+          this.push(element);
+        }
+        return this;
+      };
+
+      actions.pushIfRole(getPromoteActionCellItem(params), "ADMIN");
+      actions.pushIfRole(getDemoteActionCellItem(params), "ADMIN");
+
+      return actions;
+    },
   };
+
+  const getPromoteActionCellItem = (
+    params: GridRowParams<CourseMemberDetail>,
+  ) => (
+    <GridActionsCellItem
+      key={"promote"}
+      icon={<Publish />}
+      label="Promote"
+      onClick={() => {
+        handlePromote(params.row);
+      }}
+      disabled={params.row.role !== "STUDENT"}
+      showInMenu
+    />
+  );
+
+  const getDemoteActionCellItem = (
+    params: GridRowParams<CourseMemberDetail>,
+  ) => (
+    <GridActionsCellItem
+      key="demote"
+      icon={<GetApp />}
+      label="Demote"
+      onClick={() => {
+        handleDemote(params.row);
+      }}
+      disabled={params.row.role !== "COLLABORATOR"}
+      showInMenu
+    />
+  );
 
   return (
     <Card
@@ -172,6 +205,10 @@ export default function CourseMembersTab({ courseId }: CourseMembersTabProps) {
           disableRowSelectionOnClick
           density="compact"
           autoPageSize
+          columnVisibilityModel={{
+            actions:
+              userCourse?.role !== "STUDENT" && userCourse?.role !== "EXTERNAL",
+          }}
         />
       ) : (
         <Skeleton
