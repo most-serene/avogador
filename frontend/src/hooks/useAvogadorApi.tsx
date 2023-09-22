@@ -48,8 +48,7 @@ function isIsoDateString(value: any): boolean {
 
 /* eslint-disable */
 const handleDates = (body: any) => {
-  if (body === null)
-    return null
+  if (body == null) return body;
   for (const key of Object.keys(body)) {
     const value = body[key];
     if (!isNaN(Date.parse(value))) {
