@@ -6,12 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserTrialServiceImpl implements UserTrialService{
+public class UserTrialServiceImpl implements UserTrialService {
     @Autowired
     private UserTrialRepository repository;
+
+    @Override
+    public Optional<UserTrial> getUserTrial(Trial trial, UserDto user) {
+        return repository.findByTrialAndUserId(trial, user.getId());
+    }
 
     @Override
     public List<UserTrial> getUsersFromTrial(Trial trial) {
