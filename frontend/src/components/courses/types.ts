@@ -6,18 +6,18 @@ interface Course {
 }
 
 interface CourseDetail extends Course {
-  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+  role: "STUDENT" | "COLLABORATOR" | "ADMIN" | "EXTERNAL";
 }
 
 interface UserCourse {
   course: Course;
   id: string;
   joinDate: Date;
-  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+  role: "STUDENT" | "COLLABORATOR" | "ADMIN" | "EXTERNAL";
   user: string;
 }
 
-interface GetCoursesDetailResponse extends CourseDetail {
+interface UserCourseDetail extends CourseDetail {
   joinCode?: string;
 }
 
@@ -32,7 +32,7 @@ interface CourseMemberDetail {
     isSuperuser: boolean;
   };
   courseId: string;
-  role: "STUDENT" | "COLLABORATOR" | "ADMIN";
+  role: "STUDENT" | "COLLABORATOR" | "ADMIN" | "EXTERNAL";
   joinDate: string;
 }
 
@@ -40,6 +40,6 @@ export type {
   Course,
   CourseDetail,
   UserCourse,
-  GetCoursesDetailResponse,
+  UserCourseDetail,
   CourseMemberDetail,
 };

@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { GetCoursesDetailResponse } from "@courses/types.ts";
+import { UserCourseDetail } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
@@ -27,6 +27,8 @@ export default function CourseDetailScreen() {
   const courseTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [course, setCourse] = useState<UserCourseDetail>();
+  const [openTab, setOpenTab] = useState(0);
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
@@ -41,9 +43,6 @@ export default function CourseDetailScreen() {
     });
     return paramTab;
   }, [searchParams, setSearchParams]);
-
-  const [course, setCourse] = useState<GetCoursesDetailResponse>();
-  const [openTab, setOpenTab] = useState(0);
 
   useEffect(() => {
     if (courseId === undefined) return;
@@ -117,7 +116,7 @@ export default function CourseDetailScreen() {
           index={2}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <CourseMembersTab courseId={courseId} />
+          <CourseMembersTab userCourse={course} />
         </TabPanel>
         <TabPanel
           value={openTab}

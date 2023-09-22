@@ -1,4 +1,4 @@
-import { GetCoursesDetailResponse } from "@courses/types";
+import { UserCourseDetail } from "@courses/types";
 import Box from "@mui/material/Box";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
@@ -9,9 +9,9 @@ import JoinCourseQRCodeModal from "@courses/courseDetail/CourseOverviewTab/JoinC
 import InfoPoint from "@structure/InfoPoint/InfoPoint";
 
 interface JoinCourseLinkVisualizerProps {
-  course: GetCoursesDetailResponse | undefined;
+  course: UserCourseDetail | undefined;
 }
-const copyJoinLink = (course: GetCoursesDetailResponse) => {
+const copyJoinLink = (course: UserCourseDetail) => {
   navigator.clipboard
     .writeText(getJoinLink(course))
     .then(() =>

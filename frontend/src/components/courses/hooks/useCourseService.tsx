@@ -3,7 +3,7 @@ import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import {
   Course,
   CourseMemberDetail,
-  GetCoursesDetailResponse,
+  UserCourseDetail,
   UserCourse,
 } from "@courses/types";
 import { AxiosError } from "axios";
@@ -11,10 +11,10 @@ import { AxiosError } from "axios";
 const useCourseService = () => {
   const avogadorApi = useAvogadorApi();
 
-  const getCourseById: (courseId: string) => Promise<GetCoursesDetailResponse> =
+  const getCourseById: (courseId: string) => Promise<UserCourseDetail> =
     useCallback(
       async (courseId: string) => {
-        const { data: course }: { data: GetCoursesDetailResponse } =
+        const { data: course }: { data: UserCourseDetail } =
           await avogadorApi.get(`/courses/${courseId}`);
         return course;
       },

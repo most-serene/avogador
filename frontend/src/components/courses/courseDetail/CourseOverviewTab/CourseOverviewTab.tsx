@@ -1,9 +1,9 @@
-import { GetCoursesDetailResponse } from "@courses/types";
+import { UserCourseDetail } from "@courses/types";
 import Box from "@mui/material/Box";
 import JoinCourseLinkVisualizer from "@courses/courseDetail/CourseOverviewTab/JoinCourseLinkVisualizer";
 
 interface CourseOverviewTabProps {
-  course: GetCoursesDetailResponse | undefined;
+  course: UserCourseDetail | undefined;
 }
 
 const CourseOverviewTab = ({ course }: CourseOverviewTabProps) => {
