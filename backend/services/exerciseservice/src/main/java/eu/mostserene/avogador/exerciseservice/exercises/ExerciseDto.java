@@ -18,6 +18,9 @@ public class ExerciseDto {
 
     private Boolean isVisible;
 
+    public ExerciseDto() {
+    }
+
     public ExerciseDto(UUID id, UUID trialId, String name, String statement, Integer timeLimit, Boolean isVisible) {
         this.id = id;
         this.trialId = trialId;
