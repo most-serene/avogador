@@ -1,7 +1,11 @@
 package eu.mostserene.avogador.exerciseservice.filesystem;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -11,7 +15,13 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void createTrial(Trial trial) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.trial.create", mapper.writeValueAsString(new TrialDTO(trial.getCourseId(), trial.getId())));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -27,5 +37,19 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public void deleteExercise(Exercise exercise) {
         throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    @Data
+    public static class TrialDTO {
+        private UUID courseId;
+        private UUID trialId;
+
+        public TrialDTO() {
+        }
+
+        public TrialDTO(UUID courseId, UUID trialId) {
+            this.courseId = courseId;
+            this.trialId = trialId;
+        }
     }
 }
