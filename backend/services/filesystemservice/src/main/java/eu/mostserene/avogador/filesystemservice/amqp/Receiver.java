@@ -34,13 +34,12 @@ public class Receiver implements MessageListener {
     }
 
     private void trialCreationHandler(Message message) {
-        TrialDTO trialDTO = null;
         try {
-            trialDTO = mapper.readValue(message.getBody(), TrialDTO.class);
+            TrialDTO trialDTO = mapper.readValue(message.getBody(), TrialDTO.class);
+            TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).create();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).create();
     }
 
     @Override
