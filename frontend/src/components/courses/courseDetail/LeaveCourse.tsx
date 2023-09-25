@@ -15,7 +15,7 @@ const LeaveCourse = ({ course }: LeaveCourseProps) => {
   const navigate = useNavigate();
 
   return (
-    <Box>
+    <Box style={{ position: "absolute", right: "1rem" }}>
       <ButtonWithConfirmation
         onConfirm={() => {
           leaveCourse(course)
@@ -32,7 +32,7 @@ const LeaveCourse = ({ course }: LeaveCourseProps) => {
         confirmColor={"error"}
         variant="outlined"
         confirmText="Leave"
-        description={`You are leaving ${course.name}, this operation cannot be reverted. If you will want to re-join this course you will require the join link`}
+        description={`You are leaving ${course.name}, this operation cannot be reverted. If you will want to re-join this course you will need the join link.`}
       >
         <ExitToAppIcon />
       </ButtonWithConfirmation>
