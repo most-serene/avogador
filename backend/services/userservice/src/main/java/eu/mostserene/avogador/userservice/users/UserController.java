@@ -160,7 +160,7 @@ public class UserController {
 
     private ResponseCookie buildDevelopJWT(User user) {
         return ResponseCookie.from("develop-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(8)))
+                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
                 .httpOnly(true)
                 .path("/")
                 .domain("localhost")
@@ -172,7 +172,7 @@ public class UserController {
 
     private ResponseCookie buildTestingJWT(User user) {
         return ResponseCookie.from("testing-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(8)))
+                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
                 .httpOnly(true)
                 .path("/")
                 .secure(true)
@@ -183,7 +183,7 @@ public class UserController {
 
     private ResponseCookie buildStagingJWT(User user) {
         return ResponseCookie.from("staging-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(8)))
+                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
                 .httpOnly(true)
                 .path("/")
                 .domain("api.avogador.staging.mostserene.eu")
@@ -195,7 +195,7 @@ public class UserController {
 
     private ResponseCookie buildProductionJWT(User user) {
         return ResponseCookie.from("__Secure-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(8)))
+                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
                 .httpOnly(true)
                 .path("/")
                 // .domain("api.avogador.mostserene.eu")

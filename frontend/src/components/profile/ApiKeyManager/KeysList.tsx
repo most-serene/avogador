@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardContent,
   Grid,
@@ -14,6 +13,7 @@ import useApiKeyService from "@profile/ApiKeyManager/hooks/useApiKeyService";
 import { format } from "date-fns";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useCallback } from "react";
+import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 
 const KeysList = ({
   user,
@@ -63,14 +63,17 @@ const KeysList = ({
 
                 <Grid item xs={2} display={"flex"} alignContent={"center"}>
                   <Tooltip title="Delete key">
-                    <Button
+                    <ButtonWithConfirmation
                       color="error"
-                      onClick={() => {
+                      confirmText="Delete"
+                      confirmColor="error"
+                      description="If you delete this key, you won't be able to use it anymore"
+                      onConfirm={() => {
                         deleteKey(user, k);
                       }}
                     >
                       <DeleteForeverIcon />
-                    </Button>
+                    </ButtonWithConfirmation>
                   </Tooltip>
                 </Grid>
               </Grid>
