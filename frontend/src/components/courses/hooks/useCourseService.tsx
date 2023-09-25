@@ -7,9 +7,12 @@ import {
   UserCourse,
 } from "@courses/types";
 import { AxiosError } from "axios";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom";
 
 const useCourseService = () => {
   const avogadorApi = useAvogadorApi();
+  const [user] = useAtom(userAtom);
 
   const getCourseById: (courseId: string) => Promise<UserCourseDetail> =
     useCallback(
@@ -98,6 +101,16 @@ const useCourseService = () => {
       [avogadorApi],
     );
 
+  const leaveCourse: (course: Course) => Promise<void> = useCallback(
+    async (course: Course) => {
+      if (user == null) {
+        throw new Error("user not defined");
+      }
+      return avogadorApi.delete(`courses/${course.id}/users/${user.id}`);
+    },
+    [avogadorApi, user],
+  );
+
   return {
     getCourseById,
     joinCourse,
@@ -106,6 +119,7 @@ const useCourseService = () => {
     demoteUser,
     getUserCourses,
     createCourse,
+    leaveCourse,
   };
 };
 
