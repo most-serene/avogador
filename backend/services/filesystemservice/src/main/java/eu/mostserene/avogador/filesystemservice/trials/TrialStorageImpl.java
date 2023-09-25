@@ -43,7 +43,6 @@ public class TrialStorageImpl implements TrialStorage {
     @Override
     public void create() {
         File trialFolder = new File(getBaseDirectory() + "/" + getTrialId().toString());
-        log.info(LoggerColors.cyan(trialFolder.toString()));
         if (trialFolder.mkdirs()) {
             log.info(LoggerColors.success("Trial " + getTrialId() + ": folder created"));
         } else {
