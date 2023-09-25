@@ -18,7 +18,7 @@ public class FileSystemServiceImpl implements FileSystemService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             (new Sender())
-                    .send("filesystem", "fs.trial.create", mapper.writeValueAsString(new TrialDTO(trial.getCourseId(), trial.getId())));
+                    .send("filesystem", "fs.trial.create", mapper.writeValueAsString(new TrialStorageDTO(trial.getCourseId(), trial.getId())));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -40,14 +40,14 @@ public class FileSystemServiceImpl implements FileSystemService {
     }
 
     @Data
-    public static class TrialDTO {
+    private static class TrialStorageDTO {
         private UUID courseId;
         private UUID trialId;
 
-        public TrialDTO() {
+        public TrialStorageDTO() {
         }
 
-        public TrialDTO(UUID courseId, UUID trialId) {
+        public TrialStorageDTO(UUID courseId, UUID trialId) {
             this.courseId = courseId;
             this.trialId = trialId;
         }
