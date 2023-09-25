@@ -98,7 +98,11 @@ export default function CourseDetailScreen() {
               variant="h3"
               align="center"
             >
-              {course ? `${course.name} (${course.year})` : <Skeleton />}
+              {course ? (
+                `${course.name} (${course.year})`
+              ) : (
+                <Skeleton width={"50rem"} />
+              )}
             </Typography>
           </Box>
           {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
