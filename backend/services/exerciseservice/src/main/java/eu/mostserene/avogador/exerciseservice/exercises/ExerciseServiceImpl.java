@@ -8,6 +8,7 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,5 +51,12 @@ public class ExerciseServiceImpl implements ExerciseService {
     public void deleteExercise(Exercise exercise) {
         exerciseRepository.delete(exercise);
         fileSystemService.deleteExercise(exercise);
+    }
+
+    @Override
+    public List<Exercise> getExercisesFromTrial(Trial trial, Boolean all) {
+        if (!all)
+            return exerciseRepository.findByTrial_Id(trial.getId());
+        return exerciseRepository.findByTrial_IdAndIsVisibleTrue(trial.getId());
     }
 }

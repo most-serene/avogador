@@ -26,10 +26,12 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -479,6 +481,87 @@ public class ExerciseControllerTests {
                     )
                     .andDo(print())
                     .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class GetExercisesFromTrial {
+        @Test
+        public void wrongId_get404() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/exercises/trials/00000000-0000-0000-0000-000000000001")
+                    .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyRole_get403() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/exercises/trials/00000000-0000-0000-0000-000000000001")
+                    .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsExternal_get403() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+
+            mvc.perform(get("/public/exercises/trials/00000000-0000-0000-0000-000000000001")
+                    .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsStudent_get200() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(exerciseService.getExercisesFromTrial(any(), eq(false)))
+                    .thenReturn(List.of(visibleExercise));
+            when(exerciseService.getExercisesFromTrial(any(), eq(true)))
+                    .thenReturn(List.of(visibleExercise, hiddenExercise));
+
+            mvc.perform(get("/public/exercises/trials/00000000-0000-0000-0000-000000000001")
+                    .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)));
+        }
+
+        @Test
+        public void userIsCollaborator_get200() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercisesFromTrial(any(), eq(false)))
+                    .thenReturn(List.of(visibleExercise));
+            when(exerciseService.getExercisesFromTrial(any(), eq(true)))
+                    .thenReturn(List.of(visibleExercise, hiddenExercise));
+
+            mvc.perform(get("/public/exercises/trials/00000000-0000-0000-0000-000000000001")
+                    .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));
         }
     }
 
