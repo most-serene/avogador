@@ -19,6 +19,7 @@ import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSet
 import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { useAtom } from "jotai";
+import LeaveCourse from "@courses/courseDetail/LeaveCourse";
 
 const tabs = ["Overview", "Tests", "Members", "Settings"];
 
@@ -90,14 +91,23 @@ export default function CourseDetailScreen() {
         ))}
       </Tabs>
       <Container maxWidth={false}>
-        <Typography
-          ref={courseTitleRef}
-          id="courseTitle"
-          variant="h3"
-          align="center"
-        >
-          {course ? `${course.name} (${course.year})` : <Skeleton />}
-        </Typography>
+        <Box display={"flex"} justifyContent={"center"}>
+          <Box>
+            <Typography
+              ref={courseTitleRef}
+              id="courseTitle"
+              variant="h3"
+              align="center"
+            >
+              {course ? (
+                `${course.name} (${course.year})`
+              ) : (
+                <Skeleton width={"50rem"} />
+              )}
+            </Typography>
+          </Box>
+          {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
+        </Box>
         <TabPanel
           value={openTab}
           index={0}

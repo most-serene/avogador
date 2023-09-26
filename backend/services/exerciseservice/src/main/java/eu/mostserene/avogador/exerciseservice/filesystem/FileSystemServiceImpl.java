@@ -31,7 +31,15 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void createExercise(Exercise exercise) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.exercise.create",
+                            mapper.writeValueAsString(new ExerciseStorageDTO(
+                                    exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId())));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -50,6 +58,23 @@ public class FileSystemServiceImpl implements FileSystemService {
         public TrialStorageDTO(UUID courseId, UUID trialId) {
             this.courseId = courseId;
             this.trialId = trialId;
+        }
+    }
+
+    @Data
+    private static class ExerciseStorageDTO {
+        private UUID courseId;
+        private UUID trialId;
+
+        private UUID exerciseId;
+
+        public ExerciseStorageDTO() {
+        }
+
+        public ExerciseStorageDTO(UUID courseId, UUID trialId, UUID exerciseId) {
+            this.courseId = courseId;
+            this.trialId = trialId;
+            this.exerciseId = exerciseId;
         }
     }
 }

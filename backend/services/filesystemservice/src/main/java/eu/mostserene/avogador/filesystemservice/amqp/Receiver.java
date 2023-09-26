@@ -3,6 +3,8 @@ package eu.mostserene.avogador.filesystemservice.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.filesystemservice.courses.CourseStorageImpl;
+import eu.mostserene.avogador.filesystemservice.exercises.ExerciseDTO;
+import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.trials.TrialDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialStorageImpl;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
@@ -24,6 +26,7 @@ public class Receiver implements MessageListener {
             case "fs.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
             case "fs.course.create" -> courseCreationHandler(message);
             case "fs.trial.create" -> trialCreationHandler(message);
+            case "fs.exercise.create" -> exerciseCreationHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
     }
@@ -37,6 +40,15 @@ public class Receiver implements MessageListener {
         try {
             TrialDTO trialDTO = mapper.readValue(message.getBody(), TrialDTO.class);
             TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).create();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void exerciseCreationHandler(Message message) {
+        try {
+            ExerciseDTO exerciseDTO = mapper.readValue(message.getBody(), ExerciseDTO.class);
+            ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).create();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

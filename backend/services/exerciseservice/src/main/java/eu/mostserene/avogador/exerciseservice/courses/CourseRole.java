@@ -15,4 +15,8 @@ public enum CourseRole {
     public Integer getClearance(){
         return this.clearance;
     }
+
+    public boolean canSeeHiddenExercises() {
+        return this.clearance >= COLLABORATOR.getClearance();
+    }
 }

@@ -91,4 +91,8 @@ public class Exercise {
     public void setIsVisible(Boolean visible) {
         isVisible = visible;
     }
+
+    public ExerciseDto toDto(){
+        return new ExerciseDto(id, trial.getId(), name, statement, timeLimit, isVisible);
+    }
 }
