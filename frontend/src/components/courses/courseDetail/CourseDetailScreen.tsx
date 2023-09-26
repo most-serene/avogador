@@ -67,6 +67,10 @@ export default function CourseDetailScreen() {
           );
         }
       });
+
+    return () => {
+      setCourse(undefined);
+    };
   }, [getCourseById, courseId, globalErrorSetter, getInitialTab, setCourse]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
