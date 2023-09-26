@@ -12,6 +12,7 @@ import useCourseService from "@courses/hooks/useCourseService";
 import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
+import { UserCourseDetail } from "@courses/types";
 
 const CourseSettingsTab = () => {
   const { updateCourse } = useCourseService();
@@ -53,8 +54,10 @@ const CourseSettingsTab = () => {
                   isArchived: course.isArchived,
                 })
                   .then((c) => {
-                    setCourse((old) => {
-                      return old;
+                    setCourse((old: UserCourseDetail | undefined) => {
+                      if (old === undefined) throw new Error("Illegal state");
+                      const updated: UserCourseDetail = { ...old, ...c };
+                      return updated;
                     });
                     enqueueSnackbar(`Course ${c.name} updated successfully`, {
                       variant: "success",
