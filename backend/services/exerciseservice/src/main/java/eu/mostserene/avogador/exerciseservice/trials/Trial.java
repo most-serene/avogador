@@ -9,7 +9,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "Trials")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Trial {
+public abstract class Trial {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -47,6 +47,8 @@ public class Trial {
         this(courseId, name, isVisible, isPublic, language);
         this.startTimestamp = startTimestamp;
     }
+
+    public abstract TrialType getTrialType();
 
     public UUID getId() {
         return id;
