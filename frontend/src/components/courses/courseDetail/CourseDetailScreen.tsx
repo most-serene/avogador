@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { UserCourseDetail } from "@courses/types.ts";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
@@ -18,6 +17,8 @@ import { ResourceNotFoundError } from "@components/error/types.ts";
 import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab";
 import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSettingsTab";
 import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab";
+import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
+import { useAtom } from "jotai";
 import LeaveCourse from "@courses/courseDetail/LeaveCourse";
 
 const tabs = ["Overview", "Tests", "Members", "Settings"];
@@ -28,7 +29,7 @@ export default function CourseDetailScreen() {
   const courseTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [course, setCourse] = useState<UserCourseDetail>();
+  const [course, setCourse] = useAtom(courseDetailAtom);
   const [openTab, setOpenTab] = useState(0);
 
   const getInitialTab = useCallback(() => {
@@ -66,7 +67,7 @@ export default function CourseDetailScreen() {
           );
         }
       });
-  }, [getCourseById, courseId, globalErrorSetter, getInitialTab]);
+  }, [getCourseById, courseId, globalErrorSetter, getInitialTab, setCourse]);
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
