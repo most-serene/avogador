@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -143,4 +144,21 @@ public class ExerciseController {
 
         exerciseService.deleteExercise(exercise);
     }
+
+    @GetMapping("/trials/{trialId}")
+    private List<ExerciseDto> getExercisesFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
+        var trial = trialService.getTrialById(trialId)
+                .orElseThrow(() -> new NotFoundException(trialId.toString()));
+
+        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        return exerciseService.getExercisesFromTrial(trial, courseRole.canSeeHiddenExercises())
+                .stream().map(Exercise::toDto).toList();
+    }
+
 }
