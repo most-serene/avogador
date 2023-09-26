@@ -19,6 +19,7 @@ import userAtom from "@components/authentication/userAtom.ts";
 import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.tsx";
 import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
+import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
 
 const NotFound = () => {
   return (
@@ -70,58 +71,60 @@ function App() {
           <Navbar ref={navbarRef} />
           <ErrorHandlerWrapper>
             <AuthWrapper>
-              <Box
-                id="fullScreenWrapper"
-                height={`calc(100vh - ${occupiedHeight}px)`}
-              >
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <Container maxWidth={false} sx={{ height: "100%" }}>
-                        <HomeScreen />
-                      </Container>
-                    }
-                  />
-                  <Route
-                    path="/status"
-                    element={
-                      <Container>
-                        <StatusPage />
-                      </Container>
-                    }
-                  />
-                  <Route path="courses">
+              <MobileWrapper>
+                <Box
+                  id="fullScreenWrapper"
+                  height={`calc(100vh - ${occupiedHeight}px)`}
+                >
+                  <Routes>
                     <Route
-                      path={""}
+                      path="/"
                       element={
-                        <Container maxWidth={"xl"}>
-                          <CoursesScreen />
+                        <Container maxWidth={false} sx={{ height: "100%" }}>
+                          <HomeScreen />
                         </Container>
                       }
                     />
                     <Route
-                      path={"new"}
+                      path="/status"
                       element={
-                        <Container maxWidth={"xl"}>
-                          <CourseCreationScreen />
+                        <Container>
+                          <StatusPage />
                         </Container>
                       }
                     />
-                    <Route
-                      path={":courseId"}
-                      element={<CourseDetailScreen />}
-                    />
-                    <Route
-                      path={":courseId/join"}
-                      element={<JoinCourseScreen />}
-                    />
-                  </Route>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/profile" element={<ProfileScreen />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Box>
+                    <Route path="courses">
+                      <Route
+                        path={""}
+                        element={
+                          <Container maxWidth={"xl"}>
+                            <CoursesScreen />
+                          </Container>
+                        }
+                      />
+                      <Route
+                        path={"new"}
+                        element={
+                          <Container maxWidth={"xl"}>
+                            <CourseCreationScreen />
+                          </Container>
+                        }
+                      />
+                      <Route
+                        path={":courseId"}
+                        element={<CourseDetailScreen />}
+                      />
+                      <Route
+                        path={":courseId/join"}
+                        element={<JoinCourseScreen />}
+                      />
+                    </Route>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/profile" element={<ProfileScreen />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Box>
+              </MobileWrapper>
             </AuthWrapper>
           </ErrorHandlerWrapper>
           <Footer ref={footerRef} />
