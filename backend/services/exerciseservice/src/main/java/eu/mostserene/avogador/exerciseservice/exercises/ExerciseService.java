@@ -11,5 +11,5 @@ public interface ExerciseService {
     Exercise createExercise(ExerciseDto exerciseDto, Trial trial);
     Exercise updateExercise(Exercise exercise);
     void deleteExercise(Exercise exercise);
-    List<Exercise> getExercisesFromTrial(Trial trial, Boolean all);
+    List<Exercise> getExercisesFromTrial(Trial trial, Boolean includeHidden);
 }

@@ -157,16 +157,8 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        List<Exercise> res;
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
-            res = exerciseService.getExercisesFromTrial(trial, false);
-        }
-        else {
-            res = exerciseService.getExercisesFromTrial(trial, true);
-        }
-
-        return res.stream().map(Exercise::toDto).toList();
+        return exerciseService.getExercisesFromTrial(trial, courseRole.canSeeHiddenExercises())
+                .stream().map(Exercise::toDto).toList();
     }
 
 }
