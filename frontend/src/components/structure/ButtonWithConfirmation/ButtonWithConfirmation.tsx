@@ -15,6 +15,7 @@ interface ButtonWithConfirmationProps {
   confirmText?: string;
   title?: string;
   description?: string;
+  disabled?: boolean;
   onConfirm: (event: SyntheticEvent) => void;
   children: ReactNode;
 }
@@ -34,6 +35,7 @@ const ButtonWithConfirmation = ({
   confirmText = "Confirm",
   title = "Are you sure?",
   description,
+  disabled = false,
   onConfirm,
   children,
 }: ButtonWithConfirmationProps) => {
@@ -49,7 +51,12 @@ const ButtonWithConfirmation = ({
 
   return (
     <>
-      <Button color={color} variant={variant} onClick={handleOpen}>
+      <Button
+        color={color}
+        disabled={disabled}
+        variant={variant}
+        onClick={handleOpen}
+      >
         {children}
       </Button>
       {isModalOpen && (
@@ -70,7 +77,10 @@ const ButtonWithConfirmation = ({
               <Button onClick={handleClose}>Cancel</Button>
 
               <Button
-                onClick={onConfirm}
+                onClick={(event) => {
+                  onConfirm(event);
+                  handleClose();
+                }}
                 color={confirmColor}
                 variant="contained"
               >
