@@ -5,6 +5,7 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { UserCourseDetail } from "@courses/types.ts";
 import { Exam, isExam, isPractice, Practice, Trial } from "@trials/types.ts";
 import { addMinutes } from "date-fns";
+import { enqueueSnackbar } from "notistack";
 
 interface CourseTrialsTabProps {
   userCourse: UserCourseDetail | undefined;
@@ -50,8 +51,8 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
         setTrials(trials);
         setIsLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((err: Error) => {
+        enqueueSnackbar(err.name, { variant: "error" });
       });
   }, [getTrialsByCourseId, userCourse]);
 

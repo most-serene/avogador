@@ -22,7 +22,7 @@ const CreateCourseButton = () => {
         <CardActionArea
           sx={{ height: "100%" }}
           onClick={() => {
-            navigate("new");
+            navigate("/courses/new");
           }}
         >
           <Box

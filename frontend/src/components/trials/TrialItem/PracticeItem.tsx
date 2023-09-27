@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { format, parseJSON } from "date-fns";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 interface PracticeItemProps {
@@ -47,11 +47,10 @@ const PracticeItem = ({ practice }: PracticeItemProps) => {
             {practice.name}
           </Typography>
           <Typography variant="body1">
-            Starts on:{" "}
-            {format(parseJSON(practice.startTimestamp), "yyyy/MM/dd HH:mm")}
+            Starts on: {format(practice.startTimestamp, "yyyy/MM/dd HH:mm")}
           </Typography>
           <Typography variant="body1">
-            Deadline: {format(parseJSON(practice.deadline), "yyyy/MM/dd HH:mm")}
+            Deadline: {format(practice.deadline, "yyyy/MM/dd HH:mm")}
           </Typography>
         </CardContent>
       </CardActionArea>

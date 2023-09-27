@@ -15,7 +15,7 @@ import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { CourseMemberDetail, UserCourseDetail } from "@courses/types.ts";
 import { useAtom } from "jotai";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
-import { format, parseJSON } from "date-fns";
+import { format } from "date-fns";
 import { GetApp, Publish } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
@@ -65,8 +65,7 @@ const columns: GridColDef<CourseMemberDetail>[] = [
   {
     field: "joinDate",
     headerName: "Joined on",
-    valueGetter: (params) =>
-      format(parseJSON(params.row.joinDate), "yyyy/MM/dd HH:mm"),
+    valueGetter: (params) => format(params.row.joinDate, "yyyy/MM/dd HH:mm"),
     flex: 1,
   },
 ];
@@ -85,8 +84,8 @@ export default function CourseMembersTab({
       .then((data) => {
         setRows(data);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((err: Error) => {
+        enqueueSnackbar(err.name, { variant: "error" });
       });
   }, [getCourseMembers, userCourse]);
 

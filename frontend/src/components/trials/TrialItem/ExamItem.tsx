@@ -1,6 +1,6 @@
 import { Exam } from "@trials/types.ts";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
-import { format, parseJSON } from "date-fns";
+import { format } from "date-fns";
 
 interface ExamItemProps {
   exam: Exam;
@@ -15,8 +15,7 @@ const ExamItem = ({ exam }: ExamItemProps) => {
             {exam.name}
           </Typography>
           <Typography variant="body1">
-            Starts on:{" "}
-            {format(parseJSON(exam.startTimestamp), "yyyy/MM/dd HH:mm")}
+            Starts on: {format(exam.startTimestamp, "yyyy/MM/dd HH:mm")}
           </Typography>
           <Typography variant="body1">
             Duration: {exam.duration} mins
