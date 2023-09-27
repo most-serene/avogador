@@ -6,10 +6,9 @@ import userAtom from "@authentication/userAtom.ts";
 import { Course, UserCourse } from "@courses/types.ts";
 import CourseItem from "@courses/CourseItem.tsx";
 import CourseItemSkeleton from "@courses/CourseItemSkeleton.tsx";
-import { Card, CardActionArea, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import { Add } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import CreateCourseButton from "@courses/coursesPage/CreateCourseButton.tsx";
 
 const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
   if (courses === undefined) {
@@ -47,40 +46,10 @@ const EmptyCoursesPage = () => {
   );
 };
 
-const NewCourseButton = ({ onClick: handleClick }: { onClick: () => void }) => {
-  return (
-    <Grid item xs={6}>
-      <Card
-        sx={{
-          height: "100%",
-          border: 2,
-          borderColor: "primary.main",
-          borderStyle: "dashed",
-          minHeight: "5rem",
-        }}
-        elevation={0}
-      >
-        <CardActionArea sx={{ height: "100%" }} onClick={handleClick}>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100%"
-          >
-            <Add sx={{ mr: 2 }} />
-            <Typography variant="h5"> Create new course </Typography>
-          </Box>
-        </CardActionArea>
-      </Card>
-    </Grid>
-  );
-};
-
 export default function CoursesScreen() {
   const { getUserCourses } = useCourseService();
   const [courses, setCourses] = useState<Course[]>();
   const [user] = useAtom(userAtom);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
@@ -102,13 +71,7 @@ export default function CoursesScreen() {
 
   return (
     <Grid container spacing={2} sx={{ pt: "2rem" }}>
-      {user && (user.isProfessor || user.isSuperuser) && (
-        <NewCourseButton
-          onClick={() => {
-            navigate("new");
-          }}
-        />
-      )}
+      {user && (user.isProfessor || user.isSuperuser) && <CreateCourseButton />}
       <CoursesGridContent courses={courses} />
     </Grid>
   );
