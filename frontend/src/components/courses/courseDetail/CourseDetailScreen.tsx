@@ -124,7 +124,7 @@ export default function CourseDetailScreen() {
           index={1}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <CourseTrialsTab />
+          <CourseTrialsTab userCourse={course} />
         </TabPanel>
         <TabPanel
           value={openTab}

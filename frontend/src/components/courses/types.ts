@@ -33,7 +33,7 @@ interface CourseMemberDetail {
   };
   courseId: string;
   role: "STUDENT" | "COLLABORATOR" | "ADMIN" | "EXTERNAL";
-  joinDate: string;
+  joinDate: Date;
 }
 
 export type {
