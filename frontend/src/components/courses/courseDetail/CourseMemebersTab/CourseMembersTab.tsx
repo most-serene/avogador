@@ -85,7 +85,7 @@ export default function CourseMembersTab({
         setRows(data);
       })
       .catch((err: Error) => {
-        enqueueSnackbar(err.name, { variant: "error" });
+        enqueueSnackbar(err.message, { variant: "error" });
       });
   }, [getCourseMembers, userCourse]);
 
