@@ -73,6 +73,7 @@ const TrialCreationScreen = () => {
                 userCourse.role === "ADMIN",
             ),
           );
+          return;
         }
 
         const preCourse = userCourses.find(
