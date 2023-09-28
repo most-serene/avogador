@@ -20,6 +20,7 @@ import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.tsx";
 import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
 import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
+import TrialCreationScreen from "@trials/traialCreation/TrialCreationScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -119,6 +120,10 @@ function App() {
                         element={<JoinCourseScreen />}
                       />
                     </Route>
+                    <Route
+                      path={"/trials/new"}
+                      element={<TrialCreationScreen />}
+                    />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/profile" element={<ProfileScreen />} />
                     <Route path="*" element={<NotFound />} />
