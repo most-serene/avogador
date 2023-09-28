@@ -45,14 +45,19 @@ const TrialCreationScreen = () => {
   const [trialName, setTrialName] = useState<string>();
   const [trialType] = useState<"PRACTICE" | "EXAM">("PRACTICE");
   const [isVisible, setIsVisible] = useState(false);
-  const [isPublic] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
 
   useEffect(() => {
     if (user == null) return;
 
     getUserCourses(user.id)
-      .then((res) => {
-        if (!res.some((e) => e.role === "COLLABORATOR" || e.role === "ADMIN")) {
+      .then((userCourses: UserCourse[]) => {
+        if (
+          !userCourses.some(
+            (userCourse) =>
+              userCourse.role === "COLLABORATOR" || userCourse.role === "ADMIN",
+          )
+        ) {
           globalErrorSetter(
             new ForbiddenError("/trials/new", "You cannot create trials"),
           );
@@ -60,26 +65,32 @@ const TrialCreationScreen = () => {
 
         const preCourseId = state === null ? undefined : state.courseId;
 
-        if (preCourseId != null) {
-          const preCourse = res.find((e) => e.course.id === preCourseId);
-
-          if (
-            preCourse != null &&
-            (preCourse.role === "COLLABORATOR" || preCourse.role === "ADMIN")
-          ) {
-            setCourses([preCourse]);
-            setCourseId(preCourse.course.id);
-          } else {
-            globalErrorSetter(
-              new ForbiddenError(
-                "/trials/new",
-                `You cannot create trials in ${preCourseId}`,
-              ),
-            );
-          }
-        } else {
+        if (preCourseId == null) {
           setCourses(
-            res.filter((e) => e.role === "COLLABORATOR" || e.role === "ADMIN"),
+            userCourses.filter(
+              (userCourse) =>
+                userCourse.role === "COLLABORATOR" ||
+                userCourse.role === "ADMIN",
+            ),
+          );
+        }
+
+        const preCourse = userCourses.find(
+          (userCourse) => userCourse.course.id === preCourseId,
+        );
+
+        if (
+          preCourse != null &&
+          (preCourse.role === "COLLABORATOR" || preCourse.role === "ADMIN")
+        ) {
+          setCourses([preCourse]);
+          setCourseId(preCourse.course.id);
+        } else {
+          globalErrorSetter(
+            new ForbiddenError(
+              "/trials/new",
+              `You cannot create trials in ${preCourseId}`,
+            ),
           );
         }
       })
@@ -239,7 +250,9 @@ const TrialCreationScreen = () => {
                       control={<Checkbox />}
                       label="Public"
                       value={isPublic}
-                      defaultChecked
+                      onChange={() => {
+                        setIsPublic(!isPublic);
+                      }}
                       disabled
                     />
                   </Grid>
