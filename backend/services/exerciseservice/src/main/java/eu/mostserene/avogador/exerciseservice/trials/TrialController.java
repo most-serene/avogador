@@ -22,27 +22,47 @@ public class TrialController {
     @Autowired
     private UserCourseService userCourseService;
 
+    /**
+     * gets all trials from the specified courseID
+     *
+     * @param user     the requesting user
+     * @param courseId the course to which the trials belong
+     * @return the list of trials belonging to the course
+     * @throws ForbiddenException if the user has a clearance lower than STUDENT
+     */
     @GetMapping("/courses/{courseId}")
-    private List<Trial> getTrialsFromCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
+    private List<Trial> getTrialsFromCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) {
         var userRole = userCourseService.getUserCourseRole(courseId, user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (userRole.getClearance() < CourseRole.STUDENT.getClearance()){
+        if (userRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
-        return trialService.getTrialsByCourseId(courseId);
+        if (userRole.getClearance().equals(CourseRole.STUDENT.getClearance())) {
+            return trialService.getTrialsByCourseId(courseId, false);
+        }
+
+        return trialService.getTrialsByCourseId(courseId, true);
     }
 
+    /**
+     * deletes the specified trial
+     *
+     * @param user    the requesting user
+     * @param trialId the trial to be deleted
+     * @throws NotFoundException  if the trial does not exist
+     * @throws ForbiddenException if the user has a clearance lower than COLLABORATOR
+     */
     @DeleteMapping("/{trialId}")
-    private void deleteTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
+    private void deleteTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
         var userRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if(userRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
+        if (userRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 

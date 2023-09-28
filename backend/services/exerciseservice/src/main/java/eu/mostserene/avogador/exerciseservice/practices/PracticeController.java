@@ -39,17 +39,17 @@ public class PracticeController {
         Practice practice = practiceService.getPractice(practiceId)
                 .orElseThrow(NotFoundException::new);
 
-        if (user.getIsSuperuser()) return practice;
-
         CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if ((courseRole.getClearance() > CourseRole.STUDENT.getClearance()) ||
-                (CourseRole.STUDENT.getClearance().equals(courseRole.getClearance()) &&
-                        practice.getIsVisible() && practice.getIsPublic())
-        ) return practice;
+        if (user.getIsSuperuser()) return practice;
 
-        throw new ForbiddenException(user);
+        if ((courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !practice.getIsVisible())
+                || courseRole.getClearance().equals(CourseRole.EXTERNAL.getClearance())) {
+            throw new ForbiddenException(user);
+        }
+
+        return practice;
     }
 
     /**
@@ -64,10 +64,10 @@ public class PracticeController {
         CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            return practiceService.createPractice(practice);
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
         }
-        throw new ForbiddenException(user);
+        return practiceService.createPractice(practice);
     }
 
     /**
@@ -90,10 +90,10 @@ public class PracticeController {
         CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            return practiceService.updatePractice(practice);
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
         }
-        throw new ForbiddenException(user);
+        return practiceService.updatePractice(practice);
     }
 
     /**
@@ -110,34 +110,14 @@ public class PracticeController {
 
     /**
      * Join a practice
-     * @param user the requesting user
+     *
+     * @param user       the requesting user
      * @param practiceId the id of practice
      * @return the new UserTrial relation
      */
     @PutMapping("/{practiceId}/join")
     private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Deletes a practice by id
-     *
-     * @param user       the requesting user
-     * @param practiceId the id of the practice
-     */
-    @DeleteMapping("/{practiceId}")
-    private void deletePractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
-        Practice practice = practiceService.getPractice(practiceId)
-                .orElseThrow(NotFoundException::new);
-
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
-
-        if (user.getIsSuperuser() || courseRole.getClearance() > CourseRole.STUDENT.getClearance()) {
-            practiceService.deletePractice(practice);
-            return;
-        }
-        throw new ForbiddenException(user);
     }
 }
 

@@ -6,5 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TrialRepository extends JpaRepository<Trial, UUID> {
+    List<Trial> findByCourseIdAndIsVisibleTrue(UUID courseId);
     List<Trial> findByCourseId(UUID courseId);
 }

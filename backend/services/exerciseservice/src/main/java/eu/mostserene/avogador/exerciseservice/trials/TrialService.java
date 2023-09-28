@@ -9,5 +9,5 @@ public interface TrialService {
 
     void deleteTrial(Trial trial);
 
-    List<Trial> getTrialsByCourseId(UUID courseId);
+    List<Trial> getTrialsByCourseId(UUID courseId, Boolean includeHidden);
 }
