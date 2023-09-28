@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
-import { Trial } from "@trials/types.ts";
+import { Practice, Trial } from "@trials/types.ts";
 
 const useTrialService = () => {
   const avogadorApi = useAvogadorApi();
@@ -16,8 +16,19 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  const createPractice: (practice: Omit<Practice, "id">) => Promise<Practice> =
+    useCallback(
+      async (practice: Omit<Practice, "id">) => {
+        const { data: createdPractice }: { data: Practice } =
+          await avogadorApi.post("/trials/practices", practice);
+        return createdPractice;
+      },
+      [avogadorApi],
+    );
+
   return {
     getTrialsByCourseId,
+    createPractice,
   };
 };
 
