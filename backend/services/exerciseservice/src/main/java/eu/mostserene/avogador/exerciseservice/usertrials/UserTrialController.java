@@ -29,6 +29,12 @@ public class UserTrialController {
     private TrialService trialService;
 
 
+    /**
+     * gets all the users subscribed to a trial
+     * @param user the requesting user
+     * @param trialId the id of the trial to which the users belong
+     * @return the list of users belonging to a trial
+     * */
     @GetMapping("/{trialId}/users")
     private List<UserTrialDetailDto> getUsersFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
         var trial = trialService.getTrialById(trialId)
@@ -48,6 +54,12 @@ public class UserTrialController {
                 .toList();
     }
 
+    /**
+     * gets the trials where the users belong
+     * @param user the requesting user
+     * @param userId the id of the user belonging to the trials
+     * @return the list of trials where the user is subscribed
+     * */
     @GetMapping("/users/{userId}")
     private List<UserTrial> getTrialsFromUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
         if (!user.getId().equals(userId) && !user.getIsSuperuser()){

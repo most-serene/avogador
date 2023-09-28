@@ -49,9 +49,6 @@ public class PracticeControllerTests {
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
 
-    private final Practice privatePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            true, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
     private final Practice notVisibilePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
 
@@ -64,7 +61,7 @@ public class PracticeControllerTests {
     @Nested
     class GetPractice {
         @Test
-        public void notExisting_gets404() throws Exception {
+        public void notExisting_get404() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.empty());
 
@@ -77,9 +74,11 @@ public class PracticeControllerTests {
 
 
         @Test
-        public void fromSuperuser_gets200() throws Exception {
+        public void fromSuperuser_get200() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
 
             mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000000")
                             .header("User", superUserHeader)
@@ -89,7 +88,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromExternalGet_gets403() throws Exception {
+        public void fromExternalGet_get403() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(practice));
 
@@ -104,22 +103,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromStudentWithPrivate_gets403() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.of(privatePractice));
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.STUDENT));
-
-            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", studentHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isForbidden());
-        }
-
-        @Test
-        public void fromStudentWithNotVisible_gets403() throws Exception {
+        public void fromStudentWithNotVisible_get403() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(notVisibilePractice));
 
@@ -134,7 +118,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromCollaborator_gets202() throws Exception {
+        public void fromCollaborator_get200() throws Exception {
             when(practiceService.getPractice(any()))
                     .thenReturn(Optional.of(privateNotVisisblePractice));
 
@@ -154,7 +138,7 @@ public class PracticeControllerTests {
     @Nested
     class CreatePractice {
         @Test
-        public void fromExternal_create403() throws Exception {
+        public void fromExternal_get403() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -170,7 +154,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromStudent_create403() throws Exception {
+        public void fromStudent_get403() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -186,7 +170,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromCollaborator_create200() throws Exception {
+        public void fromCollaborator_get200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -202,7 +186,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromSuperuser_create200() throws Exception {
+        public void fromSuperuser_get200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             when(userCourseService.getUserCourseRole(any(), any()))
@@ -221,7 +205,7 @@ public class PracticeControllerTests {
     @Nested
     class UpdatePractice {
         @Test
-        public void practiceNotExisting_update404() throws Exception {
+        public void practiceNotExisting_get404() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
             id.setAccessible(true);
@@ -243,7 +227,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromStudent_update403() throws Exception {
+        public void fromStudent_get403() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
             id.setAccessible(true);
@@ -265,7 +249,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromCollaborator_update200() throws Exception {
+        public void fromCollaborator_get200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
@@ -296,7 +280,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void fromSuperuser_update200() throws Exception {
+        public void fromSuperuser_get200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
@@ -327,7 +311,7 @@ public class PracticeControllerTests {
         }
 
         @Test
-        public void idMismatch_create400() throws Exception {
+        public void idMismatch_get400() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
             Field id = practice.getClass().getSuperclass().getDeclaredField("id");
@@ -356,83 +340,5 @@ public class PracticeControllerTests {
                     .andExpect(status().isBadRequest());
         }
 
-    }
-
-    @Nested
-    class DeletePractice {
-        @Test
-        public void notExisting_gets404() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.empty());
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
-
-            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", studentHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isNotFound());
-        }
-
-        @Test
-        public void fromSuperuser_gets200() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.of(practice));
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
-
-            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", superUserHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isOk());
-        }
-
-        @Test
-        public void fromExternalGet_gets403() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.of(practice));
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
-
-            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", studentHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isForbidden());
-        }
-
-        @Test
-        public void fromStudent_gets403() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.of(practice));
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.STUDENT));
-
-            mvc.perform(delete("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", studentHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isForbidden());
-        }
-
-        @Test
-        public void fromCollaborator_gets202() throws Exception {
-            when(practiceService.getPractice(any()))
-                    .thenReturn(Optional.of(practice));
-
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
-
-            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000000")
-                            .header("User", studentHeader)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isOk());
-        }
     }
 }

@@ -5,6 +5,7 @@ import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.TrialController;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,9 +47,12 @@ public class TrialControllerTests {
     private @MockBean UserTrialService userTrialService;
     private @MockBean UserCourseService userCourseService;
     private @MockBean TrialService trialService;
+    private @MockBean FileSystemService fileSystemService;
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+    private final Practice hiddenPractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000002"), "Practice Hidden",
+            false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
     private final Exercise visibleExercise = new Exercise(practice, "Exercise1", "Given a print b", 1, true);
     private final Exercise hiddenExercise = new Exercise(practice, "Exercise2", "Given b print a", 1, false);
     private final ExerciseDto visibleExerciseDto = new ExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true);
@@ -84,14 +90,34 @@ public class TrialControllerTests {
         public void userIsStudent_get200() throws Exception {
             when(userCourseService.getUserCourseRole(any(), any()))
                     .thenReturn(Optional.of(CourseRole.STUDENT));
-            when(trialService.getTrialsByCourseId(any()))
+            when(trialService.getTrialsByCourseId(any(), eq(true) ))
+                    .thenReturn(List.of(practice, hiddenPractice));
+            when(trialService.getTrialsByCourseId(any(), eq(false) ))
                     .thenReturn(List.of(practice));
 
             mvc.perform(get("/public/trials/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                     )
                     .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)));;
+        }
+
+        @Test
+        public void userIsCollaborator_get200() throws Exception {
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(trialService.getTrialsByCourseId(any(), eq(true) ))
+                    .thenReturn(List.of(practice, hiddenPractice));
+            when(trialService.getTrialsByCourseId(any(), eq(false) ))
+                    .thenReturn(List.of(practice));
+
+            mvc.perform(get("/public/trials/courses/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));;
         }
     }
 

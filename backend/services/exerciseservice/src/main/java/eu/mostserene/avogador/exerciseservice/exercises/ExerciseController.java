@@ -48,11 +48,11 @@ public class ExerciseController {
         CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (CourseRole.STUDENT.getClearance() > courseRole.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
-        if (CourseRole.STUDENT.getClearance().equals(courseRole.getClearance()) &&
+        if (courseRole.getClearance().equals(CourseRole.STUDENT.getClearance()) &&
                 !exercise.getIsVisible()) {
             throw new ForbiddenException(user);
         }
@@ -75,7 +75,7 @@ public class ExerciseController {
         CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 
@@ -98,7 +98,7 @@ public class ExerciseController {
         CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 
@@ -124,7 +124,7 @@ public class ExerciseController {
     /**
      * Deletes an exercise
      *
-     * @param user       the requesting exercise
+     * @param user       the requesting user
      * @param exerciseId the id of the exercise
      */
     @DeleteMapping("/{exerciseId}")
@@ -138,13 +138,22 @@ public class ExerciseController {
         CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (CourseRole.COLLABORATOR.getClearance() > courseRole.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 
+        //TODO: call file system
         exerciseService.deleteExercise(exercise);
     }
 
+    /**
+     * Gets the exercises belonging a trial
+     * @param user the requesting user
+     * @param trialId the id of the trial to which the exercises belong
+     * @throws NotFoundException if the trial doesn't exist
+     * @throws ForbiddenException if the user has a clearance lower than a student
+     * @return the list of exercises of the trial
+     * */
     @GetMapping("/trials/{trialId}")
     private List<ExerciseDto> getExercisesFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
