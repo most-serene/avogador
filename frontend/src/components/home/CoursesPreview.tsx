@@ -1,12 +1,8 @@
 import Grid from "@mui/material/Grid";
-import { useEffect, useState } from "react";
 import CourseItem from "@courses/CourseItem.tsx";
-import { Course, UserCourse } from "@courses/types.ts";
+import { Course } from "@courses/types.ts";
 import CourseItemSkeleton from "@courses/CourseItemSkeleton.tsx";
-import { useAtom } from "jotai";
-import userAtom from "@authentication/userAtom.ts";
 import { Typography } from "@mui/material";
-import useCourseService from "@courses/hooks/useCourseService.tsx";
 import Box from "@mui/material/Box";
 
 const EmptyCoursesHome = () => {
@@ -45,26 +41,12 @@ const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
   ));
 };
 
-export default function CoursesPreview() {
-  const [user] = useAtom(userAtom);
-  const [courses, setCourses] = useState<Course[]>();
-  const { getUserCourses } = useCourseService();
+interface CoursePreviewProps {
+  courses: Course[] | undefined;
+}
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-    getUserCourses(user.id)
-      .then((data: UserCourse[]) => {
-        const resCourses = data.map((elem) => elem.course);
-        setCourses(resCourses);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [user, getUserCourses]);
-
-  if (user && courses && courses.length === 0) {
+export default function CoursesPreview({ courses }: CoursePreviewProps) {
+  if (courses && courses.length === 0) {
     return <EmptyCoursesHome />;
   }
 
