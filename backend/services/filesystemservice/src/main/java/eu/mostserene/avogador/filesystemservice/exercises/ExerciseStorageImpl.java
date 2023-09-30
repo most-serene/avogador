@@ -1,11 +1,15 @@
 package eu.mostserene.avogador.filesystemservice.exercises;
 
 import eu.mostserene.avogador.filesystemservice.FileSystemRoot;
+import eu.mostserene.avogador.filesystemservice.strox.Strox;
+import eu.mostserene.avogador.filesystemservice.strox.StroxStorage;
+import eu.mostserene.avogador.filesystemservice.strox.StroxStorageImpl;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.UUID;
 
 @Slf4j
@@ -56,6 +60,13 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     @Override
     public File get() {
         return new File(getBaseDirectory() + "/" + getExerciseId().toString());
+    }
+
+    @Override
+    public void saveTemplate(Strox template) {
+        StroxStorage storage = new StroxStorageImpl();
+        template.setPath(get().toString() + "/template.strox");
+        storage.saveToFile(template);
     }
 
     @Override
