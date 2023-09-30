@@ -20,4 +20,14 @@ public class StroxStorageImpl implements StroxStorage {
         return new File(strox.getPath());
     }
 
+    @Override
+    public Strox loadFromFile(Path path) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(Files.readString(path), Strox.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -11,5 +11,7 @@ public interface ExerciseStorage {
 
     void saveTemplate(Strox template);
 
+    Strox getTemplate();
+
     void delete();
 }

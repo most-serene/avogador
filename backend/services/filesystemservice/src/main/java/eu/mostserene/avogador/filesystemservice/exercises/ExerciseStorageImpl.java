@@ -70,6 +70,12 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     }
 
     @Override
+    public Strox getTemplate() {
+        StroxStorage storage = new StroxStorageImpl();
+        return storage.loadFromFile(Path.of(get().toString() + "/template.strox"));
+    }
+
+    @Override
     public void delete() {
         throw new UnsupportedOperationException();
     }
