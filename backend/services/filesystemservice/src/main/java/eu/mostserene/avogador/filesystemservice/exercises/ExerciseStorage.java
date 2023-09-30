@@ -3,6 +3,7 @@ package eu.mostserene.avogador.filesystemservice.exercises;
 import eu.mostserene.avogador.filesystemservice.strox.Strox;
 
 import java.io.File;
+import java.util.UUID;
 
 public interface ExerciseStorage {
     void create();
@@ -12,6 +13,8 @@ public interface ExerciseStorage {
     void saveTemplate(Strox template);
 
     Strox getTemplate();
+
+    void saveSubmission(UUID submissionId, Strox submission);
 
     void delete();
 }

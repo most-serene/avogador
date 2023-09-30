@@ -55,11 +55,22 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         } else {
             log.error(LoggerColors.error("Exercise " + getExerciseId() + ": folder creation failed"));
         }
+
+        File submissionsFolder = new File(exerciseFolder + "/submissions");
+        if (submissionsFolder.mkdirs()) {
+            log.info(LoggerColors.success("Exercise " + getExerciseId() + ": submissions folder created"));
+        } else {
+            log.error(LoggerColors.error("Exercise " + getExerciseId() + ": submissions folder creation failed"));
+        }
     }
 
     @Override
     public File get() {
         return new File(getBaseDirectory() + "/" + getExerciseId().toString());
+    }
+
+    private File getSubmissionsFolder() {
+        return new File(get().toString() + "/submissions");
     }
 
     @Override
@@ -73,6 +84,23 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     public Strox getTemplate() {
         StroxStorage storage = new StroxStorageImpl();
         return storage.loadFromFile(Path.of(get().toString() + "/template.strox"));
+    }
+
+    @Override
+    public void saveSubmission(UUID submissionId, Strox submission) {
+        StroxStorage storage = new StroxStorageImpl();
+        createSubmission(submissionId);
+        submission.setPath(getSubmissionsFolder() + "/" + submissionId + "/submission.strox");
+        storage.saveToFile(submission);
+    }
+
+    private void createSubmission(UUID submissionId) {
+        File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionId);
+        if (submissionFolder.mkdirs()) {
+            log.info(LoggerColors.success("Submission " + submissionId + ": folder created"));
+        } else {
+            log.error(LoggerColors.error("Submission " + submissionId + ": folder creation failed"));
+        }
     }
 
     @Override
