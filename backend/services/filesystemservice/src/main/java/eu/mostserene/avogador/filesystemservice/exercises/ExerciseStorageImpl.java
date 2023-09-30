@@ -106,6 +106,12 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         }
     }
 
+    @Override
+    public Strox getSubmissionStrox(UUID submissionId) {
+        StroxStorage stroxStorage = new StroxStorageImpl();
+        return stroxStorage.loadFromFile(Path.of(getSubmissionsFolder() + "/" + submissionId + "/submission.strox"));
+    }
+
     private void createSubmission(UUID submissionId) {
         File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionId);
         if (!submissionFolder.exists()) {

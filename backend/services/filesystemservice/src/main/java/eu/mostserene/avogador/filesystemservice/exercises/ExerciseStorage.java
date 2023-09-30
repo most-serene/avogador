@@ -16,5 +16,7 @@ public interface ExerciseStorage {
 
     void saveSubmission(UUID submissionId, Strox submission);
 
+    Strox getSubmissionStrox(UUID submissionId);
+
     void delete();
 }
