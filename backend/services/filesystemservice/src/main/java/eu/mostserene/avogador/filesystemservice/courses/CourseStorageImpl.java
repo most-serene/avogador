@@ -18,7 +18,7 @@ public class CourseStorageImpl implements CourseStorage {
         return new File(fileSystemRoot.getFileSystemRoot() + "/courses/");
     }
 
-    public static CourseStorageImpl of(@NotNull UUID courseId) {
+    public static CourseStorage of(@NotNull UUID courseId) {
         return new CourseStorageImpl(courseId);
     }
 

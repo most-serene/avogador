@@ -18,7 +18,7 @@ public class TrialStorageImpl implements TrialStorage {
 
     private static final FileSystemRoot fileSystemRoot = FileSystemRoot.getInstance();
 
-    public static TrialStorageImpl of(@NotNull UUID courseId, @NotNull UUID trialId) {
+    public static TrialStorage of(@NotNull UUID courseId, @NotNull UUID trialId) {
         return new TrialStorageImpl(courseId, trialId);
     }
 

@@ -16,7 +16,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
 
     private static final FileSystemRoot fileSystemRoot = FileSystemRoot.getInstance();
 
-    public static ExerciseStorageImpl of(@NotNull UUID courseId, @NotNull UUID trialId, @NotNull UUID exerciseId) {
+    public static ExerciseStorage of(@NotNull UUID courseId, @NotNull UUID trialId, @NotNull UUID exerciseId) {
         return new ExerciseStorageImpl(courseId, trialId, exerciseId);
     }
 
