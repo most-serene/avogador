@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 public interface StroxStorage {
 
-    File saveToFile(Strox path);
+    void saveToFile(Strox path);
 
     Strox loadFromFile(Path path);
 

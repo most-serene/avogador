@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
@@ -88,18 +90,39 @@ public class ExerciseStorageImpl implements ExerciseStorage {
 
     @Override
     public void saveSubmission(UUID submissionId, Strox submission) {
-        StroxStorage storage = new StroxStorageImpl();
+        StroxStorage stroxStorage = new StroxStorageImpl();
         createSubmission(submissionId);
         submission.setPath(getSubmissionsFolder() + "/" + submissionId + "/submission.strox");
-        storage.saveToFile(submission);
+        stroxStorage.saveToFile(submission);
+        String sourceCode = Strox.merge(getTemplate(), submission)
+                .generateSourceCode();
+
+        File sourceFile = new File(getSubmissionsFolder() + "/" + submissionId + "/source/" + submission.getSourceFileName());
+
+        try {
+            Files.writeString(sourceFile.toPath(), sourceCode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void createSubmission(UUID submissionId) {
         File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionId);
-        if (submissionFolder.mkdirs()) {
-            log.info(LoggerColors.success("Submission " + submissionId + ": folder created"));
-        } else {
-            log.error(LoggerColors.error("Submission " + submissionId + ": folder creation failed"));
+        if (!submissionFolder.exists()) {
+            if (submissionFolder.mkdirs()) {
+                log.info(LoggerColors.success("Submission " + submissionId + ": folder created"));
+            } else {
+                log.error(LoggerColors.error("Submission " + submissionId + ": folder creation failed"));
+            }
+        }
+
+        File sourceCodeFolder = new File(submissionFolder + "/source");
+        if (!sourceCodeFolder.exists()) {
+            if (sourceCodeFolder.mkdirs()) {
+                log.info(LoggerColors.success("Submission " + submissionId + ": sourcecode folder created"));
+            } else {
+                log.error(LoggerColors.error("Submission " + submissionId + ": soucecode folder creation failed"));
+            }
         }
     }
 
