@@ -3,6 +3,7 @@ package eu.mostserene.avogador.filesystemservice.submission;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorage;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.strox.Strox;
+import eu.mostserene.avogador.filesystemservice.utils.FileNotFound;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +34,8 @@ public class SubmissionController {
 
         ExerciseStorage exerciseStorage = ExerciseStorageImpl.of(courseId, trialId, exerciseId);
 
-        Resource tarResource = new FileSystemResource(exerciseStorage.getSubmissionCode(submissionId));
+        Resource tarResource = new FileSystemResource(exerciseStorage.getSubmissionCode(submissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Submission " + submissionId + " code not found")));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"submission.tar.gz\"")
@@ -42,7 +45,8 @@ public class SubmissionController {
     @GetMapping("/strox")
     private Strox getStroxSubmission(@PathVariable UUID courseId, @PathVariable UUID trialId, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
         Strox submission = ExerciseStorageImpl.of(courseId, trialId, exerciseId)
-                .getSubmissionStrox(submissionId);
+                .getSubmissionStrox(submissionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Submission " + submissionId + " strox not found"));
         submission.setPath(null);
         return submission;
     }
