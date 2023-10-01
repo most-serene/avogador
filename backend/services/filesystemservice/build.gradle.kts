@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+	implementation("org.apache.commons:commons-compress:1.24.0")
 	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
 	implementation("org.apache.commons:commons-lang3:3.12.0")

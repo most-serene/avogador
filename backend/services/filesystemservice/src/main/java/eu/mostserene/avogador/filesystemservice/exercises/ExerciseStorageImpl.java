@@ -7,11 +7,14 @@ import eu.mostserene.avogador.filesystemservice.strox.StroxStorageImpl;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.UUID;
 
 @Slf4j
@@ -110,6 +113,62 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     public Strox getSubmissionStrox(UUID submissionId) {
         StroxStorage stroxStorage = new StroxStorageImpl();
         return stroxStorage.loadFromFile(Path.of(getSubmissionsFolder() + "/" + submissionId + "/submission.strox"));
+    }
+
+    @Override
+    public File getSubmissionCode(UUID submissionId) {
+        File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionId);
+
+        try {
+            createTarGzipFolder(Path.of(submissionFolder + "/source"));
+            return new File(submissionFolder + "/source.tar.gz");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private static void createTarGzipFolder(Path source) throws IOException {
+        if (!Files.isDirectory(source)) {
+            throw new IOException("Please provide a directory.");
+        }
+
+        String tarFileName = source.getParent() + "/" + source.getFileName().toString() + ".tar.gz";
+        try (OutputStream fOut = Files.newOutputStream(Path.of(tarFileName));
+             BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
+             GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(buffOut);
+             TarArchiveOutputStream tOut = new TarArchiveOutputStream(gzOut)) {
+
+            Files.walkFileTree(source, new SimpleFileVisitor<>() {
+
+                @Override
+                public FileVisitResult visitFile(Path file,
+                                                 BasicFileAttributes attributes) {
+
+                    if (attributes.isSymbolicLink()) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    Path targetFile = source.relativize(file);
+                    try {
+                        TarArchiveEntry tarEntry = new TarArchiveEntry(
+                                file.toFile(), targetFile.toString());
+                        tOut.putArchiveEntry(tarEntry);
+                        Files.copy(file, tOut);
+                        tOut.closeArchiveEntry();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            tOut.finish();
+        }
+
     }
 
     private void createSubmission(UUID submissionId) {
