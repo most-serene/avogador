@@ -3,12 +3,17 @@ package eu.mostserene.avogador.exerciseservice.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeRepository;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeService;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,10 +29,14 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,6 +53,8 @@ public class PracticeControllerTests {
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
     private @MockBean FileSystemService fileSystemService;
+    private @MockBean ExerciseService exerciseService;
+    private @MockBean UserTrialService userTrialService;
 
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
@@ -57,6 +68,9 @@ public class PracticeControllerTests {
 
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
+    private final UserTrial userTrial1 = new UserTrial(UUID.fromString("00000000-0000-0000-0000-000000000001"), practice, false);
+    private final Exercise hiddenExercise = new Exercise(practice, "Exercise2", "Given b print a", 1, false);
+    private final Exercise visibleExercise = new Exercise(practice, "Exercise1", "Given a print b", 1, true);
 
     @Nested
     class GetPractice {
@@ -339,6 +353,169 @@ public class PracticeControllerTests {
                     .andDo(print())
                     .andExpect(status().isBadRequest());
         }
+    }
+
+    @Nested
+    class GetExercisesFromPractice{
+        @Test
+        public void wrongPracticeId_get404() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000001/exercises")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyRole_get403() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000001/exercises")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsCollaborator_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(exerciseService.getExercisesFromTrial(any(), eq(true)))
+                    .thenReturn(List.of(visibleExercise, hiddenExercise));
+            when(exerciseService.getExercisesFromTrial(any(), eq(false)))
+                    .thenReturn(List.of(visibleExercise));
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000001/exercises")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));
+        }
+
+        @Test
+        public void userIsSuperuser_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+            when(exerciseService.getExercisesFromTrial(any(), eq(true)))
+                    .thenReturn(List.of(visibleExercise, hiddenExercise));
+            when(exerciseService.getExercisesFromTrial(any(), eq(false)))
+                    .thenReturn(List.of(visibleExercise));
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000001/exercises")
+                            .header("User", superUserHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)));
+        }
+
+        @Test
+        public void userIsStudent_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(exerciseService.getExercisesFromTrial(any(), eq(true)))
+                    .thenReturn(List.of(visibleExercise, hiddenExercise));
+            when(exerciseService.getExercisesFromTrial(any(), eq(false)))
+                    .thenReturn(List.of(visibleExercise));
+
+            mvc.perform(get("/public/trials/practices/00000000-0000-0000-0000-000000000001/exercises")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)));
+        }
+    }
+
+    @Nested
+    class JoinPractice {
+        @Test
+        public void wrongPracticeId_get404() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001/join")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void emptyRole_get403() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.empty());
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001/join")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void userIsStudent_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(userTrialService.joinTrial(any(), any()))
+                    .thenReturn(userTrial1);
+
+            var result = mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001/join")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            assertNotEquals("", result.getResponse().getContentAsString());
+        }
+
+        @Test
+        public void userIsCollaborator_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(userTrialService.joinTrial(any(), any()))
+                    .thenReturn(userTrial1);
+
+            var result = mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001/join")
+                            .header("User", studentHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            assertEquals("", result.getResponse().getContentAsString());
+        }
+
+        @Test
+        public void userIsSuperuser_get200() throws Exception {
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+            when(userTrialService.joinTrial(any(), any()))
+                    .thenReturn(userTrial1);
+
+            var result = mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001/join")
+                            .header("User", superUserHeader)
+                    ).andDo(print())
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            assertEquals("", result.getResponse().getContentAsString());
+        }
 
     }
+
 }
