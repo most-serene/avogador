@@ -6,6 +6,8 @@ import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { LoginPage } from "@authentication/LoginPage/LoginPage.tsx";
 import { enqueueSnackbar } from "notistack";
+import SplashScreen from "@structure/SplashScreen/SplashScreen.tsx";
+import showSplashScreenAtom from "@structure/SplashScreen/showSplashScreenAtom.ts";
 
 const allowedPaths = ["/status"];
 
@@ -18,6 +20,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [user, setUser] = useAtom(userAtom);
+  const [showSplashScreen] = useAtom(showSplashScreenAtom);
 
   useEffect(() => {
     if (user === undefined) {
@@ -32,9 +35,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     }
   }, [pathname, user, getCurrent, navigate, setUser]);
 
-  if (user === undefined) {
-    return <>splashscreen</>;
-  }
+  if (user === undefined || showSplashScreen) return <SplashScreen />;
 
   if (user === null && !allowedPaths.includes(pathname)) {
     return <LoginPage />;

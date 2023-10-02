@@ -23,6 +23,7 @@ export const useAuthService = () => {
 
   const login: (googleToken: string) => Promise<User> = useCallback(
     async (googleToken: string) => {
+      setUser(undefined);
       return avogadorApi
         .post("/users/google-auth", {
           googleToken: googleToken,

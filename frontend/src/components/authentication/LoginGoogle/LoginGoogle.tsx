@@ -9,9 +9,12 @@ import {
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
+import { useAtom } from "jotai";
+import showSplashScreenAtom from "@structure/SplashScreen/showSplashScreenAtom.ts";
 
 const LoginGoogle = () => {
   const { login } = useAuthService();
+  const [, setShowSplashScreen] = useAtom(showSplashScreenAtom);
 
   return (
     <Card sx={{ maxWidth: "32rem" }} raised>
@@ -41,9 +44,10 @@ const LoginGoogle = () => {
           <GoogleLogin
             onSuccess={(credentialResponse) => {
               if (credentialResponse.credential !== undefined) {
+                setShowSplashScreen(true);
                 login(credentialResponse.credential)
                   .then(() => {
-                    enqueueSnackbar("Login successful", { variant: "success" });
+                    setShowSplashScreen(false);
                   })
                   .catch((err) => {
                     if (

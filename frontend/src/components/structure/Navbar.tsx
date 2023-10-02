@@ -19,7 +19,7 @@ import userAtom from "@authentication/userAtom";
 import colorModeAtom from "@theme/colorModeAtom.ts";
 import { forwardRef, useEffect } from "react";
 
-import Logo from "@assets/logo.svg";
+import Logo from "@assets/textLogo.svg";
 
 interface PageItem {
   name: string;
