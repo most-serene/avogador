@@ -7,13 +7,14 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
+import { useAtom } from "jotai";
+import showSplashScreenAtom from "@structure/SplashScreen/showSplashScreenAtom.ts";
 
 const LoginGoogle = () => {
   const { login } = useAuthService();
-  const navigate = useNavigate();
+  const [, setShowSplashScreen] = useAtom(showSplashScreenAtom);
 
   return (
     <Card sx={{ maxWidth: "32rem" }} raised>
@@ -43,10 +44,8 @@ const LoginGoogle = () => {
           <GoogleLogin
             onSuccess={(credentialResponse) => {
               if (credentialResponse.credential !== undefined) {
+                setShowSplashScreen(true);
                 login(credentialResponse.credential)
-                  .then(() => {
-                    navigate("/");
-                  })
                   .catch((err) => {
                     if (
                       err instanceof AxiosError &&
@@ -61,6 +60,9 @@ const LoginGoogle = () => {
                     } else {
                       enqueueSnackbar("Login failed", { variant: "error" });
                     }
+                  })
+                  .finally(() => {
+                    setShowSplashScreen(false);
                   });
               }
             }}
