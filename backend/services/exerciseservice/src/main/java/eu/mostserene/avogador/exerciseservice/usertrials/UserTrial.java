@@ -1,10 +1,15 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -39,10 +44,9 @@ public class UserTrial {
     public UserTrial() {
     }
 
-    public UserTrial(UUID userId, Trial trial, Date deadline, Boolean hasExtraTime) {
+    public UserTrial(UUID userId, Trial trial, Boolean hasExtraTime) {
         this.userId = userId;
         this.trial = trial;
-        this.deadline = deadline;
         this.hasExtraTime = hasExtraTime;
     }
 
@@ -100,6 +104,14 @@ public class UserTrial {
 
     public UserTrialDetailDto getUserTrialDetail(UserDto userDto){
         return new UserTrialDetailDto(this, userDto);
+    }
+
+    public void init(){
+        this.startTime = Date.from(Instant.now());
+        if (trial instanceof Practice){
+            this.deadline = ((Practice) trial).getDeadline();
+        }
+        // TODO: add Exam
     }
 
 }

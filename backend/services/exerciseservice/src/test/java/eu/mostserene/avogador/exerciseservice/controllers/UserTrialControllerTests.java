@@ -61,7 +61,7 @@ public class UserTrialControllerTests {
 
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
-    private final UserTrial userTrial1 = new UserTrial(UUID.fromString("00000000-0000-0000-0000-000000000001"), practice, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)), false);
+    private final UserTrial userTrial1 = new UserTrial(UUID.fromString("00000000-0000-0000-0000-000000000001"), practice, false);
     private final UserDto studentUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), "student@stud.unive.it", "Andy", "Bernard", false, false);
 
 

@@ -3,9 +3,11 @@ package eu.mostserene.avogador.exerciseservice.practices;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,12 @@ public class PracticeController {
 
     @Autowired
     private UserCourseService userCourseService;
+
+    @Autowired
+    private ExerciseService exerciseService;
+
+    @Autowired
+    private UserTrialService userTrialService;
 
     /**
      * Returns the practice by ID
@@ -104,8 +112,15 @@ public class PracticeController {
      * @return the list of the exercises of a practice
      */
     @GetMapping("/{practiceId}/exercises")
-    private List<Exercise> getPracticeExercises(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
-        throw new UnsupportedOperationException();
+    private List<Exercise> getExercisesFromPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
+        var practice = practiceService.getPractice(practiceId)
+                .orElseThrow(() -> new NotFoundException(practiceId.toString()));
+        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        Boolean canSeeHiddenExercises = user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance();
+
+        return exerciseService.getExercisesFromTrial(practice, canSeeHiddenExercises);
     }
 
     /**
@@ -117,7 +132,16 @@ public class PracticeController {
      */
     @PutMapping("/{practiceId}/join")
     private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
-        throw new UnsupportedOperationException();
+        var practice = practiceService.getPractice(practiceId)
+                .orElseThrow(() -> new NotFoundException(practiceId.toString()));
+        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()){
+            return null;
+        }
+
+        return userTrialService.joinTrial(user, practice);
     }
 }
 
