@@ -26,13 +26,30 @@ jobs:
         run: |
           ping -c 1 dev-server.sanve.mostserene.eu
     
-      - name: Setup Gradle
+      - name: Gradle build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: clean assemble
+          arguments: assemble
           build-root-directory: backend/services/userservice
       
       - uses: actions/upload-artifact@v3
         with:
           name: usersService.jar
           path: backend/services/userservice/build/libs/*.jar
+  
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download application.properties
+        run: curl -k https://repository.mostserene.eu/avogador/envs/testing/users/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/userservice/src/test/resources/application.properties
+
+      - name: Gradle test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test
+          build-root-directory: backend/services/userservice
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: userserviceTests
+          path: backend/services/userservice/build/test-results/
