@@ -18,11 +18,7 @@ export default function HomeScreen() {
   const [userCourses, setUserCourses] = useState<UserCourse[]>();
 
   useEffect(() => {
-    if (user === null) {
-      navigate("/login");
-      return;
-    }
-    if (user === undefined) {
+    if (user == null) {
       return;
     }
 

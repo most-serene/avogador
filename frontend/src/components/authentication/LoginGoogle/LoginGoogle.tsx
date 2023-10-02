@@ -7,13 +7,11 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
 
 const LoginGoogle = () => {
   const { login } = useAuthService();
-  const navigate = useNavigate();
 
   return (
     <Card sx={{ maxWidth: "32rem" }} raised>
@@ -45,7 +43,7 @@ const LoginGoogle = () => {
               if (credentialResponse.credential !== undefined) {
                 login(credentialResponse.credential)
                   .then(() => {
-                    navigate("/");
+                    enqueueSnackbar("Login successful", { variant: "success" });
                   })
                   .catch((err) => {
                     if (

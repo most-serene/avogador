@@ -62,7 +62,7 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
       name: "Logout",
       callback: () => {
         logout();
-        navigate("/login");
+        navigate("/");
       },
     },
   ];

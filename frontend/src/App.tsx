@@ -4,7 +4,6 @@ import { Container, Grid, Typography } from "@mui/material";
 import HomeScreen from "@components/home/HomeScreen";
 import Navbar from "@components/structure/Navbar.tsx";
 import Footer from "@components/structure/Footer.tsx";
-import { LoginPage } from "@components/authentication/LoginPage/LoginPage.tsx";
 import AuthWrapper from "./AuthWrapper.tsx";
 import StatusPage from "@components/structure/StatusPage/StatusPage.tsx";
 import ProfileScreen from "@components/profile/ProfileScreen.tsx";
@@ -124,7 +123,6 @@ function App() {
                       path={"/trials/new"}
                       element={<TrialCreationScreen />}
                     />
-                    <Route path="/login" element={<LoginPage />} />
                     <Route path="/profile" element={<ProfileScreen />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
