@@ -27,7 +27,9 @@ jobs:
           ping -c 1 dev-server.sanve.mostserene.eu
           
       - name: Download application.properties
-        run: curl -k https://repository.mostserene.eu/avogador/envs/testing/users/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/userservice/src/test/resources/application.properties
+        run: |
+          mkdir -p backend/services/userservice/src/test/resources/
+          curl -k https://repository.mostserene.eu/avogador/envs/testing/users/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/userservice/src/test/resources/application.properties
 
       - name: Gradle build
         uses: gradle/gradle-build-action@v2
