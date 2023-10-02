@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.filesystemservice.courses;
 
 import eu.mostserene.avogador.filesystemservice.FileSystemRoot;
+import eu.mostserene.avogador.filesystemservice.utils.FileCreationFailed;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class CourseStorageImpl implements CourseStorage {
         return new File(fileSystemRoot.getFileSystemRoot() + "/courses/");
     }
 
-    public static CourseStorageImpl of(@NotNull UUID courseId) {
+    public static CourseStorage of(@NotNull UUID courseId) {
         return new CourseStorageImpl(courseId);
     }
 
@@ -36,7 +37,7 @@ public class CourseStorageImpl implements CourseStorage {
         if (courseFolder.mkdir()) {
             log.info(LoggerColors.success("Course " + this.getCourseId() + ": folder created"));
         } else {
-            log.error(LoggerColors.error("Course " + this.getCourseId() + ": folder creation failed"));
+            throw new FileCreationFailed("Course " + this.getCourseId() + ": folder creation failed");
         }
     }
 

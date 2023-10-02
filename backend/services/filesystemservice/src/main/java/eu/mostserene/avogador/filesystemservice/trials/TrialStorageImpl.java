@@ -2,6 +2,7 @@ package eu.mostserene.avogador.filesystemservice.trials;
 
 import eu.mostserene.avogador.filesystemservice.FileSystemRoot;
 import eu.mostserene.avogador.filesystemservice.courses.CourseStorageImpl;
+import eu.mostserene.avogador.filesystemservice.utils.FileCreationFailed;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class TrialStorageImpl implements TrialStorage {
 
     private static final FileSystemRoot fileSystemRoot = FileSystemRoot.getInstance();
 
-    public static TrialStorageImpl of(@NotNull UUID courseId, @NotNull UUID trialId) {
+    public static TrialStorage of(@NotNull UUID courseId, @NotNull UUID trialId) {
         return new TrialStorageImpl(courseId, trialId);
     }
 
@@ -46,7 +47,7 @@ public class TrialStorageImpl implements TrialStorage {
         if (trialFolder.mkdirs()) {
             log.info(LoggerColors.success("Trial " + getTrialId() + ": folder created"));
         } else {
-            log.error(LoggerColors.error("Trial " + getTrialId() + ": folder creation failed"));
+            throw new FileCreationFailed("Trial " + getTrialId() + ": folder creation failed");
         }
     }
 

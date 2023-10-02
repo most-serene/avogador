@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.filesystemservice.courses.CourseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
+import eu.mostserene.avogador.filesystemservice.exercises.ExerciseTemplateDTO;
+import eu.mostserene.avogador.filesystemservice.submission.SubmissionDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialStorageImpl;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
@@ -27,6 +29,8 @@ public class Receiver implements MessageListener {
             case "fs.course.create" -> courseCreationHandler(message);
             case "fs.trial.create" -> trialCreationHandler(message);
             case "fs.exercise.create" -> exerciseCreationHandler(message);
+            case "fs.template.create" -> exerciseTemplateCreationHandler(message);
+            case "fs.submission.create" -> submissionCreationHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
     }
@@ -49,6 +53,26 @@ public class Receiver implements MessageListener {
         try {
             ExerciseDTO exerciseDTO = mapper.readValue(message.getBody(), ExerciseDTO.class);
             ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).create();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void exerciseTemplateCreationHandler(Message message) {
+        try {
+            ExerciseTemplateDTO templateDTO = mapper.readValue(message.getBody(), ExerciseTemplateDTO.class);
+            ExerciseStorageImpl.of(templateDTO.getCourseId(), templateDTO.getTrialId(), templateDTO.getExerciseId())
+                    .saveTemplate(templateDTO.getTemplate());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void submissionCreationHandler(Message message) {
+        try {
+            SubmissionDTO submissionDTO = mapper.readValue(message.getBody(), SubmissionDTO.class);
+            ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
+                    .saveSubmission(submissionDTO.getSubmissionId(), submissionDTO.getSubmission());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
