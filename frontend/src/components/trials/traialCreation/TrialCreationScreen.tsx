@@ -42,7 +42,7 @@ const TrialCreationScreen = () => {
   const [startDate, setStartDate] = useState(addDays(new Date(), 1));
   const [deadline, setDeadline] = useState(addDays(new Date(), 7));
   const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
-  const [trialName, setTrialName] = useState<string>();
+  const [trialName, setTrialName] = useState<string>("");
   const [trialType] = useState<"PRACTICE" | "EXAM">("PRACTICE");
   const [isVisible, setIsVisible] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
@@ -103,7 +103,7 @@ const TrialCreationScreen = () => {
   const isFormValid = useMemo(() => {
     return (
       courseId != "" &&
-      trialName != null &&
+      trialName.trim() !== "" &&
       language != null &&
       startDate < deadline
     );
@@ -116,7 +116,7 @@ const TrialCreationScreen = () => {
 
     createPractice({
       courseId: courseId,
-      name: trialName ?? "",
+      name: trialName.trim(),
       isVisible: isVisible,
       isPublic: isPublic,
       language: language,
