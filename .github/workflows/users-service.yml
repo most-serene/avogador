@@ -1,10 +1,10 @@
-name: User Microservice CICD pipeline
-run-name: PR User Microservice pipeline for ${{ github.ref }}
+name: PR CICD pipeline
+run-name: PR pipeline for ${{ github.ref }}
 on:
   workflow_dispatch:
   pull_request:
 jobs:
-  Build:
+  Users:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,7 +12,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          
+
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
         with:
@@ -25,7 +25,10 @@ jobs:
       - name: testing vpn link
         run: |
           ping -c 1 dev-server.sanve.mostserene.eu
-    
+          
+      - name: Download application.properties
+        run: curl -k https://repository.mostserene.eu/avogador/envs/testing/users/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/userservice/src/test/resources/application.properties
+
       - name: Gradle build
         uses: gradle/gradle-build-action@v2
         with:
@@ -36,13 +39,7 @@ jobs:
         with:
           name: usersService.jar
           path: backend/services/userservice/build/libs/*.jar
-  
-  Test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download application.properties
-        run: curl -k https://repository.mostserene.eu/avogador/envs/testing/users/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/userservice/src/test/resources/application.properties
-
+      
       - name: Gradle test
         uses: gradle/gradle-build-action@v2
         with:
