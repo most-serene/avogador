@@ -46,9 +46,6 @@ const LoginGoogle = () => {
               if (credentialResponse.credential !== undefined) {
                 setShowSplashScreen(true);
                 login(credentialResponse.credential)
-                  .then(() => {
-                    setShowSplashScreen(false);
-                  })
                   .catch((err) => {
                     if (
                       err instanceof AxiosError &&
@@ -63,6 +60,9 @@ const LoginGoogle = () => {
                     } else {
                       enqueueSnackbar("Login failed", { variant: "error" });
                     }
+                  })
+                  .finally(() => {
+                    setShowSplashScreen(false);
                   });
               }
             }}
