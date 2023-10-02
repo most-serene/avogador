@@ -1,7 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
-import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -25,15 +24,15 @@ public class Testcase {
 
     @NotNull
     @Min(0)
-    private Integer order;
+    private Integer index;
 
     public Testcase() {
     }
 
-    public Testcase(Exercise exercise, Boolean isVisible, Integer order) {
+    public Testcase(Exercise exercise, Boolean isVisible, Integer index) {
         this.exercise = exercise;
         this.isVisible = isVisible;
-        this.order = order;
+        this.index = index;
     }
 
     public UUID getId() {
@@ -56,11 +55,11 @@ public class Testcase {
         isVisible = visible;
     }
 
-    public Integer getOrder() {
-        return order;
+    public Integer getIndex() {
+        return index;
     }
 
-    public void setOrder(Integer order) {
-        this.order = order;
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 }
