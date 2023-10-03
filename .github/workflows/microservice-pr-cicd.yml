@@ -62,6 +62,7 @@ jobs:
 
       - name: testing vpn link
         run: |
+          ifconfig
           ping -c 1 192.168.27.2
     
       - name: Publish Test Report
