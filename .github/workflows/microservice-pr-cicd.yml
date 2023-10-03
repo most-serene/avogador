@@ -60,6 +60,7 @@ jobs:
           build-root-directory: backend/services/${{ inputs.microservice }}
 
       - name: Publish Test Report
+        if: always()
         uses: mikepenz/action-junit-report@v4
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
