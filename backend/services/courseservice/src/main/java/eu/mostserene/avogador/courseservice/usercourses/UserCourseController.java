@@ -6,6 +6,7 @@ import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
+import eu.mostserene.avogador.courseservice.utils.LoggerColors;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class UserCourseController {
         }
 
         return userCourseService.getUserCourse(user.getId(), courseId)
-                .orElse(userCourseService.createStudent(user, course));
+                .orElseGet(() -> userCourseService.createStudent(user, course));
     }
 
     /**

@@ -45,9 +45,9 @@ const JoinCourse = () => {
           enqueueSnackbar(`Your join code is wrong`, { variant: "error" });
         }
       })
-      .catch((e) => {
+      .catch((e: Error) => {
         console.error(e);
-        enqueueSnackbar("An error has occurred", { variant: "error" });
+        enqueueSnackbar(e.message, { variant: "error" });
       });
   };
 
@@ -57,6 +57,9 @@ const JoinCourse = () => {
     getCourseById(courseId)
       .then((c) => {
         setCourse(c);
+        if (c.role !== "EXTERNAL") {
+          navigate(`/courses/${c.id}`);
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -70,7 +73,7 @@ const JoinCourse = () => {
           );
         }
       });
-  }, [getCourseById, courseId, globalErrorSetter]);
+  }, [getCourseById, courseId, globalErrorSetter, navigate]);
 
   return (
     <Card sx={{ width: "32rem" }} raised>
