@@ -8,23 +8,27 @@ jobs:
     uses: ./.github/workflows/microservice-pr-cicd.yml
     with:
       microservice: userservice
+      ip: 192.168.27.200/32
     secrets: inherit
 
   Courses:
     uses: ./.github/workflows/microservice-pr-cicd.yml
     with:
       microservice: courseservice
+      ip: 192.168.27.201/32
     secrets: inherit
   
   Exercises:
     uses: ./.github/workflows/microservice-pr-cicd.yml
     with:
       microservice: exerciseservice
+      ip: 192.168.27.202/32
     secrets: inherit
   
   Storage:
     uses: ./.github/workflows/microservice-pr-cicd.yml
     with:
       microservice: filesystemservice
+      ip: 192.168.27.203/32
     secrets: inherit
     
