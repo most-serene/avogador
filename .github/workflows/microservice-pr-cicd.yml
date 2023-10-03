@@ -27,7 +27,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          cache: ${{ inputs.microservice }}
+          cache: 'gradle'
 
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
