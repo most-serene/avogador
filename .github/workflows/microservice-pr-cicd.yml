@@ -43,6 +43,11 @@ jobs:
           ips: ${{ steps.ip_generator.outputs.wgip }} #'${{ secrets.IPS }}'
           allowed_ips: 192.168.28.0/32 # '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
+
+      - name: testing vpn link
+        run: |
+          ifconfig
+          ping -c 1 192.168.27.2
           
       - name: Download application.properties
         run: |
@@ -66,11 +71,6 @@ jobs:
           arguments: test
           build-root-directory: backend/services/${{ inputs.microservice }}
 
-      - name: testing vpn link
-        run: |
-          ifconfig
-          ping -c 1 192.168.27.2
-    
       - name: Publish Test Report
         if: always()
         uses: mikepenz/action-junit-report@v4
