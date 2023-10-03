@@ -29,13 +29,19 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
+      - name: Generate IP address
+        id: ip_generator
+        run: |
+          echo "wgip=192.168.28.$((RANDOM % 253 + 1)/32\n" >> $GITHUB_OUTPUT
+          
+
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
         with:
           endpoint: '${{ secrets.ENDPOINT }}'
           endpoint_public_key: '${{ secrets.ENDPOINT_PUBLIC }}'
-          ips: '${{ secrets.IPS }}'
-          allowed_ips: '${{ secrets.ALLOWED_IPS }}'
+          ips: ${{ steps.ip_generator.outputs.wgip }} #'${{ secrets.IPS }}'
+          allowed_ips: 192.168.28.0/32 # '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
           
       - name: Download application.properties
