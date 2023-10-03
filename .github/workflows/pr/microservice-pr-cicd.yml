@@ -1,0 +1,65 @@
+name: Spring Boot microservice CICD pipeline
+run-name: CICD pipeline for ${{ github.ref }}
+on:
+  workflow_call:
+    inputs:
+      microservice:
+        required: true
+        type: string
+    secrets:
+      ENDPOINT:
+        required: true  
+      ENDPOINT_PUBLIC:
+        required: true
+      IPS:
+        required: true
+      ALLOWED_IPS:
+        required: true
+      PRIVATE:
+        required: true
+
+jobs:
+  BuildAndTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up WireGuard
+        uses: egor-tensin/setup-wireguard@v1
+        with:
+          endpoint: '${{ secrets.ENDPOINT }}'
+          endpoint_public_key: '${{ secrets.ENDPOINT_PUBLIC }}'
+          ips: '${{ secrets.IPS }}'
+          allowed_ips: '${{ secrets.ALLOWED_IPS }}'
+          private_key: '${{ secrets.PRIVATE }}'
+          
+      - name: Download application.properties
+        run: |
+          mkdir -p backend/services/${{ inputs.microservice }}/src/test/resources/
+          curl -k https://repository.mostserene.eu/avogador/envs/testing/${{ inputs.microservice }}/application.properties -u ${{ secrets.REPOSITORY_CREDENTIALS }}  --output backend/services/${{ inputs.microservice }}/src/test/resources/application.properties
+
+      - name: Gradle build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assemble
+          build-root-directory: backend/services/${{ inputs.microservice }}
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.microservice }}.jar
+          path: backend/services/${{ inputs.microservice }}/build/libs/*.jar
+      
+      - name: Gradle test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test
+          build-root-directory: backend/services/${{ inputs.microservice }}
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
