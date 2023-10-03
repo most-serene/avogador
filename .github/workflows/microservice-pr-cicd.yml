@@ -1,5 +1,5 @@
 name: Spring Boot microservice CICD pipeline
-run-name: CICD pipeline for ${{ github.ref }}
+run-name: CICD pipeline for ${{ github.event.pull_request.title }}
 on:
   workflow_call:
     inputs:
@@ -62,7 +62,7 @@ jobs:
 
       - name: testing vpn link
         run: |
-          ping -c 1 dev-server.sanve.mostserene.eu
+          ping -c 1 192.168.27.2
     
       - name: Publish Test Report
         if: always()
