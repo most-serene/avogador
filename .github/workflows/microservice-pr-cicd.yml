@@ -27,6 +27,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+          cache: ${{ inputs.microservice }}
 
       - name: Set up WireGuard
         uses: egor-tensin/setup-wireguard@v1
@@ -59,6 +60,10 @@ jobs:
           arguments: test
           build-root-directory: backend/services/${{ inputs.microservice }}
 
+      - name: testing vpn link
+        run: |
+          ping -c 1 dev-server.sanve.mostserene.eu
+    
       - name: Publish Test Report
         if: always()
         uses: mikepenz/action-junit-report@v4
