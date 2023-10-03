@@ -32,7 +32,7 @@ jobs:
       - name: Generate IP address
         id: ip_generator
         run: |
-          echo "wgip=192.168.28.$((RANDOM % 253 + 1)/32\n" >> $GITHUB_OUTPUT
+          echo "wgip=192.168.28.$((RANDOM % 253 + 1))/32\n" >> $GITHUB_OUTPUT
           
 
       - name: Set up WireGuard
