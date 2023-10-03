@@ -44,7 +44,7 @@ jobs:
           endpoint: '${{ secrets.ENDPOINT }}'
           endpoint_public_key: '${{ secrets.ENDPOINT_PUBLIC }}'
           ips: ${{ inputs.ip }} # ${{ steps.ip_generator.outputs.wgip }} #'${{ secrets.IPS }}'
-          allowed_ips: 192.168.27.200/32 # '${{ secrets.ALLOWED_IPS }}'
+          allowed_ips: 192.168.27.0/24 # '${{ secrets.ALLOWED_IPS }}'
           private_key: '${{ secrets.PRIVATE }}'
 
       - name: testing vpn link
