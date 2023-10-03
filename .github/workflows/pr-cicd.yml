@@ -9,3 +9,22 @@ jobs:
     with:
       microservice: userservice
     secrets: inherit
+
+  Courses:
+    uses: ./.github/workflows/microservice-pr-cicd.yml
+    with:
+      microservice: courseservice
+    secrets: inherit
+  
+  Exercises:
+    uses: ./.github/workflows/microservice-pr-cicd.yml
+    with:
+      microservice: exerciseservice
+    secrets: inherit
+  
+  Storage:
+    uses: ./.github/workflows/microservice-pr-cicd.yml
+    with:
+      microservice: filesystemservice
+    secrets: inherit
+    
