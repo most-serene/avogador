@@ -5,7 +5,7 @@ on:
   pull_request:
 jobs:
   Users:
-    uses: ./.github/workflows/pr/microservice-pr-cicd.yml
+    uses: ./.github/workflows/microservice-pr-cicd.yml
     with:
       microservice: userservice
     secrets: inherit
