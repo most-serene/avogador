@@ -21,5 +21,7 @@ public interface ExerciseStorage {
 
     Optional<File> getSubmissionCode(UUID submissionId);
 
+    void saveTestcase(UUID testcaseId, String input, String output);
+
     void delete();
 }

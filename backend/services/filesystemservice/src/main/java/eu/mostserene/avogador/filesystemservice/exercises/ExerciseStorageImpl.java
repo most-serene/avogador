@@ -77,6 +77,10 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         return new File(get().toString() + "/submissions");
     }
 
+    private File getTestcasesFolder() {
+        return new File(get().toString() + "/testcases");
+    }
+
     @Override
     public void saveTemplate(Strox template) {
         StroxStorage storage = new StroxStorageImpl();
@@ -124,6 +128,19 @@ public class ExerciseStorageImpl implements ExerciseStorage {
             return Optional.of(CompressionUtils.createTarGzipFolder(Path.of(submissionFolder + "/source")));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void saveTestcase(UUID testcaseId, String input, String output) {
+        File inputFile = new File(getTestcasesFolder() + "/" + testcaseId + ".in");
+        File outputFile = new File(getTestcasesFolder() + "/" + testcaseId + ".out");
+
+        try {
+            Files.writeString(inputFile.toPath(), input);
+            Files.writeString(outputFile.toPath(), output);
+        } catch (IOException e) {
+            throw new FileCreationFailed("Testcase " + testcaseId + ": testcase files creation failed");
         }
     }
 

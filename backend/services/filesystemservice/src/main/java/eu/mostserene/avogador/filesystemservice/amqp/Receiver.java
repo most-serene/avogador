@@ -7,6 +7,7 @@ import eu.mostserene.avogador.filesystemservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseTemplateDTO;
 import eu.mostserene.avogador.filesystemservice.submission.SubmissionDTO;
+import eu.mostserene.avogador.filesystemservice.testcases.TestcaseDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialStorageImpl;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
@@ -31,6 +32,7 @@ public class Receiver implements MessageListener {
             case "fs.exercise.create" -> exerciseCreationHandler(message);
             case "fs.template.create" -> exerciseTemplateCreationHandler(message);
             case "fs.submission.create" -> submissionCreationHandler(message);
+            case "fs.testcase.create" -> testcaseCreationHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
     }
@@ -73,6 +75,16 @@ public class Receiver implements MessageListener {
             SubmissionDTO submissionDTO = mapper.readValue(message.getBody(), SubmissionDTO.class);
             ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
                     .saveSubmission(submissionDTO.getSubmissionId(), submissionDTO.getSubmission());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void testcaseCreationHandler(Message message) {
+        try {
+            TestcaseDTO testcaseDTO = mapper.readValue(message.getBody(), TestcaseDTO.class);
+            ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
+                    .saveTestcase(testcaseDTO.getTestcaseId(), testcaseDTO.getInput(), testcaseDTO.getOutput());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
