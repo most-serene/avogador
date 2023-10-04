@@ -39,6 +39,9 @@ pipeline {
     }*/
     stages {
         stage('Build') {
+            when {
+               anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
+            }
             steps {
                 setBuildPending()
                 echo "Build started"
@@ -46,7 +49,6 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/apigateway
-                        gradle wrapper
 
                         ./gradlew clean assemble
                     '''
@@ -65,7 +67,6 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/courseservice
-                        gradle wrapper
 
                         ./gradlew clean assemble
                     '''
@@ -84,7 +85,6 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/userservice
-                        gradle wrapper
                         
                         ./gradlew clean assemble
                     '''
@@ -103,7 +103,6 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/exerciseservice
-                        gradle wrapper
                         
                         ./gradlew clean assemble
                     '''
@@ -122,7 +121,6 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/filesystemservice
-                        gradle wrapper
                         
                         ./gradlew clean assemble
                     '''
@@ -150,12 +148,14 @@ pipeline {
 
                 script {
                     if (env.BRANCH_NAME == 'master') {
+                        /*
                         echo "Building Storybook"
                         sh """
                             cd frontend
                             yarn build-storybook
                             tar -czvf storybook.tar.gz storybook-static
                         """
+                        */
 
                         echo "Publish artifacts"
                         sh """
@@ -166,8 +166,8 @@ pipeline {
                             cp backend/services/filesystemservice/build/libs/* /share/avogador/artifacts/filesystemservice.jar
 							
                             cp frontend/webapp.tar.gz /share/avogador/artifacts/webapp.tar.gz
-                            cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
                         """
+                            // cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
                         
                         echo "Publish javadoc"
                         sh '''
@@ -184,6 +184,9 @@ pipeline {
             }
         }
         stage('Test') {
+            when {
+               anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
+            }
             steps {
                 echo "Tests started"
 
@@ -237,11 +240,13 @@ pipeline {
                     '''
                 }
                 
+                /*
                 sh '''
                     cd frontend
                     yarn test run
                     yarn lint
                 '''
+                */
                 
                 echo "Tests finished"
             }
@@ -303,9 +308,16 @@ pipeline {
     post {
         
         always {
-            junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
-            junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
-            discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
+
+            script {
+                if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith('PR') || 
+                    sh(returnStdout: true, script: "git tag --contains").trim()) {
+                    
+                    junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+                }
+            }
+
+            // junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
         }
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
@@ -316,6 +328,7 @@ pipeline {
                     }
                 }
             }
+            discordSend description: "Jenkins Avogador Build", footer: "success", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
         failure {
             setBuildStatus("Build failed", "FAILURE");
@@ -326,6 +339,7 @@ pipeline {
                     }
                 }
             }
+            discordSend description: "Jenkins Avogador Build", footer: "failure", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
     }
 }
