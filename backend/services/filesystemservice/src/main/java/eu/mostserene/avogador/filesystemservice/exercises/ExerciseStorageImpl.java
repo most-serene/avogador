@@ -4,6 +4,7 @@ import eu.mostserene.avogador.filesystemservice.FileSystemRoot;
 import eu.mostserene.avogador.filesystemservice.strox.Strox;
 import eu.mostserene.avogador.filesystemservice.strox.StroxStorage;
 import eu.mostserene.avogador.filesystemservice.strox.StroxStorageImpl;
+import eu.mostserene.avogador.filesystemservice.testcases.TestcaseResponseTDO;
 import eu.mostserene.avogador.filesystemservice.utils.CompressionUtils;
 import eu.mostserene.avogador.filesystemservice.utils.FileCreationFailed;
 import eu.mostserene.avogador.filesystemservice.utils.FileNotFound;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,11 +63,18 @@ public class ExerciseStorageImpl implements ExerciseStorage {
             throw new FileCreationFailed("Exercise " + getExerciseId() + ": folder creation failed");
         }
 
-        File submissionsFolder = new File(exerciseFolder + "/submissions");
+        File submissionsFolder = getSubmissionsFolder();
         if (submissionsFolder.mkdirs()) {
             log.info(LoggerColors.success("Exercise " + getExerciseId() + ": submissions folder created"));
         } else {
             throw new FileCreationFailed("Exercise " + getExerciseId() + ": submissions folder creation failed");
+        }
+
+        File testcasesFolder = getTestcasesFolder();
+        if (testcasesFolder.mkdirs()) {
+            log.info(LoggerColors.success("Exercise " + getExerciseId() + ": testcases folder created"));
+        } else {
+            throw new FileCreationFailed("Exercise " + getExerciseId() + ": testcases folder creation failed");
         }
     }
 
@@ -141,6 +151,44 @@ public class ExerciseStorageImpl implements ExerciseStorage {
             Files.writeString(outputFile.toPath(), output);
         } catch (IOException e) {
             throw new FileCreationFailed("Testcase " + testcaseId + ": testcase files creation failed");
+        }
+    }
+
+    @Override
+    public Optional<TestcaseResponseTDO> getTestcase(UUID testcaseId) {
+        File inputTestcase = new File(getTestcasesFolder() + "/" + testcaseId + ".in");
+        File outputTestcase = new File(getTestcasesFolder() + "/" + testcaseId + ".out");
+
+        if (!inputTestcase.exists() && !outputTestcase.exists()) return Optional.empty();
+
+        if (!inputTestcase.exists() || !outputTestcase.exists()) {
+            throw new IllegalStateException("A partial testcase is stored");
+        }
+
+        try {
+            TestcaseResponseTDO testcaseResponseTDO = new TestcaseResponseTDO(testcaseId,
+                    Files.readString(inputTestcase.toPath()), Files.readString(outputTestcase.toPath()));
+
+            return Optional.of(testcaseResponseTDO);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read testcase files");
+        }
+    }
+
+    @Override
+    public Optional<File> getTestcases() {
+        if (!getTestcasesFolder().exists()) {
+            throw new FileNotFound("Exercise " + getExerciseId() + ": Testcases folder not found");
+        }
+
+        if (List.of(Objects.requireNonNull(getTestcasesFolder().listFiles())).isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(CompressionUtils.createTarGzipFolder(getTestcasesFolder().toPath()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
