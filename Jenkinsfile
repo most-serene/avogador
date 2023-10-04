@@ -50,7 +50,7 @@ pipeline {
                     sh '''
                         cd backend/apigateway
 
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
                     script {
@@ -58,7 +58,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/apigateway
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -68,7 +68,7 @@ pipeline {
                     sh '''
                         cd backend/services/courseservice
 
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -76,7 +76,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/courseservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -86,7 +86,7 @@ pipeline {
                     sh '''
                         cd backend/services/userservice
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -94,7 +94,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/userservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -104,7 +104,7 @@ pipeline {
                     sh '''
                         cd backend/services/exerciseservice
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/exerciseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -112,7 +112,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/exerciseservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -122,7 +122,7 @@ pipeline {
                     sh '''
                         cd backend/services/filesystemservice
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/filesystemservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -130,7 +130,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/filesystemservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -196,7 +196,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
                         cd backend/apigateway
 
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
                 
@@ -206,7 +206,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
                         cd backend/services/courseservice
 
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -216,7 +216,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -226,7 +226,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
                         cd backend/services/exerciseservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -236,7 +236,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/filesystemTest backend/services/filesystemservice/src/test/resources/application.properties
                         cd backend/services/filesystemservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
                 
