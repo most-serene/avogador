@@ -7,7 +7,7 @@ import eu.mostserene.avogador.filesystemservice.strox.StroxStorageImpl;
 import eu.mostserene.avogador.filesystemservice.testcases.TestcaseResponseTDO;
 import eu.mostserene.avogador.filesystemservice.utils.CompressionUtils;
 import eu.mostserene.avogador.filesystemservice.utils.FileCreationFailed;
-import eu.mostserene.avogador.filesystemservice.utils.FileNotFound;
+import eu.mostserene.avogador.filesystemservice.utils.FileNotFoundException;
 import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -111,7 +111,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         submission.setPath(submissionFolder + "/submission.strox");
         stroxStorage.saveToFile(submission);
         String sourceCode = Strox.merge(getTemplate()
-                        .orElseThrow(() -> new FileNotFound("Template of exercise " + submissionId + " not found")), submission)
+                        .orElseThrow(() -> new FileNotFoundException("Template of exercise " + submissionId + " not found")), submission)
                 .generateSourceCode();
 
         File sourceFile = new File(submissionFolder + "/source/" + submission.getSourceFileName());
@@ -178,7 +178,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     @Override
     public Optional<File> getTestcases() {
         if (!getTestcasesFolder().exists()) {
-            throw new FileNotFound("Exercise " + getExerciseId() + ": Testcases folder not found");
+            throw new FileNotFoundException("Exercise " + getExerciseId() + ": Testcases folder not found");
         }
 
         if (List.of(Objects.requireNonNull(getTestcasesFolder().listFiles())).isEmpty()) {

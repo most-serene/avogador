@@ -3,11 +3,6 @@ package eu.mostserene.avogador.filesystemservice.submission;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorage;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.strox.Strox;
-import eu.mostserene.avogador.filesystemservice.utils.FileNotFound;
-import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -19,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.UUID;
 
 @RestController

@@ -2,7 +2,7 @@ package eu.mostserene.avogador.filesystemservice.testcases;
 
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorage;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
-import eu.mostserene.avogador.filesystemservice.utils.FileNotFound;
+import eu.mostserene.avogador.filesystemservice.utils.FileNotFoundException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -24,12 +24,12 @@ public class TestcaseController {
     private TestcaseResponseTDO getTestcase(@PathVariable UUID courseId, @PathVariable UUID trialId,
                         @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
         return ExerciseStorageImpl.of(courseId, trialId, exerciseId).getTestcase(testcaseId)
-                .orElseThrow(() -> new FileNotFound("Exercise " + exerciseId + ": Testcase " + testcaseId + " not found"));
+                .orElseThrow(() -> new FileNotFoundException("Exercise " + exerciseId + ": Testcase " + testcaseId + " not found"));
     }
 
 
     @GetMapping("/testcases")
-    private ResponseEntity<Resource> getExerciseStroxTemplate(@PathVariable UUID courseId, @PathVariable UUID trialId, @PathVariable UUID exerciseId) {
+    private ResponseEntity<Resource> getTestcases(@PathVariable UUID courseId, @PathVariable UUID trialId, @PathVariable UUID exerciseId) {
         ExerciseStorage exerciseStorage = ExerciseStorageImpl.of(courseId, trialId, exerciseId);
 
         Resource tarResource = new FileSystemResource(exerciseStorage.getTestcases()
