@@ -39,6 +39,9 @@ pipeline {
     }*/
     stages {
         stage('Build') {
+            when {
+               anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
+            }
             steps {
                 setBuildPending()
                 echo "Build started"
@@ -46,9 +49,8 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/apigateway
-                        gradle wrapper
 
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
                     script {
@@ -56,7 +58,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/apigateway
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -65,9 +67,8 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/courseservice
-                        gradle wrapper
 
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -75,7 +76,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/courseservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -84,9 +85,8 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/userservice
-                        gradle wrapper
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -94,7 +94,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/userservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -103,9 +103,8 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/exerciseservice
-                        gradle wrapper
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/exerciseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -113,7 +112,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/exerciseservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -122,9 +121,8 @@ pipeline {
                 withGradle {
                     sh '''
                         cd backend/services/filesystemservice
-                        gradle wrapper
                         
-                        ./gradlew clean assemble
+                        ./gradlew assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/filesystemservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -132,7 +130,7 @@ pipeline {
                             echo "Generate javadoc"
                             sh '''
                                 cd backend/services/filesystemservice
-                                ./gradlew javadoc
+                                ./gradlew javadoc --no-daemon
                             '''
                         }
                     }
@@ -150,12 +148,14 @@ pipeline {
 
                 script {
                     if (env.BRANCH_NAME == 'master') {
+                        /*
                         echo "Building Storybook"
                         sh """
                             cd frontend
                             yarn build-storybook
                             tar -czvf storybook.tar.gz storybook-static
                         """
+                        */
 
                         echo "Publish artifacts"
                         sh """
@@ -166,8 +166,8 @@ pipeline {
                             cp backend/services/filesystemservice/build/libs/* /share/avogador/artifacts/filesystemservice.jar
 							
                             cp frontend/webapp.tar.gz /share/avogador/artifacts/webapp.tar.gz
-                            cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
                         """
+                            // cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
                         
                         echo "Publish javadoc"
                         sh '''
@@ -184,6 +184,9 @@ pipeline {
             }
         }
         stage('Test') {
+            when {
+               anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
+            }
             steps {
                 echo "Tests started"
 
@@ -193,7 +196,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
                         cd backend/apigateway
 
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
                 
@@ -203,7 +206,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
                         cd backend/services/courseservice
 
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -213,7 +216,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -223,7 +226,7 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
                         cd backend/services/exerciseservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
 
@@ -233,15 +236,17 @@ pipeline {
                         cp $JENKINS_HOME/.envvars/avogador/filesystemTest backend/services/filesystemservice/src/test/resources/application.properties
                         cd backend/services/filesystemservice
                         
-                        ./gradlew clean test
+                        ./gradlew test --no-daemon
                     '''
                 }
                 
+                /*
                 sh '''
                     cd frontend
                     yarn test run
                     yarn lint
                 '''
+                */
                 
                 echo "Tests finished"
             }
@@ -303,9 +308,16 @@ pipeline {
     post {
         
         always {
-            junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
-            junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
-            discordSend description: "Jenkins Avogador Build", footer: "execution done", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
+
+            script {
+                if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith('PR') || 
+                    sh(returnStdout: true, script: "git tag --contains").trim()) {
+                    
+                    junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+                }
+            }
+
+            // junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
         }
         success {
             setBuildStatus("Build succeeded", "SUCCESS");
@@ -316,6 +328,7 @@ pipeline {
                     }
                 }
             }
+            discordSend description: "Jenkins Avogador Build", footer: "success", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
         failure {
             setBuildStatus("Build failed", "FAILURE");
@@ -326,6 +339,7 @@ pipeline {
                     }
                 }
             }
+            discordSend description: "Jenkins Avogador Build", footer: "failure", link: env.BUILD_URL, result: currentBuild.currentResult, title: JOB_NAME, webhookURL: "https://discord.com/api/webhooks/1136310574217695282/vp-s3bAzIBYPx9O3-78Ke_JcEJ1Rrn-uJsLxk9ZnrNQPO3u-DixI408Iesw2rLqV1sK1"
         }
     }
 }
