@@ -11,21 +11,21 @@ export default defineConfig({
       jsxImportSource: '@emotion/react'
     }),
     VitePWA({
-      registerType: 'autoUpdate',  
-      // includeAssets: ['MostSerene.svg', 'avogador.png', '512.png'],  
-      manifest: {  
+      registerType: 'autoUpdate',
+      // includeAssets: ['MostSerene.svg', 'avogador.png', '512.png'],
+      manifest: {
         name: 'Avogador',
         display: 'standalone',
-        description: 'A system for academic untrusted code execution',  
-        theme_color: '#009393',  
-        background_color: '#ffffff',  
-        start_url: '/',  
+        description: 'A system for academic untrusted code execution',
+        theme_color: '#009393',
+        background_color: '#ffffff',
+        start_url: '/',
         icons: [ {
-          src: 'icons/512.png',  
+          src: 'icons/512.png',
           sizes: '512x512',
-          type: 'image/png', 
+          type: 'image/png',
           purpose: 'any maskable'
-        }],  
+        }],
       },
       devOptions: {
         enabled: true
@@ -70,6 +70,14 @@ export default defineConfig({
     include: ["@emotion/react", "@emotion/styled"],
   },
   build: {
-   // manifest: false
+    rollupOptions: {
+      output:{
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        }
+      }
+    }
   }
 })
