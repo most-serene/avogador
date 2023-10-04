@@ -31,6 +31,7 @@ export default function CourseDetailScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [openTab, setOpenTab] = useState(0);
+  const [courseName, setCourseName] = useState<string>();
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
@@ -73,6 +74,12 @@ export default function CourseDetailScreen() {
     };
   }, [getCourseById, courseId, globalErrorSetter, getInitialTab, setCourse]);
 
+  useEffect(() => {
+    if (course) {
+      setCourseName(`${course.name} (${course.year})`);
+    }
+  }, [course]);
+
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     event.preventDefault();
     setOpenTab(newValue);
@@ -103,11 +110,7 @@ export default function CourseDetailScreen() {
               variant="h3"
               align="center"
             >
-              {course ? (
-                `${course.name} (${course.year})`
-              ) : (
-                <Skeleton width={"50rem"} />
-              )}
+              {courseName ?? <Skeleton width={"50rem"} />}
             </Typography>
           </Box>
           {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
