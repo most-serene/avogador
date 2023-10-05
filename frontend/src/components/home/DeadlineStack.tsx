@@ -17,6 +17,51 @@ import { useNavigate } from "react-router-dom";
 import { Course, UserCourse } from "@courses/types.ts";
 import TrialItemSkeleton from "@trials/TrialItem/TrialItemSkeleton.tsx";
 
+interface DeadlineItemProps {
+  userTrial: UserTrial;
+  course: Course | undefined;
+}
+
+const DeadlineItem = ({ userTrial, course }: DeadlineItemProps) => {
+  const navigate = useNavigate();
+  const theme = useTheme();
+
+  const getStyle = (): CSSProperties => {
+    if (subHours(userTrial.deadline, 24) < new Date()) {
+      return {
+        border: 2,
+        borderColor: theme.palette.warning.main,
+        borderStyle: "solid",
+      };
+    }
+    return {};
+  };
+
+  return (
+    <Card
+      raised
+      style={getStyle()}
+      onClick={() => {
+        navigate(`/trials/${userTrial.trial.id}`);
+      }}
+    >
+      <CardActionArea>
+        <CardContent>
+          <Typography>
+            {userTrial.trial.name} - {course?.name} {course?.year}
+          </Typography>
+          <Typography variant={"body2"}>
+            Language: {userTrial.trial.language}
+          </Typography>
+          <Typography>
+            Deadline: {format(userTrial.deadline, "dd/MM/yyyy HH:mm")}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+};
+
 interface DeadlineStackProps {
   userCourses?: UserCourse[];
 }
@@ -25,50 +70,7 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
   const { getUserTrials } = useTrialService();
   const [user] = useAtom(userAtom);
   const [userTrials, setUserTrials] = useState<UserTrial[]>([]);
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const theme = useTheme();
-
-  const getDeadlineCard = (ut: UserTrial) => {
-    const course: Course | undefined = userCourses?.find(
-      (uc) => uc.course.id === ut.trial.courseId,
-    )?.course;
-
-    const getStyle = (): CSSProperties => {
-      if (subHours(ut.deadline, 24) < new Date()) {
-        return {
-          border: 2,
-          borderColor: theme.palette.warning.main,
-          borderStyle: "solid",
-        };
-      }
-      return {};
-    };
-
-    return (
-      <Card
-        raised
-        style={getStyle()}
-        onClick={() => {
-          navigate(`/trials/${ut.trial.id}`);
-        }}
-      >
-        <CardActionArea>
-          <CardContent>
-            <Typography>
-              {ut.trial.name} - {course?.name} {course?.year}
-            </Typography>
-            <Typography variant={"body2"}>
-              Language: {ut.trial.language}
-            </Typography>
-            <Typography>
-              Deadline: {format(ut.deadline, "dd/MM/yyyy HH:mm")}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    );
-  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -100,7 +102,17 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
             {isLoading ? (
               <TrialItemSkeleton />
             ) : (
-              userTrials.map((userTrial) => getDeadlineCard(userTrial))
+              userTrials.map((userTrial) => (
+                <DeadlineItem
+                  key={userTrial.id}
+                  userTrial={userTrial}
+                  course={
+                    userCourses?.find(
+                      (uc) => uc.course.id === userTrial.trial.courseId,
+                    )?.course
+                  }
+                />
+              ))
             )}
           </Stack>
         </CardContent>
