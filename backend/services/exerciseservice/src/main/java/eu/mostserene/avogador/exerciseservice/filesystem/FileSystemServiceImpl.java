@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,16 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void deleteExercise(Exercise exercise) {
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    @Override
+    public void createTestcase(TestcaseDetailDto testcase) {
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    @Override
+    public void deleteTestcase(TestcaseDetailDto testcase) {
         throw new UnsupportedOperationException("Method not yet implemented");
     }
 
