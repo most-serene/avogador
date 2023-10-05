@@ -42,8 +42,9 @@ public class UserTrialController {
         var userRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance())
+        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
+        }
 
         var userTrials = userTrialService.getUsersFromTrial(trial);
         var users = userService.getUsersFromIdList(userTrials.stream().map(UserTrial::getUserId).toList()).
@@ -52,6 +53,29 @@ public class UserTrialController {
         return userTrials.stream()
                 .map(userTrial -> userTrial.getUserTrialDetail(users.get(userTrial.getUserId())))
                 .toList();
+    }
+
+    /**
+     * get the relation between a user and a trial
+     * @param user the requesting user
+     * @param trialId the id of the trial
+     * @param userId the id of the user
+     * @return the userTrial
+     * */
+    @GetMapping("/{trialId}/users/{userId}")
+    private UserTrialDetailDto getUserTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId, @PathVariable UUID userId){
+        var trial = trialService.getTrialById(trialId)
+                .orElseThrow(NotFoundException::new);
+        var userRole = userCourseService.getUserCourseRole(trial.getCourseId(), userId)
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (!user.getId().equals(userId) || userRole.getClearance() <= CourseRole.EXTERNAL.getClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        return userTrialService.getUserTrial(trial, user)
+                .orElseThrow(() -> new NotFoundException("UserTrial not found"))
+                .getUserTrialDetail(user);
     }
 
     /**
