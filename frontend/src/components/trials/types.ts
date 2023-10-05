@@ -26,5 +26,15 @@ function isExam(trial: Trial): trial is Exam {
   return trial.trialType === "EXAM";
 }
 
-export type { Trial, Practice, Exam };
+interface UserTrial {
+  id: string;
+  userId: string;
+  trial: Trial;
+  startTime: Date;
+  finishTime?: Date;
+  deadline: Date;
+  hasExtraTime: boolean;
+}
+
+export type { Trial, Practice, Exam, UserTrial };
 export { isPractice, isExam };
