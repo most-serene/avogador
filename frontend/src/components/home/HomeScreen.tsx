@@ -42,8 +42,8 @@ export default function HomeScreen() {
           {userCourses && <QuickCreationHome userCourses={userCourses} />}
         </Grid>
 
-        <Grid item xs={3} paddingLeft={1}>
-          <DeadlineStack />
+        <Grid item xs={3} paddingLeft={1} height={"100%"}>
+          <DeadlineStack userCourses={userCourses} />
         </Grid>
       </Grid>
     </>

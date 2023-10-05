@@ -1,10 +1,109 @@
-import { Card, Stack } from "@mui/material";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import useTrialService from "@trials/hooks/useTrialService.tsx";
+import { CSSProperties, useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
+import { enqueueSnackbar } from "notistack";
+import { UserTrial } from "@trials/types.ts";
+import { format, subHours } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { Course, UserCourse } from "@courses/types.ts";
+import TrialItemSkeleton from "@trials/TrialItem/TrialItemSkeleton.tsx";
 
-export default function DeadlineStack() {
+interface DeadlineStackProps {
+  userCourses?: UserCourse[];
+}
+
+export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
+  const { getUserTrials } = useTrialService();
+  const [user] = useAtom(userAtom);
+  const [userTrials, setUserTrials] = useState<UserTrial[]>([]);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const theme = useTheme();
+
+  const getDeadlineCard = (ut: UserTrial) => {
+    const course: Course | undefined = userCourses?.find(
+      (uc) => uc.course.id === ut.trial.courseId,
+    )?.course;
+
+    const getStyle = (): CSSProperties => {
+      if (subHours(ut.deadline, 24) < new Date()) {
+        return {
+          border: 2,
+          borderColor: theme.palette.warning.main,
+          borderStyle: "solid",
+        };
+      }
+      return {};
+    };
+
+    return (
+      <Card
+        raised
+        style={getStyle()}
+        onClick={() => {
+          navigate(`/trials/${ut.trial.id}`);
+        }}
+      >
+        <CardActionArea>
+          <CardContent>
+            <Typography>
+              {ut.trial.name} - {course?.name} {course?.year}
+            </Typography>
+            <Typography variant={"body2"}>
+              Language: {ut.trial.language}
+            </Typography>
+            <Typography>
+              Deadline: {format(ut.deadline, "dd/MM/yyyy HH:mm")}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    );
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (user) {
+      getUserTrials(user)
+        .then((userTrialsResponse) => {
+          setUserTrials(
+            userTrialsResponse
+              .filter((ut) => !ut.finishTime)
+              .sort((a, b) => a.deadline.getTime() - b.deadline.getTime()),
+          );
+          setIsLoading(false);
+        })
+        .catch((err: Error) => {
+          enqueueSnackbar(err.message, { variant: "error" });
+          console.error(err);
+        });
+    }
+  }, [getUserTrials, user]);
+
   return (
     <>
-      <Card sx={{ height: "100%" }}>
-        <Stack></Stack>
+      <Card
+        style={{ height: "100%", overflow: "scroll" }}
+        className={"hidden-scrollbar"}
+      >
+        <CardContent>
+          <Stack spacing={2}>
+            {isLoading ? (
+              <TrialItemSkeleton />
+            ) : (
+              userTrials.map((userTrial) => getDeadlineCard(userTrial))
+            )}
+          </Stack>
+        </CardContent>
       </Card>
     </>
   );
