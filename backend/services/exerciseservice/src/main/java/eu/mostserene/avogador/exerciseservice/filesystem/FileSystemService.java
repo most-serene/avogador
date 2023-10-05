@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.filesystem;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 
 
@@ -9,4 +10,6 @@ public interface FileSystemService {
     void deleteTrial(Trial trial);
     void createExercise(Exercise exercise);
     void deleteExercise(Exercise exercise);
+    void createTestcase(TestcaseDetailDto testcase);
+    void deleteTestcase(TestcaseDetailDto testcase);
 }
