@@ -44,6 +44,8 @@ export default defineConfig({
         '@authentication/*': fileURLToPath(new URL('./src/components/authentication/*', import.meta.url)),
         '@courses': fileURLToPath(new URL('./src/components/courses', import.meta.url)),
         '@courses/*': fileURLToPath(new URL('./src/components/courses/*', import.meta.url)),
+        '@exercises': fileURLToPath(new URL('./src/components/exercises', import.meta.url)),
+        '@exercises/*': fileURLToPath(new URL('./src/components/exercises/*', import.meta.url)),
         '@error': fileURLToPath(new URL('./src/components/error', import.meta.url)),
         '@error/*': fileURLToPath(new URL('./src/components/error/*', import.meta.url)),
         '@home': fileURLToPath(new URL('./src/components/home', import.meta.url)),
