@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,6 +57,16 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void deleteTestcase(TestcaseDetailDto testcase) {
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    @Override
+    public Optional<TestcaseIODto> getTestcase(UUID testcaseId) {
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+
+    @Override
+    public void updateTestcase(TestcaseDetailDto testcase) {
         throw new UnsupportedOperationException("Method not yet implemented");
     }
 

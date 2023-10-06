@@ -27,7 +27,7 @@ const DeadlineItem = ({ userTrial, course }: DeadlineItemProps) => {
   const theme = useTheme();
 
   const getStyle = (): CSSProperties => {
-    if (subHours(userTrial.deadline, 24) < new Date()) {
+    if (userTrial.deadline && subHours(userTrial.deadline, 24) < new Date()) {
       return {
         border: 2,
         borderColor: theme.palette.warning.main,
@@ -42,7 +42,11 @@ const DeadlineItem = ({ userTrial, course }: DeadlineItemProps) => {
       raised
       style={getStyle()}
       onClick={() => {
-        navigate(`/trials/${userTrial.trial.id}`);
+        if (userTrial.trial.trialType === "PRACTICE") {
+          navigate(`/practices/${userTrial.trial.id}`);
+        } else {
+          navigate(`/exams/${userTrial.trial.id}`);
+        }
       }}
     >
       <CardActionArea>
@@ -54,7 +58,9 @@ const DeadlineItem = ({ userTrial, course }: DeadlineItemProps) => {
             Language: {userTrial.trial.language}
           </Typography>
           <Typography>
-            Deadline: {format(userTrial.deadline, "dd/MM/yyyy HH:mm")}
+            Deadline:{" "}
+            {userTrial.deadline &&
+              format(userTrial.deadline, "dd/MM/yyyy HH:mm")}
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -80,7 +86,11 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
           setUserTrials(
             userTrialsResponse
               .filter((ut) => !ut.finishTime)
-              .sort((a, b) => a.deadline.getTime() - b.deadline.getTime()),
+              .sort(
+                (a, b) =>
+                  (a.deadline?.getTime() ?? new Date().getTime()) -
+                  (b.deadline?.getTime() ?? new Date().getTime()),
+              ),
           );
           setIsLoading(false);
         })

@@ -9,7 +9,9 @@ import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -50,11 +52,11 @@ public class TestcaseController {
         testcase.setIndex(exerciseTestcases.size());
         testcase.setExerciseId(exerciseId);
 
-        return testcaseService.createTestcase(testcase);
+        return testcaseService.createTestcase(testcase, exercise);
     }
 
     @GetMapping()
-    private List<TestcaseDetailDto> getTestcasesFromExercises(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId){
+    private List<TestcaseDetailDto> getTestcasesFromExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId){
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -66,11 +68,15 @@ public class TestcaseController {
             throw new ForbiddenException(user);
         }
 
-        return testcaseService.getTestcasesFromExercise(exercise)
-                .stream()
-                .filter(tc -> tc.getIsVisible() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
-                .sorted(Comparator.comparingInt(TestcaseDetailDto::getIndex))
-                .toList();
+        try {
+            return testcaseService.getTestcasesFromExercise(exercise)
+                    .stream()
+                    .filter(tc -> tc.getIsVisible() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
+                    .sorted(Comparator.comparingInt(TestcaseDetailDto::getIndex))
+                    .toList();
+        } catch (IllegalStateException exception){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Missing testcases");
+        }
     }
 
     @GetMapping("/{testcaseId}")

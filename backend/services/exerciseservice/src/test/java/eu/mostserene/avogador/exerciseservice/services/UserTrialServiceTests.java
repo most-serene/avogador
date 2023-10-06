@@ -54,6 +54,7 @@ public class UserTrialServiceTests {
         public void emptyRelation() throws Exception{
             when(repository.findByTrialAndUserId(any(), any()))
                     .thenReturn(Optional.empty());
+            justCreatedUserTrial.init();
             when(repository.save(any()))
                     .thenReturn(justCreatedUserTrial);
 

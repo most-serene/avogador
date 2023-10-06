@@ -37,7 +37,7 @@ public class UserTrialServiceImpl implements UserTrialService {
     @Override
     public UserTrial joinTrial(UserDto user, Trial trial) {
         var userTrial = repository.findByTrialAndUserId(trial, user.getId())
-                .orElseGet(() -> createUserTrial(new UserTrial(user.getId(), trial, false)));
+                .orElseGet(() -> new UserTrial(user.getId(), trial, false));
 
         if (userTrial.getStartTime() != null)
             return userTrial;

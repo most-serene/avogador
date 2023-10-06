@@ -30,9 +30,9 @@ interface UserTrial {
   id: string;
   userId: string;
   trial: Trial;
-  startTime: Date;
+  startTime?: Date;
   finishTime?: Date;
-  deadline: Date;
+  deadline?: Date;
   hasExtraTime: boolean;
 }
 

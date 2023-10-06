@@ -6,6 +6,27 @@ import { User } from "@authentication/types.ts";
 const useTrialService = () => {
   const avogadorApi = useAvogadorApi();
 
+  const getPracticeById: (trialId: string) => Promise<Practice> = useCallback(
+    async (trialId: string) => {
+      const { data: trial }: { data: Practice } = await avogadorApi.get(
+        `/trials/practices/${trialId}`,
+      );
+      return trial;
+    },
+    [avogadorApi],
+  );
+
+  const getUserTrial: (user: User, trial: Trial) => Promise<UserTrial> =
+    useCallback(
+      async (user: User, trial: Trial) => {
+        const { data: userTrial }: { data: UserTrial } = await avogadorApi.get(
+          `/trials/${trial.id}/users/${user.id}`,
+        );
+        return userTrial;
+      },
+      [avogadorApi],
+    );
+
   const getTrialsByCourseId: (courseId: string) => Promise<Trial[]> =
     useCallback(
       async (courseId: string) => {
@@ -37,10 +58,23 @@ const useTrialService = () => {
     [avogadorApi],
   );
 
+  const joinPractice: (practiceId: string) => Promise<UserTrial | null> =
+    useCallback(
+      async (practiceId: string) => {
+        const { data: userTrial }: { data: UserTrial | null } =
+          await avogadorApi.put(`/trials/practices/${practiceId}/join`);
+        return userTrial;
+      },
+      [avogadorApi],
+    );
+
   return {
+    getPracticeById,
+    getUserTrial,
     getTrialsByCourseId,
     createPractice,
     getUserTrials,
+    joinPractice,
   };
 };
 

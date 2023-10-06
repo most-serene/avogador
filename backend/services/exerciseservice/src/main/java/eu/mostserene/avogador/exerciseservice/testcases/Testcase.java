@@ -62,4 +62,8 @@ public class Testcase {
     public void setIndex(Integer index) {
         this.index = index;
     }
+
+    public TestcaseDetailDto toDetailDto(String input, String output){
+        return new TestcaseDetailDto(id, exercise.getId(), isVisible, index, input, output);
+    }
 }

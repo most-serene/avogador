@@ -9,8 +9,6 @@ interface CourseItemProps {
 export default function CourseItem({ course }: CourseItemProps) {
   const navigate = useNavigate();
 
-  console.log(course);
-
   return (
     <Card
       onClick={() => {
