@@ -21,6 +21,7 @@
       "@components/*": ["src/components/*"],
       "@authentication/*": ["src/components/authentication/*"],
       "@courses/*": ["src/components/courses/*"],
+      "@exercises/*": ["src/components/exercises/*"],
       "@error/*": ["src/components/error/*"],
       "@home/*": ["src/components/home/*"],
       "@profile/*": ["src/components/profile/*"],
