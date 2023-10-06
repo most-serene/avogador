@@ -19,7 +19,10 @@ const useTrialService = () => {
   const getUserTrial: (user: User, trial: Trial) => Promise<UserTrial> =
     useCallback(
       async (user: User, trial: Trial) => {
-        return await avogadorApi.get(`/trials/${trial.id}/users/${user.id}`);
+        const { data: userTrial }: { data: UserTrial } = await avogadorApi.get(
+          `/trials/${trial.id}/users/${user.id}`,
+        );
+        return userTrial;
       },
       [avogadorApi],
     );
