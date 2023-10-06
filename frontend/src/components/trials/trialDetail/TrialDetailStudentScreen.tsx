@@ -4,6 +4,7 @@ import { Exam, Practice } from "@trials/types.ts";
 import { CourseDetail } from "@courses/types.ts";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 
 interface TrialDetailStudentScreenProps {
   trial: Practice | Exam;
@@ -41,7 +42,7 @@ const TrialDetailStudentScreen = ({
             </Button>
           </Box>
         </Box>
-        <>Trial exercises tab</>
+        <TrialDetailExercisesTab trial={trial} />
       </Container>
     </Box>
   );

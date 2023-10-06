@@ -13,6 +13,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import { UserCourseDetail } from "@courses/types.ts";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 
 const tabs = ["Exercises", "Users", "Settings"];
 
@@ -99,7 +100,7 @@ const TrialDetailCollaboratorScreen = ({
           index={0}
           occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
         >
-          <>Trial exercises tab</>
+          <TrialDetailExercisesTab trial={trial} />
         </TabPanel>
         <TabPanel
           value={openTab}
