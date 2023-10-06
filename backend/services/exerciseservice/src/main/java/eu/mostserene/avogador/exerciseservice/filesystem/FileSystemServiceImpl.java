@@ -8,6 +8,7 @@ import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,10 +16,10 @@ import java.util.UUID;
 
 @Service
 public class FileSystemServiceImpl implements FileSystemService {
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void createTrial(Trial trial) {
-        ObjectMapper mapper = new ObjectMapper();
         try {
             (new Sender())
                     .send("filesystem", "fs.trial.create", mapper.writeValueAsString(new TrialStorageDTO(trial.getCourseId(), trial.getId())));
@@ -34,7 +35,6 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void createExercise(Exercise exercise) {
-        ObjectMapper mapper = new ObjectMapper();
         try {
             (new Sender())
                     .send("filesystem", "fs.exercise.create",
@@ -51,8 +51,21 @@ public class FileSystemServiceImpl implements FileSystemService {
     }
 
     @Override
-    public void createTestcase(TestcaseDetailDto testcase) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public void createTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.testcase.create",
+                            mapper.writeValueAsString(new TestcaseStorageDto(
+                                    exercise.getTrial().getCourseId(),
+                                    exercise.getTrial().getId(),
+                                    testcase.getExerciseId(),
+                                    testcase.getId(),
+                                    testcase.getInput(),
+                                    testcase.getOutput()
+                            )));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -61,13 +74,34 @@ public class FileSystemServiceImpl implements FileSystemService {
     }
 
     @Override
-    public Optional<TestcaseIODto> getTestcase(UUID testcaseId) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public Optional<TestcaseIODto> getTestcase(Exercise exercise, UUID testcaseId) {
+        TestcaseIODto testcaseIO = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://filesystem/courses/" + exercise.getTrial().getCourseId() +
+                                "/trials/ " + exercise.getTrial().getId() +
+                                "/exercises/" + exercise.getId() +
+                                "/testcases/" + testcaseId,
+                        TestcaseIODto.class);
+
+        return testcaseIO != null ? Optional.of(testcaseIO) : Optional.empty();
     }
 
     @Override
-    public void updateTestcase(TestcaseDetailDto testcase) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public void updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.testcase.create",
+                            mapper.writeValueAsString(new TestcaseStorageDto(
+                                    exercise.getTrial().getCourseId(),
+                                    exercise.getTrial().getId(),
+                                    testcase.getExerciseId(),
+                                    testcase.getId(),
+                                    testcase.getInput(),
+                                    testcase.getOutput()
+                            )));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Data
@@ -98,6 +132,28 @@ public class FileSystemServiceImpl implements FileSystemService {
             this.courseId = courseId;
             this.trialId = trialId;
             this.exerciseId = exerciseId;
+        }
+    }
+
+    @Data
+    private static class TestcaseStorageDto {
+        private UUID courseId;
+        private UUID trialId;
+        private UUID exerciseId;
+        private UUID testcaseId;
+        private String input;
+        private String output;
+
+        public TestcaseStorageDto() {
+        }
+
+        public TestcaseStorageDto(UUID courseId, UUID trialId, UUID exerciseId, UUID testcaseId, String input, String output) {
+            this.courseId = courseId;
+            this.trialId = trialId;
+            this.exerciseId = exerciseId;
+            this.testcaseId = testcaseId;
+            this.input = input;
+            this.output = output;
         }
     }
 }

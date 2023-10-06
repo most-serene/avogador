@@ -11,18 +11,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class TestcaseServiceImpl implements TestcaseService{
+public class TestcaseServiceImpl implements TestcaseService {
     @Autowired
     private TestcaseRepository repository;
     @Autowired
     private FileSystemService fileSystemService;
 
     @Override
-    public Optional<TestcaseDetailDto> getTestcase(UUID testcaseId) {
+    public Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId) {
         Optional<Testcase> testcase = repository.findById(testcaseId);
 
         return testcase.map(tc-> {
-            Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(testcaseId);
+            Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(exercise, testcaseId);
             return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
                     .orElse(null);
         });
@@ -33,7 +33,7 @@ public class TestcaseServiceImpl implements TestcaseService{
         List<Testcase> testcases = repository.findByExercise_Id(exercise.getId());
         List<TestcaseDetailDto> testcaseDetails = testcases.stream()
                 .map(tc -> {
-                    Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(tc.getId());
+                    Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(exercise, tc.getId());
                     return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
                             .orElse(null);
                 })
@@ -53,8 +53,10 @@ public class TestcaseServiceImpl implements TestcaseService{
 
     @Override
     public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise) {
-        fileSystemService.createTestcase(testcase);
-        repository.save(new Testcase(exercise, testcase.getIsVisible(), testcase.getIndex()));
+        var savedTestcase = repository.save(new Testcase(exercise, testcase.getIsVisible(), testcase.getIndex()));
+
+        fileSystemService.createTestcase(exercise,
+                savedTestcase.toDetailDto(testcase.getInput(), testcase.getOutput()));
 
         return testcase;
     }
@@ -66,8 +68,8 @@ public class TestcaseServiceImpl implements TestcaseService{
     }
 
     @Override
-    public TestcaseDetailDto updateTestcase(TestcaseDetailDto testcase) {
-        fileSystemService.updateTestcase(testcase);
+    public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        fileSystemService.updateTestcase(exercise, testcase);
         return testcase;
     }
 }

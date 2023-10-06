@@ -14,8 +14,8 @@ public interface FileSystemService {
     void deleteTrial(Trial trial);
     void createExercise(Exercise exercise);
     void deleteExercise(Exercise exercise);
-    void createTestcase(TestcaseDetailDto testcase);
+    void createTestcase(Exercise exercise, TestcaseDetailDto testcase);
     void deleteTestcase(TestcaseDetailDto testcase);
-    Optional<TestcaseIODto> getTestcase(UUID testcaseId);
-    void updateTestcase(TestcaseDetailDto testcase);
+    Optional<TestcaseIODto> getTestcase(Exercise exercise, UUID testcaseId);
+    void updateTestcase(Exercise exercise,TestcaseDetailDto testcase);
 }
