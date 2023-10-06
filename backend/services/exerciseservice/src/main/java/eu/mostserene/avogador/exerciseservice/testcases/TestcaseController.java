@@ -8,6 +8,7 @@ import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/public/exercises/{exerciseId}/testcases")
+@Slf4j
 public class TestcaseController {
     @Autowired
     private TestcaseService testcaseService;
@@ -92,7 +94,7 @@ public class TestcaseController {
             throw new ForbiddenException(user);
         }
 
-        var testcase =  testcaseService.getTestcase(testcaseId)
+        var testcase = testcaseService.getTestcase(exercise, testcaseId)
                 .orElseThrow(()-> new NotFoundException("Not found testcase with id: " + testcaseId));
         if (!testcase.getIsVisible() && courseRole == CourseRole.STUDENT) {
             throw new ForbiddenException(user);
@@ -136,18 +138,18 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 
-        var oldTestcase = testcaseService.getTestcase(testcaseId)
+        var oldTestcase = testcaseService.getTestcase(exercise, testcaseId)
                 .orElseThrow(() -> new NotFoundException("Not found testcase with id :" + testcaseId));
 
-        if (testcase.getId() != testcaseId || testcase.getExerciseId() != exerciseId || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())){
+        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())){
             throw new BadRequestException("You cannot modify this fields");
         }
 
-        return testcaseService.updateTestcase(testcase);
+        return testcaseService.updateTestcase(exercise, testcase);
     }
 
 }
