@@ -34,7 +34,7 @@ const PracticeItem = ({ practice }: PracticeItemProps) => {
     >
       <CardActionArea
         onClick={() => {
-          navigate(`/trials/${practice.id}`);
+          navigate(`/practices/${practice.id}`);
         }}
       >
         <CardContent

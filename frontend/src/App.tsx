@@ -20,6 +20,7 @@ import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.t
 import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
 import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
 import TrialCreationScreen from "@trials/traialCreation/TrialCreationScreen.tsx";
+import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -122,6 +123,10 @@ function App() {
                     <Route
                       path={"/trials/new"}
                       element={<TrialCreationScreen />}
+                    />
+                    <Route
+                      path={"/practices/:trialId"}
+                      element={<TrialDetailScreen trialType={"PRACTICE"} />}
                     />
                     <Route path="/profile" element={<ProfileScreen />} />
                     <Route path="*" element={<NotFound />} />

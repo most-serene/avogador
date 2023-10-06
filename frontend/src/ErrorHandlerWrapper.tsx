@@ -16,9 +16,6 @@ export default function ErrorHandlerWrapper({
   const [previousLocation, setPreviousLocation] = useState(location);
 
   useEffect(() => {
-    console.log(previousLocation);
-    console.log(location);
-
     if (previousLocation.key !== location.key) {
       setGlobalError(undefined);
       setPreviousLocation(location);
