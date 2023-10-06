@@ -2,7 +2,11 @@ package eu.mostserene.avogador.exerciseservice.filesystem;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
+
+import java.util.Optional;
+import java.util.UUID;
 
 
 public interface FileSystemService {
@@ -12,4 +16,6 @@ public interface FileSystemService {
     void deleteExercise(Exercise exercise);
     void createTestcase(TestcaseDetailDto testcase);
     void deleteTestcase(TestcaseDetailDto testcase);
+    Optional<TestcaseIODto> getTestcase(UUID testcaseId);
+    void updateTestcase(TestcaseDetailDto testcase);
 }

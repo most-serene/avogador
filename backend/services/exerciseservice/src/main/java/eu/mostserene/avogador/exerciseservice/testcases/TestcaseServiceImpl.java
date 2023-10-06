@@ -1,11 +1,12 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
-import org.apache.commons.lang3.NotImplementedException;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,34 +14,60 @@ import java.util.UUID;
 public class TestcaseServiceImpl implements TestcaseService{
     @Autowired
     private TestcaseRepository repository;
+    @Autowired
+    private FileSystemService fileSystemService;
 
     @Override
     public Optional<TestcaseDetailDto> getTestcase(UUID testcaseId) {
-        throw new NotImplementedException("Not implemented");
+        Optional<Testcase> testcase = repository.findById(testcaseId);
+
+        return testcase.map(tc-> {
+            Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(testcaseId);
+            return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
+                    .orElse(null);
+        });
     }
 
     @Override
-    public List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) {
-        throw new NotImplementedException("Not implemented");
+    public List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException{
+        List<Testcase> testcases = repository.findByExercise_Id(exercise.getId());
+        List<TestcaseDetailDto> testcaseDetails = testcases.stream()
+                .map(tc -> {
+                    Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(tc.getId());
+                    return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
+                            .orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (testcases.size() != testcaseDetails.size()){
+            throw new IllegalStateException("Some testcase files are missing");
+        }
+        return testcaseDetails;
     }
 
     @Override
     public List<Testcase> getSimpleTestcasesFromExercise(Exercise exercise) {
-        throw new NotImplementedException("Not implemented");
+        return repository.findByExercise_Id(exercise.getId());
     }
 
     @Override
-    public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase) {
-        throw new NotImplementedException("Not implemented");
+    public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise) {
+        fileSystemService.createTestcase(testcase);
+        repository.save(new Testcase(exercise, testcase.getIsVisible(), testcase.getIndex()));
+
+        return testcase;
     }
 
     @Override
     public Testcase updateTestcaseIndex(Testcase testcase, int index) {
-        throw new NotImplementedException("Not implemented");
+        testcase.setIndex(index);
+        return repository.save(testcase);
     }
 
     @Override
     public TestcaseDetailDto updateTestcase(TestcaseDetailDto testcase) {
-        throw new NotImplementedException("Not implemented");
+        fileSystemService.updateTestcase(testcase);
+        return testcase;
     }
 }

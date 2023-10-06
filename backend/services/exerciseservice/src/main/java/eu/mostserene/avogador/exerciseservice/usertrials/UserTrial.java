@@ -35,7 +35,6 @@ public class UserTrial {
 
     private Date finishTime;
 
-    @NotNull
     private Date deadline;
 
     @NotNull
