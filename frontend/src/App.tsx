@@ -133,7 +133,7 @@ function App() {
                     <Route
                       path="/exercises/new"
                       element={
-                        <Container style={{ height: "100%" }}>
+                        <Container maxWidth={"xl"} style={{ height: "100%" }}>
                           <ExerciseCreationScreen />
                         </Container>
                       }

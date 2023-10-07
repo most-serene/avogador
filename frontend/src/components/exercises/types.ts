@@ -7,4 +7,13 @@ interface Exercise {
   isVisible: boolean;
 }
 
-export type { Exercise };
+interface PartialExercise {
+  courseId: string;
+  trialId: string;
+  name: string;
+  statement: string;
+  timeLimit: number;
+  isVisible: boolean;
+}
+
+export type { Exercise, PartialExercise };

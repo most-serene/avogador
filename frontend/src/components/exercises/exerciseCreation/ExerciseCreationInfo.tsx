@@ -1,17 +1,21 @@
 import {
   Card,
   CardContent,
+  Checkbox,
+  CircularProgress,
+  Divider,
   FormControl,
+  FormControlLabel,
   InputLabel,
   Select,
-  Typography,
+  TextField,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { useLocation } from "react-router-dom";
-import { useAtom } from "jotai/index";
+import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { useEffect, useState } from "react";
 import { UserCourse } from "@courses/types.ts";
@@ -19,6 +23,9 @@ import { Trial } from "@trials/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { ForbiddenError } from "@error/types.ts";
 import Grid from "@mui/material/Grid";
+import Markdown from "react-markdown";
+import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
+import Box from "@mui/material/Box";
 
 interface ExerciseCreationState {
   state: null | {
@@ -37,8 +44,7 @@ const ExerciseCreationInfo = () => {
   const [areCoursesFetched, setAreCoursesFetched] = useState(false);
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
   const [trials, setTrials] = useState<Trial[]>([]);
-  const [courseId, setCourseId] = useState(state?.courseId ?? "");
-  const [trialId, setTrialId] = useState(state?.trialId ?? "");
+  const [exercise, setExercise] = useAtom(exerciseAtom);
 
   useEffect(() => {
     if (user == null) return;
@@ -58,18 +64,17 @@ const ExerciseCreationInfo = () => {
   }, [getUserCourses, globalErrorSetter, state, user]);
 
   useEffect(() => {
-    if (user == null || courseId === "") return;
+    if (user == null || exercise.courseId === "") return;
 
-    getTrialsByCourseId(courseId)
+    getTrialsByCourseId(exercise.courseId)
       .then((trials: Trial[]) => {
         setTrials(
           trials.filter(
             (trial) =>
-              trial.courseId === courseId &&
-              userCourses.some(({ course }) => course.id === courseId),
+              trial.courseId === exercise.courseId &&
+              userCourses.some(({ course }) => course.id === exercise.courseId),
           ),
         );
-        console.log(trials);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -79,11 +84,27 @@ const ExerciseCreationInfo = () => {
     globalErrorSetter,
     state,
     user,
-    courseId,
+    exercise.courseId,
     userCourses,
   ]);
 
-  if (!areCoursesFetched) return <Typography> Loading... </Typography>;
+  if (!areCoursesFetched) {
+    return (
+      <Card
+        style={{ overflow: "scroll", height: "100%" }}
+        className={"hidden-scrollbar"}
+      >
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100%"
+        >
+          <CircularProgress />
+        </Box>
+      </Card>
+    );
+  }
 
   if (userCourses.length === 0) {
     globalErrorSetter(
@@ -92,21 +113,29 @@ const ExerciseCreationInfo = () => {
   }
 
   return (
-    <Card>
+    <Card
+      style={{ overflow: "scroll", height: "100%" }}
+      className={"hidden-scrollbar"}
+    >
       <CardContent>
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <FormControl fullWidth>
               <InputLabel id="courseId">Course</InputLabel>
               <Select
-                value={courseId}
+                value={exercise.courseId}
+                label="Course"
                 onChange={(event) => {
-                  setCourseId(event.target.value);
+                  setExercise({
+                    ...exercise,
+                    courseId: event.target.value,
+                    trialId: "",
+                  });
                 }}
               >
                 {userCourses.map(({ course }) => (
                   <MenuItem key={course.id} value={course.id}>
-                    {course.name}
+                    {course.name} ({course.year})
                   </MenuItem>
                 ))}
               </Select>
@@ -114,13 +143,14 @@ const ExerciseCreationInfo = () => {
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
-              {courseId !== "" ? (
+              {exercise.courseId !== "" ? (
                 <>
-                  <InputLabel id="courseId">Test</InputLabel>
+                  <InputLabel id="trialId">Test</InputLabel>
                   <Select
-                    value={trialId}
+                    value={exercise.trialId}
+                    label="Test"
                     onChange={(event) => {
-                      setTrialId(event.target.value);
+                      setExercise({ ...exercise, trialId: event.target.value });
                     }}
                   >
                     {trials.map((trial) => (
@@ -132,12 +162,76 @@ const ExerciseCreationInfo = () => {
                 </>
               ) : (
                 <>
-                  <InputLabel id="courseId">Select a Course first</InputLabel>
+                  <InputLabel id="trialId">Select a Course first</InputLabel>
 
                   <Select value="" disabled></Select>
                 </>
               )}
             </FormControl>
+          </Grid>
+          <Grid item xs={8}>
+            <TextField
+              fullWidth
+              label="Exercise Name"
+              value={exercise.name}
+              onChange={(event) => {
+                setExercise({ ...exercise, name: event.target.value });
+              }}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Time limit (seconds)"
+              value={exercise.timeLimit}
+              onChange={(event) => {
+                setExercise({
+                  ...exercise,
+                  timeLimit: Number.parseInt(event.target.value),
+                });
+              }}
+            />
+          </Grid>
+          <Grid item xs={2} style={{ display: "flex", alignItems: "center" }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  value={exercise.isVisible}
+                  onClick={() => {
+                    setExercise({
+                      ...exercise,
+                      isVisible: !exercise.isVisible,
+                    });
+                  }}
+                />
+              }
+              label="Public"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Divider sx={{ my: 2 }}>Problem Statement</Divider>
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Problem statement"
+              value={exercise.statement}
+              onChange={(event) => {
+                setExercise({ ...exercise, statement: event.target.value });
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Markdown>
+              {exercise.statement === ""
+                ? "_Start writing to see the markdown preview of the problem statement_"
+                : exercise.statement}
+            </Markdown>
           </Grid>
         </Grid>
       </CardContent>
