@@ -1,5 +1,5 @@
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
-import { PostAdd, School } from "@mui/icons-material";
+import { EditNote, PostAdd, School } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { UserCourse } from "@courses/types.ts";
 import { useMemo } from "react";
@@ -47,6 +47,12 @@ const QuickCreationHome = ({ userCourses }: QuickCreationHomeProps) => {
         icon: <PostAdd />,
         name: "Trial",
         path: "/trials/new",
+        condition: canSeeCreateTrial,
+      },
+      {
+        icon: <EditNote />,
+        name: "Exercise",
+        path: "/exercises/new",
         condition: canSeeCreateTrial,
       },
     ];
