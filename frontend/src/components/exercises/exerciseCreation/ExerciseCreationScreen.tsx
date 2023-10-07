@@ -20,7 +20,9 @@ const ExerciseCreationScreen = () => {
           </Step>
         ))}
       </Stepper>
-      <Box marginY={2}>{steps[activeStep].component}</Box>
+      <Box marginY={2} style={{ height: "calc(100% - 150px)" }}>
+        {steps[activeStep].component}
+      </Box>
       <Box display="flex" justifyContent="center">
         <Button
           variant="outlined"
