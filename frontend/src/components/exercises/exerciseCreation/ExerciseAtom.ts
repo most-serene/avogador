@@ -9,3 +9,16 @@ export default atom<PartialExercise>({
   timeLimit: 1,
   isVisible: false,
 });
+
+const getInitializedExercise = (): PartialExercise => {
+  return {
+    courseId: "",
+    trialId: "",
+    name: "",
+    statement: "",
+    timeLimit: 1,
+    isVisible: false,
+  };
+};
+
+export { getInitializedExercise };

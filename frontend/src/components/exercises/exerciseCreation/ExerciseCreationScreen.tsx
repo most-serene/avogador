@@ -1,15 +1,36 @@
 import { Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import ExerciseCreationInfo from "@exercises/exerciseCreation/ExerciseCreationInfo.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+import { useAtom } from "jotai";
+import exerciseAtom, {
+  getInitializedExercise,
+} from "@exercises/exerciseCreation/ExerciseAtom.ts";
+import ExerciseCreationTemplate from "@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx";
+import templateAtom, {
+  getInitializedTemplate,
+} from "@exercises/exerciseCreation/TemplateAtom.ts";
 
 const steps = [
   { label: "General Info", component: <ExerciseCreationInfo /> },
-  { label: "Template", component: <Typography>Template</Typography> },
+  { label: "Template", component: <ExerciseCreationTemplate /> },
   { label: "Testcases", component: <Typography>Testcases</Typography> },
 ];
+
 const ExerciseCreationScreen = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [, setExercise] = useAtom(exerciseAtom);
+  const [, setTemplate] = useAtom(templateAtom);
+
+  useEffect(() => {
+    setExercise(getInitializedExercise());
+    setTemplate([...getInitializedTemplate()]);
+
+    return () => {
+      setExercise(getInitializedExercise());
+      setTemplate([...getInitializedTemplate()]);
+    };
+  }, [setExercise, setTemplate]);
 
   return (
     <Box height="100%">

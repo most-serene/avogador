@@ -197,7 +197,7 @@ const ExerciseCreationInfo = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  value={exercise.isVisible}
+                  checked={exercise.isVisible}
                   onClick={() => {
                     setExercise({
                       ...exercise,
