@@ -16,4 +16,11 @@ interface PartialExercise {
   isVisible: boolean;
 }
 
-export type { Exercise, PartialExercise };
+interface StroxCell {
+  content: string;
+  type: "HIDDEN" | "VISIBLE" | "EDITABLE";
+}
+
+type Strox = Record<number, StroxCell>;
+
+export type { Exercise, PartialExercise, Strox, StroxCell };
