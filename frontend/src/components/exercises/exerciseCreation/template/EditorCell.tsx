@@ -28,7 +28,7 @@ const EditorCell = ({
   };
 
   return (
-    <Box position="relative">
+    <Box position="relative" className="show-on-hover-source">
       <Editor
         height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
         defaultLanguage="javascript"
@@ -53,62 +53,63 @@ const EditorCell = ({
         value={cell.content}
         onChange={handleContentChange}
       />
-      <Paper
-        sx={{ p: 0.5 }}
-        style={{
-          display: "flex",
-          position: "absolute",
-          top: 0,
-          right: 0,
-        }}
-        className="show-on-hover-source"
-      >
-        <Tooltip title="Hidden">
-          <span>
-            <IconButton
-              size={"small"}
-              disabled={cell.type === "HIDDEN"}
-              onClick={() => {
-                handleTypeChange("HIDDEN");
-              }}
-            >
-              <VisibilityOff />
+      <div className="show-on-hover-target">
+        <Paper
+          sx={{ p: 0.5 }}
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+        >
+          <Tooltip title="Hidden">
+            <span>
+              <IconButton
+                size={"small"}
+                disabled={cell.type === "HIDDEN"}
+                onClick={() => {
+                  handleTypeChange("HIDDEN");
+                }}
+              >
+                <VisibilityOff />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Editable">
+            <span>
+              <IconButton
+                size={"small"}
+                disabled={cell.type === "EDITABLE"}
+                onClick={() => {
+                  handleTypeChange("EDITABLE");
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Visible">
+            <span>
+              <IconButton
+                size={"small"}
+                disabled={cell.type === "VISIBLE"}
+                onClick={() => {
+                  handleTypeChange("VISIBLE");
+                }}
+              >
+                <Visibility />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+          <Tooltip title={"Delete"}>
+            <IconButton size={"small"} color="error" onClick={handleDelete}>
+              <Delete />
             </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title="Editable">
-          <span>
-            <IconButton
-              size={"small"}
-              disabled={cell.type === "EDITABLE"}
-              onClick={() => {
-                handleTypeChange("EDITABLE");
-              }}
-            >
-              <Edit />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title="Visible">
-          <span>
-            <IconButton
-              size={"small"}
-              disabled={cell.type === "VISIBLE"}
-              onClick={() => {
-                handleTypeChange("VISIBLE");
-              }}
-            >
-              <Visibility />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <Tooltip title={"Delete"}>
-          <IconButton size={"small"} color="error" onClick={handleDelete}>
-            <Delete />
-          </IconButton>
-        </Tooltip>
-      </Paper>
+          </Tooltip>
+        </Paper>
+      </div>
     </Box>
   );
 };

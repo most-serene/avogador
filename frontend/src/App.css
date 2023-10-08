@@ -37,6 +37,6 @@ body {
   display: none;
 }
 
-.show-on-hover-source:hover + .show-on-hover-source > .show-on-hover-target {
+.show-on-hover-source:hover > .show-on-hover-target {
   display: block;
 }
