@@ -77,4 +77,16 @@ then
     echo "hook on FileSystem service done"
 fi
 
+SRC_PATTERN_EXECUTORSERVICE="backend/services/executorservice/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_EXECUTORSERVICE"
+then
+    echo "detected changes in CodeExecutor service"
+    
+    cd $SRC_PATTERN_EXECUTORSERVICE
+    ./gradlew clean test 
+    cd ../../../
+
+    echo "hook on CodeExecutor service done"
+fi
+
 echo "-- done --"
