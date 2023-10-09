@@ -17,7 +17,8 @@ public class StatusServiceImpl implements StatusService {
             new MicroService("Users", "http://users/public/users/status"),
             new MicroService("Courses", "http://courses/public/courses/status"),
             new MicroService("Exercise", "http://exercises/public/exercises/status"),
-            new MicroService("Storage", "http://filesystem/public/storage/status")
+            new MicroService("Storage", "http://filesystem/public/storage/status"),
+            new MicroService("Executor", "http://executor/public/executor/status")
     );
 
     @Override
