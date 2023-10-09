@@ -1,4 +1,4 @@
 #! /bin/sh
 
-curl -k https://repository.mostserene.eu/avogador/artifacts/executor.jar -u ${REPOSITORY_CREDENTIALS} --output executor.jar
-java -jar ./executor.jar
+curl -k https://repository.mostserene.eu/avogador/artifacts/executorservice.jar -u ${REPOSITORY_CREDENTIALS} --output executorservice.jar
+java -jar ./executorservice.jar
