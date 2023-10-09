@@ -14,6 +14,10 @@ class DevUtilsCmd(Cmd):
         appscript.app('Terminal').do_script('cd ' + currDir + f'; docker compose up --build')
         # os.system('docker compose up --build -d')
 
+    def do_resumeLocalDevelopMode(self, inp):
+        currDir = os.getcwd()
+        appscript.app('Terminal').do_script('cd ' + currDir + f'; docker compose up')
+
     def do_stopLocalDevelopMode(self, inp):
         os.system('docker compose stop')
     
@@ -53,6 +57,9 @@ class DevUtilsCmd(Cmd):
 
     def help_localDevelopMode(self):
         print('build and start the local backend cluster instance')
+
+    def help_resumeLocalDevelopMode(self):
+        print('start the local cluster instance without forcing build')
     
     def help_list_services(self):
         print('get a list of the services')
