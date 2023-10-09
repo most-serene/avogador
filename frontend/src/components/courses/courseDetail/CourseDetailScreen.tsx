@@ -1,60 +1,33 @@
-import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
-import { useParams, useSearchParams } from "react-router-dom";
-import {
-  SyntheticEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import Container from "@mui/material/Container";
-import TabPanel from "@structure/TabPanel.tsx";
+import { CircularProgress } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
-import CourseMembersTab from "@courses/courseDetail/CourseMemebersTab/CourseMembersTab.tsx";
 import { AxiosError } from "axios";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
 import { ResourceNotFoundError } from "@components/error/types.ts";
-import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab";
-import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSettingsTab";
-import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { useAtom } from "jotai";
-import LeaveCourse from "@courses/courseDetail/LeaveCourse";
-
-const tabs = ["Overview", "Tests", "Members", "Settings"];
+import userAtom from "@authentication/userAtom.ts";
+import CourseDetailCollaboratorScreen from "@courses/courseDetail/CourseDetailCollaboratorScreen.tsx";
+import CourseDetailStudentScreen from "@courses/courseDetail/CourseDetailStudentScreen.tsx";
+import { enqueueSnackbar } from "notistack";
+import Box from "@mui/material/Box";
 
 export default function CourseDetailScreen() {
   const { getCourseById } = useCourseService();
   const { courseId } = useParams();
-  const courseTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [course, setCourse] = useAtom(courseDetailAtom);
-  const [openTab, setOpenTab] = useState(0);
-  const [courseName, setCourseName] = useState<string>();
-
-  const getInitialTab = useCallback(() => {
-    const paramTab = Number(searchParams.get("tab"));
-    if (isNaN(paramTab) || paramTab >= tabs.length) {
-      setSearchParams({
-        tab: "0",
-      });
-      return 0;
-    }
-    setSearchParams({
-      tab: paramTab.toString(),
-    });
-    return paramTab;
-  }, [searchParams, setSearchParams]);
+  const [user] = useAtom(userAtom);
 
   useEffect(() => {
     if (courseId === undefined) return;
-    setOpenTab(getInitialTab());
+
     getCourseById(courseId)
       .then((c) => {
         setCourse(c);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         if (
           err instanceof AxiosError &&
           (err.response?.status === 404 || err.response?.status === 400)
@@ -67,83 +40,38 @@ export default function CourseDetailScreen() {
             ),
           );
         }
+        enqueueSnackbar(err.message, { variant: "error" });
       });
 
     return () => {
       setCourse(undefined);
     };
-  }, [getCourseById, courseId, globalErrorSetter, getInitialTab, setCourse]);
+  }, [getCourseById, courseId, globalErrorSetter, setCourse]);
 
-  useEffect(() => {
-    if (course) {
-      setCourseName(`${course.name} (${course.year})`);
-    }
-  }, [course]);
+  console.log(course);
+  console.log(user);
 
-  const handleTabChange = (event: SyntheticEvent, newValue: number) => {
-    event.preventDefault();
-    setOpenTab(newValue);
-    setSearchParams({
-      tab: newValue.toString(),
-    });
-  };
+  if (user == null || course == null) {
+    return (
+      <Box
+        style={{
+          display: "flex",
+          height: "100%",
+        }}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress size={80} />
+      </Box>
+    );
+  }
 
-  return (
-    <Box
-      height="100%"
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-      }}
-    >
-      <Tabs orientation="vertical" value={openTab} onChange={handleTabChange}>
-        {tabs.map((tab, i) => (
-          <Tab key={i} label={tab} />
-        ))}
-      </Tabs>
-      <Container maxWidth={false}>
-        <Box display={"flex"} justifyContent={"center"}>
-          <Box>
-            <Typography
-              ref={courseTitleRef}
-              id="courseTitle"
-              variant="h3"
-              align="center"
-            >
-              {courseName ?? <Skeleton width={"50rem"} />}
-            </Typography>
-          </Box>
-          {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
-        </Box>
-        <TabPanel
-          value={openTab}
-          index={0}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseOverviewTab course={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={1}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseTrialsTab userCourse={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={2}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseMembersTab userCourse={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={3}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseSettingsTab />
-        </TabPanel>
-      </Container>
-    </Box>
-  );
+  if (
+    user.isSuperuser ||
+    course.role === "COLLABORATOR" ||
+    course.role === "ADMIN"
+  ) {
+    return <CourseDetailCollaboratorScreen />;
+  }
+  return <CourseDetailStudentScreen />;
 }
