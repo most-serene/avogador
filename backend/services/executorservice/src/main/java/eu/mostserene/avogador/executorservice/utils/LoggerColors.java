@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.codeexecutor.utils;
+package eu.mostserene.avogador.executorservice.utils;
 
 public final class LoggerColors {
     public static final String ANSI_RESET = "\u001B[0m";

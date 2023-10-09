@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.codeexecutor.utils;
+package eu.mostserene.avogador.executorservice.utils;
 
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;

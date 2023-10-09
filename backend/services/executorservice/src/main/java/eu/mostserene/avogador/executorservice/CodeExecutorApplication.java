@@ -1,6 +1,6 @@
-package eu.mostserene.avogador.codeexecutor;
+package eu.mostserene.avogador.executorservice;
 
-import eu.mostserene.avogador.codeexecutor.utils.LoggerColors;
+import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.codeexecutor;
+package eu.mostserene.avogador.executorservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

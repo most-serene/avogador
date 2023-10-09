@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.codeexecutor.utils;
+package eu.mostserene.avogador.executorservice.utils;
 
 public enum AvogadorProfile {
     DEVELOP("develop"),

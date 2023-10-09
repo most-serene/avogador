@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.codeexecutor.utils;
+package eu.mostserene.avogador.executorservice.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
