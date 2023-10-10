@@ -34,7 +34,7 @@ const IOEditor = ({ selected }: IOEditorProps) => {
   return (
     <>
       <Box
-        height="49%"
+        height="50%"
         sx={{
           borderBottom: 1,
           borderBottomColor: "primary.main",
@@ -51,7 +51,7 @@ const IOEditor = ({ selected }: IOEditorProps) => {
         />
       </Box>
       <Editor
-        height="49%"
+        height="50%"
         theme="vs-dark"
         value={testcase.output}
         onChange={(value) => {
