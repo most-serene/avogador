@@ -1,0 +1,83 @@
+package eu.mostserene.avogador.executorservice.storage;
+
+import eu.mostserene.avogador.executorservice.submission.Submission;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
+
+@Service
+@Slf4j
+public class StorageServiceImpl implements StorageService {
+
+    @Override
+    public File fetchAndSaveSubmissionCode(Submission submission) {
+        RestTemplate restTemplate = new RestTemplate();
+        String endpoint = "http://filesystem/courses/" + submission.getCourseId() +
+                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
+                submission.getId() + "/source";
+        byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
+                .getBody();
+
+        try {
+            return Files.write(Paths.get("/avogador/" + submission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
+                    .toFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public File fetchAndSaveTestcases(Submission submission) {
+        RestTemplate restTemplate = new RestTemplate();
+        String endpoint = "http://filesystem/courses/" + submission.getCourseId() +
+                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/testcases";
+        byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
+                .getBody();
+
+        try {
+            return Files.write(Paths.get("/avogador/" + submission.getId() + "/testcases.tar.gz"), Objects.requireNonNull(archive))
+                    .toFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+
+/*
+String requestUrl = "http://filesystem/courses/" + submission.getCourseId() +
+                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
+                submission.getId() + "/source";  // Replace with the actual download URL
+        String outputFile = "/avogador/output.tar.gz";  // Replace with the desired output file name
+
+        try {
+            // Create HttpClient instance
+            HttpClient httpClient = HttpClientBuilder.create().build();
+
+            // Send GET request
+            HttpGet request = new HttpGet(requestUrl);
+            HttpResponse response = httpClient.execute(request);
+
+            // Check if response is successful (status code 200-299)
+            if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299) {
+                // Read the response body as a byte array
+                HttpEntity entity = response.getEntity();
+                byte[] responseBody = EntityUtils.toByteArray(entity);
+
+                // Save the response body to a file
+                Files.write(Paths.get(outputFile), responseBody);
+                System.out.println("File downloaded successfully!");
+            } else {
+                System.out.println("Failed to download file. Response code: " + response.getStatusLine().getStatusCode());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+ */
