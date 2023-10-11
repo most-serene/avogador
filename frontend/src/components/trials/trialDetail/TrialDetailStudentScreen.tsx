@@ -38,7 +38,10 @@ const TrialDetailStudentScreen = ({
               }}
             >
               <ArrowBackIosNewIcon />
-              Back to {course.name}
+              Back to{" "}
+              {course.name.length > 20
+                ? course.name.substring(0, 20) + "..."
+                : course.name}
             </Button>
           </Box>
         </Box>
