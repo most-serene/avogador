@@ -67,7 +67,8 @@ const TrialDetailExercisesTab = ({
       className={"hidden-scrollbar"}
     >
       <Stack spacing={2}>
-        {(user?.isSuperuser ?? course.role >= "COLLABORATOR") && (
+        {(user?.isSuperuser ??
+          (course.role === "COLLABORATOR" || course.role === "ADMIN")) && (
           <Card
             sx={{
               mb: 2,
@@ -102,7 +103,8 @@ const TrialDetailExercisesTab = ({
             <ExerciseCard key={exercise.id} exercise={exercise} trial={trial} />
           ))}
       </Stack>
-      {(user?.isSuperuser ?? course.role >= "COLLABORATOR") && (
+      {(user?.isSuperuser ??
+        (course.role === "COLLABORATOR" || course.role === "ADMIN")) && (
         <>
           <Divider
             style={{
