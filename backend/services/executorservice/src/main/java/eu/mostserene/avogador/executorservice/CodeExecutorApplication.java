@@ -51,7 +51,7 @@ public class CodeExecutorApplication {
 		log.info(LoggerColors.cyan("Sentry closed"));
 	}
 
-	@GetMapping("/public/storage/status")
+	@GetMapping("/public/executor/status")
 	String getStatus() {
 		return "online";
 	}
