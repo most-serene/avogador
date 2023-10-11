@@ -22,7 +22,6 @@ import ExerciseCreationTestcases from "@exercises/exerciseCreation/testcases/Exe
 import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { enqueueSnackbar } from "notistack";
-import { AxiosError } from "axios";
 import { Exercise, Testcase } from "@exercises/types.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -92,8 +91,8 @@ const ExerciseCreationScreen = () => {
       });
       setCreationPercentage(creationPercentage + 25);
     } catch (err) {
-      if (err instanceof AxiosError) {
-        enqueueSnackbar(err.name, { variant: "error" });
+      if (err instanceof Error) {
+        enqueueSnackbar(err.message, { variant: "error" });
       }
       setCreationStatus("");
       setCreationPercentage(0);
@@ -115,8 +114,8 @@ const ExerciseCreationScreen = () => {
           creationPercentage + ((i - 1) / testcases.length) * 50,
         );
       } catch (err) {
-        if (err instanceof AxiosError) {
-          enqueueSnackbar(err.name, { variant: "error" });
+        if (err instanceof Error) {
+          enqueueSnackbar(err.message, { variant: "error" });
         }
         setCreationStatus("");
         setCreationPercentage(0);
