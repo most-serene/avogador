@@ -21,6 +21,28 @@ interface StroxCell {
   type: "HIDDEN" | "VISIBLE" | "EDITABLE";
 }
 
+interface Testcase {
+  id: string;
+  exerciseId: string;
+  isVisible: boolean;
+  index: number;
+  input: string;
+  output: string;
+}
+
+interface PartialTestcase {
+  input: string;
+  output: string;
+  isVisible: boolean;
+}
+
 type Strox = Record<number, StroxCell>;
 
-export type { Exercise, PartialExercise, Strox, StroxCell };
+export type {
+  Exercise,
+  PartialExercise,
+  Strox,
+  StroxCell,
+  Testcase,
+  PartialTestcase,
+};
