@@ -2,14 +2,96 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Divider,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useAtom } from "jotai";
 import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
 import Box from "@mui/material/Box";
-import { Delete } from "@mui/icons-material";
+import { Delete, Visibility, VisibilityOff } from "@mui/icons-material";
+import { PartialTestcase } from "@exercises/types.ts";
+
+interface TestcasePreviewCardProps {
+  testcase: PartialTestcase;
+  selected: boolean;
+  onDelete: () => void;
+  onClick: () => void;
+  onVisibilityChange: () => void;
+}
+
+const TestcasePreviewCard = ({
+  testcase,
+  selected,
+  onDelete: handleDelete,
+  onClick: handleClick,
+  onVisibilityChange: handleVisibilityChange,
+}: TestcasePreviewCardProps) => {
+  return (
+    <Card
+      sx={{
+        border: selected ? 2 : 0,
+        borderColor: "primary.main",
+        borderStyle: "solid",
+      }}
+    >
+      <CardActionArea
+        onClick={() => {
+          handleClick();
+        }}
+      >
+        <CardContent
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box>
+            <Typography>
+              Input : {testcase.input.slice(0, 50)}{" "}
+              {testcase.input.length > 50 ? "..." : ""}
+            </Typography>
+            <Typography>
+              Output : {testcase.output.slice(0, 50)}{" "}
+              {testcase.output.length > 50 ? "..." : ""}
+            </Typography>
+          </Box>
+          <Box display="flex">
+            <Tooltip title={testcase.isVisible ? "Set hidden" : "Set visible"}>
+              <IconButton
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleVisibilityChange();
+                }}
+                onMouseDown={(event) => {
+                  event.stopPropagation();
+                }}
+              >
+                {testcase.isVisible ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
+            </Tooltip>
+            <Divider orientation="vertical" sx={{ mx: 1 }} flexItem />
+            <IconButton
+              color="error"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleDelete();
+              }}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <Delete />
+            </IconButton>
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+};
 
 interface TestcaseStackProps {
   readonly selected: number | undefined;
@@ -39,6 +121,11 @@ const TestcaseStack = ({
     setTestcases([...testcases]);
   };
 
+  const handleVisibilityChange = (i: number) => {
+    testcases[i].isVisible = !testcases[i].isVisible;
+    setTestcases([...testcases]);
+  };
+
   return (
     <Box
       style={{ height: "100%", overflow: "scroll" }}
@@ -46,53 +133,20 @@ const TestcaseStack = ({
     >
       <Stack spacing={2}>
         {testcases.map((testcase, i) => (
-          <Card
+          <TestcasePreviewCard
             key={i}
-            sx={{
-              border: selected === i ? 2 : 0,
-              borderColor: "primary.main",
-              borderStyle: "solid",
+            testcase={testcase}
+            selected={selected === i}
+            onClick={() => {
+              handleSelect(i);
             }}
-          >
-            <CardActionArea
-              onClick={() => {
-                handleSelect(i);
-              }}
-            >
-              <CardContent
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Box>
-                  <Typography>
-                    Input : {testcase.input.slice(0, 50)}{" "}
-                    {testcase.input.length > 50 ? "..." : ""}
-                  </Typography>
-                  <Typography>
-                    Output : {testcase.output.slice(0, 50)}{" "}
-                    {testcase.output.length > 50 ? "..." : ""}
-                  </Typography>
-                </Box>
-                <Box>
-                  <IconButton
-                    color="error"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleDelete(i);
-                    }}
-                    onMouseDown={(event) => {
-                      event.stopPropagation();
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </CardActionArea>
-          </Card>
+            onDelete={() => {
+              handleDelete(i);
+            }}
+            onVisibilityChange={() => {
+              handleVisibilityChange(i);
+            }}
+          />
         ))}
         <Card
           elevation={0}

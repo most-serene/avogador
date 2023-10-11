@@ -40,6 +40,7 @@ const ExerciseCreationScreen = () => {
   const [template, setTemplate] = useAtom(templateAtom);
   const [testcases, setTestcases] = useAtom(testcasesAtom);
   const [creationStatus, setCreationStatus] = useState("");
+  const [creationPercentage, setCreationPercentage] = useState(0);
 
   const isInformationStepComplete = useMemo<boolean>(() => {
     return (
@@ -89,13 +90,18 @@ const ExerciseCreationScreen = () => {
         timeLimit: exercise.timeLimit,
         isVisible: exercise.isVisible,
       });
+      setCreationPercentage(creationPercentage + 25);
     } catch (err) {
       if (err instanceof AxiosError) {
         enqueueSnackbar(err.name, { variant: "error" });
       }
       setCreationStatus("");
+      setCreationPercentage(0);
       return;
     }
+
+    // create template
+    setCreationPercentage(creationPercentage + 25);
 
     let i = 1;
     for (const testcase of testcases) {
@@ -105,11 +111,15 @@ const ExerciseCreationScreen = () => {
           `Creating the Testcase entry ${i++}/${testcases.length}`,
         );
         createdTestcase = await createTestcase(createdExercise.id, testcase);
+        setCreationPercentage(
+          creationPercentage + ((i - 1) / testcases.length) * 50,
+        );
       } catch (err) {
         if (err instanceof AxiosError) {
           enqueueSnackbar(err.name, { variant: "error" });
         }
         setCreationStatus("");
+        setCreationPercentage(0);
         return;
       }
       createdTestcases.push(createdTestcase);
@@ -184,7 +194,12 @@ const ExerciseCreationScreen = () => {
         open={creationStatus !== ""}
       >
         <Box display="flex" flexDirection="column" alignItems="center">
-          <CircularProgress color="primary" sx={{ mb: 2 }} />
+          <CircularProgress
+            variant="determinate"
+            value={creationPercentage}
+            color="primary"
+            sx={{ mb: 2 }}
+          />
           <Typography>{creationStatus}</Typography>
         </Box>
       </Backdrop>
