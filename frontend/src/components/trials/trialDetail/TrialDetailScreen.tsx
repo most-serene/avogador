@@ -13,6 +13,8 @@ import TrialDetailStudentScreen from "@trials/trialDetail/TrialDetailStudentScre
 import { AxiosError } from "axios";
 import JoinTrialScreen from "@trials/JoinTrialScreen/JoinTrialScreen.tsx";
 import { enqueueSnackbar } from "notistack";
+import Box from "@mui/material/Box";
+import { CircularProgress } from "@mui/material";
 
 interface TrialDetailScreenProps {
   trialType: "PRACTICE" | "EXAM";
@@ -85,7 +87,18 @@ const TrialDetailScreen = ({ trialType }: TrialDetailScreenProps) => {
   ]);
 
   if (!trial || !user || !userCourse || userCourse.role === "EXTERNAL") {
-    return <></>;
+    return (
+      <Box
+        style={{
+          display: "flex",
+          height: "100%",
+        }}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress size={80} />
+      </Box>
+    );
   }
 
   if (userCourse.role === "STUDENT" && !user.isSuperuser) {
