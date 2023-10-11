@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
@@ -104,6 +106,23 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
     }
 
+    @Override
+    public void createSubmission(Submission submission, Strox strox) {
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.submission.create",
+                            mapper.writeValueAsString(new SubmissionStorageDto(
+                                    submission.getExercise().getTrial().getCourseId(),
+                                    submission.getExercise().getTrial().getId(),
+                                    submission.getExercise().getId(),
+                                    submission.getId(),
+                                    strox
+                            )));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Data
     private static class TrialStorageDTO {
         private UUID courseId;
@@ -154,6 +173,26 @@ public class FileSystemServiceImpl implements FileSystemService {
             this.testcaseId = testcaseId;
             this.input = input;
             this.output = output;
+        }
+    }
+
+    @Data
+    private static class SubmissionStorageDto {
+        private UUID courseId;
+        private UUID trialId;
+        private UUID exerciseId;
+        private UUID submissionId;
+        private Strox submission;
+
+        public SubmissionStorageDto() {
+        }
+
+        public SubmissionStorageDto(UUID courseId, UUID trialId, UUID exerciseId, UUID submissionId, Strox submission) {
+            this.courseId = courseId;
+            this.trialId = trialId;
+            this.exerciseId = exerciseId;
+            this.submissionId = submissionId;
+            this.submission = submission;
         }
     }
 }
