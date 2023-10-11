@@ -26,7 +26,7 @@ public class Receiver implements MessageListener {
     private void executeSubmissionHandler(Message message) {
         try {
             Submission submission = mapper.readValue(message.getBody(), Submission.class);
-            CodeExecutor.getExecutor().executeSubmission(submission);
+            CodeExecutor.getExecutor().checkSubmission(submission);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

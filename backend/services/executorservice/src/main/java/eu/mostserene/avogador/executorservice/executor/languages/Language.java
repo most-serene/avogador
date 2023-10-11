@@ -2,6 +2,8 @@ package eu.mostserene.avogador.executorservice.executor.languages;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import eu.mostserene.avogador.executorservice.submission.Submission;
 
 import java.io.File;
 
@@ -10,8 +12,8 @@ public interface Language {
 
     String getSupportedExtension();
 
-    File compile(DockerClient dockerClient, String mountingPoint, final File sourceCode);
+    File compile(DockerClient dockerClient, File sourceCode);
 
-    //CreateContainerCmd configureExecutor(CreateContainerCmd createContainerCmd, String mountingPoint, File executable, Exercise exercise, File inputFile);
+    CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, Submission submission);
 
 }
