@@ -6,6 +6,7 @@ import {
   PartialTestcase,
   Testcase,
 } from "@exercises/types.ts";
+import { Trial } from "@trials/types.ts";
 
 const useExerciseService = () => {
   const avogadorApi = useAvogadorApi();
@@ -33,9 +34,21 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const getExercisesByTrialId: (trial: Trial) => Promise<Exercise[]> =
+    useCallback(
+      async (trial: Trial) => {
+        const { data: exercises }: { data: Exercise[] } = await avogadorApi.get(
+          `/exercises/trials/${trial.id}`,
+        );
+        return exercises;
+      },
+      [avogadorApi],
+    );
+
   return {
     createExercise,
     createTestcase,
+    getExercisesByTrialId,
   };
 };
 

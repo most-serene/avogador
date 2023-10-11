@@ -51,7 +51,7 @@ const handleDates = (body: any) => {
   if (body == null) return body;
   for (const key of Object.keys(body)) {
     const value = body[key];
-    if (!isNaN(Date.parse(value))) {
+    if (typeof value !== 'number' && !isNaN(Date.parse(value))) {
       body[key] = new Date(value);
     } else if (typeof value === "object") handleDates(value);
   }
