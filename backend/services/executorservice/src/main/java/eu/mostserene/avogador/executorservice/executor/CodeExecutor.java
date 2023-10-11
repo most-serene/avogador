@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.executorservice.executor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -14,6 +15,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import eu.mostserene.avogador.executorservice.amqp.Sender;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
 import eu.mostserene.avogador.executorservice.submission.Submission;
@@ -357,15 +359,12 @@ public class CodeExecutor {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            // FIXME: reactivate cleanup
-            //dockerClient.removeContainerCmd(cExec.getId()).exec();
+            dockerClient.removeContainerCmd(cExec.getId()).exec();
         }
     }
 
     private void postResult(SubmissionResult submissionResult) {
-        log.info(LoggerColors.cyan(submissionResult.toString()));
         ObjectMapper mapper = new ObjectMapper();
-            /*
         try {
             (new Sender()).send("exercises", "exercises.submission.result",
                     mapper.writeValueAsString(submissionResult));
@@ -373,7 +372,6 @@ public class CodeExecutor {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-             */
     }
 
     private static final class TLEDetector {
