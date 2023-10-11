@@ -124,7 +124,7 @@ const TrialDetailScreen = ({ trialType }: TrialDetailScreenProps) => {
     );
   }
 
-  return <TrialDetailCollaboratorScreen trial={trial} user={userCourse} />;
+  return <TrialDetailCollaboratorScreen trial={trial} course={userCourse} />;
 };
 
 export default TrialDetailScreen;

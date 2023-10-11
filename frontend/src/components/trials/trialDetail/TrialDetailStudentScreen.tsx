@@ -45,7 +45,7 @@ const TrialDetailStudentScreen = ({
             </Button>
           </Box>
         </Box>
-        <TrialDetailExercisesTab trial={trial} />
+        <TrialDetailExercisesTab trial={trial} course={course} />
       </Container>
     </Box>
   );

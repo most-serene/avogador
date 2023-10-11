@@ -11,7 +11,7 @@ import {
 } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
-import { UserCourseDetail } from "@courses/types.ts";
+import { CourseDetail } from "@courses/types.ts";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 
@@ -19,12 +19,12 @@ const tabs = ["Exercises", "Users", "Settings"];
 
 interface TrialDetailCollaboratorScreenProps {
   trial: Practice | Exam;
-  user: UserCourseDetail;
+  course: CourseDetail;
 }
 
 const TrialDetailCollaboratorScreen = ({
   trial,
-  user,
+  course,
 }: TrialDetailCollaboratorScreenProps) => {
   const trialTitleRef = useRef<HTMLElement>(null);
   const globalErrorSetter = useGlobalErrorSetter();
@@ -86,7 +86,7 @@ const TrialDetailCollaboratorScreen = ({
               <Button
                 variant={"outlined"}
                 onClick={() => {
-                  navigate(`/courses/${user.id}?tab=1`);
+                  navigate(`/courses/${course.id}?tab=1`);
                 }}
               >
                 <ArrowBackIosNewIcon />
@@ -103,7 +103,7 @@ const TrialDetailCollaboratorScreen = ({
           index={0}
           occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
         >
-          <TrialDetailExercisesTab trial={trial} />
+          <TrialDetailExercisesTab trial={trial} course={course} />
         </TabPanel>
         <TabPanel
           value={openTab}
