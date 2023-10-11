@@ -10,6 +10,10 @@ public class LoggerUtils {
 
     private LoggerUtils() {}
 
+    public static void logErrorToSentry(Exception exception) {
+        Sentry.captureException(exception, scope -> scope.setLevel(SentryLevel.ERROR));
+    }
+
     public static void logErrorToSentry(Exception exception, HttpServletRequest request) {
         Sentry.captureException(exception,
                 scope -> {
