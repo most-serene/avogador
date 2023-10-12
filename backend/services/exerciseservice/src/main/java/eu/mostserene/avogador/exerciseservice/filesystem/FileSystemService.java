@@ -21,4 +21,5 @@ public interface FileSystemService {
     Optional<TestcaseIODto> getTestcase(Exercise exercise, UUID testcaseId);
     void updateTestcase(Exercise exercise,TestcaseDetailDto testcase);
     void createSubmission(Submission submission, Strox strox);
+    Optional<Strox> getMergedSubmission(Submission submission);
 }

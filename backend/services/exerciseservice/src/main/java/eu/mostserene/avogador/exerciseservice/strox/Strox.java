@@ -19,4 +19,17 @@ public class Strox {
         this.cells = cells;
         this.path = path;
     }
+
+    static public Strox merge(Strox template, Strox submission) {
+        Strox merged = new Strox();
+        merged.setSourceFileName(template.getSourceFileName());
+
+        merged.setCells(new ArrayList<>());
+        merged.getCells().addAll(template.getCells());
+
+        merged.getCells().stream().filter(stroxCell -> stroxCell.getType() == StroxCellType.EDITABLE)
+                .forEach(stroxCell -> stroxCell.setContent(submission.getCells().remove(0).getContent()));
+
+        return merged;
+    }
 }

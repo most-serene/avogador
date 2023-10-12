@@ -123,6 +123,32 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
     }
 
+    @Override
+    public Optional<Strox> getMergedSubmission(Submission submission) {
+        Strox stroxTemplate = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://filesystem/courses/" + submission.getExercise().getTrial().getCourseId() +
+                                "/trials/ " + submission.getExercise().getTrial().getId() +
+                                "/exercises/" + submission.getExercise().getId() +
+                                "/template",
+                        Strox.class);
+
+        if (stroxTemplate == null) return Optional.empty();
+
+        Strox stroxSubmission = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://filesystem/courses/" + submission.getExercise().getTrial().getCourseId() +
+                                "/trials/ " + submission.getExercise().getTrial().getId() +
+                                "/exercises/" + submission.getExercise().getId() +
+                                "/submissions/" + submission.getId() +
+                                "/strox",
+                        Strox.class);
+
+        if (stroxSubmission == null) return Optional.empty();
+
+        return Optional.of(Strox.merge(stroxTemplate, stroxSubmission));
+    }
+
     @Data
     private static class TrialStorageDTO {
         private UUID courseId;
