@@ -59,7 +59,8 @@ public class CourseServiceImpl implements CourseService{
             return Optional.empty();
         }
 
-        return Optional.of(bytesToHex(mac.doFinal(courseId.toString().getBytes())));
+        String joinCode = bytesToHex(mac.doFinal(courseId.toString().getBytes()));
+        return Optional.of(joinCode.length() > 20 ? joinCode.substring(joinCode.length() - 20) : joinCode);
     }
 
     private static String bytesToHex(byte[] hash) {

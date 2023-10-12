@@ -34,9 +34,9 @@ public class CourseServiceIntegrationTests {
 
     private static Stream<Arguments> joinCodePairs() {
         return Stream.of(
-                arguments(UUID.fromString("00000000-0000-0000-0000-000000000001"), "de36f328af472c609a2afba8d503cb097fa1c0fcdf6ff039b93e85c25f79932e"),
-                arguments(UUID.fromString("00000000-0000-0000-0000-000000000002"), "80f5c8882dccd8bfceef27bf3826288218df8798ecc3b5271ad000698da444b5"),
-                arguments(UUID.fromString("00000000-0000-0000-0000-000000000042"), "967f104528bf9157d5be4aa849c116174e6864b33cdd4d721281e957638f84bb")
+                arguments(UUID.fromString("00000000-0000-0000-0000-000000000001"), "f039b93e85c25f79932e"),
+                arguments(UUID.fromString("00000000-0000-0000-0000-000000000002"), "b5271ad000698da444b5"),
+                arguments(UUID.fromString("00000000-0000-0000-0000-000000000042"), "4d721281e957638f84bb")
         );
     }
 }
