@@ -67,4 +67,8 @@ public class SubmissionResult {
     public void setStatus(SubmissionStatus status) {
         this.status = status;
     }
+
+    public SubmissionResultDto toDto() {
+        return new SubmissionResultDto(id, submission.getId(), testcase.getId(), status);
+    }
 }
