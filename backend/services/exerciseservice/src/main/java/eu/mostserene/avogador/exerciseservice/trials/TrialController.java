@@ -5,6 +5,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialDetailDto;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,20 @@ public class TrialController {
     private TrialService trialService;
     @Autowired
     private UserCourseService userCourseService;
+
+    @GetMapping("/{trialId}")
+    private Trial getTrialById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
+        var trial = trialService.getTrialById(trialId).
+                orElseThrow(NotFoundException::new);
+        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        return trial;
+    }
 
     /**
      * gets all trials from the specified courseID

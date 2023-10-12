@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,16 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public Optional<Submission> getSubmission(UUID submissionId) {
         return submissionRepository.findById(submissionId);
+    }
+
+    @Override
+    public List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId) {
+        return submissionRepository.findByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
+    }
+
+    @Override
+    public Optional<Submission> getLatestSubmissionFromExerciseAndUserId(Exercise exercise, UUID userId) {
+        return submissionRepository.findFirstByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
     }
 
     @Override
