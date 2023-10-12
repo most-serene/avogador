@@ -85,10 +85,8 @@ public class SubmissionController {
             }
         }
 
-        submissionDto.setTimestamp(Date.from(Instant.now()));
-
         try {
-            Submission submission = submissionService.createSubmission(submissionDto);
+            Submission submission = submissionService.createSubmission(exercise, submissionDto);
             return submissionService.exportToDto(submission);
         } catch (StroxException stroxException) {
             throw new BadRequestException(stroxException.getMessage());
