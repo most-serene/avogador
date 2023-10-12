@@ -80,7 +80,7 @@ public class SubmissionResultController {
         var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
             throw new ForbiddenException(user);
         }
 
@@ -129,7 +129,7 @@ public class SubmissionResultController {
         }
 
         public SubmissionResultSummary(Submission submission, List<SubmissionResult> result) {
-            if (result.size() == 0){
+            if (result.isEmpty()){
                 this.status = SubmissionStatusSummary.MISSING;
             } else if (result.stream().anyMatch(res -> res.getStatus().equals(SubmissionStatus.PENDING))){
                 this.status = SubmissionStatusSummary.PENDING;
