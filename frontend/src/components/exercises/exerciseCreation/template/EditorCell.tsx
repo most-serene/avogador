@@ -1,7 +1,7 @@
 import { Editor } from "@monaco-editor/react";
 import { StroxCell } from "@exercises/types.ts";
 import Box from "@mui/material/Box";
-import { Divider, IconButton, Paper, Tooltip } from "@mui/material";
+import { Divider, IconButton, Paper, Tooltip, useTheme } from "@mui/material";
 import { Delete, Edit, Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface EditorCellProps {
@@ -15,6 +15,7 @@ const EditorCell = ({
   onChange: handleChange,
   onDelete: handleDelete,
 }: EditorCellProps) => {
+  const theme = useTheme();
   const handleTypeChange = (type: "HIDDEN" | "EDITABLE" | "VISIBLE") => {
     cell.type = type;
     handleChange(cell);
@@ -32,7 +33,7 @@ const EditorCell = ({
       <Editor
         height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
         defaultLanguage="javascript"
-        theme="vs-dark"
+        theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
         options={{
           inlineSuggest: true,
           scrollBeyondLastLine: false,
