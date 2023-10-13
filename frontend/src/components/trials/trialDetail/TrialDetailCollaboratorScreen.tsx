@@ -34,17 +34,8 @@ const TrialDetailCollaboratorScreen = ({
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
-    if (isNaN(paramTab) || paramTab >= tabs.length) {
-      setSearchParams({
-        tab: "0",
-      });
-      return 0;
-    }
-    setSearchParams({
-      tab: paramTab.toString(),
-    });
-    return paramTab;
-  }, [searchParams, setSearchParams]);
+    return isNaN(paramTab) ? 0 : paramTab;
+  }, [searchParams]);
 
   useEffect(() => {
     setOpenTab(getInitialTab());
