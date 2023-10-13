@@ -1,10 +1,20 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
-import { Practice, Trial, UserTrial } from "@trials/types.ts";
+import { Exam, Practice, Trial, UserTrial } from "@trials/types.ts";
 import { User } from "@authentication/types.ts";
 
 const useTrialService = () => {
   const avogadorApi = useAvogadorApi();
+
+  const getTrialById: (trialId: string) => Promise<Practice | Exam> =
+    useCallback(
+      async (trialId: string) => {
+        const { data: trial }: { data: Practice | Exam } =
+          await avogadorApi.get(`/trials/${trialId}`);
+        return trial;
+      },
+      [avogadorApi],
+    );
 
   const getPracticeById: (trialId: string) => Promise<Practice> = useCallback(
     async (trialId: string) => {
@@ -68,6 +78,7 @@ const useTrialService = () => {
     );
 
   return {
+    getTrialById,
     getPracticeById,
     getUserTrial,
     getTrialsByCourseId,
