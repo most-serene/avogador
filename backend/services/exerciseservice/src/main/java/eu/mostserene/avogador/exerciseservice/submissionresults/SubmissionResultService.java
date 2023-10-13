@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface SubmissionResultService {
     List<SubmissionResult> getResultsFromExerciseAndUser(Exercise exercise, UUID userId);
     List<SubmissionResult> getResultsFromSubmission(Submission submission);
-    void saveSubmissionResult(SubmissionResultDto submissionResultDto);
+    void saveSubmissionResult(SubmissionResult submissionResult);
 }

@@ -2,14 +2,17 @@ package eu.mostserene.avogador.exerciseservice.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultDto;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionDto;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
+import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -73,7 +76,16 @@ public class Receiver implements MessageListener {
     private void submissionResultHandler(Message message) {
         try {
             SubmissionResultDto submissionResultDto = mapper.readValue(message.getBody(), SubmissionResultDto.class);
-            submissionResultService.saveSubmissionResult(submissionResultDto);
+            Submission submission = submissionService.getSubmission(submissionResultDto.getSubmissionId())
+                    .orElseThrow(NotFoundException::new);
+
+            Testcase testcase = testcaseService.getSimpleTestcase(submissionResultDto.getTestcaseId())
+                    .orElseThrow(NotFoundException::new);
+
+            submissionResultService.saveSubmissionResult(
+                    new SubmissionResult(submission, testcase, submissionResultDto.getStatus())
+            );
+            // TODO: notify user via websocket (AVG-281)
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
