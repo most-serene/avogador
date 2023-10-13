@@ -73,6 +73,10 @@ public class UserTrialController {
             throw new ForbiddenException(user);
         }
 
+        if (user.getIsSuperuser() || userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+            return null;
+        }
+
         return userTrialService.getUserTrial(trial, user)
                 .orElseThrow(() -> new NotFoundException("UserTrial not found"))
                 .getUserTrialDetail(user);
