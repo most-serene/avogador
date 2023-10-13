@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class SubmissionResultServiceImpl implements SubmissionResultService{
+public class SubmissionResultServiceImpl implements SubmissionResultService {
     @Autowired
     private SubmissionResultRepository repository;
 
@@ -21,5 +21,10 @@ public class SubmissionResultServiceImpl implements SubmissionResultService{
     @Override
     public List<SubmissionResult> getResultsFromSubmission(Submission submission) {
         return repository.findBySubmission_Id(submission.getId());
+    }
+
+    @Override
+    public void saveSubmissionResult(SubmissionResult submissionResult) {
+        repository.save(submissionResult);
     }
 }

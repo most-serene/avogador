@@ -5,6 +5,7 @@ import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
@@ -13,8 +14,11 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +41,9 @@ public class ExerciseController {
 
     @Autowired
     private FileSystemService fileSystemService;
+
+    @Autowired
+    private SubmissionService submissionService;
 
     /**
      * Returns the exercise given the exercise ID
@@ -194,6 +201,28 @@ public class ExerciseController {
 
         return exerciseService.getExercisesFromTrial(trial, courseRole.canSeeHiddenExercises())
                 .stream().map(Exercise::toDto).toList();
+    }
+
+
+    @GetMapping("/{exerciseId}/template")
+    private Strox getExerciseTemplate(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId){
+        var exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
+
+        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        var submission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, user.getId());
+        if (submission.isEmpty()){
+            return fileSystemService.getExerciseTemplate(exercise)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+        return fileSystemService.getMergedSubmission(submission.get())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
 }
