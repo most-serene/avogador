@@ -2,6 +2,8 @@ package eu.mostserene.avogador.exerciseservice.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultDto;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionDto;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
@@ -27,6 +29,9 @@ public class Receiver implements MessageListener {
     private SubmissionService submissionService;
 
     @Autowired
+    private SubmissionResultService submissionResultService;
+
+    @Autowired
     private TestcaseService testcaseService;
 
     private void handleMessage(Message message) {
@@ -34,6 +39,7 @@ public class Receiver implements MessageListener {
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "exercises.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
             case "exercises.submission.save" -> submissionSavedHandler(message);
+            case "exercises.submission.result" -> submissionResultHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
     }
@@ -59,6 +65,15 @@ public class Receiver implements MessageListener {
                                     .map(TestcaseDetailDto::getId)
                                     .toList()
                     )));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void submissionResultHandler(Message message) {
+        try {
+            SubmissionResultDto submissionResultDto = mapper.readValue(message.getBody(), SubmissionResultDto.class);
+            submissionResultService.saveSubmissionResult(submissionResultDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
