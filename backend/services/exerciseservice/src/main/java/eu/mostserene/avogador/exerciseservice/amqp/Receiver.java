@@ -28,4 +28,44 @@ public class Receiver implements MessageListener {
             log.error(LoggerColors.error("call not handled"));
         }
     }
+
+    @Data
+    private static class SubmissionSavedDto {
+        private UUID submissionId;
+        private Strox strox;
+
+        public SubmissionSavedDto() {
+        }
+
+        public SubmissionSavedDto(UUID submissionId, Strox strox) {
+            this.submissionId = submissionId;
+            this.strox = strox;
+        }
+    }
+
+    @Data
+    private static class SubmissionExecutionDto {
+        private UUID id;
+        private UUID courseId;
+        private UUID trialId;
+        private UUID exerciseId;
+        private String language;
+        private String filename;
+        private Integer timeLimit;
+        private List<UUID> testcases;
+
+        public SubmissionExecutionDto() {
+        }
+
+        public SubmissionExecutionDto(UUID id, UUID courseId, UUID trialId, UUID exerciseId, String language, String filename, Integer timeLimit, List<UUID> testcases) {
+            this.id = id;
+            this.courseId = courseId;
+            this.trialId = trialId;
+            this.exerciseId = exerciseId;
+            this.language = language;
+            this.filename = filename;
+            this.timeLimit = timeLimit;
+            this.testcases = testcases;
+        }
+    }
 }
