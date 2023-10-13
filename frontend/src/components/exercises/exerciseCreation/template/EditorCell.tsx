@@ -8,12 +8,14 @@ interface EditorCellProps {
   cell: StroxCell;
   onChange: (cell: StroxCell) => void;
   onDelete: () => void;
+  language: "C" | "CPP" | "PYTHON" | "JAVA" | undefined;
 }
 
 const EditorCell = ({
   cell,
   onChange: handleChange,
   onDelete: handleDelete,
+  language,
 }: EditorCellProps) => {
   const theme = useTheme();
   const handleTypeChange = (type: "HIDDEN" | "EDITABLE" | "VISIBLE") => {
@@ -32,6 +34,7 @@ const EditorCell = ({
     <Box position="relative" className="show-on-hover-source">
       <Editor
         height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
+        language={language?.toLowerCase()}
         defaultLanguage="javascript"
         theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
         options={{
