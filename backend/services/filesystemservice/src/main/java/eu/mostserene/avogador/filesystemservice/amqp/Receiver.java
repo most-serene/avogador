@@ -7,6 +7,7 @@ import eu.mostserene.avogador.filesystemservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseTemplateDTO;
 import eu.mostserene.avogador.filesystemservice.submission.SubmissionDTO;
+import eu.mostserene.avogador.filesystemservice.submission.SubmissionSavedDTO;
 import eu.mostserene.avogador.filesystemservice.testcases.TestcaseDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialStorageImpl;
@@ -75,6 +76,9 @@ public class Receiver implements MessageListener {
             SubmissionDTO submissionDTO = mapper.readValue(message.getBody(), SubmissionDTO.class);
             ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
                     .saveSubmission(submissionDTO.getSubmissionId(), submissionDTO.getSubmission());
+
+            (new Sender()).send("exercises", "exercises.submission.save",
+                    mapper.writeValueAsString(new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO.getSubmission())));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

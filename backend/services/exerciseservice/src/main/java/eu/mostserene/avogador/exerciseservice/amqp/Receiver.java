@@ -1,21 +1,66 @@
 package eu.mostserene.avogador.exerciseservice.amqp;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissions.Submission;
+import eu.mostserene.avogador.exerciseservice.submissions.SubmissionDto;
+import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class Receiver implements MessageListener {
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    @Autowired
+    private SubmissionService submissionService;
+
+    @Autowired
+    private TestcaseService testcaseService;
+
     private void handleMessage(Message message) {
         log.info(message.getMessageProperties().getContentType());
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "exercises.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
+            case "exercises.submission.save" -> submissionSavedHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
+        }
+    }
+
+    private void submissionSavedHandler(Message message) {
+        try {
+            SubmissionSavedDto submissionSavedDto = mapper.readValue(message.getBody(), SubmissionSavedDto.class);
+
+            Submission submission = submissionService.getSubmission(submissionSavedDto.getSubmissionId())
+                    .orElseThrow(RuntimeException::new);
+
+            (new Sender()).send("executor", "exec.submission.execute",
+                    mapper.writeValueAsString(new SubmissionExecutionDto(
+                            submission.getId(),
+                            submission.getExercise().getTrial().getCourseId(),
+                            submission.getExercise().getTrial().getId(),
+                            submission.getExercise().getId(),
+                            submission.getExercise().getTrial().getLanguage().name(),
+                            submissionSavedDto.getStrox().getSourceFileName(),
+                            submission.getExercise().getTimeLimit(),
+                            testcaseService.getTestcasesFromExercise(submission.getExercise())
+                                    .stream()
+                                    .map(TestcaseDetailDto::getId)
+                                    .toList()
+                    )));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
