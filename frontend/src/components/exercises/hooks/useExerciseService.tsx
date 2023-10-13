@@ -58,11 +58,35 @@ const useExerciseService = () => {
       [avogadorApi],
     );
 
+  const getExerciseById: (exerciseId: string) => Promise<Exercise> =
+    useCallback(
+      async (exerciseId: string) => {
+        const { data: exercise }: { data: Exercise } = await avogadorApi.get(
+          `/exercises/${exerciseId}`,
+        );
+        return exercise;
+      },
+      [avogadorApi],
+    );
+
+  const getTestcasesFromExercise: (exerciseId: string) => Promise<Testcase[]> =
+    useCallback(
+      async (exerciseId: string) => {
+        const { data: testcases }: { data: Testcase[] } = await avogadorApi.get(
+          `/exercises/${exerciseId}/testcases`,
+        );
+        return testcases;
+      },
+      [avogadorApi],
+    );
+
   return {
     createExercise,
     createTemplate,
     createTestcase,
     getExercisesByTrialId,
+    getExerciseById,
+    getTestcasesFromExercise,
   };
 };
 
