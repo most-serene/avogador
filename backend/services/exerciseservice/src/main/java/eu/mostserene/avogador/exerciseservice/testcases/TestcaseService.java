@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TestcaseService {
-
+    Optional<Testcase> getSimpleTestcase(UUID testcaseId);
     Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId);
     List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException;
     List<Testcase> getSimpleTestcasesFromExercise(Exercise exercise);

@@ -18,6 +18,11 @@ public class TestcaseServiceImpl implements TestcaseService {
     private FileSystemService fileSystemService;
 
     @Override
+    public Optional<Testcase> getSimpleTestcase(UUID testcaseId) {
+        return repository.findById(testcaseId);
+    }
+
+    @Override
     public Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId) {
         Optional<Testcase> testcase = repository.findById(testcaseId);
 
