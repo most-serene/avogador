@@ -2,7 +2,9 @@ package eu.mostserene.avogador.exerciseservice.exercises;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
+import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
@@ -32,6 +34,9 @@ public class ExerciseController {
 
     @Autowired
     private TrialService trialService;
+
+    @Autowired
+    private FileSystemService fileSystemService;
 
     /**
      * Returns the exercise given the exercise ID
@@ -80,6 +85,27 @@ public class ExerciseController {
         }
 
         return exerciseService.createExercise(exercise, trial);
+    }
+
+    /**
+     * creates the template of an exercise
+     */
+    @PostMapping("/{exerciseId}/template")
+    private void createExerciseTemplate(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody Strox strox) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        Trial trial = trialService.getTrialById(exercise.getTrial().getId())
+                .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        fileSystemService.createExerciseTemplate(exercise, strox);
     }
 
     /**

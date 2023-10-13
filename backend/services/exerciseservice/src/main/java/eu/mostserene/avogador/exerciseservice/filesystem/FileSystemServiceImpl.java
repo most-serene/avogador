@@ -8,8 +8,10 @@ import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
+import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,27 @@ public class FileSystemServiceImpl implements FileSystemService {
                     .send("filesystem", "fs.exercise.create",
                             mapper.writeValueAsString(new ExerciseStorageDTO(
                                     exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId())));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void createExerciseTemplate(Exercise exercise, Strox template) {
+        // FIXME: one day the professor will set the filename from the webapp
+        String filename = switch (exercise.getTrial().getLanguage()) {
+            case C -> "main.c";
+            case CPP -> "main.cpp";
+            case JAVA -> "Main.java";
+            case PYTHON -> "main.py";
+        };
+
+        template.setSourceFileName(filename);
+        try {
+            (new Sender())
+                    .send("filesystem", "fs.template.create",
+                            mapper.writeValueAsString(new ExerciseTemplateStorageDTO(
+                                    exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId(), template)));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -108,6 +131,15 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public void createSubmission(Submission submission, Strox strox) {
+        // FIXME: one day the professor will set the filename from the webapp
+        String filename = switch (submission.getExercise().getTrial().getLanguage()) {
+            case C -> "main.c";
+            case CPP -> "main.cpp";
+            case JAVA -> "Main.java";
+            case PYTHON -> "main.py";
+        };
+
+        strox.setSourceFileName(filename);
         try {
             (new Sender())
                     .send("filesystem", "fs.submission.create",
@@ -177,6 +209,20 @@ public class FileSystemServiceImpl implements FileSystemService {
             this.courseId = courseId;
             this.trialId = trialId;
             this.exerciseId = exerciseId;
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    private static class ExerciseTemplateStorageDTO extends ExerciseStorageDTO {
+        private Strox template;
+
+        public ExerciseTemplateStorageDTO() {
+        }
+
+        public ExerciseTemplateStorageDTO(UUID courseId, UUID trialId, UUID exerciseId, Strox template) {
+            super(courseId, trialId, exerciseId);
+            this.template = template;
         }
     }
 
