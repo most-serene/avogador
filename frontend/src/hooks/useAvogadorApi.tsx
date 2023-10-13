@@ -46,12 +46,22 @@ function isIsoDateString(value: any): boolean {
 }
 */
 
+const dateFields = [
+  "creationTimestamp",
+  "deadline",
+  "expiration",
+  "joinDate",
+  "startTimestamp",
+  "startTime",
+  "finishTime",
+];
+
 /* eslint-disable */
 const handleDates = (body: any) => {
   if (body == null) return body;
   for (const key of Object.keys(body)) {
     const value = body[key];
-    if (typeof value !== 'number' && !isNaN(Date.parse(value))) {
+    if (typeof value !== 'number' && dateFields.includes(key) && !isNaN(Date.parse(value))) {
       body[key] = new Date(value);
     } else if (typeof value === "object") handleDates(value);
   }
