@@ -155,17 +155,26 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
     }
 
-    @Override
-    public Optional<Strox> getMergedSubmission(Submission submission) {
+    public Optional<Strox> getExerciseTemplate(Exercise exercise) {
         Strox stroxTemplate = new RestTemplateBuilder()
                 .build()
-                .getForObject("http://filesystem/courses/" + submission.getExercise().getTrial().getCourseId() +
-                                "/trials/ " + submission.getExercise().getTrial().getId() +
-                                "/exercises/" + submission.getExercise().getId() +
+                .getForObject("http://filesystem/courses/" + exercise.getTrial().getCourseId() +
+                                "/trials/ " + exercise.getTrial().getId() +
+                                "/exercises/" + exercise.getId() +
                                 "/template",
                         Strox.class);
 
-        if (stroxTemplate == null) return Optional.empty();
+        if (stroxTemplate == null){
+            return Optional.empty();
+        }
+        return Optional.of(stroxTemplate);
+    }
+
+    @Override
+    public Optional<Strox> getMergedSubmission(Submission submission) {
+        Optional<Strox> stroxTemplate = getExerciseTemplate(submission.getExercise());
+
+        if (stroxTemplate.isEmpty()) return Optional.empty();
 
         Strox stroxSubmission = new RestTemplateBuilder()
                 .build()
@@ -178,7 +187,7 @@ public class FileSystemServiceImpl implements FileSystemService {
 
         if (stroxSubmission == null) return Optional.empty();
 
-        return Optional.of(Strox.merge(stroxTemplate, stroxSubmission));
+        return Optional.of(Strox.merge(stroxTemplate.get(), stroxSubmission));
     }
 
     @Data
