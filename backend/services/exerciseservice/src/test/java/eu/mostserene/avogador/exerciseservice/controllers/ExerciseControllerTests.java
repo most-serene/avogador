@@ -7,6 +7,7 @@ import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseController;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
@@ -47,6 +48,7 @@ public class ExerciseControllerTests {
     private @MockBean UserTrialService userTrialService;
     private @MockBean UserCourseService userCourseService;
     private @MockBean TrialService trialService;
+    private @MockBean FileSystemService fileSystemService;
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));

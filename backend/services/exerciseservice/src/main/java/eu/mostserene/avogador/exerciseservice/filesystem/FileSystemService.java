@@ -15,6 +15,7 @@ public interface FileSystemService {
     void createTrial(Trial trial);
     void deleteTrial(Trial trial);
     void createExercise(Exercise exercise);
+    void createExerciseTemplate(Exercise exercise, Strox template);
     void deleteExercise(Exercise exercise);
     void createTestcase(Exercise exercise, TestcaseDetailDto testcase);
     void deleteTestcase(TestcaseDetailDto testcase);

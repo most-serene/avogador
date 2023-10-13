@@ -32,7 +32,8 @@ const steps = [
 ];
 
 const ExerciseCreationScreen = () => {
-  const { createExercise, createTestcase } = useExerciseService();
+  const { createExercise, createTestcase, createTemplate } =
+    useExerciseService();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [exercise, setExercise] = useAtom(exerciseAtom);
@@ -99,8 +100,16 @@ const ExerciseCreationScreen = () => {
       return;
     }
 
-    // create template
-    setCreationPercentage(creationPercentage + 25);
+    try {
+      await createTemplate(createdExercise, template);
+      setCreationPercentage(creationPercentage + 25);
+    } catch (err) {
+      if (err instanceof Error) {
+        enqueueSnackbar(err.message, { variant: "error" });
+      }
+      setCreationStatus("");
+      setCreationPercentage(0);
+    }
 
     let i = 1;
     for (const testcase of testcases) {
@@ -122,11 +131,6 @@ const ExerciseCreationScreen = () => {
         return;
       }
       createdTestcases.push(createdTestcase);
-    }
-
-    if (createdTestcases.length === testcases.length) {
-      setCreationStatus("");
-      navigate(`/exercises`);
     }
   };
 
@@ -180,7 +184,16 @@ const ExerciseCreationScreen = () => {
             disabled={
               activeStep != steps.length - 1 || !isTestcasesStepComplete
             }
-            onClick={() => void handleSubmit()}
+            onClick={() => {
+              handleSubmit()
+                .then(() => {
+                  setCreationStatus("");
+                  navigate(`/practices/${exercise.trialId}`);
+                })
+                .catch((err: Error) => {
+                  enqueueSnackbar(err.message, { variant: "error" });
+                });
+            }}
           >
             Create
           </Button>

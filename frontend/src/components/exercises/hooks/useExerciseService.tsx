@@ -4,6 +4,7 @@ import {
   Exercise,
   PartialExercise,
   PartialTestcase,
+  StroxCell,
   Testcase,
 } from "@exercises/types.ts";
 import { Trial } from "@trials/types.ts";
@@ -18,6 +19,18 @@ const useExerciseService = () => {
       const { data: createdExercise }: { data: Exercise } =
         await avogadorApi.post("/exercises", exercise);
       return createdExercise;
+    },
+    [avogadorApi],
+  );
+
+  const createTemplate: (
+    exercise: Exercise,
+    template: StroxCell[],
+  ) => Promise<void> = useCallback(
+    async (exercise: Exercise, template: StroxCell[]) => {
+      await avogadorApi.post(`/exercises/${exercise.id}/template`, {
+        cells: template,
+      });
     },
     [avogadorApi],
   );
@@ -47,6 +60,7 @@ const useExerciseService = () => {
 
   return {
     createExercise,
+    createTemplate,
     createTestcase,
     getExercisesByTrialId,
   };

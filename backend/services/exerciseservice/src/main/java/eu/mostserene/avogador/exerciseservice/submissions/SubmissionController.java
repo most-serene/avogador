@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
@@ -87,7 +86,7 @@ public class SubmissionController {
 
         try {
             Submission submission = submissionService.createSubmission(exercise, submissionDto);
-            return submissionService.exportToDto(submission);
+            return new SubmissionDto(submission.getId(), submission.getExercise().getId(), submission.getUserId(), submission.getTimestamp());
         } catch (StroxException stroxException) {
             throw new BadRequestException(stroxException.getMessage());
         }

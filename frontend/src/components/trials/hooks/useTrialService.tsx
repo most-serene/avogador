@@ -16,12 +16,11 @@ const useTrialService = () => {
     [avogadorApi],
   );
 
-  const getUserTrial: (user: User, trial: Trial) => Promise<UserTrial> =
+  const getUserTrial: (user: User, trial: Trial) => Promise<UserTrial | null> =
     useCallback(
       async (user: User, trial: Trial) => {
-        const { data: userTrial }: { data: UserTrial } = await avogadorApi.get(
-          `/trials/${trial.id}/users/${user.id}`,
-        );
+        const { data: userTrial }: { data: UserTrial | null } =
+          await avogadorApi.get(`/trials/${trial.id}/users/${user.id}`);
         return userTrial;
       },
       [avogadorApi],

@@ -132,9 +132,7 @@ const TrialCreationScreen = () => {
           },
         );
 
-        navigate(
-          `/courses/${createdPractice.courseId}/trails/${createdPractice.id}`,
-        );
+        navigate(`/practices/${createdPractice.id}`);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });

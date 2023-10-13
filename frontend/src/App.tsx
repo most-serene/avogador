@@ -19,7 +19,7 @@ import ErrorHandlerWrapper from "./ErrorHandlerWrapper.tsx";
 import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.tsx";
 import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
 import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
-import TrialCreationScreen from "@trials/traialCreation/TrialCreationScreen.tsx";
+import TrialCreationScreen from "@trials/trialCreation/TrialCreationScreen.tsx";
 import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreationScreen.tsx";
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 
