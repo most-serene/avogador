@@ -6,9 +6,17 @@ import templateAtom, {
 import EditorCell from "@exercises/exerciseCreation/template/EditorCell.tsx";
 import { Button } from "@mui/material";
 import { StroxCell } from "@exercises/types.ts";
+import useTrialService from "@trials/hooks/useTrialService.tsx";
+import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
+import { useEffect, useState } from "react";
+import { Exam, Practice } from "@trials/types.ts";
+import { enqueueSnackbar } from "notistack";
 
 const ExerciseCreationTemplate = () => {
+  const { getTrialById } = useTrialService();
   const [template, setTemplate] = useAtom(templateAtom);
+  const [exercise] = useAtom(exerciseAtom);
+  const [trial, setTrial] = useState<Practice | Exam>();
 
   const handleOnDelete = (i: number) => {
     template.splice(i, 1);
@@ -29,6 +37,16 @@ const ExerciseCreationTemplate = () => {
     setTemplate([...template]);
   };
 
+  useEffect(() => {
+    getTrialById(exercise.trialId)
+      .then((trial: Practice | Exam) => {
+        setTrial(trial);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  }, [exercise.trialId, getTrialById]);
+
   return (
     <Box
       style={{ overflow: "scroll", height: "100%" }}
@@ -46,6 +64,7 @@ const ExerciseCreationTemplate = () => {
       {template.map((cell, i) => (
         <div key={i}>
           <EditorCell
+            language={trial?.language}
             cell={cell}
             onChange={handleOnChange(i)}
             onDelete={() => {
