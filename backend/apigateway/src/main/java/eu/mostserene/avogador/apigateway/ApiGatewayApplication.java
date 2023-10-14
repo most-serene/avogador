@@ -41,9 +41,10 @@ public class ApiGatewayApplication {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("websocket", r -> r.path("/ws/**")
-                        .filters(f -> f.rewritePath("/ws/(?<segment>.*)", "/public/ws/${segment}"))
-                        .uri("http://users"))
+                .route("websocket", r -> r.path("/ws")
+                        .uri("ws://users"))
+                .route("websockets", r -> r.path("/ws/**")
+                        .uri("ws://users"))
                 .route("users", r -> r.path("/users/**")
                         .filters(f -> f.rewritePath("/users/(?<segment>.*)", "/public/users/${segment}"))
                         .uri("http://users"))
