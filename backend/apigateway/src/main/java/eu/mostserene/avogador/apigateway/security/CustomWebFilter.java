@@ -212,6 +212,10 @@ public class CustomWebFilter implements WebFilter {
     }
 
     private boolean isCSRF(ServerHttpRequest request) {
+        if (request.getURI().getPath().matches("^/ws.*")) {
+            return false;
+        }
+
         String cookieName = getCookieName();
         HttpCookie jwtCookie = request.getCookies().getFirst(cookieName);
 
