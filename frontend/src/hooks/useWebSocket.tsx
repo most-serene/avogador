@@ -4,7 +4,7 @@ import { Client } from "@stomp/stompjs";
 const useWebSocket = () => {
   const client = useMemo(() => {
     const client = new Client({
-      brokerURL: "ws://localhost:8080/ws",
+      brokerURL: `${import.meta.env.VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS}`,
       onConnect: (frame) => {
         console.log(frame);
       },
