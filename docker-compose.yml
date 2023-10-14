@@ -87,6 +87,9 @@ services:
       spring.mail.properties.mail.smtp.starttls.enable: true
       spring.mail.properties.mail.smtp.starttls.required: true
       spring.mail.properties.mail.debug: false
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${USERSERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${USERSERVICE_RABBITMQ_PASSWORD}
     ports:
       - "${USERSERVICE_PORT}:80"
     networks:
