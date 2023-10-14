@@ -23,6 +23,7 @@ import TrialCreationScreen from "@trials/trialCreation/TrialCreationScreen.tsx";
 import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreationScreen.tsx";
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 import ExerciseScreen from "@exercises/exerciseScreen/ExerciseScreen.tsx";
+import useWebSocket from "@hooks/useWebSocket.tsx";
 
 const NotFound = () => {
   return (
@@ -52,6 +53,17 @@ function App() {
 
   const { connectToGlitchTip } = useGlitchTip();
   const [user] = useAtom(userAtom);
+
+  const { client } = useWebSocket();
+
+  useEffect(() => {
+    if (client.connected) {
+      console.log("subscribing");
+      client.subscribe("/broadcast", (message) => {
+        console.log(message);
+      });
+    }
+  }, [client, client.connected]);
 
   useEffect(() => {
     if (user) {

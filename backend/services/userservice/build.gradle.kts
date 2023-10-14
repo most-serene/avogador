@@ -30,6 +30,8 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-websocket:3.1.4")
+
 	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("org.springframework.boot:spring-boot-starter-mail:3.0.4")
