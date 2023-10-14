@@ -6,7 +6,6 @@ import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultDto;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
-import eu.mostserene.avogador.exerciseservice.submissions.SubmissionDto;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -85,7 +83,10 @@ public class Receiver implements MessageListener {
             submissionResultService.saveSubmissionResult(
                     new SubmissionResult(submission, testcase, submissionResultDto.getStatus())
             );
-            // TODO: notify user via websocket (AVG-281)
+            (new Sender()).send("users", "users.socket.notify", mapper.writeValueAsString(
+                    new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
+                            mapper.writeValueAsString(submissionResultDto)
+                    )));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -138,6 +139,20 @@ public class Receiver implements MessageListener {
             this.filename = filename;
             this.timeLimit = timeLimit;
             this.testcases = testcases;
+        }
+    }
+
+    @Data
+    private static class WebSocketMessage {
+        private String topic;
+        private String payload;
+
+        public WebSocketMessage() {
+        }
+
+        public WebSocketMessage(String topic, String payload) {
+            this.topic = topic;
+            this.payload = payload;
         }
     }
 }
