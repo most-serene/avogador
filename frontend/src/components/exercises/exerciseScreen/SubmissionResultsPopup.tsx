@@ -1,5 +1,4 @@
 import {
-  Badge,
   Card,
   CardActionArea,
   CardContent,
@@ -13,7 +12,6 @@ import { useEffect, useState } from "react";
 import {
   Cancel,
   CheckCircle,
-  Circle,
   Close,
   Error,
   ExpandLess,
@@ -114,7 +112,9 @@ const SubmissionResultsPopup = ({
               <Typography variant="h5">Last Submission Results</Typography>
               <Box display="flex" flexWrap="wrap" justifyContent="center">
                 {results.map((result) => (
-                  <Box margin={0.5}>{getResultBadge(result.status)}</Box>
+                  <Box key={result.id} margin={0.5}>
+                    {getResultBadge(result.status)}
+                  </Box>
                 ))}
               </Box>
             </CardContent>

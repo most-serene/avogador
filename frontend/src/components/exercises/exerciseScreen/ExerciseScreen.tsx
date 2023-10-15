@@ -8,7 +8,6 @@ import { Exercise, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
-import Box from "@mui/material/Box";
 
 const ExerciseScreen = () => {
   const { getExerciseById, getTestcasesFromExercise, getTemplateFromExercise } =

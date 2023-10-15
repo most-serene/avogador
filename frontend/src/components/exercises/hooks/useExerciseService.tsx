@@ -130,7 +130,7 @@ const useExerciseService = () => {
         );
       return submission;
     },
-    [avogadorApi],
+    [avogadorApi, user],
   );
 
   return {
