@@ -22,7 +22,7 @@ import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
 import TrialCreationScreen from "@trials/trialCreation/TrialCreationScreen.tsx";
 import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreationScreen.tsx";
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
-import useWebSocket from "@hooks/useWebSocket.tsx";
+import WebSocketWrapper from "./WebSocketWrapper.tsx";
 
 const NotFound = () => {
   return (
@@ -53,17 +53,6 @@ function App() {
   const { connectToGlitchTip } = useGlitchTip();
   const [user] = useAtom(userAtom);
 
-  const { client } = useWebSocket();
-
-  useEffect(() => {
-    if (client.connected) {
-      console.log("subscribing");
-      client.subscribe("/broadcast", (message) => {
-        console.log(message);
-      });
-    }
-  }, [client, client.connected]);
-
   useEffect(() => {
     if (user) {
       connectToGlitchTip(user);
@@ -85,75 +74,77 @@ function App() {
           <Navbar ref={navbarRef} />
           <ErrorHandlerWrapper>
             <AuthWrapper>
-              <MobileWrapper>
-                <Box
-                  id="fullScreenWrapper"
-                  height={`calc(100vh - ${occupiedHeight}px)`}
-                >
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <Container maxWidth={false} sx={{ height: "100%" }}>
-                          <HomeScreen />
-                        </Container>
-                      }
-                    />
-                    <Route
-                      path="/status"
-                      element={
-                        <Container>
-                          <StatusPage />
-                        </Container>
-                      }
-                    />
-                    <Route path="courses">
+              <WebSocketWrapper>
+                <MobileWrapper>
+                  <Box
+                    id="fullScreenWrapper"
+                    height={`calc(100vh - ${occupiedHeight}px)`}
+                  >
+                    <Routes>
                       <Route
-                        path={""}
+                        path="/"
                         element={
-                          <Container maxWidth={"xl"}>
-                            <CoursesScreen />
+                          <Container maxWidth={false} sx={{ height: "100%" }}>
+                            <HomeScreen />
                           </Container>
                         }
                       />
                       <Route
-                        path={"new"}
+                        path="/status"
                         element={
-                          <Container maxWidth={"xl"}>
-                            <CourseCreationScreen />
+                          <Container>
+                            <StatusPage />
                           </Container>
                         }
                       />
+                      <Route path="courses">
+                        <Route
+                          path={""}
+                          element={
+                            <Container maxWidth={"xl"}>
+                              <CoursesScreen />
+                            </Container>
+                          }
+                        />
+                        <Route
+                          path={"new"}
+                          element={
+                            <Container maxWidth={"xl"}>
+                              <CourseCreationScreen />
+                            </Container>
+                          }
+                        />
+                        <Route
+                          path={":courseId"}
+                          element={<CourseDetailScreen />}
+                        />
+                        <Route
+                          path={":courseId/join"}
+                          element={<JoinCourseScreen />}
+                        />
+                      </Route>
                       <Route
-                        path={":courseId"}
-                        element={<CourseDetailScreen />}
+                        path={"/trials/new"}
+                        element={<TrialCreationScreen />}
                       />
                       <Route
-                        path={":courseId/join"}
-                        element={<JoinCourseScreen />}
+                        path={"/practices/:trialId"}
+                        element={<TrialDetailScreen trialType={"PRACTICE"} />}
                       />
-                    </Route>
-                    <Route
-                      path={"/trials/new"}
-                      element={<TrialCreationScreen />}
-                    />
-                    <Route
-                      path={"/practices/:trialId"}
-                      element={<TrialDetailScreen trialType={"PRACTICE"} />}
-                    />
-                    <Route path="/profile" element={<ProfileScreen />} />
-                    <Route
-                      path="/exercises/new"
-                      element={
-                        <Container maxWidth={"xl"} style={{ height: "100%" }}>
-                          <ExerciseCreationScreen />
-                        </Container>
-                      }
-                    />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Box>
-              </MobileWrapper>
+                      <Route path="/profile" element={<ProfileScreen />} />
+                      <Route
+                        path="/exercises/new"
+                        element={
+                          <Container maxWidth={"xl"} style={{ height: "100%" }}>
+                            <ExerciseCreationScreen />
+                          </Container>
+                        }
+                      />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Box>
+                </MobileWrapper>
+              </WebSocketWrapper>
             </AuthWrapper>
           </ErrorHandlerWrapper>
           <Footer ref={footerRef} />
