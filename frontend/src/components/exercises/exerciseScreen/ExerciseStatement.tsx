@@ -12,6 +12,7 @@ interface ExerciseStatementProps {
 const ExerciseStatement = ({ exercise, testcases }: ExerciseStatementProps) => {
   return (
     <Box
+      marginBottom="6rem"
       padding={2}
       height="100%"
       style={{ overflow: "scroll" }}

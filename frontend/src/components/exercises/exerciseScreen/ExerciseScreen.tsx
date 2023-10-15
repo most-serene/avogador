@@ -7,6 +7,7 @@ import { enqueueSnackbar } from "notistack";
 import { Exercise, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
+import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
 
 const ExerciseScreen = () => {
   const { getExerciseById, getTestcasesFromExercise, getTemplateFromExercise } =
@@ -46,8 +47,9 @@ const ExerciseScreen = () => {
 
   return (
     <Grid container style={{ height: "100%" }}>
-      <Grid item xs={5} style={{ height: "100%" }}>
+      <Grid item xs={5} style={{ height: "100%" }} position="relative">
         <ExerciseStatement exercise={exercise} testcases={testcases} />
+        <SubmissionResultsPopup exerciseId={exerciseId} />
       </Grid>
       <Grid item xs={7} style={{ height: "100%" }}>
         <SubmissionEditor exerciseId={exerciseId} trialId={trialId} />

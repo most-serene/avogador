@@ -49,6 +49,23 @@ interface Submission {
   stroxCells: StroxCell[];
 }
 
+interface SubmissionResult {
+  id: string;
+  submissionId: string;
+  testcaseId: string;
+  status: ResultStatus;
+}
+
+type ResultStatus =
+  | "PENDING"
+  | "CORRECT"
+  | "WRONG_ANSWER"
+  | "TIME_LIMIT_EXCEEDED"
+  | "RUNTIME_ERROR"
+  | "COMPILE_ERROR";
+
+type SubmissionResultMap = Record<string, SubmissionResult[]>;
+
 export type {
   Exercise,
   PartialExercise,
@@ -57,4 +74,7 @@ export type {
   Testcase,
   PartialTestcase,
   Submission,
+  SubmissionResult,
+  SubmissionResultMap,
+  ResultStatus,
 };

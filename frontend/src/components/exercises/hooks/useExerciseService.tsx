@@ -7,6 +7,7 @@ import {
   Strox,
   StroxCell,
   Submission,
+  SubmissionResultMap,
   Testcase,
 } from "@exercises/types.ts";
 import { Trial } from "@trials/types.ts";
@@ -115,6 +116,23 @@ const useExerciseService = () => {
       [avogadorApi],
     );
 
+  const getUserLastSubmissionFromExercise: (
+    exerciseId: string,
+  ) => Promise<SubmissionResultMap> = useCallback(
+    async (exerciseId: string) => {
+      if (user == null) {
+        throw new Error("We are still verifying the user's identity");
+      }
+
+      const { data: submission }: { data: SubmissionResultMap } =
+        await avogadorApi.get(
+          `/exercises/${exerciseId}/users/${user.id}/results?latest=true`,
+        );
+      return submission;
+    },
+    [avogadorApi, user],
+  );
+
   return {
     createExercise,
     createTemplate,
@@ -124,6 +142,7 @@ const useExerciseService = () => {
     getExerciseById,
     getTestcasesFromExercise,
     getTemplateFromExercise,
+    getUserLastSubmissionFromExercise,
   };
 };
 
