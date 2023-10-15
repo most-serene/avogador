@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.exercises;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ public class Exercise {
     private String name;
 
     @NotNull
+    @Length(max = 10000)
     private String statement;
 
     @NotNull
