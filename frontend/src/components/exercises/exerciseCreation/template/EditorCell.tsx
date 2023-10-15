@@ -35,7 +35,6 @@ const EditorCell = ({
       <Editor
         height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
         language={language?.toLowerCase()}
-        defaultLanguage="javascript"
         theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
         options={{
           inlineSuggest: true,

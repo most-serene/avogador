@@ -55,7 +55,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<Exercise> getExercisesFromTrial(Trial trial, Boolean includeHidden) {
-        if (!includeHidden){
+        if (includeHidden){
             return exerciseRepository.findByTrial_Id(trial.getId());
         }
         return exerciseRepository.findByTrial_IdAndIsVisibleTrue(trial.getId());

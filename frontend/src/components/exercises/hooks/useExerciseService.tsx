@@ -4,13 +4,18 @@ import {
   Exercise,
   PartialExercise,
   PartialTestcase,
+  Strox,
   StroxCell,
+  Submission,
   Testcase,
 } from "@exercises/types.ts";
 import { Trial } from "@trials/types.ts";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
 
 const useExerciseService = () => {
   const avogadorApi = useAvogadorApi();
+  const [user] = useAtom(userAtom);
 
   const createExercise: (
     exercise: Omit<PartialExercise, "courseId">,
@@ -47,6 +52,25 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const createSubmission: (
+    exerciseId: string,
+    submission: StroxCell[],
+  ) => Promise<Submission> = useCallback(
+    async (exerciseId: string, submission: StroxCell[]) => {
+      if (user == null) {
+        throw new Error("User is null or undefined");
+      }
+      const { data: createdSubmission }: { data: Submission } =
+        await avogadorApi.post(`/exercises/${exerciseId}/submissions`, {
+          exerciseId: exerciseId,
+          userId: user.id,
+          stroxCells: submission.filter((cell) => cell.type === "EDITABLE"),
+        });
+      return createdSubmission;
+    },
+    [avogadorApi, user],
+  );
+
   const getExercisesByTrialId: (trial: Trial) => Promise<Exercise[]> =
     useCallback(
       async (trial: Trial) => {
@@ -80,13 +104,26 @@ const useExerciseService = () => {
       [avogadorApi],
     );
 
+  const getTemplateFromExercise: (exerciseId: string) => Promise<Strox> =
+    useCallback(
+      async (exerciseId: string) => {
+        const { data: template }: { data: Strox } = await avogadorApi.get(
+          `/exercises/${exerciseId}/template`,
+        );
+        return template;
+      },
+      [avogadorApi],
+    );
+
   return {
     createExercise,
     createTemplate,
     createTestcase,
+    createSubmission,
     getExercisesByTrialId,
     getExerciseById,
     getTestcasesFromExercise,
+    getTemplateFromExercise,
   };
 };
 

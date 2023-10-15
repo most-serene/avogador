@@ -81,9 +81,8 @@ const TrialDetailCollaboratorScreen = ({
                 }}
               >
                 <ArrowBackIosNewIcon />
-                Back to{" "}
-                {course.name.length > 20
-                  ? course.name.substring(0, 20) + "..."
+                {course.name.length > 25
+                  ? course.name.substring(0, 25) + "..."
                   : course.name}
               </Button>
             </Box>

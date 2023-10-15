@@ -80,6 +80,7 @@ const ExerciseCreationScreen = () => {
   const handleSubmit = async () => {
     let createdExercise: Exercise;
     const createdTestcases: Testcase[] = [];
+    let creationPercentage = 0;
 
     try {
       setCreationStatus("Creating the Database entry");
@@ -90,7 +91,8 @@ const ExerciseCreationScreen = () => {
         timeLimit: exercise.timeLimit,
         isVisible: exercise.isVisible,
       });
-      setCreationPercentage(creationPercentage + 25);
+      creationPercentage += 25;
+      setCreationPercentage(creationPercentage);
     } catch (err) {
       if (err instanceof Error) {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -102,7 +104,8 @@ const ExerciseCreationScreen = () => {
 
     try {
       await createTemplate(createdExercise, template);
-      setCreationPercentage(creationPercentage + 25);
+      creationPercentage += 25;
+      setCreationPercentage(creationPercentage);
     } catch (err) {
       if (err instanceof Error) {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -119,9 +122,8 @@ const ExerciseCreationScreen = () => {
           `Creating the Testcase entry ${i++}/${testcases.length}`,
         );
         createdTestcase = await createTestcase(createdExercise.id, testcase);
-        setCreationPercentage(
-          creationPercentage + ((i - 1) / testcases.length) * 50,
-        );
+        creationPercentage += ((i - 1) / testcases.length) * 50;
+        setCreationPercentage(creationPercentage);
       } catch (err) {
         if (err instanceof Error) {
           enqueueSnackbar(err.message, { variant: "error" });
