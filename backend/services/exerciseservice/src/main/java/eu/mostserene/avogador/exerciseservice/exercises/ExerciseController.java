@@ -81,11 +81,16 @@ public class ExerciseController {
      */
     @PostMapping("")
     private Exercise createExercise(@RequestHeader(name = "User") UserDto user, @RequestBody ExerciseDto exercise) {
+        if (exercise.getStatement().length() > 10000){
+            throw new BadRequestException("Exercise statement is over 10000 characters");
+        }
+        
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
         CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
+
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);

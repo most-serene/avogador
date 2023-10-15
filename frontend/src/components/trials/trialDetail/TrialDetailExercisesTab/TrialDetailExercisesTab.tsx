@@ -40,7 +40,6 @@ const TrialDetailExercisesTab = ({
   useEffect(() => {
     getExercisesByTrialId(trial)
       .then((exercises) => {
-        console.log(exercises);
         setExercises(exercises);
       })
       .catch((err: Error) => {
@@ -110,22 +109,17 @@ const TrialDetailExercisesTab = ({
         course.role === "ADMIN") && (
         <>
           <Divider
-            style={{
-              backgroundColor: theme.palette.primary.main,
-              marginTop: "2rem",
-            }}
-          />
-          <Typography
-            variant={"body1"}
-            color={theme.palette.primary.main}
-            display={"flex"}
-            justifyContent={"center"}
-            style={{
-              marginBottom: "1rem",
+            sx={{
+              "&::before, &::after": {
+                borderColor: "primary.main",
+              },
+              mt: "2rem",
             }}
           >
-            Hidden exercises
-          </Typography>
+            <Typography variant="body2" color="primary.main">
+              Hidden exercises
+            </Typography>
+          </Divider>
           <Stack spacing={2}>
             {exercises
               .filter((exercise) => !exercise.isVisible)

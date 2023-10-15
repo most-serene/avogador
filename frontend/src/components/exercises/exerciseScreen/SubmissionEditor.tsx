@@ -50,16 +50,13 @@ const SubmissionEditor = ({ exerciseId, trialId }: SubmissionEditorProps) => {
           variant: "success",
         });
       })
-      .catch((err) => {
-        if (err instanceof Error) {
-          enqueueSnackbar(
-            "Something went wrong when submitting your solution\n" +
-              err.message,
-            {
-              variant: "error",
-            },
-          );
-        }
+      .catch((err: Error) => {
+        enqueueSnackbar(
+          "Something went wrong when submitting your solution\n" + err.message,
+          {
+            variant: "error",
+          },
+        );
       })
       .finally(() => {
         setIsSubmitted(false);
@@ -73,20 +70,16 @@ const SubmissionEditor = ({ exerciseId, trialId }: SubmissionEditorProps) => {
         updateCellsSize(template.cells);
         console.log(template);
       })
-      .catch((err) => {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
       });
 
     getTrialById(trialId)
       .then((trial) => {
         setLanguage(trial.language);
       })
-      .catch((err) => {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
       });
   }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
 

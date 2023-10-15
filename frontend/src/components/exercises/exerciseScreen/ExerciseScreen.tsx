@@ -22,20 +22,16 @@ const ExerciseScreen = () => {
       .then((exercise) => {
         setExercise(exercise);
       })
-      .catch((err) => {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
       });
 
     getTestcasesFromExercise(exerciseId)
       .then((testcases) => {
         setTestcases(testcases);
       })
-      .catch((err) => {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
       });
   }, [
     exerciseId,
