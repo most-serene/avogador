@@ -48,6 +48,7 @@ function isIsoDateString(value: any): boolean {
 
 const dateFields = [
   "creationTimestamp",
+  "expirationTimestamp",
   "deadline",
   "expiration",
   "joinDate",
