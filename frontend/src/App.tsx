@@ -22,6 +22,7 @@ import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
 import TrialCreationScreen from "@trials/trialCreation/TrialCreationScreen.tsx";
 import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreationScreen.tsx";
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
+import ExerciseScreen from "@exercises/exerciseScreen/ExerciseScreen.tsx";
 import WebSocketWrapper from "./WebSocketWrapper.tsx";
 
 const NotFound = () => {
@@ -131,7 +132,10 @@ function App() {
                         path={"/practices/:trialId"}
                         element={<TrialDetailScreen trialType={"PRACTICE"} />}
                       />
-                      <Route path="/profile" element={<ProfileScreen />} />
+                      <Route
+                        path={"/practices/:trialId/exercises/:exerciseId"}
+                        element={<ExerciseScreen />}
+                      />
                       <Route
                         path="/exercises/new"
                         element={
@@ -140,6 +144,7 @@ function App() {
                           </Container>
                         }
                       />
+                      <Route path="/profile" element={<ProfileScreen />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Box>

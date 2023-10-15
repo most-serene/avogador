@@ -50,7 +50,7 @@ public class TestcaseController {
             throw new ForbiddenException(user);
         }
 
-        var exerciseTestcases = testcaseService.getTestcasesFromExercise(exercise);
+        var exerciseTestcases = testcaseService.getSimpleTestcasesFromExercise(exercise);
         testcase.setIndex(exerciseTestcases.size());
         testcase.setExerciseId(exerciseId);
 

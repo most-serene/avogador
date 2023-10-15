@@ -67,8 +67,9 @@ const TrialDetailExercisesTab = ({
       className={"hidden-scrollbar"}
     >
       <Stack spacing={2}>
-        {(user?.isSuperuser ??
-          (course.role === "COLLABORATOR" || course.role === "ADMIN")) && (
+        {((user != null && user.isSuperuser) ||
+          course.role === "COLLABORATOR" ||
+          course.role === "ADMIN") && (
           <Card
             sx={{
               mb: 2,
@@ -103,26 +104,22 @@ const TrialDetailExercisesTab = ({
             <ExerciseCard key={exercise.id} exercise={exercise} trial={trial} />
           ))}
       </Stack>
-      {(user?.isSuperuser ??
-        (course.role === "COLLABORATOR" || course.role === "ADMIN")) && (
+      {((user != null && user.isSuperuser) ||
+        course.role === "COLLABORATOR" ||
+        course.role === "ADMIN") && (
         <>
           <Divider
-            style={{
-              backgroundColor: theme.palette.primary.main,
-              marginTop: "2rem",
-            }}
-          />
-          <Typography
-            variant={"body1"}
-            color={theme.palette.primary.main}
-            display={"flex"}
-            justifyContent={"center"}
-            style={{
-              marginBottom: "1rem",
+            sx={{
+              "&::before, &::after": {
+                borderColor: "primary.main",
+              },
+              mt: "2rem",
             }}
           >
-            Hidden exercises
-          </Typography>
+            <Typography variant="body2" color="primary.main">
+              Hidden exercises
+            </Typography>
+          </Divider>
           <Stack spacing={2}>
             {exercises
               .filter((exercise) => !exercise.isVisible)

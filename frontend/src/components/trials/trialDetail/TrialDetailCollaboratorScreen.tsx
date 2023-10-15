@@ -34,17 +34,8 @@ const TrialDetailCollaboratorScreen = ({
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
-    if (isNaN(paramTab) || paramTab >= tabs.length) {
-      setSearchParams({
-        tab: "0",
-      });
-      return 0;
-    }
-    setSearchParams({
-      tab: paramTab.toString(),
-    });
-    return paramTab;
-  }, [searchParams, setSearchParams]);
+    return isNaN(paramTab) ? 0 : paramTab;
+  }, [searchParams]);
 
   useEffect(() => {
     setOpenTab(getInitialTab());
@@ -90,9 +81,8 @@ const TrialDetailCollaboratorScreen = ({
                 }}
               >
                 <ArrowBackIosNewIcon />
-                Back to{" "}
-                {course.name.length > 20
-                  ? course.name.substring(0, 20) + "..."
+                {course.name.length > 25
+                  ? course.name.substring(0, 25) + "..."
                   : course.name}
               </Button>
             </Box>

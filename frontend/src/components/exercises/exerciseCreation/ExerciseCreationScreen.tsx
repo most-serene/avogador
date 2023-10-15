@@ -90,7 +90,7 @@ const ExerciseCreationScreen = () => {
         timeLimit: exercise.timeLimit,
         isVisible: exercise.isVisible,
       });
-      setCreationPercentage(creationPercentage + 25);
+      setCreationPercentage((prev) => prev + 25);
     } catch (err) {
       if (err instanceof Error) {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -102,7 +102,7 @@ const ExerciseCreationScreen = () => {
 
     try {
       await createTemplate(createdExercise, template);
-      setCreationPercentage(creationPercentage + 25);
+      setCreationPercentage((prev) => prev + 25);
     } catch (err) {
       if (err instanceof Error) {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -120,7 +120,7 @@ const ExerciseCreationScreen = () => {
         );
         createdTestcase = await createTestcase(createdExercise.id, testcase);
         setCreationPercentage(
-          creationPercentage + ((i - 1) / testcases.length) * 50,
+          (prev) => prev + ((i - 1) / testcases.length) * 50,
         );
       } catch (err) {
         if (err instanceof Error) {

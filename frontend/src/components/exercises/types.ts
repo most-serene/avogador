@@ -36,7 +36,18 @@ interface PartialTestcase {
   isVisible: boolean;
 }
 
-type Strox = Record<number, StroxCell>;
+interface Strox {
+  sourceFileName: string;
+  cells: StroxCell[];
+}
+
+interface Submission {
+  id: string;
+  exerciseId: string;
+  userId: string;
+  timestamp: Date;
+  stroxCells: StroxCell[];
+}
 
 export type {
   Exercise,
@@ -45,4 +56,5 @@ export type {
   StroxCell,
   Testcase,
   PartialTestcase,
+  Submission,
 };
