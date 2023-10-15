@@ -80,10 +80,11 @@ public class Receiver implements MessageListener {
             Testcase testcase = testcaseService.getSimpleTestcase(submissionResultDto.getTestcaseId())
                     .orElseThrow(NotFoundException::new);
 
-            submissionResultService.saveSubmissionResult(
+            SubmissionResult savedResult = submissionResultService.saveSubmissionResult(
                     new SubmissionResult(submission, testcase, submissionResultDto.getStatus())
             );
-            (new Sender()).send("users", "users.socket.notify", mapper.writeValueAsString(
+            submissionResultDto.setId(savedResult.getId());
+            (new Sender()).send("users", "users.notify.socket", mapper.writeValueAsString(
                     new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
                             mapper.writeValueAsString(submissionResultDto)
                     )));

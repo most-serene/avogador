@@ -24,7 +24,7 @@ public class SubmissionResultServiceImpl implements SubmissionResultService {
     }
 
     @Override
-    public void saveSubmissionResult(SubmissionResult submissionResult) {
-        repository.save(submissionResult);
+    public SubmissionResult saveSubmissionResult(SubmissionResult submissionResult) {
+        return repository.save(submissionResult);
     }
 }
