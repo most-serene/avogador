@@ -1,24 +1,32 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.StroxException;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
+import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
+import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +42,12 @@ public class SubmissionController {
 
     @Autowired
     private SubmissionService submissionService;
+
+    @Autowired
+    private SubmissionResultService submissionResultService;
+
+    @Autowired
+    private TestcaseService testcaseService;
 
     @Autowired
     private UserTrialService userTrialService;
@@ -87,8 +101,31 @@ public class SubmissionController {
             }
         }
 
+        Submission submission = submissionService.createSubmission(exercise, submissionDto);
+        ObjectMapper mapper = new ObjectMapper();
+
+        testcaseService.getSimpleTestcasesFromExercise(submission.getExercise())
+                .stream().map(testcase -> submissionResultService.saveSubmissionResult(
+                        new SubmissionResult(submission, testcase, SubmissionStatus.PENDING)
+                ))
+                .forEach(submissionResult -> new Timer().schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                try {
+                                    new Sender().send("users", "users.notify.socket", mapper.writeValueAsString(
+                                            new WebSocketMessage("/" + submissionResult.getSubmission().getId() + "/results",
+                                                    mapper.writeValueAsString(submissionResult.toDto())
+                                            )));
+                                } catch (JsonProcessingException e) {
+                                    log.error(LoggerColors.error(e.toString()));
+                                }
+                            }
+                        },
+                        1000
+                ));
+
         try {
-            Submission submission = submissionService.createSubmission(exercise, submissionDto);
             return new SubmissionDto(submission.getId(), submission.getExercise().getId(), submission.getUserId(), submission.getTimestamp());
         } catch (StroxException stroxException) {
             throw new BadRequestException(stroxException.getMessage());

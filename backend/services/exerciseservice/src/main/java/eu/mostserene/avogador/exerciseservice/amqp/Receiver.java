@@ -12,6 +12,7 @@ import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
+import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -80,10 +81,14 @@ public class Receiver implements MessageListener {
             Testcase testcase = testcaseService.getSimpleTestcase(submissionResultDto.getTestcaseId())
                     .orElseThrow(NotFoundException::new);
 
-            SubmissionResult savedResult = submissionResultService.saveSubmissionResult(
-                    new SubmissionResult(submission, testcase, submissionResultDto.getStatus())
-            );
-            submissionResultDto.setId(savedResult.getId());
+            SubmissionResult storedResult = submissionResultService.getResultsFromSubmission(submission)
+                    .stream().filter(submissionResult -> submissionResult.getTestcase().getId().equals(testcase.getId()))
+                    .findFirst().orElseGet(() -> new SubmissionResult(submission, testcase, submissionResultDto.getStatus()));
+
+            storedResult.setStatus(submissionResultDto.getStatus());
+            submissionResultDto.setId(storedResult.getId());
+            submissionResultService.saveSubmissionResult(storedResult);
+
             (new Sender()).send("users", "users.notify.socket", mapper.writeValueAsString(
                     new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
                             mapper.writeValueAsString(submissionResultDto)
@@ -140,20 +145,6 @@ public class Receiver implements MessageListener {
             this.filename = filename;
             this.timeLimit = timeLimit;
             this.testcases = testcases;
-        }
-    }
-
-    @Data
-    private static class WebSocketMessage {
-        private String topic;
-        private String payload;
-
-        public WebSocketMessage() {
-        }
-
-        public WebSocketMessage(String topic, String payload) {
-            this.topic = topic;
-            this.payload = payload;
         }
     }
 }
