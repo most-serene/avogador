@@ -1,24 +1,40 @@
-import { Strox, StroxCell } from "@exercises/types.ts";
+import {
+  Strox,
+  StroxCell,
+  SubmissionResult,
+  SubmissionResultMap,
+} from "@exercises/types.ts";
 import { Editor } from "@monaco-editor/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
-import { Button, CircularProgress } from "@mui/material";
+import { Button, CircularProgress, useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
+import useWebSocket from "@hooks/useWebSocket.tsx";
 
 interface SubmissionEditorProps {
   exerciseId: string;
   trialId: string;
+  submissionResult: [
+    SubmissionResultMap,
+    React.Dispatch<React.SetStateAction<SubmissionResultMap>>,
+  ];
 }
 
-const SubmissionEditor = ({ exerciseId, trialId }: SubmissionEditorProps) => {
+const SubmissionEditor = ({
+  exerciseId,
+  trialId,
+  submissionResult: [, setSubmissionResult],
+}: SubmissionEditorProps) => {
   const { getTemplateFromExercise, createSubmission } = useExerciseService();
   const { getTrialById } = useTrialService();
+  const { subscribe } = useWebSocket();
   const [strox, setStrox] = useState<Strox>();
   const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const theme = useTheme();
 
   const handleChange = (value: string | undefined, i: number) => {
     if (value == null || strox == null) {
@@ -45,7 +61,35 @@ const SubmissionEditor = ({ exerciseId, trialId }: SubmissionEditorProps) => {
     }
     setIsSubmitted(true);
     createSubmission(exerciseId, strox.cells)
-      .then(() => {
+      .then((submission) => {
+        setSubmissionResult({});
+        subscribe(`/${submission.id}/results`, (message) => {
+          const result = JSON.parse(message.body) as SubmissionResult;
+          setSubmissionResult((prev) => {
+            const submissionResultCopy = { ...prev };
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (submissionResultCopy[result.submissionId] == null) {
+              submissionResultCopy[result.submissionId] = [];
+            }
+            const index = submissionResultCopy[result.submissionId].findIndex(
+              (element) => element.id === result.id,
+            );
+
+            if (index > -1) {
+              submissionResultCopy[result.submissionId][index] = result;
+            } else {
+              submissionResultCopy[result.submissionId].push(result);
+            }
+            return submissionResultCopy;
+          });
+        })
+          .then(() => {
+            // empty-function
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+
         enqueueSnackbar("Submission submitted successfully!", {
           variant: "success",
         });
@@ -107,7 +151,7 @@ const SubmissionEditor = ({ exerciseId, trialId }: SubmissionEditorProps) => {
               height={`${
                 24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)
               }px`}
-              theme={"vs-dark"}
+              theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
               language={language?.toLowerCase()}
               value={cell.content}
               options={{

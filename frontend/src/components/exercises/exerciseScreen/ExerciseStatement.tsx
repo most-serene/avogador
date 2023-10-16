@@ -12,7 +12,6 @@ interface ExerciseStatementProps {
 const ExerciseStatement = ({ exercise, testcases }: ExerciseStatementProps) => {
   return (
     <Box
-      marginBottom="6rem"
       padding={2}
       height="100%"
       style={{ overflow: "scroll" }}
@@ -20,9 +19,11 @@ const ExerciseStatement = ({ exercise, testcases }: ExerciseStatementProps) => {
     >
       <Typography variant="h3">{exercise.name}</Typography>
       <Markdown>{exercise.statement}</Markdown>
-      {testcases.map((testcase, i) => (
-        <SampleTestcaseCards key={i} testcase={testcase} />
-      ))}
+      <Box marginBottom="6rem">
+        {testcases.map((testcase, i) => (
+          <SampleTestcaseCards key={i} testcase={testcase} />
+        ))}
+      </Box>
     </Box>
   );
 };

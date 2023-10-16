@@ -86,6 +86,10 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
           setUserTrials(
             userTrialsResponse
               .filter((ut) => !ut.finishTime)
+              .filter(
+                (ut) =>
+                  ut.deadline && ut.deadline.getTime() > new Date().getTime(),
+              )
               .sort(
                 (a, b) =>
                   (a.deadline?.getTime() ?? new Date().getTime()) -

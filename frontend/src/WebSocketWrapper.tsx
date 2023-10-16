@@ -2,9 +2,13 @@ import { PropsWithChildren, useEffect } from "react";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import { enqueueSnackbar } from "notistack";
 import SplashScreen from "@structure/SplashScreen/SplashScreen.tsx";
+import { useLocation } from "react-router-dom";
+
+const allowedPaths = ["/status"];
 
 const WebSocketWrapper = ({ children }: PropsWithChildren) => {
   const { isSocketConnected, socketClient } = useWebSocket();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     console.log(isSocketConnected);
@@ -17,7 +21,11 @@ const WebSocketWrapper = ({ children }: PropsWithChildren) => {
     }
   }, [socketClient, isSocketConnected]);
 
-  return isSocketConnected ? children : <SplashScreen />;
+  return isSocketConnected || allowedPaths.includes(pathname) ? (
+    children
+  ) : (
+    <SplashScreen />
+  );
 };
 
 export default WebSocketWrapper;

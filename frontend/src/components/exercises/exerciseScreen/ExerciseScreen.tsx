@@ -4,7 +4,7 @@ import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
-import { Exercise, Testcase } from "@exercises/types.ts";
+import { Exercise, SubmissionResultMap, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
@@ -15,6 +15,8 @@ const ExerciseScreen = () => {
   const { exerciseId, trialId } = useParams();
   const [exercise, setExercise] = useState<Exercise>();
   const [testcases, setTestcases] = useState<Testcase[]>([]);
+
+  const submissionResult = useState<SubmissionResultMap>({});
 
   useEffect(() => {
     if (exerciseId == null) return;
@@ -49,10 +51,17 @@ const ExerciseScreen = () => {
     <Grid container style={{ height: "100%" }}>
       <Grid item xs={5} style={{ height: "100%" }} position="relative">
         <ExerciseStatement exercise={exercise} testcases={testcases} />
-        <SubmissionResultsPopup exerciseId={exerciseId} />
+        <SubmissionResultsPopup
+          submissionResult={submissionResult}
+          exerciseId={exerciseId}
+        />
       </Grid>
       <Grid item xs={7} style={{ height: "100%" }}>
-        <SubmissionEditor exerciseId={exerciseId} trialId={trialId} />
+        <SubmissionEditor
+          submissionResult={submissionResult}
+          exerciseId={exerciseId}
+          trialId={trialId}
+        />
       </Grid>
     </Grid>
   );
