@@ -53,10 +53,10 @@ interface SubmissionResult {
   id: string;
   submissionId: string;
   testcaseId: string;
-  status: ResultStatus;
+  status: SubmissionStatus;
 }
 
-type ResultStatus =
+type SubmissionStatus =
   | "PENDING"
   | "CORRECT"
   | "WRONG_ANSWER"
@@ -76,5 +76,5 @@ export type {
   Submission,
   SubmissionResult,
   SubmissionResultMap,
-  ResultStatus,
+  SubmissionStatus,
 };
