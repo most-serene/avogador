@@ -4,48 +4,80 @@ import {
   CardContent,
   CircularProgress,
   Collapse,
-  Fade,
-  IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Cancel,
   CheckCircle,
-  Close,
   Error,
   ExpandLess,
+  ExpandMore,
   OfflineBolt,
   WatchLater,
 } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { enqueueSnackbar } from "notistack";
-import { ResultStatus, SubmissionResult } from "@exercises/types.ts";
+import {
+  SubmissionStatus,
+  SubmissionResult,
+  SubmissionResultMap,
+} from "@exercises/types.ts";
 
 interface SubmissionResultsPopupProps {
   exerciseId?: string;
+  submissionResult: [
+    SubmissionResultMap,
+    React.Dispatch<React.SetStateAction<SubmissionResultMap>>,
+  ];
 }
 
-const getResultBadge = (status: ResultStatus) => {
+const getResultBadge = (status: SubmissionStatus) => {
   switch (status) {
     case "COMPILE_ERROR":
-      return <Error color="error" />;
+      return (
+        <Tooltip placement={"top"} title={"Compile error"}>
+          <Error color="error" />
+        </Tooltip>
+      );
     case "CORRECT":
-      return <CheckCircle color="success" />;
+      return (
+        <Tooltip placement={"top"} title={"Correct"}>
+          <CheckCircle color="success" />
+        </Tooltip>
+      );
     case "RUNTIME_ERROR":
-      return <OfflineBolt color="error" />;
+      return (
+        <Tooltip placement={"top"} title={"Runtime error"}>
+          <OfflineBolt color="error" />
+        </Tooltip>
+      );
     case "TIME_LIMIT_EXCEEDED":
-      return <WatchLater color="error" />;
+      return (
+        <Tooltip placement={"top"} title={"Time limit exceeded"}>
+          <WatchLater color="error" />
+        </Tooltip>
+      );
     case "WRONG_ANSWER":
-      return <Cancel color="error" />;
+      return (
+        <Tooltip placement={"top"} title={"Wrong answer"}>
+          <Cancel color="error" />
+        </Tooltip>
+      );
     default:
-      return <CircularProgress size="1rem" color="secondary" />;
+      return (
+        <Tooltip placement={"top"} title={"Pending"}>
+          <CircularProgress size="1rem" color="warning" />
+        </Tooltip>
+      );
   }
 };
 
 const SubmissionResultsPopup = ({
   exerciseId,
+  submissionResult: [submissionRes],
 }: SubmissionResultsPopupProps) => {
   const { getUserLastSubmissionFromExercise } = useExerciseService();
   const [visible, setVisible] = useState(false);
@@ -65,52 +97,60 @@ const SubmissionResultsPopup = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [exerciseId, visible, getUserLastSubmissionFromExercise]);
+  }, [exerciseId, getUserLastSubmissionFromExercise]);
+
+  useEffect(() => {
+    setVisible(true);
+    const keys = Object.keys(submissionRes);
+    if (keys.length === 0) return;
+
+    setResults(submissionRes[keys[0]]);
+  }, [submissionRes]);
 
   return (
     <>
-      <Box sx={{ position: "absolute", bottom: 0, width: "100%" }}>
-        <Fade
-          in={!visible}
+      <Box
+        style={{
+          position: "absolute",
+          bottom: -7,
+          width: "100%",
+        }}
+      >
+        <Box
           style={{ width: "100%", display: "flex", justifyContent: "center" }}
         >
-          <Box>
-            <Card
-              sx={{
-                width: "5rem",
-                height: "2.5rem",
-                borderRadius: "100px 100px 0 0",
-              }}
-            >
-              <CardActionArea
-                onClick={() => {
-                  setVisible(true);
-                }}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                <ExpandLess />
-              </CardActionArea>
-            </Card>
-          </Box>
-        </Fade>
-        <Collapse in={visible} sx={{ width: "100%" }}>
-          <Card sx={{ position: "relative" }}>
-            <IconButton
+          <Card
+            sx={{
+              width: "5rem",
+              height: "2.5rem",
+              borderRadius: "100px 100px 0 0",
+            }}
+          >
+            <CardActionArea
               onClick={() => {
-                setVisible(false);
+                setVisible(!visible);
               }}
-              sx={{ position: "absolute", top: 1, right: 1 }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
             >
-              <Close />
-            </IconButton>
+              {visible ? <ExpandMore /> : <ExpandLess />}
+            </CardActionArea>
+          </Card>
+        </Box>
+        <Collapse in={visible} sx={{ width: "100%" }}>
+          <Card
+            sx={{
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+            }}
+          >
             <CardContent>
               <Typography variant="h5">Last Submission Results</Typography>
-              <Box display="flex" flexWrap="wrap" justifyContent="center">
+              <Box display="flex" flexWrap="wrap">
                 {results.map((result) => (
                   <Box key={result.id} margin={0.5}>
                     {getResultBadge(result.status)}
