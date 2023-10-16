@@ -29,6 +29,7 @@ public class SubmissionResult {
     private Testcase testcase;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private SubmissionStatus status = SubmissionStatus.PENDING;
 
     public SubmissionResult() {
