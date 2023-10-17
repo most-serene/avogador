@@ -79,6 +79,34 @@ services:
     networks:
       - avogador-inner-network
 
+  users_db:
+    image: 'postgres'
+    hostname: users-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${USERS_POSTGRES_USER} -d ${USERS_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${USERS_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${USERS_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${USERS_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-users-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
+    networks:
+      - avogador-inner-network
+
   courses:
     image: "avogador-courseservice:${BRANCH:-latest}" 
     restart: always
@@ -117,6 +145,34 @@ services:
     networks:
       - avogador-inner-network
 
+  courses_db:
+    image: 'postgres'
+    hostname: courses-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${COURSES_POSTGRES_USER} -d ${COURSES_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${COURSES_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${COURSES_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${COURSES_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-courses-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
+    networks:
+      - avogador-inner-network
+
   exercises:
     image: "avogador-exerciseservice:${BRANCH:-latest}" 
     restart: always
@@ -151,6 +207,34 @@ services:
       spring.profiles.active: ${EXERCISESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
+    networks:
+      - avogador-inner-network
+
+  exercises_db:
+    image: 'postgres'
+    hostname: exercises-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${EXERCISES_POSTGRES_USER} -d ${EXERCISES_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${EXERCISES_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${EXERCISES_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${EXERCISES_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-exercises-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
     networks:
       - avogador-inner-network
 
@@ -281,10 +365,14 @@ services:
 
 volumes:
   avogador-rabbitmq-data:
-    external: true
 
   avogador-filesystem-volume:
-    external: true
+
+  avogador-users-db:
+
+  avogador-courses-db:
+
+  avogador-exercises-db:
 
   uptime-kuma:
 
