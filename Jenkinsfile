@@ -50,7 +50,7 @@ pipeline {
                     sh '''
                         cd backend/apigateway
 
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
                     script {
@@ -68,7 +68,7 @@ pipeline {
                     sh '''
                         cd backend/services/courseservice
 
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -86,7 +86,7 @@ pipeline {
                     sh '''
                         cd backend/services/userservice
                         
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -104,7 +104,7 @@ pipeline {
                     sh '''
                         cd backend/services/exerciseservice
                         
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/exerciseservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -122,7 +122,7 @@ pipeline {
                     sh '''
                         cd backend/services/filesystemservice
                         
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/filesystemservice/build/libs/*.jar', fingerprint: true
                     script {
@@ -140,7 +140,7 @@ pipeline {
                     sh '''
                         cd backend/services/executorservice
                         
-                        ./gradlew assemble --no-daemon
+                        ./gradlew clean assemble --no-daemon
                     '''
                     archiveArtifacts artifacts: 'backend/services/executorservice/build/libs/*.jar', fingerprint: true
                     script {
