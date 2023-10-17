@@ -7,7 +7,7 @@ services:
     build:
       context: ./backend/apigateway
       network: host
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${APIGATEWAY_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -36,7 +36,7 @@ services:
     restart: always
     build:
       context: ./backend/services/userservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${USERSERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -112,7 +112,7 @@ services:
     restart: always
     build:
       context: ./backend/services/courseservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${COURSESERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -178,7 +178,7 @@ services:
     restart: always
     build:
       context: ./backend/services/exerciseservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${EXERCISESERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -243,7 +243,7 @@ services:
     restart: always
     build:
       context: ./backend/services/filesystemservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${FILESYSTEMSERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -278,7 +278,7 @@ services:
     restart: always
     build:
       context: ./backend/services/executorservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${EXECUTORSERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -336,7 +336,7 @@ services:
       context: ./frontend
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.prod
       target: ${REACT_TARGET}
       network: host
     logging:
