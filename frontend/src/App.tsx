@@ -71,7 +71,7 @@ function App() {
   return (
     <div className="App">
       <SnackbarProvider preventDuplicate={true}>
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.VITE_REACT_BASE_URL as string}>
           <Navbar ref={navbarRef} />
           <ErrorHandlerWrapper>
             <AuthWrapper>
