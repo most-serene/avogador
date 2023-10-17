@@ -313,24 +313,18 @@ pipeline {
                 tag "release-*"
             }
             steps {
-                echo 'Production Deliver started'
-                //ssh ${PRODUCTION_HOST} 'bin/MaintenanceAvogador' || true
-                //ssh ${PRODUCTION_HOST} 'bin/NotMaintenanceAvogador'
-                echo '$TAG_NAME'
+                echo 'Production Deliver started - $TAG_NAME'
 
-                sh """
-                    echo ${env.TAG_NAME}
-                """
-
-                /*
                 withEnv(readFile("$JENKINS_HOME/.envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env build
-                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env up -d --force-recreate
+                    ssh ${PRODUCTION_HOST} 'bin/MaintenanceJupyter' || true
+                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env up -d
+                    ssh ${PRODUCTION_HOST} 'bin/NotMaintenanceJupyter'
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} docker container ls -a
                     """
                 }
-                */
+                
                 echo 'Production Deliver finished'
             }
         }

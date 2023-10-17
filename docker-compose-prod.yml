@@ -1,0 +1,372 @@
+version: "3.8"
+
+services:
+  apigateway:
+    image: "avogador-apigateway:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/apigateway
+      network: host
+      dockerfile: Dockerfile.prod
+      target: ${APIGATEWAY_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      server.port: 80
+      logging.level.org.springframework.cloud.gateway: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      spring.profiles.active: ${APIGATEWAY_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      security.allowed.origins: ${APIGATEWAY_ALLOWED_ORIGINS}
+    ports:
+      - "${APIGATEWAY_PORT}:80"
+    networks:
+      - avogador-inner-network
+
+  users:
+    image: "avogador-userservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/userservice
+      dockerfile: Dockerfile.prod
+      target: ${USERSERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      server.port: 80
+      spring.datasource.url: ${USERSERVICE_DATASOURCE_URL}
+      spring.datasource.username: ${USERSERVICE_DATASOURCE_USERNAME}
+      spring.datasource.password: ${USERSERVICE_DATASOURCE_PASSWORD}
+      spring.jpa.hibernate.ddl-auto: ${USERSERVICE_JPA_HIBERNATE_DDL_AUTO}
+      spring.jpa.properties.hibernate.dialect: ${USERSERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      logging.level.org.springframework.cloud.gateway: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      jwt.secret: ${JWT_SECRET}
+      customer.domains: ${CUSTOMER_DOMAINS}
+      spring.profiles.active: ${USERSERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      spring.mail.host: ${MAIL_HOST}
+      spring.mail.username: ${MAIL_USER} 
+      spring.mail.password: ${MAIL_PASSWORD} 
+      spring.mail.properties.mail.transport.protocol: smtp
+      spring.mail.properties.mail.smtp.port: 25
+      spring.mail.properties.mail.smtp.auth: true
+      spring.mail.properties.mail.smtp.starttls.enable: true
+      spring.mail.properties.mail.smtp.starttls.required: true
+      spring.mail.properties.mail.debug: false
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${USERSERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${USERSERVICE_RABBITMQ_PASSWORD}
+    networks:
+      - avogador-inner-network
+
+  users_db:
+    image: 'postgres'
+    hostname: users-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${USERS_POSTGRES_USER} -d ${USERS_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${USERS_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${USERS_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${USERS_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-users-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
+    networks:
+      - avogador-inner-network
+
+  courses:
+    image: "avogador-courseservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/courseservice
+      dockerfile: Dockerfile.prod
+      target: ${COURSESERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${COURSES_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${COURSES_RABBITMQ_PASSWORD}
+      server.port: 80
+      spring.datasource.url: ${COURSESERVICE_DATASOURCE_URL}
+      spring.datasource.username: ${COURSESERVICE_DATASOURCE_USERNAME}
+      spring.datasource.password: ${COURSESERVICE_DATASOURCE_PASSWORD}
+      spring.jpa.hibernate.ddl-auto: ${COURSESERVICE_JPA_HIBERNATE_DDL_AUTO}
+      spring.jpa.properties.hibernate.dialect: ${COURSESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      joinCode.secret: ${JOINCODE_SECRET}
+      spring.profiles.active: ${COURSESERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+    networks:
+      - avogador-inner-network
+
+  courses_db:
+    image: 'postgres'
+    hostname: courses-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${COURSES_POSTGRES_USER} -d ${COURSES_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${COURSES_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${COURSES_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${COURSES_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-courses-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
+    networks:
+      - avogador-inner-network
+
+  exercises:
+    image: "avogador-exerciseservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/exerciseservice
+      dockerfile: Dockerfile.prod
+      target: ${EXERCISESERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${EXERCISES_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${EXERCISES_RABBITMQ_PASSWORD}
+      server.port: 80
+      spring.datasource.url: ${EXERCISESERVICE_DATASOURCE_URL}
+      spring.datasource.username: ${EXERCISESERVICE_DATASOURCE_USERNAME}
+      spring.datasource.password: ${EXERCISESERVICE_DATASOURCE_PASSWORD}
+      spring.jpa.hibernate.ddl-auto: ${EXERCISESERVICE_JPA_HIBERNATE_DDL_AUTO}
+      spring.jpa.properties.hibernate.dialect: ${EXERCISESERVICE_JPA_PROPERTIES_HIBERNATE_DIALECT}
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      spring.profiles.active: ${EXERCISESERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+    networks:
+      - avogador-inner-network
+
+  exercises_db:
+    image: 'postgres'
+    hostname: exercises-db
+    restart: always
+    # user: postgres
+    # command: postgres -c stats_temp_directory=/tmp # -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${EXERCISES_POSTGRES_USER} -d ${EXERCISES_POSTGRES_DATABASE}'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 80s
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    environment:
+      - POSTGRES_USER=${EXERCISES_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${EXERCISES_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${EXERCISES_POSTGRES_DATABASE}
+    volumes: 
+      - avogador-exercises-db:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./etc/postgresql/12/main:/etc/postgresql TODO: may be useful to import conf files
+    networks:
+      - avogador-inner-network
+
+  filesystem:
+    image: "avogador-filesystemservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/filesystemservice
+      dockerfile: Dockerfile.prod
+      target: ${FILESYSTEMSERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${FILESYSTEMSERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${FILESYSTEMSERVICE_RABBITMQ_PASSWORD}
+      server.port: 80
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      spring.profiles.active: ${FILESYSTEMSERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      fs.root: /avogador
+    volumes:
+      - avogador-filesystem-volume:/avogador
+    networks:
+      - avogador-inner-network
+
+  executor:
+    image: "avogador-executorservice:${BRANCH:-latest}" 
+    restart: always
+    build:
+      context: ./backend/services/executorservice
+      dockerfile: Dockerfile.prod
+      target: ${EXECUTORSERVICE_TARGET}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
+      spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
+      spring.rabbitmq.username: ${EXECUTORSERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${EXECUTORSERVICE_RABBITMQ_PASSWORD}
+      server.port: 80
+      logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
+      spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
+      server.error.include-message: always
+      spring.profiles.active: ${EXECUTORSERVICE_PROFILE}
+      spring.lifecycle.timeout-per-shutdown-phase: 1m
+      server.shutdown: graceful
+      executor.docker.host: ${EXECUTORSERVICE_DOCKER_HOST}
+    networks:
+      - avogador-inner-network
+
+  rabbitmq:
+    hostname: avogador-rabbitmq
+    image: rabbitmq:3-management
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 15s
+      retries: 3
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    networks:
+      - avogador-inner-network
+    volumes:
+      - avogador-rabbitmq-data:/var/lib/rabbitmq/
+    ports:
+      - "15671:15672"
+
+  webapp:
+    image: avogador-webapp:${BRANCH:-latest}
+    restart: always
+    build:
+      context: ./frontend
+      args:
+        - VITE_AVOGADOR_BACKEND_API_ADDRESS=${VITE_AVOGADOR_BACKEND_API_ADDRESS}
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_CUSTOMER_DOMAINS=${VITE_CUSTOMER_DOMAINS}
+        - VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS=${VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS}
+        - VITE_REACT_BASE_URL=${VITE_REACT_BASE_URL}
+      dockerfile: Dockerfile.prod
+      target: ${REACT_TARGET}
+      network: host
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    ports:
+      - "${REACT_PORT}:3000"
+
+  kuma:
+    hostname: uptime-kuma
+    image: louislam/uptime-kuma:1
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    ports:
+      - ${KUMA_PORT}:3001
+    networks:
+      - avogador-inner-network
+    volumes:
+      - uptime-kuma:/app/data 
+
+volumes:
+  avogador-rabbitmq-data:
+
+  avogador-filesystem-volume:
+
+  avogador-users-db:
+
+  avogador-courses-db:
+
+  avogador-exercises-db:
+
+  uptime-kuma:
+
+networks:
+  avogador-inner-network:
