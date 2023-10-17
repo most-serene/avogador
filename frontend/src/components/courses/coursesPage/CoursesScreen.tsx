@@ -23,6 +23,10 @@ const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
     ));
   }
 
+  if (courses.length === 0) {
+    return <EmptyCoursesPage />;
+  }
+
   return courses.map((course) => (
     <Grid item key={course.id} xs={6}>
       <CourseItem course={course} />
@@ -38,6 +42,7 @@ const EmptyCoursesPage = () => {
       width="100%"
       alignItems="end"
       height="40%"
+      marginTop={2}
     >
       <Typography variant="h6">
         This page is so empty! Time to join a course!
@@ -64,10 +69,6 @@ export default function CoursesScreen() {
         console.error(err);
       });
   }, [user, getUserCourses]);
-
-  if (courses && courses.length === 0) {
-    return <EmptyCoursesPage />;
-  }
 
   return (
     <Grid container spacing={2} sx={{ pt: "2rem" }}>
