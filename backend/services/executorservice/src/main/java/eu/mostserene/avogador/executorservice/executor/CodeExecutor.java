@@ -172,6 +172,14 @@ public class CodeExecutor {
             try {
                 executable = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
 
+                if (!executable.exists()) {
+                    log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
+                    submission.getTestcases()
+                            .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
+                                    testcase, SubmissionStatus.COMPILE_ERROR)));
+                    return;
+                }
+
                 Set<PosixFilePermission> perms = new HashSet<>();
                 perms.add(PosixFilePermission.OWNER_READ);
                 perms.add(PosixFilePermission.OWNER_WRITE);
