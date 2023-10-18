@@ -38,7 +38,7 @@ const TrialCreationScreen = () => {
   };
   const [user] = useAtom(userAtom);
   const [courses, setCourses] = useState<UserCourse[]>([]);
-  const [courseId, setCourseId] = useState<string>("");
+  const [courseId, setCourseId] = useState<string>(state?.courseId ?? "");
   const [startDate, setStartDate] = useState(addDays(new Date(), 1));
   const [deadline, setDeadline] = useState(addDays(new Date(), 7));
   const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
@@ -85,7 +85,6 @@ const TrialCreationScreen = () => {
           (preCourse.role === "COLLABORATOR" || preCourse.role === "ADMIN")
         ) {
           setCourses([preCourse]);
-          setCourseId(preCourse.course.id);
         } else {
           globalErrorSetter(
             new ForbiddenError(
