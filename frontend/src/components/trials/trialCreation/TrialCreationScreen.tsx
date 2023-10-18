@@ -169,7 +169,7 @@ const TrialCreationScreen = () => {
                         labelId="courseId"
                         id="courseId"
                         label="Course"
-                        disabled={courses.length === 1}
+                        disabled={courses.length === 0}
                         value={courseId}
                         onChange={(event) => {
                           setCourseId(event.target.value);
