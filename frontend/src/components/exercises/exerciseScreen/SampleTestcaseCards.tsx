@@ -17,7 +17,7 @@ const SampleTestcaseCards = ({ testcase }: SampleTestcaseCardsProps) => {
           <CopiableCard fontFamily="monospace">{testcase.input}</CopiableCard>
         </Grid>
         <Grid item xs={6}>
-          <CopiableCard fontFamily="monospace">{testcase.input}</CopiableCard>
+          <CopiableCard fontFamily="monospace">{testcase.output}</CopiableCard>
         </Grid>
       </Grid>
     </Box>
