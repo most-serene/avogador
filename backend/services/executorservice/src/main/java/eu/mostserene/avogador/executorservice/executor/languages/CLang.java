@@ -33,6 +33,7 @@ public class CLang implements Language {
         log.info(LoggerColors.warn("Compiling c: " + sourceCode));
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
                 .withCmd("gcc", "-o", "/program", "/" + sourceCode.getName()) //, "-lstdc++")
+                .withNetworkDisabled(true)
                 .exec();
 
         dockerClient.copyArchiveToContainerCmd(compilerDocker.getId())
@@ -82,6 +83,7 @@ public class CLang implements Language {
         log.info(LoggerColors.cyan("Executing " + submission.getId()));
         var container = dockerClient.createContainerCmd("gotti27/runtime-env:stable").withImage("gotti27/runtime-env:stable")//.withUser("student")
                 .withCmd("/bin/bash", "-c", "chmod 777 /program/program; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " ./program/program"  + " < /" + inputFile.getName())
+                .withNetworkDisabled(true)
                 .exec();
 
         dockerClient.copyArchiveToContainerCmd(container.getId())

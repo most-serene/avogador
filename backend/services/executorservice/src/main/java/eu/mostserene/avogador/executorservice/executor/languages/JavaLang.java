@@ -33,6 +33,7 @@ public class JavaLang implements Language {
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
                 .withCmd("/bin/bash", "-c", "javac /" + sourceCode.getName() + "; mkdir /program ; mv /" +  sourceCode.getName().split("\\.")[0] + ".class " + "/program/" + sourceCode.getName().split("\\.")[0] + ".class")
                 //.withCmd("javac", "/" + sourceCode.getName()) // + "; mkdir /program ; mv " +  sourceCode.getName().split("\\.")[0] + ".class " + "/program/" + sourceCode.getName().split("\\.")[0])
+                .withNetworkDisabled(true)
                 .exec();
 
         dockerClient.copyArchiveToContainerCmd(compilerDocker.getId())
@@ -81,6 +82,7 @@ public class JavaLang implements Language {
         log.info(LoggerColors.cyan("Executing " + submission.getId()));
         var container = dockerClient.createContainerCmd("gotti27/runtime-env:stable").withImage("gotti27/runtime-env:stable")//.withUser("student")
                 .withCmd("/bin/bash", "-c", "chmod 777 /" + executable.getName() +"; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " java Main"  + " < /" + inputFile.getName())
+                .withNetworkDisabled(true)
                 .exec();
 
         // java -cp /execution/ Main < /input/" + inputFile.getName()
