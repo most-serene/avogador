@@ -37,7 +37,7 @@ interface ExerciseCreationState {
 const ExerciseCreationInfo = () => {
   const globalErrorSetter = useGlobalErrorSetter();
   const { getUserCourses } = useCourseService();
-  const { getTrialsByCourseId } = useTrialService();
+  const { getTrialsByCourseId, isTrialEnded } = useTrialService();
   const { state }: ExerciseCreationState =
     useLocation() as ExerciseCreationState;
   const [user] = useAtom(userAtom);
@@ -72,6 +72,7 @@ const ExerciseCreationInfo = () => {
           trials.filter(
             (trial) =>
               trial.courseId === exercise.courseId &&
+              !isTrialEnded(trial) &&
               userCourses.some(({ course }) => course.id === exercise.courseId),
           ),
         );
@@ -86,6 +87,7 @@ const ExerciseCreationInfo = () => {
     user,
     exercise.courseId,
     userCourses,
+    isTrialEnded,
   ]);
 
   if (!areCoursesFetched) {

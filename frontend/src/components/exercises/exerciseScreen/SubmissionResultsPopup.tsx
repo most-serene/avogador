@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Cancel,
   CheckCircle,
@@ -18,8 +18,6 @@ import {
   WatchLater,
 } from "@mui/icons-material";
 import Box from "@mui/material/Box";
-import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
-import { enqueueSnackbar } from "notistack";
 import {
   SubmissionStatus,
   SubmissionResult,
@@ -28,10 +26,7 @@ import {
 
 interface SubmissionResultsPopupProps {
   exerciseId?: string;
-  submissionResult: [
-    SubmissionResultMap,
-    React.Dispatch<React.SetStateAction<SubmissionResultMap>>,
-  ];
+  submissionResult: SubmissionResultMap;
 }
 
 const getResultBadge = (status: SubmissionStatus) => {
@@ -69,43 +64,25 @@ const getResultBadge = (status: SubmissionStatus) => {
     default:
       return (
         <Tooltip placement={"top"} title={"Pending"}>
-          <CircularProgress size="1rem" color="warning" />
+          <CircularProgress size="1.5rem" color="warning" />
         </Tooltip>
       );
   }
 };
 
 const SubmissionResultsPopup = ({
-  exerciseId,
-  submissionResult: [submissionRes],
+  submissionResult,
 }: SubmissionResultsPopupProps) => {
-  const { getUserLastSubmissionFromExercise } = useExerciseService();
   const [visible, setVisible] = useState(false);
   const [results, setResults] = useState<SubmissionResult[]>([]);
 
   useEffect(() => {
-    if (exerciseId == null) {
-      return;
-    }
-    getUserLastSubmissionFromExercise(exerciseId)
-      .then((results) => {
-        const keys = Object.keys(results);
-        if (keys.length === 0) return;
-
-        setResults(results[keys[0]]);
-      })
-      .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
-      });
-  }, [exerciseId, getUserLastSubmissionFromExercise]);
-
-  useEffect(() => {
     setVisible(true);
-    const keys = Object.keys(submissionRes);
+    const keys = Object.keys(submissionResult);
     if (keys.length === 0) return;
 
-    setResults(submissionRes[keys[0]]);
-  }, [submissionRes]);
+    setResults(submissionResult[keys[0]]);
+  }, [submissionResult]);
 
   return (
     <>

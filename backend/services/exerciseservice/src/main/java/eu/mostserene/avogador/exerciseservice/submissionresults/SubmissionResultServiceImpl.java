@@ -15,12 +15,12 @@ public class SubmissionResultServiceImpl implements SubmissionResultService {
 
     @Override
     public List<SubmissionResult> getResultsFromExerciseAndUser(Exercise exercise, UUID userId) {
-        return repository.findBySubmission_Exercise_IdAndSubmission_UserId(exercise.getId(), userId);
+        return repository.findBySubmission_Exercise_IdAndSubmission_UserIdOrderBySubmission_TimestampAscTestcase_IndexAsc(exercise.getId(), userId);
     }
 
     @Override
     public List<SubmissionResult> getResultsFromSubmission(Submission submission) {
-        return repository.findBySubmission_Id(submission.getId());
+        return repository.findBySubmission_IdOrderByTestcase_IndexAsc(submission.getId());
     }
 
     @Override

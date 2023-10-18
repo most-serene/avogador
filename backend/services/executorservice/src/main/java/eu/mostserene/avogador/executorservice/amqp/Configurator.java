@@ -71,21 +71,6 @@ public class Configurator {
     }
 
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory
-            (MessageConverter contentTypeConverter,
-             SimpleRabbitListenerContainerFactoryConfigurer configurator, ConnectionFactory connectionFactory) {
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-
-        // the number of consumers is set as 5
-        factory.setConcurrentConsumers(5);
-
-        configurator.configure(factory, connectionFactory);
-        factory.setMessageConverter(contentTypeConverter);
-        return factory;
-    }
-
-
-    @Bean
     public MessageListener messageListener() {
         return new Receiver();
     }
@@ -93,6 +78,7 @@ public class Configurator {
     @Bean
     public SimpleMessageListenerContainer messageListenerContainer() {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConcurrentConsumers(5);
         container.setConnectionFactory(connectionFactory());
         container.setQueueNames("executorQueue");
         container.setMessageListener(messageListener());

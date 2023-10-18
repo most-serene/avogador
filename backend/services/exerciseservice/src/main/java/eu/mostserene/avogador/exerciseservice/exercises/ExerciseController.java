@@ -5,6 +5,8 @@ import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
+import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
@@ -13,13 +15,14 @@ import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.InjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.http.HttpClient;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -210,7 +213,7 @@ public class ExerciseController {
 
 
     @GetMapping("/{exerciseId}/template")
-    private Strox getExerciseTemplate(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId){
+    private Strox getExerciseTemplate(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestParam(defaultValue = "false") boolean merged){
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
@@ -221,13 +224,29 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        var submission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, user.getId());
-        if (submission.isEmpty()){
-            return fileSystemService.getExerciseTemplate(exercise)
+        Optional<Submission> submission = Optional.empty();
+        Strox template;
+        if(merged){
+            submission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, user.getId());
+        }
+
+        if (!merged || submission.isEmpty()){
+            template = fileSystemService.getExerciseTemplate(exercise)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
-        return fileSystemService.getMergedSubmission(submission.get())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+        else {
+            template = fileSystemService.getMergedSubmission(submission.get())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+
+        template.setCells(
+                template.getCells()
+                        .stream()
+                        .filter(cell -> !cell.getType().equals(StroxCellType.HIDDEN) || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance())
+                        .toList()
+        );
+
+        return template;
     }
 
 }

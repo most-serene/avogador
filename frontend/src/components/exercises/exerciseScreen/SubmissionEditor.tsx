@@ -14,18 +14,19 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 
 interface SubmissionEditorProps {
+  submissionDisabled: boolean;
   exerciseId: string;
   trialId: string;
-  submissionResult: [
-    SubmissionResultMap,
-    React.Dispatch<React.SetStateAction<SubmissionResultMap>>,
-  ];
+  setSubmissionResult: React.Dispatch<
+    React.SetStateAction<SubmissionResultMap | undefined>
+  >;
 }
 
 const SubmissionEditor = ({
+  submissionDisabled,
   exerciseId,
   trialId,
-  submissionResult: [, setSubmissionResult],
+  setSubmissionResult,
 }: SubmissionEditorProps) => {
   const { getTemplateFromExercise, createSubmission } = useExerciseService();
   const { getTrialById } = useTrialService();
@@ -62,7 +63,7 @@ const SubmissionEditor = ({
     setIsSubmitted(true);
     createSubmission(exerciseId, strox.cells)
       .then((submission) => {
-        setSubmissionResult({});
+        setSubmissionResult(undefined);
         subscribe(`/${submission.id}/results`, (message) => {
           const result = JSON.parse(message.body) as SubmissionResult;
           setSubmissionResult((prev) => {
@@ -190,7 +191,7 @@ const SubmissionEditor = ({
           right: 16,
         }}
         onClick={handleSubmit}
-        disabled={isSubmitted}
+        disabled={isSubmitted || submissionDisabled}
       >
         SUBMIT
       </Button>

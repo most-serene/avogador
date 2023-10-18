@@ -3,42 +3,20 @@ import KanbanColumn from "@courses/courseDetail/CourseTrialsTab/KanbanColumn.tsx
 import { useEffect, useState } from "react";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { UserCourseDetail } from "@courses/types.ts";
-import { Exam, isExam, isPractice, Practice, Trial } from "@trials/types.ts";
-import { addMinutes } from "date-fns";
+import { Trial } from "@trials/types.ts";
 import { enqueueSnackbar } from "notistack";
 
 interface CourseTrialsTabProps {
   userCourse: UserCourseDetail | undefined;
 }
 
-const isTrialScheduled = (trial: Trial) => {
-  return trial.startTimestamp > new Date();
-};
-
-const isTrialOngoing = (trial: Trial) => {
-  return (
-    !isTrialScheduled(trial) &&
-    ((isPractice(trial) && isPracticeOngoing(trial)) ||
-      (isExam(trial) && isExamOngoing(trial)))
-  );
-};
-
-const isExamOngoing = (exam: Exam) => {
-  return (
-    addMinutes(exam.startTimestamp, exam.duration + exam.extraTime) > new Date()
-  );
-};
-
-const isPracticeOngoing = (practice: Practice) => {
-  return practice.deadline > new Date();
-};
-
-const isTrialEnded = (trial: Trial) => {
-  return !isTrialScheduled(trial) && !isTrialOngoing(trial);
-};
-
 const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
-  const { getTrialsByCourseId } = useTrialService();
+  const {
+    getTrialsByCourseId,
+    isTrialScheduled,
+    isTrialEnded,
+    isTrialOngoing,
+  } = useTrialService();
   const [trials, setTrials] = useState<Trial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
