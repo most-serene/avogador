@@ -1,7 +1,15 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
-import { Exam, Practice, Trial, UserTrial } from "@trials/types.ts";
+import {
+  Exam,
+  isExam,
+  isPractice,
+  Practice,
+  Trial,
+  UserTrial,
+} from "@trials/types.ts";
 import { User } from "@authentication/types.ts";
+import { addMinutes } from "date-fns";
 
 const useTrialService = () => {
   const avogadorApi = useAvogadorApi();
@@ -77,6 +85,46 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  // Non-api calls
+  const isTrialScheduled: (trial: Trial) => boolean = useCallback(
+    (trial: Trial) => {
+      return trial.startTimestamp > new Date();
+    },
+    [],
+  );
+
+  const isExamOngoing: (trial: Exam) => boolean = useCallback((exam: Exam) => {
+    return (
+      addMinutes(exam.startTimestamp, exam.duration + exam.extraTime) >
+      new Date()
+    );
+  }, []);
+
+  const isPracticeOngoing: (practice: Practice) => boolean = useCallback(
+    (practice: Practice) => {
+      return practice.deadline > new Date();
+    },
+    [],
+  );
+
+  const isTrialOngoing: (trial: Trial) => boolean = useCallback(
+    (trial: Trial) => {
+      return (
+        !isTrialScheduled(trial) &&
+        ((isPractice(trial) && isPracticeOngoing(trial)) ||
+          (isExam(trial) && isExamOngoing(trial)))
+      );
+    },
+    [isExamOngoing, isPracticeOngoing, isTrialScheduled],
+  );
+
+  const isTrialEnded: (trial: Trial) => boolean = useCallback(
+    (trial: Trial) => {
+      return !isTrialScheduled(trial) && !isTrialOngoing(trial);
+    },
+    [isTrialOngoing, isTrialScheduled],
+  );
+
   return {
     getTrialById,
     getPracticeById,
@@ -85,6 +133,9 @@ const useTrialService = () => {
     createPractice,
     getUserTrials,
     joinPractice,
+    isTrialScheduled,
+    isTrialOngoing,
+    isTrialEnded,
   };
 };
 

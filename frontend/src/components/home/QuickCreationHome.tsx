@@ -2,9 +2,11 @@ import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
 import { EditNote, PostAdd, School } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { UserCourse } from "@courses/types.ts";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
+import useTrialService from "@trials/hooks/useTrialService.tsx";
+import { enqueueSnackbar } from "notistack";
 
 interface QuickCreationHomeProps {
   userCourses: UserCourse[];
@@ -12,14 +14,16 @@ interface QuickCreationHomeProps {
 
 const QuickCreationHome = ({ userCourses }: QuickCreationHomeProps) => {
   const navigate = useNavigate();
+  const { getTrialsByCourseId, isTrialEnded } = useTrialService();
   const [user] = useAtom(userAtom);
+  const [canSeeCreateExercise, setCanSeeCreateExercise] = useState(false);
 
   const canSeeSpeedDial = useMemo(() => {
     if (user == null) return false;
     return (
       user.isProfessor ||
       user.isSuperuser ||
-      userCourses.some((usercourse) => usercourse.role === "COLLABORATOR")
+      userCourses.some((userCourse) => userCourse.role === "COLLABORATOR")
     );
   }, [user, userCourses]);
 
@@ -30,10 +34,31 @@ const QuickCreationHome = ({ userCourses }: QuickCreationHomeProps) => {
 
   const canSeeCreateTrial = useMemo(() => {
     return userCourses.some(
-      (usercourse) =>
-        usercourse.role === "COLLABORATOR" || usercourse.role === "ADMIN",
+      (userCourse) =>
+        userCourse.role === "COLLABORATOR" || userCourse.role === "ADMIN",
     );
   }, [userCourses]);
+
+  useEffect(() => {
+    const privilegedCourses = userCourses
+      .filter(
+        (userCourse) =>
+          userCourse.role === "COLLABORATOR" || userCourse.role === "ADMIN",
+      )
+      .map((uc) => uc.course);
+
+    for (const course of privilegedCourses) {
+      getTrialsByCourseId(course.id)
+        .then((trials) => {
+          if (trials.some((trial) => !isTrialEnded(trial))) {
+            setCanSeeCreateExercise(true);
+          }
+        })
+        .catch((err: Error) =>
+          enqueueSnackbar(err.message, { variant: "error" }),
+        );
+    }
+  }, [userCourses, getTrialsByCourseId, isTrialEnded]);
 
   const actions = useMemo(() => {
     return [
@@ -53,10 +78,10 @@ const QuickCreationHome = ({ userCourses }: QuickCreationHomeProps) => {
         icon: <EditNote />,
         name: "Exercise",
         path: "/exercises/new",
-        condition: canSeeCreateTrial,
+        condition: canSeeCreateExercise,
       },
     ];
-  }, [canSeeCreateTrial, canSeeCreateCourse]);
+  }, [canSeeCreateTrial, canSeeCreateCourse, canSeeCreateExercise]);
 
   if (!canSeeSpeedDial) return null;
 
