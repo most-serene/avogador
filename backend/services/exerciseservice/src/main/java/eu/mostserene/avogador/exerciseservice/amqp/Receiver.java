@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Receiver implements MessageListener {
@@ -53,6 +54,8 @@ public class Receiver implements MessageListener {
             Submission submission = submissionService.getSubmission(submissionSavedDto.getSubmissionId())
                     .orElseThrow(RuntimeException::new);
 
+            TimeUnit.SECONDS.sleep(1 );
+
             (new Sender()).send("executor", "exec.submission.execute",
                     mapper.writeValueAsString(new SubmissionExecutionDto(
                             submission.getId(),
@@ -67,7 +70,7 @@ public class Receiver implements MessageListener {
                                     .map(TestcaseDetailDto::getId)
                                     .toList()
                     )));
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
