@@ -28,7 +28,8 @@ const SubmissionEditor = ({
   trialId,
   setSubmissionResult,
 }: SubmissionEditorProps) => {
-  const { getTemplateFromExercise, createSubmission } = useExerciseService();
+  const { getMergedTemplateFromExercise, createSubmission } =
+    useExerciseService();
   const { getTrialById } = useTrialService();
   const { subscribe } = useWebSocket();
   const [strox, setStrox] = useState<Strox>();
@@ -109,7 +110,7 @@ const SubmissionEditor = ({
   };
 
   useEffect(() => {
-    getTemplateFromExercise(exerciseId)
+    getMergedTemplateFromExercise(exerciseId)
       .then((template) => {
         setStrox(template);
         updateCellsSize(template.cells);
@@ -126,7 +127,7 @@ const SubmissionEditor = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
+  }, [trialId, exerciseId, getMergedTemplateFromExercise, getTrialById]);
 
   if (strox == null) {
     return <CircularProgress />;
