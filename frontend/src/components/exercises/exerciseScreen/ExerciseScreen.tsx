@@ -42,9 +42,6 @@ const ExerciseScreen = () => {
 
     getUserLastSubmissionFromExercise(exerciseId)
       .then((results) => {
-        const keys = Object.keys(results);
-        if (keys.length === 0) return;
-
         setSubmissionResult(results);
       })
       .catch((err: Error) => {
