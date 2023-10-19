@@ -1,4 +1,4 @@
-import { Card, IconButton, Typography } from "@mui/material";
+import { Card, IconButton, Tooltip, Typography } from "@mui/material";
 import { Replay } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 
@@ -27,9 +27,11 @@ const EditorToolbar = ({
     >
       <Typography fontFamily="monospace">{fileName}</Typography>
       <Box sx={{ marginLeft: "auto" }}>
-        <IconButton onClick={handleReset}>
-          <Replay />
-        </IconButton>
+        <Tooltip title="Reset code" placement="left">
+          <IconButton onClick={handleReset}>
+            <Replay />
+          </IconButton>
+        </Tooltip>
       </Box>
     </Card>
   );
