@@ -48,7 +48,6 @@ const StatusPage = () => {
             <Typography variant="h5">API gateway address:</Typography>
             <Grid container justifyContent="center">
               <Typography variant="body1" textAlign={"center"}>
-                {import.meta.env.VITE_AVOGADOR_BACKEND_API_ADDRESS} <br />
                 {version}
               </Typography>
             </Grid>
