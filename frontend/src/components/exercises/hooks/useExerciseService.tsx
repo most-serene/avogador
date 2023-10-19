@@ -141,7 +141,7 @@ const useExerciseService = () => {
     getExercisesByTrialId,
     getExerciseById,
     getTestcasesFromExercise,
-    getTemplateFromExercise: getMergedTemplateFromExercise,
+    getMergedTemplateFromExercise,
     getUserLastSubmissionFromExercise,
   };
 };

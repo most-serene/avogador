@@ -13,7 +13,6 @@ const ExerciseScreen = () => {
   const {
     getExerciseById,
     getTestcasesFromExercise,
-    getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
   } = useExerciseService();
   const { exerciseId, trialId } = useParams();
@@ -55,7 +54,6 @@ const ExerciseScreen = () => {
     exerciseId,
     getExerciseById,
     getTestcasesFromExercise,
-    getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
   ]);
 
