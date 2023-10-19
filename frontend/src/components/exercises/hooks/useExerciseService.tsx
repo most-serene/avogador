@@ -105,16 +105,18 @@ const useExerciseService = () => {
       [avogadorApi],
     );
 
-  const getMergedTemplateFromExercise: (exerciseId: string) => Promise<Strox> =
-    useCallback(
-      async (exerciseId: string) => {
-        const { data: template }: { data: Strox } = await avogadorApi.get(
-          `/exercises/${exerciseId}/template?merged=true`,
-        );
-        return template;
-      },
-      [avogadorApi],
-    );
+  const getTemplateFromExercise: (
+    exerciseId: string,
+    merged?: boolean,
+  ) => Promise<Strox> = useCallback(
+    async (exerciseId: string, merged?: boolean) => {
+      const { data: template }: { data: Strox } = await avogadorApi.get(
+        `/exercises/${exerciseId}/template?merged=${merged ?? false}`,
+      );
+      return template;
+    },
+    [avogadorApi],
+  );
 
   const getUserLastSubmissionFromExercise: (
     exerciseId: string,
@@ -141,7 +143,7 @@ const useExerciseService = () => {
     getExercisesByTrialId,
     getExerciseById,
     getTestcasesFromExercise,
-    getMergedTemplateFromExercise,
+    getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
   };
 };

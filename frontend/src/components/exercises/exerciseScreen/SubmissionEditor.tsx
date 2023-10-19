@@ -12,6 +12,7 @@ import { Button, CircularProgress, useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
+import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -28,8 +29,7 @@ const SubmissionEditor = ({
   trialId,
   setSubmissionResult,
 }: SubmissionEditorProps) => {
-  const { getMergedTemplateFromExercise, createSubmission } =
-    useExerciseService();
+  const { getTemplateFromExercise, createSubmission } = useExerciseService();
   const { getTrialById } = useTrialService();
   const { subscribe } = useWebSocket();
   const [strox, setStrox] = useState<Strox>();
@@ -109,12 +109,22 @@ const SubmissionEditor = ({
       });
   };
 
-  useEffect(() => {
-    getMergedTemplateFromExercise(exerciseId)
+  const handleReset = () => {
+    getTemplateFromExercise(exerciseId)
       .then((template) => {
         setStrox(template);
         updateCellsSize(template.cells);
-        console.log(template);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
+  useEffect(() => {
+    getTemplateFromExercise(exerciseId, true)
+      .then((template) => {
+        setStrox(template);
+        updateCellsSize(template.cells);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -127,7 +137,7 @@ const SubmissionEditor = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [trialId, exerciseId, getMergedTemplateFromExercise, getTrialById]);
+  }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
 
   if (strox == null) {
     return <CircularProgress />;
@@ -135,8 +145,9 @@ const SubmissionEditor = ({
 
   return (
     <Box position="relative" height="100%">
+      <EditorToolbar onReset={handleReset} fileName={strox.sourceFileName} />
       <Box
-        style={{ overflow: "scroll", height: "100%" }}
+        style={{ overflow: "scroll", height: "calc(100% - 42px)" }}
         className="hidden-scrollbar"
       >
         {strox.cells.map((cell, i) => (
