@@ -19,4 +19,11 @@ public class ForbiddenException extends RuntimeException{
     public ForbiddenException(String message) {
         super(message);
     }
+    public ForbiddenException(UserDto user, String message) {
+        super("Forbidden");
+        log.info("Forbidden access caught from " + user.getEmail() +
+                " (" + user.getGivenName() + " " + user.getFamilyName() + "): \n" +
+                message
+        );
+    }
 }

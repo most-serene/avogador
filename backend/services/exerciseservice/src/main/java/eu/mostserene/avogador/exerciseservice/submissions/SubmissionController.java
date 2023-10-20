@@ -78,16 +78,25 @@ public class SubmissionController {
         CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        boolean isUserPrivileged = user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance();
 
         if (!exercise.getId().equals(submissionDto.getExerciseId())) {
             throw new BadRequestException("Exercise id not matching");
         }
 
-        if ((!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.STUDENT.getClearance())
-                || (!user.getId().equals(submissionDto.getUserId()) || !exercise.getIsVisible() || !exercise.getTrial().getIsVisible())
-        ) {
-            throw new ForbiddenException(user);
+        boolean isUserPrivileged = user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance();
+        boolean isExternal = !user.getIsSuperuser() && courseRole.getClearance() < CourseRole.STUDENT.getClearance();
+        boolean hasUserIdMismatch = !user.getId().equals(submissionDto.getUserId());
+        boolean isExerciseHidden = !exercise.getIsVisible();
+        boolean isTrialHidden = !exercise.getTrial().getIsVisible();
+
+        if (isExternal) {
+            throw new ForbiddenException(user, "External User");
+        }
+        if (hasUserIdMismatch) {
+            throw new ForbiddenException(user, "UserId mismatch");
+        }
+        if (!isUserPrivileged && (isExerciseHidden || isTrialHidden)) {
+            throw new ForbiddenException(user, "Hidden Exercise or Trial");
         }
 
         if (!isUserPrivileged) {
