@@ -11,7 +11,9 @@ interface SampleTestcaseCardsProps {
 const SampleTestcaseCards = ({ testcase }: SampleTestcaseCardsProps) => {
   return (
     <Box marginTop={2}>
-      <Typography variant="h5">Sample Testcase {testcase.index}</Typography>
+      <Typography variant="h5">
+        {testcase.isVisible ? "Sample" : "Hidden"} Testcase {testcase.index}
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <CopiableCard fontFamily="monospace">{testcase.input}</CopiableCard>

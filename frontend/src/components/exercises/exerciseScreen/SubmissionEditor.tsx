@@ -145,7 +145,7 @@ const SubmissionEditor = ({
 
   return (
     <Box position="relative" height="100%">
-      <EditorToolbar onReset={handleReset} fileName={strox.sourceFileName} />
+      <EditorToolbar onReset={handleReset} strox={strox} />
       <Box
         style={{ overflow: "scroll", height: "calc(100% - 42px)" }}
         className="hidden-scrollbar"

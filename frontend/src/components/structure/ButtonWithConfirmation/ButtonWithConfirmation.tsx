@@ -4,11 +4,13 @@ import {
   Card,
   CardActions,
   CardContent,
+  IconButton,
   Modal,
   Typography,
 } from "@mui/material";
 
 interface ButtonWithConfirmationProps {
+  as?: "IconButton" | "Button";
   confirmColor?: "primary" | "secondary" | "error" | "success";
   color?: "primary" | "secondary" | "error" | "success";
   variant?: "outlined" | "contained" | "text";
@@ -29,8 +31,9 @@ const style = {
 };
 
 const ButtonWithConfirmation = ({
+  as: buttonType = "Button",
   confirmColor = "primary",
-  color = "primary",
+  color,
   variant = "text",
   confirmText = "Confirm",
   title = "Are you sure?",
@@ -51,14 +54,20 @@ const ButtonWithConfirmation = ({
 
   return (
     <>
-      <Button
-        color={color}
-        disabled={disabled}
-        variant={variant}
-        onClick={handleOpen}
-      >
-        {children}
-      </Button>
+      {buttonType === "Button" ? (
+        <Button
+          color={color}
+          disabled={disabled}
+          variant={variant}
+          onClick={handleOpen}
+        >
+          {children}
+        </Button>
+      ) : (
+        <IconButton color={color} disabled={disabled} onClick={handleOpen}>
+          {children}
+        </IconButton>
+      )}
       {isModalOpen && (
         <Modal
           open={isModalOpen}
