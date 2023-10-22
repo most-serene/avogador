@@ -12,7 +12,6 @@ public class Receiver implements MessageListener {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private void handleMessage(Message message) {
-        log.info(message.getMessageProperties().getContentType());
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "courses.ping." -> log.info(LoggerColors.error("Hello from rabbit"));
             case "courses.ping.test" -> log.info(LoggerColors.error("Not supported in this version"));

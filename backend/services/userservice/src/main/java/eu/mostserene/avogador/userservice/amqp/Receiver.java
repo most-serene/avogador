@@ -19,7 +19,6 @@ public class Receiver implements MessageListener {
     private WebSocketSender webSocketSender;
 
     private void handleMessage(Message message) {
-        log.info(message.getMessageProperties().getContentType());
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "users.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
             case "users.notify.socket" -> handleWebSocketSend(message);

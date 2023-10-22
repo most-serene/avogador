@@ -38,7 +38,6 @@ public class Receiver implements MessageListener {
     private TestcaseService testcaseService;
 
     private void handleMessage(Message message) {
-        log.info(message.getMessageProperties().getContentType());
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "exercises.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
             case "exercises.submission.save" -> submissionSavedHandler(message);
