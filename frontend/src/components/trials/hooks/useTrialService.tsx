@@ -65,6 +65,15 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  const updatePractice: (practice: Practice) => Promise<Practice> = useCallback(
+    async (practice: Practice) => {
+      const { data: updatedPractice }: { data: Practice } =
+        await avogadorApi.put(`/trials/practices/${practice.id}`, practice);
+      return updatedPractice;
+    },
+    [avogadorApi],
+  );
+
   const getUserTrials: (user: User) => Promise<UserTrial[]> = useCallback(
     async (user: User) => {
       const { data: userTrials }: { data: UserTrial[] } = await avogadorApi.get(
@@ -131,6 +140,7 @@ const useTrialService = () => {
     getUserTrial,
     getTrialsByCourseId,
     createPractice,
+    updatePractice,
     getUserTrials,
     joinPractice,
     isTrialScheduled,
