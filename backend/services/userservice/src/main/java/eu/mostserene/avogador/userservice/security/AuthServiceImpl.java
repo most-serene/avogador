@@ -121,8 +121,6 @@ public class AuthServiceImpl implements AuthService {
             builder.setExpiration(exp);
         }
 
-        log.info(builder.toString());
-
         return builder.compact();
     }
 
