@@ -115,7 +115,6 @@ public class UserController {
      */
     @PostMapping("/google-auth")
     private AuthUserDTOImageHash authenticateWithGoogle(HttpServletResponse response, @RequestBody GoogleToken googleToken) throws InvalidDomainException {
-        log.info("token: " + googleToken.getGoogleToken());
         GoogleUser googleUser = authService.getGoogleUser(googleToken.getGoogleToken());
         Optional<User> queriedUser = userService.getUserByEmail(googleUser.email());
 
@@ -145,8 +144,6 @@ public class UserController {
                 this::buildProductionJWT,
                 user
         );
-
-        log.info(LoggerColors.error(jwtCookie.toString()));
 
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 

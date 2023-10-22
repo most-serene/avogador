@@ -25,9 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/public/exercises/{exerciseId}/submissions")
@@ -108,6 +106,15 @@ public class SubmissionController {
             if (Timestamp.from(Instant.now()).after(deadline)) {
                 throw new BadRequestException("The deadline has passed");
             }
+        }
+
+        Optional<Submission> lastSubmission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, user.getId());
+
+        boolean isAlreadyPending = lastSubmission.isPresent() && submissionResultService.getResultsFromSubmission(lastSubmission.get())
+                .stream().anyMatch(submissionResult -> submissionResult.getStatus().equals(SubmissionStatus.PENDING));
+
+        if (isAlreadyPending) {
+            throw new ForbiddenException(user, "Keep calm - Too many submissions");
         }
 
         Submission submission = submissionService.createSubmission(exercise, submissionDto);
