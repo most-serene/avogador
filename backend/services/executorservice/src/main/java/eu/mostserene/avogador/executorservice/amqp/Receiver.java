@@ -15,7 +15,6 @@ public class Receiver implements MessageListener {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private void handleMessage(Message message) {
-        log.info(message.getMessageProperties().getContentType());
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
             case "exec.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
             case "exec.submission.execute" -> executeSubmissionHandler(message);

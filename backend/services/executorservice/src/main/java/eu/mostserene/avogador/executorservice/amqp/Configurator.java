@@ -78,7 +78,7 @@ public class Configurator {
     @Bean
     public SimpleMessageListenerContainer messageListenerContainer() {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConcurrentConsumers(5);
+        container.setConcurrentConsumers(10);
         container.setConnectionFactory(connectionFactory());
         container.setQueueNames("executorQueue");
         container.setMessageListener(messageListener());

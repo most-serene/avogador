@@ -121,8 +121,6 @@ public class AuthServiceImpl implements AuthService {
             builder.setExpiration(exp);
         }
 
-        log.info(builder.toString());
-
         return builder.compact();
     }
 
@@ -150,7 +148,7 @@ public class AuthServiceImpl implements AuthService {
         if (isJwtRevoked(authUser, generationTimestamp)) {
             throw new ForbiddenException("The token is revoked");
         }
-        return authUserDTO;
+        return authUser.generateAuthUserDTO();
     }
 
     /**
