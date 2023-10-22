@@ -6,7 +6,11 @@ import ContextMenuWrapper from "@structure/ContextMenuWrapper/ContextMenuWrapper
 import MenuItem from "@mui/material/MenuItem";
 import { enqueueSnackbar } from "notistack";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useCourseService from "@courses/hooks/useCourseService.tsx";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
+import { CourseDetail } from "@courses/types.ts";
 
 interface TrialItemProps {
   trial: Trial;
@@ -14,9 +18,27 @@ interface TrialItemProps {
 
 const TrialItem = ({ trial }: TrialItemProps) => {
   const { updatePractice } = useTrialService();
+  const { getCourseById } = useCourseService();
+  const [user] = useAtom(userAtom);
+  const [course, setCourse] = useState<CourseDetail>();
   const [trialState, setTrialState] = useState(trial);
 
-  if (isPractice(trialState)) {
+  useEffect(() => {
+    getCourseById(trial.courseId)
+      .then((courseResponse) => {
+        setCourse(courseResponse);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  }, [getCourseById, trial.courseId]);
+
+  if (
+    isPractice(trialState) &&
+    (course?.role === "COLLABORATOR" ||
+      course?.role === "ADMIN" ||
+      (user && user.isSuperuser))
+  ) {
     return (
       <ContextMenuWrapper
         menu={
@@ -55,6 +77,9 @@ const TrialItem = ({ trial }: TrialItemProps) => {
         <PracticeItem practice={trialState} />
       </ContextMenuWrapper>
     );
+  }
+  if (isPractice(trialState)) {
+    return <PracticeItem practice={trialState} />;
   }
   if (isExam(trialState)) {
     return <ExamItem exam={trialState} />;
