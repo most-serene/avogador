@@ -37,6 +37,10 @@ const ContextMenuWrapper = ({ children, menu }: ContextMenuWrapperProps) => {
         onClickCapture={() => {
           handleClose();
         }}
+        onContextMenu={(event) => {
+          event.preventDefault();
+          handleClose();
+        }}
         anchorPosition={
           contextMenu !== null
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
