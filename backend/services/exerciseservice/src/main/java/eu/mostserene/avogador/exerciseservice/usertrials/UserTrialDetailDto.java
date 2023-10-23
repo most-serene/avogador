@@ -1,10 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
-import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Date;

@@ -9,7 +9,6 @@ import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
-import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialServiceImpl;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +132,7 @@ public class SubmissionResultController {
                 this.status = SubmissionStatusSummary.MISSING;
             } else if (result.stream().anyMatch(res -> res.getStatus().equals(SubmissionStatus.PENDING))){
                 this.status = SubmissionStatusSummary.PENDING;
-            } else if (result.stream().noneMatch(res -> res.getStatus().equals(SubmissionStatus.CORRECT))){
+            } else if (!result.stream().allMatch(res -> res.getStatus().equals(SubmissionStatus.CORRECT))){
                 this.status = SubmissionStatusSummary.WRONG;
             } else {
                 this.status = SubmissionStatusSummary.CORRECT;
