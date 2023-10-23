@@ -31,21 +31,21 @@ const TrialDetailExercisesTab = ({
   trial,
   course,
 }: TrialDetailExercisesTabProps) => {
-  const { getExercisesByTrialId } = useExerciseService();
+  const { getExercisesByTrial } = useExerciseService();
   const [exercises, setExercises] = useState<Exercise[]>();
   const [user] = useAtom(userAtom);
   const theme = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getExercisesByTrialId(trial)
+    getExercisesByTrial(trial)
       .then((exercises) => {
         setExercises(exercises);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getExercisesByTrialId, trial]);
+  }, [getExercisesByTrial, trial]);
 
   if (exercises === undefined) {
     return (

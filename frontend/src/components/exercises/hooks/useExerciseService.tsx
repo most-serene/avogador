@@ -10,7 +10,7 @@ import {
   SubmissionResultMap,
   Testcase,
 } from "@exercises/types.ts";
-import { Trial } from "@trials/types.ts";
+import { Trial, UserExerciseSummary } from "@trials/types.ts";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 
@@ -72,7 +72,7 @@ const useExerciseService = () => {
     [avogadorApi, user],
   );
 
-  const getExercisesByTrialId: (trial: Trial) => Promise<Exercise[]> =
+  const getExercisesByTrial: (trial: Trial) => Promise<Exercise[]> =
     useCallback(
       async (trial: Trial) => {
         const { data: exercises }: { data: Exercise[] } = await avogadorApi.get(
@@ -135,16 +135,28 @@ const useExerciseService = () => {
     [avogadorApi, user],
   );
 
+  const getExerciseResultSummary: (
+    exerciseId: string,
+  ) => Promise<UserExerciseSummary[]> = useCallback(
+    async (exerciseId: string) => {
+      const { data: summary }: { data: UserExerciseSummary[] } =
+        await avogadorApi.get(`/exercises/${exerciseId}/results`);
+      return summary;
+    },
+    [avogadorApi],
+  );
+
   return {
     createExercise,
     createTemplate,
     createTestcase,
     createSubmission,
-    getExercisesByTrialId,
+    getExercisesByTrial,
     getExerciseById,
     getTestcasesFromExercise,
     getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
+    getExerciseResultSummary,
   };
 };
 
