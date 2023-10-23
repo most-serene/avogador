@@ -18,6 +18,7 @@ import { Card, Skeleton, Tooltip } from "@mui/material";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { useAtom } from "jotai";
 import { Cancel, CheckCircle, Help } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 interface TrialDetailUsersTabProps {
   trial: Trial;
@@ -89,6 +90,7 @@ const getStatusIcon = (status: "CORRECT" | "WRONG" | "PENDING" | "MISSING") => {
 
 const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
   const [colorMode] = useAtom(ColorModeAtom);
+  const navigate = useNavigate();
   const { getExercisesByTrial, getExerciseResultSummary } =
     useExerciseService();
   const { getUsersFromTrial } = useTrialService();
@@ -171,6 +173,15 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
           disableRowSelectionOnClick
           density="compact"
           autoPageSize
+          onCellClick={(cell) => {
+            if (!["enroll", "fullName", "startDate"].includes(cell.field)) {
+              navigate(
+                `/${trial.trialType === "PRACTICE" ? "practice" : "exam"}/${
+                  trial.id
+                }/exercises/${cell.field}/users/${cell.id}`,
+              );
+            }
+          }}
         />
       ) : (
         <Skeleton
