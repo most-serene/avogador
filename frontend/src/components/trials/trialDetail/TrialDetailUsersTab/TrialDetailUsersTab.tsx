@@ -14,7 +14,7 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { User } from "@authentication/types.ts";
 import { Exercise } from "@exercises/types.ts";
 import { format } from "date-fns";
-import { Card, Skeleton, Tooltip } from "@mui/material";
+import { Card, Chip, Skeleton } from "@mui/material";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { useAtom } from "jotai";
 import { Cancel, CheckCircle, Help } from "@mui/icons-material";
@@ -62,29 +62,13 @@ const getMissingSubmission = (
 const getStatusIcon = (status: "CORRECT" | "WRONG" | "PENDING" | "MISSING") => {
   switch (status) {
     case "CORRECT":
-      return (
-        <Tooltip placement={"right"} title={"Correct"}>
-          <CheckCircle color="success" />
-        </Tooltip>
-      );
+      return <Chip icon={<CheckCircle />} label="Correct" color="success" />;
     case "WRONG":
-      return (
-        <Tooltip placement={"right"} title={"Wrong"}>
-          <Cancel color="error" />
-        </Tooltip>
-      );
+      return <Chip icon={<Cancel />} label="Wrong" color="error" />;
     case "PENDING":
-      return (
-        <Tooltip placement={"right"} title={"Pending"}>
-          <Help color="warning" />
-        </Tooltip>
-      );
+      return <Chip icon={<Help />} label="Pending" color="warning" />;
     case "MISSING":
-      return (
-        <Tooltip placement={"right"} title={"Missing"}>
-          <Help color="secondary" />
-        </Tooltip>
-      );
+      return <Chip icon={<Help />} label="Missing" color="secondary" />;
   }
 };
 
@@ -107,9 +91,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
       }
 
       exercises.forEach((exercise) => {
-        if (
-          columns.filter((column) => column.field == exercise.id).length === 0
-        ) {
+        if (!columns.some((column) => column.field == exercise.id)) {
           columns.push({
             field: exercise.id,
             headerName: exercise.name,
