@@ -3,7 +3,6 @@ package eu.mostserene.avogador.executorservice.executor.languages;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.WaitResponse;
 import eu.mostserene.avogador.executorservice.submission.Submission;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
@@ -32,7 +31,7 @@ public class CLang implements Language {
     public File compile(DockerClient dockerClient, File sourceCode) {
         log.info(LoggerColors.warn("Compiling c: " + sourceCode));
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
-                .withCmd("gcc", "-o", "/program", "/" + sourceCode.getName()) //, "-lstdc++")
+                .withCmd("gcc", "-o", "/execution/program", "/" + sourceCode.getName()) //, "-lstdc++")
                 .withNetworkDisabled(true)
                 .exec();
 
@@ -51,7 +50,7 @@ public class CLang implements Language {
                 }
             }).awaitCompletion();
 
-            InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(compilerDocker.getId(), "/program")
+            InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(compilerDocker.getId(), "/execution")
                     .exec();
 
             File target = new File(sourceCode.getParentFile() + "/program.tar");
@@ -75,14 +74,14 @@ public class CLang implements Language {
             throw new RuntimeException(e);
         }
 
-        return new File(sourceCode.getParent() + "/program");
+        return new File(sourceCode.getParent() + "/program/execution");
     }
 
     @Override
     public CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, Submission submission) {
         log.info(LoggerColors.cyan("Executing " + submission.getId()));
         var container = dockerClient.createContainerCmd("gotti27/runtime-env:stable").withImage("gotti27/runtime-env:stable")//.withUser("student")
-                .withCmd("/bin/bash", "-c", "chmod 777 /program/program; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " ./program/program"  + " < /" + inputFile.getName())
+                .withCmd("/bin/bash", "-c", "chmod 777 /execution/program; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " ./execution/program"  + " < /" + inputFile.getName())
                 .withNetworkDisabled(true)
                 .exec();
 
