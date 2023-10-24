@@ -111,10 +111,15 @@ const ExerciseNavigatorWrapper = () => {
         start: new Date(),
         end: trial.deadline,
       });
-      if (delta.days != null && delta.days > 0) {
+      if (delta.days != null && delta.days > 1) {
         setTimeLeft(`${delta.days}d`);
-      } else if (delta.hours != null && delta.hours > 0) {
-        setTimeLeft(`${delta.hours}h ${delta.minutes}m`);
+      } else if (
+        delta.hours != null &&
+        (delta.hours > 0 || delta.days != null)
+      ) {
+        setTimeLeft(
+          `${delta.hours + 24 * (delta.days ?? 0)}h ${delta.minutes}m`,
+        );
       } else {
         setTimeLeft(`${delta.minutes}m ${delta.seconds}s`);
       }
@@ -161,22 +166,39 @@ const ExerciseNavigatorWrapper = () => {
           {exercises.map((exercise, i) => (
             <Tab
               icon={
-                <CircularProgress
-                  size="1rem"
-                  variant="determinate"
-                  value={
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    results[exercise.id] == null // TODO: investigate typing on this block
-                      ? 0
-                      : (results[exercise.id].filter(
-                          ({ status }) => status === "CORRECT",
-                        ).length /
-                          results[exercise.id].length) *
-                        100
-                  }
-                  color="success"
-                  thickness={8}
-                />
+                <Box sx={{ position: "relative" }}>
+                  <CircularProgress
+                    variant="determinate"
+                    sx={{
+                      color: (theme) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                        return results[exercise.id] == null
+                          ? theme.palette.grey[500]
+                          : "red";
+                      },
+                    }}
+                    size="1rem"
+                    thickness={8}
+                    value={100}
+                  />
+                  <CircularProgress
+                    size="1rem"
+                    variant="determinate"
+                    sx={{ position: "absolute", left: 0 }}
+                    value={
+                      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                      results[exercise.id] == null // TODO: investigate typing on this block
+                        ? 0
+                        : (results[exercise.id].filter(
+                            ({ status }) => status === "CORRECT",
+                          ).length /
+                            results[exercise.id].length) *
+                          100
+                    }
+                    color="success"
+                    thickness={8}
+                  />
+                </Box>
               }
               iconPosition="end"
               key={i}
