@@ -11,6 +11,7 @@ import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { CourseDetail } from "@courses/types.ts";
+import Box from "@mui/material/Box";
 
 interface TrialItemProps {
   trial: Trial;
@@ -42,7 +43,7 @@ const TrialItem = ({ trial }: TrialItemProps) => {
     return (
       <ContextMenuWrapper
         menu={
-          <>
+          <Box>
             <MenuItem
               disabled={trialState.isVisible}
               onClick={() => {
@@ -71,7 +72,7 @@ const TrialItem = ({ trial }: TrialItemProps) => {
             >
               Turn hidden
             </MenuItem>
-          </>
+          </Box>
         }
       >
         <PracticeItem practice={trialState} />

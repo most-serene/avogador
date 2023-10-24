@@ -137,6 +137,9 @@ const SubmissionEditor = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
+    return () => {
+      setStrox(undefined);
+    };
   }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
 
   if (strox == null) {

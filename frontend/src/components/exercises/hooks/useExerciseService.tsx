@@ -72,15 +72,23 @@ const useExerciseService = () => {
     [avogadorApi, user],
   );
 
-  const getExercisesByTrial: (trial: Trial) => Promise<Exercise[]> =
+  const getExercisesByTrialId: (trialId: string) => Promise<Exercise[]> =
     useCallback(
-      async (trial: Trial) => {
+      async (trialId: string) => {
         const { data: exercises }: { data: Exercise[] } = await avogadorApi.get(
-          `/exercises/trials/${trial.id}`,
+          `/exercises/trials/${trialId}`,
         );
         return exercises;
       },
       [avogadorApi],
+    );
+
+  const getExercisesByTrial: (trial: Trial) => Promise<Exercise[]> =
+    useCallback(
+      async (trial: Trial) => {
+        return getExercisesByTrialId(trial.id);
+      },
+      [getExercisesByTrialId],
     );
 
   const getExerciseById: (exerciseId: string) => Promise<Exercise> =
@@ -152,6 +160,7 @@ const useExerciseService = () => {
     createTestcase,
     createSubmission,
     getExercisesByTrial,
+    getExercisesByTrialId,
     getExerciseById,
     getTestcasesFromExercise,
     getTemplateFromExercise,
