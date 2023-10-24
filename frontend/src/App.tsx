@@ -1,6 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Container, Grid, Typography } from "@mui/material";
+import { Container, Grid, IconButton, Typography } from "@mui/material";
 import HomeScreen from "@components/home/HomeScreen";
 import Navbar from "@components/structure/Navbar.tsx";
 import Footer from "@components/structure/Footer.tsx";
@@ -8,7 +8,7 @@ import AuthWrapper from "./AuthWrapper.tsx";
 import StatusPage from "@components/structure/StatusPage/StatusPage.tsx";
 import ProfileScreen from "@components/profile/ProfileScreen.tsx";
 import JoinCourseScreen from "@components/courses/JoinCourse/JoinCourseScreen.tsx";
-import { SnackbarProvider } from "notistack";
+import { closeSnackbar, SnackbarProvider } from "notistack";
 import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
 import CourseDetailScreen from "@components/courses/courseDetail/CourseDetailScreen.tsx";
@@ -24,6 +24,7 @@ import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreation
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 import ExerciseScreen from "@exercises/exerciseScreen/ExerciseScreen.tsx";
 import WebSocketWrapper from "./WebSocketWrapper.tsx";
+import CloseIcon from "@mui/icons-material/Close";
 
 const NotFound = () => {
   return (
@@ -70,7 +71,18 @@ function App() {
 
   return (
     <div className="App">
-      <SnackbarProvider preventDuplicate={true}>
+      <SnackbarProvider
+        preventDuplicate={true}
+        action={(snackbarId) => (
+          <IconButton
+            onClick={() => {
+              closeSnackbar(snackbarId);
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
+      >
         <BrowserRouter basename={import.meta.env.VITE_REACT_BASE_URL as string}>
           <Navbar ref={navbarRef} />
           <ErrorHandlerWrapper>
