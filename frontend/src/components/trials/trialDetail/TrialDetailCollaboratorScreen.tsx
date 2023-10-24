@@ -14,6 +14,7 @@ import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import { CourseDetail } from "@courses/types.ts";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
+import TrialDetailUsersTab from "@trials/trialDetail/TrialDetailUsersTab/TrialDetailUsersTab.tsx";
 
 const tabs = ["Exercises", "Users", "Settings"];
 
@@ -100,7 +101,7 @@ const TrialDetailCollaboratorScreen = ({
           index={1}
           occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
         >
-          <> Users tab</>
+          <TrialDetailUsersTab trial={trial} />
         </TabPanel>
         <TabPanel
           value={openTab}

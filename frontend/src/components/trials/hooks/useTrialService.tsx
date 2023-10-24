@@ -7,6 +7,7 @@ import {
   Practice,
   Trial,
   UserTrial,
+  UserTrialDetail,
 } from "@trials/types.ts";
 import { User } from "@authentication/types.ts";
 import { addMinutes } from "date-fns";
@@ -94,6 +95,16 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  const getUsersFromTrial: (trial: Trial) => Promise<UserTrialDetail[]> =
+    useCallback(
+      async (trial: Trial) => {
+        const { data: userTrials }: { data: UserTrialDetail[] } =
+          await avogadorApi.get(`/trials/${trial.id}/users`);
+        return userTrials;
+      },
+      [avogadorApi],
+    );
+
   // Non-api calls
   const isTrialScheduled: (trial: Trial) => boolean = useCallback(
     (trial: Trial) => {
@@ -143,6 +154,7 @@ const useTrialService = () => {
     updatePractice,
     getUserTrials,
     joinPractice,
+    getUsersFromTrial,
     isTrialScheduled,
     isTrialOngoing,
     isTrialEnded,
