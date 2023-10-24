@@ -31,7 +31,7 @@ public class JavaLang implements Language {
     public File compile(DockerClient dockerClient, File sourceCode) {
         log.info(LoggerColors.warn("Compiling Java: " + sourceCode));
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
-                .withCmd("/bin/bash", "-c", "mkdir /build; javac -d /build /" + sourceCode.getName())
+                .withCmd("/bin/bash", "-c", "javac -d /execution /" + sourceCode.getName())
                 //.withCmd("javac", "/" + sourceCode.getName()) // + "; mkdir /program ; mv " +  sourceCode.getName().split("\\.")[0] + ".class " + "/program/" + sourceCode.getName().split("\\.")[0])
                 .withNetworkDisabled(true)
                 .exec();
@@ -51,7 +51,7 @@ public class JavaLang implements Language {
                 }
             }).awaitCompletion();
 
-            InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(compilerDocker.getId(), "/build")
+            InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(compilerDocker.getId(), "/execution")
                     .exec();
 
             File target = new File(sourceCode.getParentFile() + "/program.tar ");
@@ -74,14 +74,14 @@ public class JavaLang implements Language {
             throw new RuntimeException(e);
         }
 
-        return new File(sourceCode.getParent() + "/program/build");
+        return new File(sourceCode.getParent() + "/program/execution");
     }
 
     @Override
     public CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, Submission submission) {
         log.info(LoggerColors.cyan("Executing " + submission.getId()));
         var container = dockerClient.createContainerCmd("gotti27/runtime-env:stable").withImage("gotti27/runtime-env:stable")//.withUser("student")
-                .withCmd("/bin/bash", "-c", "chmod 777 -R /build ; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " java -cp build Main"  + " < /" + inputFile.getName())
+                .withCmd("/bin/bash", "-c", "timeout --foreground -k 0 -v " + submission.getTimeLimit() + " java -cp execution Main"  + " < /" + inputFile.getName())
                 .withNetworkDisabled(true)
                 .exec();
 
