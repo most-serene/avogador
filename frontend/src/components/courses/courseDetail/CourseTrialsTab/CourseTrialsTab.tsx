@@ -1,9 +1,9 @@
 import Grid from "@mui/material/Grid";
 import KanbanColumn from "@courses/courseDetail/CourseTrialsTab/KanbanColumn.tsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { UserCourseDetail } from "@courses/types.ts";
-import { Trial } from "@trials/types.ts";
+import { isPractice, Trial } from "@trials/types.ts";
 import { enqueueSnackbar } from "notistack";
 
 interface CourseTrialsTabProps {
@@ -21,30 +21,77 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
     if (userCourse == null) {
       return;
     }
     getTrialsByCourseId(userCourse.id)
       .then((trials) => {
         setTrials(trials);
+
+        trials
+          .filter((trial) => isTrialScheduled(trial))
+          .forEach((trial) => {
+            timeouts.push(
+              setTimeout(() => {
+                setTrials([...trials]);
+              }, trial.startTimestamp.getTime() - Date.now()),
+            );
+            if (isPractice(trial)) {
+              timeouts.push(
+                setTimeout(() => {
+                  setTrials([...trials]);
+                }, trial.deadline.getTime() - Date.now()),
+              );
+            }
+          });
+
+        trials
+          .filter((trial) => isTrialOngoing(trial))
+          .map((trial) => {
+            if (isPractice(trial)) {
+              return trial.deadline.getTime();
+            }
+          })
+          .forEach((end) => {
+            if (end == undefined) return;
+            timeouts.push(
+              setTimeout(() => {
+                setTrials([...trials]);
+              }, end - Date.now()),
+            );
+          });
+
         setIsLoading(false);
       })
       .catch((err: Error) => {
-        enqueueSnackbar(err.name, { variant: "error" });
+        enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getTrialsByCourseId, userCourse]);
 
-  const scheduledTrials = trials
-    .filter((trial) => isTrialScheduled(trial))
-    .sort((a, b) => a.startTimestamp.getTime() - b.startTimestamp.getTime());
+    return () => {
+      timeouts.forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+    };
+  }, [getTrialsByCourseId, isTrialOngoing, isTrialScheduled, userCourse]);
 
-  const ongoingTrials = trials
-    .filter((trial) => isTrialOngoing(trial))
-    .sort((a, b) => a.startTimestamp.getTime() - b.startTimestamp.getTime());
+  const scheduledTrials = useMemo(() => {
+    return trials
+      .filter((trial) => isTrialScheduled(trial))
+      .sort((a, b) => a.startTimestamp.getTime() - b.startTimestamp.getTime());
+  }, [isTrialScheduled, trials]);
 
-  const endedTrials = trials
-    .filter((trial) => isTrialEnded(trial))
-    .sort((a, b) => b.startTimestamp.getTime() - a.startTimestamp.getTime());
+  const ongoingTrials = useMemo(() => {
+    return trials
+      .filter((trial) => isTrialOngoing(trial))
+      .sort((a, b) => a.startTimestamp.getTime() - b.startTimestamp.getTime());
+  }, [isTrialOngoing, trials]);
+
+  const endedTrials = useMemo(() => {
+    return trials
+      .filter((trial) => isTrialEnded(trial))
+      .sort((a, b) => b.startTimestamp.getTime() - a.startTimestamp.getTime());
+  }, [isTrialEnded, trials]);
 
   return (
     <Grid container height="100%" width={"100%"} spacing={2}>

@@ -48,9 +48,6 @@ export default function CourseDetailScreen() {
     };
   }, [getCourseById, courseId, globalErrorSetter, setCourse]);
 
-  console.log(course);
-  console.log(user);
-
   if (user == null || course == null) {
     return (
       <Box
