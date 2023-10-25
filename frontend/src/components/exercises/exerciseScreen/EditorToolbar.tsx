@@ -1,4 +1,4 @@
-import { Card, IconButton, Tooltip, Typography } from "@mui/material";
+import { Card, IconButton, Typography } from "@mui/material";
 import { CopyAll, Download, Replay } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
@@ -86,18 +86,16 @@ const EditorToolbar = ({ onReset: handleReset, strox }: EditorToolbarProps) => {
           </IconButton>
         )}
       <Box sx={{ marginLeft: "auto" }}>
-        <Tooltip title="Reset code" placement="left">
-          <ButtonWithConfirmation
-            onConfirm={handleReset}
-            as="IconButton"
-            confirmColor="error"
-            title="Reset Code?"
-            description="By doing so you will lose all your changes"
-            confirmText="Reset"
-          >
-            <Replay />
-          </ButtonWithConfirmation>
-        </Tooltip>
+        <ButtonWithConfirmation
+          onConfirm={handleReset}
+          as="IconButton"
+          confirmColor="error"
+          title="Reset Code?"
+          description="By doing so you will lose all your changes"
+          confirmText="Reset"
+        >
+          <Replay />
+        </ButtonWithConfirmation>
       </Box>
     </Card>
   );

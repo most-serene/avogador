@@ -86,7 +86,13 @@ const TrialDetailScreen = ({ trialType }: TrialDetailScreenProps) => {
     user,
   ]);
 
-  if (!trial || !user || !userCourse || userCourse.role === "EXTERNAL") {
+  if (
+    !trial ||
+    !user ||
+    !userCourse ||
+    userTrial === undefined ||
+    userCourse.role === "EXTERNAL"
+  ) {
     return (
       <Box
         style={{

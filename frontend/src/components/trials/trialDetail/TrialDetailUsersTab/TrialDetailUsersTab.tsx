@@ -90,22 +90,6 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         summaries[exercise.id] = await getExerciseResultSummary(exercise.id);
       }
 
-      exercises.forEach((exercise) => {
-        if (!columns.some((column) => column.field == exercise.id)) {
-          columns.push({
-            field: exercise.id,
-            headerName: exercise.name,
-            renderCell: (params) =>
-              getStatusIcon(
-                params.row.summary.filter(
-                  (summary) => summary.exerciseId === exercise.id,
-                )[0].status,
-              ),
-            flex: 1,
-          });
-        }
-      });
-
       setRows(
         users.map((userTrial) => {
           const userSummaries = exercises
@@ -125,6 +109,22 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
           } as UserTrialSummary;
         }),
       );
+
+      exercises.forEach((exercise) => {
+        if (!columns.some((column) => column.field == exercise.id)) {
+          columns.push({
+            field: exercise.id,
+            headerName: exercise.name,
+            renderCell: (params) =>
+              getStatusIcon(
+                params.row.summary.filter(
+                  (summary) => summary.exerciseId === exercise.id,
+                )[0].status,
+              ),
+            flex: 1,
+          });
+        }
+      });
     };
 
     generateRows().catch((err: Error) => {
