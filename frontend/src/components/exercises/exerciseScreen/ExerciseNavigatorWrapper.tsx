@@ -63,8 +63,10 @@ const ExerciseNavigatorWrapper = () => {
         .then((submission) => {
           console.log(Object.values(submission)[0]);
           setResults((prevState) => {
-            prevState[exercise.id] = Object.values(submission)[0];
-            return { ...prevState };
+            return {
+              ...prevState,
+              [exercise.id]: Object.values(submission)[0],
+            };
           });
         })
         .catch((err: Error) => {
@@ -100,8 +102,9 @@ const ExerciseNavigatorWrapper = () => {
       return;
     }
     navigate(
-      // TODO: make dependent on trial type
-      `/practices/${trialId}/exercises/${exercises[newValue].id}`,
+      `/${
+        trial?.trialType === "PRACTICE" ? "practices" : "exams"
+      }/${trialId}/exercises/${exercises[newValue].id}`,
     );
   };
 
@@ -130,7 +133,16 @@ const ExerciseNavigatorWrapper = () => {
   };
 
   if (exercises == null || openTab == null || trial == null) {
-    return "Loading";
+    return (
+      <Box
+        height="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   setInterval(() => {
@@ -157,7 +169,11 @@ const ExerciseNavigatorWrapper = () => {
         <Button
           fullWidth
           onClick={() => {
-            navigate(`/practices/${trialId}`);
+            navigate(
+              `/${
+                trial.trialType === "PRACTICE" ? "practices" : "exams"
+              }/${trialId}`,
+            );
           }}
         >
           <ChevronLeft />
