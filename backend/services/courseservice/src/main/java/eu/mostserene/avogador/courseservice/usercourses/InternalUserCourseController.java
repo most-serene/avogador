@@ -1,5 +1,7 @@
 package eu.mostserene.avogador.courseservice.usercourses;
 
+import eu.mostserene.avogador.courseservice.courses.Course;
+import eu.mostserene.avogador.courseservice.courses.CourseService;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,16 @@ public class InternalUserCourseController {
     @Autowired
     private UserCourseService userCourseService;
 
+    @Autowired
+    private CourseService courseService;
+
     @GetMapping("{courseId}/users/{userId}")
     private CourseRole getUserCourseRole(@PathVariable UUID courseId, @PathVariable UUID userId) {
-        return userCourseService.getUserCourse(userId, courseId).orElseThrow(NotFoundException::new).getRole();
+        Course course = courseService.getCourse(courseId).orElseThrow(NotFoundException::new);
+
+        return userCourseService.getUserCourse(userId, courseId)
+                .map(UserCourse::getRole)
+                .orElse(CourseRole.EXTERNAL);
     }
 
 }
