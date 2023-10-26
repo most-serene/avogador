@@ -8,6 +8,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +35,11 @@ public class CourseServiceImpl implements CourseService{
     @Override
     public Optional<Course> getCourse(UUID id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public List<Course> getAll() {
+        return repository.findAll();
     }
 
     @Override
