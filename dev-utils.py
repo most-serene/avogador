@@ -53,6 +53,9 @@ class DevUtilsCmd(Cmd):
     def do_list_services(self, inp):
         os.system(f'docker compose config --services')
 
+    def do_sandboxBuildPush(self, inp):
+        os.system('docker buildx build --push --platform linux/amd64  --tag gotti27/runtime-env:stable ./sandboxImage')
+
     #### ----- ####
 
     def help_localDevelopMode(self):
@@ -85,6 +88,8 @@ class DevUtilsCmd(Cmd):
     def help_stop(self):
         print('stop the listed services')
 
+    def help_sandboxBuildPush(self):
+        print('build and push the sandbox docker image')
 
 p = DevUtilsCmd()
 p.cmdloop()
