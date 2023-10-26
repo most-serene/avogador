@@ -130,7 +130,7 @@ public class UserCourseController {
         }
 
         if (!user.getIsSuperuser()) {
-            return userCourseService.getCoursesByUserId(userId, user.getIsProfessor());
+            return userCourseService.getCoursesByUserId(userId, false);
         }
 
         return courseService.getAll()
