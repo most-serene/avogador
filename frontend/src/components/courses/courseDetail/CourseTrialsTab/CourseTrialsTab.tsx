@@ -29,37 +29,25 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
       .then((trials) => {
         setTrials(trials);
 
-        trials
-          .filter((trial) => isTrialScheduled(trial))
-          .forEach((trial) => {
-            timeouts.push(
-              setTimeout(() => {
-                setTrials([...trials]);
-              }, trial.startTimestamp.getTime() - Date.now()),
-            );
-            if (isPractice(trial)) {
-              timeouts.push(
-                setTimeout(() => {
-                  setTrials([...trials]);
-                }, trial.deadline.getTime() - Date.now()),
-              );
-            }
-          });
+        const addTimeout = (time: number) => {
+          timeouts.push(
+            setTimeout(() => {
+              setTrials([...trials]);
+            }, time - Date.now()),
+          );
+        };
 
         trials
-          .filter((trial) => isTrialOngoing(trial))
+          .filter((trial) => isTrialScheduled(trial) || isTrialOngoing(trial))
           .map((trial) => {
             if (isPractice(trial)) {
-              return trial.deadline.getTime();
+              addTimeout(trial.deadline.getTime());
             }
+            return trial;
           })
-          .forEach((end) => {
-            if (end == undefined) return;
-            timeouts.push(
-              setTimeout(() => {
-                setTrials([...trials]);
-              }, end - Date.now()),
-            );
+          .filter((trial) => isTrialScheduled(trial))
+          .map((trial) => {
+            addTimeout(trial.startTimestamp.getTime());
           });
 
         setIsLoading(false);
