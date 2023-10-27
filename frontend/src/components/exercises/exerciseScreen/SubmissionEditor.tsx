@@ -6,13 +6,15 @@ import {
 } from "@exercises/types.ts";
 import { Editor } from "@monaco-editor/react";
 import React, { useEffect, useState } from "react";
-import { enqueueSnackbar } from "notistack";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
-import { Button, CircularProgress, useTheme } from "@mui/material";
+import { Button, CircularProgress, IconButton, useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -36,6 +38,7 @@ const SubmissionEditor = ({
   const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [template, setTemplate] = useState<Strox>();
   const theme = useTheme();
 
   const handleChange = (value: string | undefined, i: number) => {
@@ -95,6 +98,7 @@ const SubmissionEditor = ({
         enqueueSnackbar("Submission submitted successfully!", {
           variant: "success",
         });
+        localStorage.removeItem(`sub-${exerciseId}`);
       })
       .catch((err: Error) => {
         enqueueSnackbar(
@@ -121,10 +125,55 @@ const SubmissionEditor = ({
   };
 
   useEffect(() => {
+    if (strox == null || strox === template) return;
+    localStorage.setItem(`sub-${exerciseId}`, JSON.stringify(strox.cells));
+  }, [exerciseId, strox, template]);
+
+  useEffect(() => {
     getTemplateFromExercise(exerciseId, true)
-      .then((template) => {
-        setStrox(template);
-        updateCellsSize(template.cells);
+      .then((responseTemplate) => {
+        setStrox(responseTemplate);
+        setTemplate(responseTemplate);
+        updateCellsSize(responseTemplate.cells);
+
+        if (localStorage.getItem(`sub-${exerciseId}`) != null) {
+          enqueueSnackbar("You have local changes, wanna load them?", {
+            variant: "info",
+            action: (snackbarId) => (
+              <>
+                <IconButton
+                  onClick={() => {
+                    const storedCells = localStorage.getItem(
+                      `sub-${exerciseId}`,
+                    );
+                    if (storedCells == null) return;
+                    const parsedStoredCells: StroxCell[] = JSON.parse(
+                      storedCells,
+                    ) as StroxCell[];
+
+                    if (localStorage.getItem(`sub-${exerciseId}`) != null) {
+                      setStrox({
+                        ...responseTemplate,
+                        cells: parsedStoredCells,
+                      });
+                    }
+                    closeSnackbar(snackbarId);
+                  }}
+                >
+                  <CheckIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    closeSnackbar(snackbarId);
+                    localStorage.removeItem(`sub-${exerciseId}`);
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </>
+            ),
+          });
+        }
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
