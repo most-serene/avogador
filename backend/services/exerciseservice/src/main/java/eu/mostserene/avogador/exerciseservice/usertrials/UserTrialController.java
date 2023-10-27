@@ -47,6 +47,10 @@ public class UserTrialController {
         }
 
         var userTrials = userTrialService.getUsersFromTrial(trial);
+        if (userTrials.isEmpty()){
+            return List.of();
+        }
+
         var users = userService.getUsersFromIdList(userTrials.stream().map(UserTrial::getUserId).toList()).
                 stream().collect(Collectors.toMap(UserDto::getId, u -> u));
 
