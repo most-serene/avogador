@@ -78,8 +78,12 @@ const SubmissionResultsPopup = ({
 
   useEffect(() => {
     const keys = Object.keys(submissionResult);
-    if (keys.length === 0) return;
+    if (keys.length === 0) {
+      setVisible(false);
+      return;
+    }
 
+    setVisible(true);
     setResults(submissionResult[keys[0]]);
 
     return () => {

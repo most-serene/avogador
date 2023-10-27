@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
+import { Trial } from "@trials/types.ts";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -32,10 +33,11 @@ const SubmissionEditor = ({
   setSubmissionResult,
 }: SubmissionEditorProps) => {
   const { getTemplateFromExercise, createSubmission } = useExerciseService();
-  const { getTrialById } = useTrialService();
+  const { getTrialById, isTrialEnded } = useTrialService();
   const { subscribe } = useWebSocket();
   const [strox, setStrox] = useState<Strox>();
-  const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
+  // const [language, setLanguage] = useState<"C" | "CPP" | "PYTHON" | "JAVA">();
+  const [trial, setTrial] = useState<Trial>();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [template, setTemplate] = useState<Strox>();
@@ -181,7 +183,7 @@ const SubmissionEditor = ({
 
     getTrialById(trialId)
       .then((trial) => {
-        setLanguage(trial.language);
+        setTrial(trial);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -217,7 +219,7 @@ const SubmissionEditor = ({
                 24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)
               }px`}
               theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
-              language={language?.toLowerCase()}
+              language={trial?.language.toLowerCase()}
               value={cell.content}
               options={{
                 readOnly: cell.type !== "EDITABLE",
@@ -247,18 +249,20 @@ const SubmissionEditor = ({
         ))}
       </Box>
 
-      <Button
-        variant="contained"
-        style={{
-          position: "absolute",
-          bottom: 16,
-          right: 16,
-        }}
-        onClick={handleSubmit}
-        disabled={isSubmitted || submissionDisabled}
-      >
-        SUBMIT
-      </Button>
+      {trial != null && !isTrialEnded(trial) && (
+        <Button
+          variant="contained"
+          style={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+          }}
+          onClick={handleSubmit}
+          disabled={isSubmitted || submissionDisabled}
+        >
+          SUBMIT
+        </Button>
+      )}
     </Box>
   );
 };

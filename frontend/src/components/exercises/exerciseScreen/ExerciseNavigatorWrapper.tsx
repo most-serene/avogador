@@ -26,7 +26,7 @@ const ExerciseNavigatorWrapper = () => {
   const { trialId, exerciseId } = useParams();
   const { getExercisesByTrialId, getUserLastSubmissionFromExercise } =
     useExerciseService();
-  const { getTrialById } = useTrialService();
+  const { getTrialById, isTrialEnded } = useTrialService();
   const [exercises, setExercises] = useState<Exercise[]>();
   const [trial, setTrial] = useState<Practice | Exam>();
   const [openTab, setOpenTab] = useState<number>();
@@ -114,6 +114,7 @@ const ExerciseNavigatorWrapper = () => {
         start: new Date(),
         end: trial.deadline,
       });
+
       if (delta.days != null && delta.days > 1) {
         setTimeLeft(`${delta.days}d`);
       } else if (
@@ -159,12 +160,20 @@ const ExerciseNavigatorWrapper = () => {
     >
       <Box>
         <Paper sx={{ p: 1 }}>
-          <Typography variant="body2" align="center">
-            Time Left:
-          </Typography>
-          <Typography variant="body2" align="center" fontWeight="bold">
-            {timeLeft}
-          </Typography>
+          {isTrialEnded(trial) ? (
+            <Typography variant="body2" align="center" fontWeight="bold">
+              Time&apos;s up!
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="body2" align="center">
+                Time Left:
+              </Typography>
+              <Typography variant="body2" align="center" fontWeight="bold">
+                {timeLeft}
+              </Typography>
+            </>
+          )}
         </Paper>
         <Button
           fullWidth
