@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { useEffect, useState } from "react";
@@ -35,6 +35,7 @@ interface ExerciseCreationState {
 }
 
 const ExerciseCreationInfo = () => {
+  const { exerciseId } = useParams();
   const globalErrorSetter = useGlobalErrorSetter();
   const { getUserCourses } = useCourseService();
   const { getTrialsByCourseId, isTrialEnded } = useTrialService();
@@ -125,6 +126,7 @@ const ExerciseCreationInfo = () => {
             <FormControl fullWidth>
               <InputLabel id="courseId">Course</InputLabel>
               <Select
+                disabled={exerciseId != null}
                 value={exercise.courseId}
                 label="Course"
                 onChange={(event) => {
@@ -149,6 +151,7 @@ const ExerciseCreationInfo = () => {
                 <>
                   <InputLabel id="trialId">Test</InputLabel>
                   <Select
+                    disabled={exerciseId != null}
                     value={exercise.trialId}
                     label="Test"
                     onChange={(event) => {

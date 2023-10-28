@@ -1,6 +1,9 @@
+import { Trial } from "@trials/types.ts";
+
 interface Exercise {
   id: string;
-  trialId: string;
+  trial: Trial;
+  trialId?: string;
   name: string;
   statement: string;
   timeLimit: number;
@@ -31,6 +34,7 @@ interface Testcase {
 }
 
 interface PartialTestcase {
+  id?: string;
   input: string;
   output: string;
   isVisible: boolean;

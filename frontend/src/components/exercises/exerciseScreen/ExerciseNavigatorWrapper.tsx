@@ -3,6 +3,7 @@ import {
   Button,
   CircularProgress,
   Paper,
+  Skeleton,
   Tab,
   Tabs,
   Typography,
@@ -159,22 +160,6 @@ const ExerciseNavigatorWrapper = () => {
       }}
     >
       <Box>
-        <Paper sx={{ p: 1 }}>
-          {isTrialEnded(trial) ? (
-            <Typography variant="body2" align="center" fontWeight="bold">
-              Time&apos;s up!
-            </Typography>
-          ) : (
-            <>
-              <Typography variant="body2" align="center">
-                Time Left:
-              </Typography>
-              <Typography variant="body2" align="center" fontWeight="bold">
-                {timeLeft}
-              </Typography>
-            </>
-          )}
-        </Paper>
         <Button
           fullWidth
           onClick={() => {
@@ -187,6 +172,22 @@ const ExerciseNavigatorWrapper = () => {
         >
           <ChevronLeft />
         </Button>
+        <Paper sx={{ p: 1 }}>
+          {isTrialEnded(trial) ? (
+            <Typography variant="body2" align="center" fontWeight="bold">
+              Time&apos;s up!
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="body2" align="center">
+                Time Left:
+              </Typography>
+              <Typography variant="body2" align="center" fontWeight="bold">
+                {timeLeft === "" ? <Skeleton /> : timeLeft}
+              </Typography>
+            </>
+          )}
+        </Paper>
         <Tabs orientation="vertical" value={openTab} onChange={handleTabChange}>
           {exercises.map((exercise, i) => (
             <Tab
