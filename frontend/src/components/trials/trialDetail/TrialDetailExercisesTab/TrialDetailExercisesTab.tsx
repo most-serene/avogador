@@ -100,8 +100,19 @@ const TrialDetailExercisesTab = ({
         )}
         {exercises
           .filter((exercise) => exercise.isVisible)
-          .map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} trial={trial} />
+          .map((exercise, i) => (
+            <ExerciseCard
+              key={exercise.id}
+              onChange={(e: Exercise) => {
+                setExercises((prevState) => {
+                  if (prevState == null) return undefined;
+                  prevState[i] = e;
+                  return [...prevState];
+                });
+              }}
+              exercise={exercise}
+              trial={trial}
+            />
           ))}
       </Stack>
       {((user != null && user.isSuperuser) ||
@@ -123,9 +134,16 @@ const TrialDetailExercisesTab = ({
           <Stack spacing={2}>
             {exercises
               .filter((exercise) => !exercise.isVisible)
-              .map((exercise) => (
+              .map((exercise, i) => (
                 <ExerciseCard
                   key={exercise.id}
+                  onChange={(e: Exercise) => {
+                    setExercises((prevState) => {
+                      if (prevState == null) return undefined;
+                      prevState[i] = e;
+                      return [...prevState];
+                    });
+                  }}
                   exercise={exercise}
                   trial={trial}
                 />

@@ -22,16 +22,17 @@ const CreateTrialButton = () => {
       }}
       elevation={0}
     >
-      <CardActionArea style={{ height: "100%", minHeight: "7rem" }}>
-        <CardContent
-          onClick={() => {
-            navigate("/trials/new", {
-              state: {
-                courseId: course.id,
-              },
-            });
-          }}
-        >
+      <CardActionArea
+        onClick={() => {
+          navigate("/trials/new", {
+            state: {
+              courseId: course.id,
+            },
+          });
+        }}
+        style={{ height: "100%", minHeight: "7rem" }}
+      >
+        <CardContent>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Add sx={{ mr: 2 }} />
             <Typography variant="h5"> Create new Trial </Typography>

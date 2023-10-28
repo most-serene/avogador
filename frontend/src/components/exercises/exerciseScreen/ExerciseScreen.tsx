@@ -56,7 +56,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
     getUserLastSubmissionFromExercise,
   ]);
 
-  if (trialId == null || exercise == null) {
+  if (trialId == null) {
     return <CircularProgress />;
   }
 

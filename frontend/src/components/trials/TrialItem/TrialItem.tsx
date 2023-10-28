@@ -56,7 +56,7 @@ const TrialItem = ({ trial }: TrialItemProps) => {
                   });
               }}
             >
-              Turn visible
+              Set visible
             </MenuItem>
             <MenuItem
               disabled={!trialState.isVisible}
@@ -70,7 +70,7 @@ const TrialItem = ({ trial }: TrialItemProps) => {
                   });
               }}
             >
-              Turn hidden
+              Set hidden
             </MenuItem>
           </Box>
         }

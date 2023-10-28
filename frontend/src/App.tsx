@@ -25,6 +25,7 @@ import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 import WebSocketWrapper from "./WebSocketWrapper.tsx";
 import CloseIcon from "@mui/icons-material/Close";
 import ExerciseNavigatorWrapper from "@exercises/exerciseScreen/ExerciseNavigatorWrapper.tsx";
+import ExerciseEditWrapper from "@exercises/exerciseCreation/ExerciseEditWrapper.tsx";
 
 const NotFound = () => {
   return (
@@ -153,6 +154,14 @@ function App() {
                         element={
                           <Container maxWidth={"xl"} style={{ height: "100%" }}>
                             <ExerciseCreationScreen />
+                          </Container>
+                        }
+                      />
+                      <Route
+                        path="/exercises/:exerciseId/edit"
+                        element={
+                          <Container maxWidth={"xl"} style={{ height: "100%" }}>
+                            <ExerciseEditWrapper />
                           </Container>
                         }
                       />
