@@ -19,7 +19,11 @@ import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import { ResourceNotFoundError } from "@error/types.ts";
 import { Exam, isExam, isPractice, Practice, Trial } from "@trials/types.ts";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
-import { intervalToDuration } from "date-fns";
+import {
+  differenceInDays,
+  differenceInMinutes,
+  intervalToDuration,
+} from "date-fns";
 
 const ExerciseNavigatorWrapper = () => {
   const navigate = useNavigate();
@@ -116,17 +120,14 @@ const ExerciseNavigatorWrapper = () => {
         end: trial.deadline,
       });
 
-      if (delta.days != null && delta.days > 1) {
-        setTimeLeft(`${delta.days}d`);
-      } else if (
-        delta.hours != null &&
-        (delta.hours > 0 || delta.days != null)
-      ) {
+      if (differenceInMinutes(trial.deadline, new Date()) < 60) {
+        setTimeLeft(`${delta.minutes}m ${delta.seconds}s`);
+      } else if (differenceInDays(trial.deadline, new Date()) < 2) {
         setTimeLeft(
-          `${delta.hours + 24 * (delta.days ?? 0)}h ${delta.minutes}m`,
+          `${(delta.hours ?? 0) + 24 * (delta.days ?? 0)}h ${delta.minutes}m`,
         );
       } else {
-        setTimeLeft(`${delta.minutes}m ${delta.seconds}s`);
+        setTimeLeft(`${differenceInDays(trial.deadline, new Date())}d`);
       }
     }
     if (isExam(trial)) {
