@@ -23,7 +23,7 @@ import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { enqueueSnackbar } from "notistack";
 import { Exercise, Testcase } from "@exercises/types.ts";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface ExerciseCreationScreenProps {
   originalExercise?: Exercise;
@@ -46,6 +46,7 @@ const ExerciseCreationScreen = ({
     updateTestcase,
   } = useExerciseService();
   const navigate = useNavigate();
+  const { exerciseId } = useParams();
   const [activeStep, setActiveStep] = useState(0);
   const [exercise, setExercise] = useAtom(exerciseAtom);
   const [template, setTemplate] = useAtom(templateAtom);
@@ -77,7 +78,7 @@ const ExerciseCreationScreen = ({
   }, [testcases]);
 
   useEffect(() => {
-    if (originalExercise == null) {
+    if (exerciseId == null) {
       setExercise(getInitializedExercise());
       setTemplate([...getInitializedTemplate()]);
       setTestcases([]);
@@ -88,7 +89,7 @@ const ExerciseCreationScreen = ({
         setTestcases([]);
       };
     }
-  }, [originalExercise, setExercise, setTemplate, setTestcases]);
+  }, [exerciseId, setExercise, setTemplate, setTestcases]);
 
   const handleSubmit = async () => {
     let createdExercise: Exercise;
