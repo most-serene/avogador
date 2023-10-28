@@ -14,7 +14,7 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { User } from "@authentication/types.ts";
 import { Exercise } from "@exercises/types.ts";
 import { format } from "date-fns";
-import { Card, Chip, Skeleton } from "@mui/material";
+import { Card, Chip } from "@mui/material";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { useAtom } from "jotai";
 import { Cancel, CheckCircle, Help } from "@mui/icons-material";
@@ -114,6 +114,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         if (!columns.some((column) => column.field == exercise.id)) {
           columns.push({
             field: exercise.id,
+            align: "center",
             headerName: exercise.name,
             renderCell: (params) =>
               getStatusIcon(
@@ -143,36 +144,32 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         },
       }}
     >
-      {rows != null ? (
-        <DataGrid
-          rows={rows}
-          columns={[...columns]}
-          slots={{ toolbar: GridToolbar }}
-          getRowId={(row) => row.user.id}
-          showColumnVerticalBorder
-          showCellVerticalBorder
-          checkboxSelection
-          disableRowSelectionOnClick
-          density="compact"
-          autoPageSize
-          onCellClick={(cell) => {
-            if (!["enroll", "fullName", "startDate"].includes(cell.field)) {
-              navigate(
-                `/${trial.trialType === "PRACTICE" ? "practice" : "exam"}/${
-                  trial.id
-                }/exercises/${cell.field}/users/${cell.id}`,
-              );
-            }
-          }}
-        />
-      ) : (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height="100%"
-          animation="wave"
-        />
-      )}
+      <DataGrid
+        rows={rows ?? []}
+        loading={rows == null}
+        columns={[...columns]}
+        slots={{ toolbar: GridToolbar }}
+        getRowId={(row) => row.user.id}
+        showColumnVerticalBorder
+        showCellVerticalBorder
+        checkboxSelection
+        disableRowSelectionOnClick
+        density="compact"
+        autoPageSize
+        onCellClick={(cell) => {
+          if (
+            !["enroll", "fullName", "startDate", "__check__"].includes(
+              cell.field,
+            )
+          ) {
+            navigate(
+              `/${trial.trialType === "PRACTICE" ? "practice" : "exam"}/${
+                trial.id
+              }/exercises/${cell.field}/users/${cell.id}`,
+            );
+          }
+        }}
+      />
     </Card>
   );
 };

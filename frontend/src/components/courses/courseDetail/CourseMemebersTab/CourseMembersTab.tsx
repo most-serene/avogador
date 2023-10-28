@@ -10,7 +10,7 @@ import {
   GridToolbar,
 } from "@mui/x-data-grid";
 import { ReactElement, useEffect, useState } from "react";
-import { Card, Skeleton } from "@mui/material";
+import { Card } from "@mui/material";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { CourseMemberDetail, UserCourseDetail } from "@courses/types.ts";
 import { useAtom } from "jotai";
@@ -193,30 +193,22 @@ export default function CourseMembersTab({
         },
       }}
     >
-      {rows != null ? (
-        <DataGrid
-          rows={rows}
-          columns={[...columns, actionsColumn]}
-          slots={{ toolbar: GridToolbar }}
-          showColumnVerticalBorder
-          showCellVerticalBorder
-          checkboxSelection
-          disableRowSelectionOnClick
-          density="compact"
-          autoPageSize
-          columnVisibilityModel={{
-            actions:
-              userCourse?.role !== "STUDENT" && userCourse?.role !== "EXTERNAL",
-          }}
-        />
-      ) : (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height="100%"
-          animation="wave"
-        />
-      )}
+      <DataGrid
+        rows={rows ?? []}
+        loading={rows == null}
+        columns={[...columns, actionsColumn]}
+        slots={{ toolbar: GridToolbar }}
+        showColumnVerticalBorder
+        showCellVerticalBorder
+        checkboxSelection
+        disableRowSelectionOnClick
+        density="compact"
+        autoPageSize
+        columnVisibilityModel={{
+          actions:
+            userCourse?.role !== "STUDENT" && userCourse?.role !== "EXTERNAL",
+        }}
+      />
     </Card>
   );
 }
