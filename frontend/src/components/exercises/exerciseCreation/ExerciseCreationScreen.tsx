@@ -25,15 +25,26 @@ import { enqueueSnackbar } from "notistack";
 import { Exercise, Testcase } from "@exercises/types.ts";
 import { useNavigate } from "react-router-dom";
 
+interface ExerciseCreationScreenProps {
+  originalExercise?: Exercise;
+}
+
 const steps = [
   { label: "General Info", component: <ExerciseCreationInfo /> },
   { label: "Template", component: <ExerciseCreationTemplate /> },
   { label: "Testcases", component: <ExerciseCreationTestcases /> },
 ];
 
-const ExerciseCreationScreen = () => {
-  const { createExercise, createTestcase, createTemplate } =
-    useExerciseService();
+const ExerciseCreationScreen = ({
+  originalExercise,
+}: ExerciseCreationScreenProps) => {
+  const {
+    createExercise,
+    createTestcase,
+    createTemplate,
+    updateExercise,
+    updateTestcase,
+  } = useExerciseService();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [exercise, setExercise] = useAtom(exerciseAtom);
@@ -66,16 +77,19 @@ const ExerciseCreationScreen = () => {
   }, [testcases]);
 
   useEffect(() => {
-    setExercise(getInitializedExercise());
-    setTemplate([...getInitializedTemplate()]);
-    setTestcases([]);
-
-    return () => {
+    if (originalExercise == null) {
       setExercise(getInitializedExercise());
       setTemplate([...getInitializedTemplate()]);
       setTestcases([]);
-    };
-  }, [setExercise, setTemplate, setTestcases]);
+
+      return () => {
+        setExercise(getInitializedExercise());
+        setTemplate([...getInitializedTemplate()]);
+        setTestcases([]);
+      };
+    }
+
+  }, [originalExercise, setExercise, setTemplate, setTestcases]);
 
   const handleSubmit = async () => {
     let createdExercise: Exercise;
@@ -134,6 +148,27 @@ const ExerciseCreationScreen = () => {
     }
   };
 
+  const handleUpdate = async () => {
+    if (originalExercise == null) return;
+    const updatedExercise: Exercise = {
+      ...exercise,
+      id: originalExercise.id,
+      trial: originalExercise.trial,
+    };
+
+    await updateExercise(updatedExercise);
+    await createTemplate(updatedExercise, template);
+
+    for (const testcase of testcases) {
+      if (testcase.id == null) {
+        await createTestcase(updatedExercise.id, testcase);
+      } else {
+        console.log(testcase);
+        await updateTestcase(updatedExercise.id, testcase);
+      }
+    }
+  };
+
   return (
     <>
       <Box height="100%">
@@ -175,28 +210,55 @@ const ExerciseCreationScreen = () => {
           >
             Next
           </Button>
-          <Button
-            variant="outlined"
-            sx={{
-              mx: 1,
-              display: activeStep < steps.length - 1 ? "none" : "block",
-            }}
-            disabled={
-              activeStep != steps.length - 1 || !isTestcasesStepComplete
-            }
-            onClick={() => {
-              handleSubmit()
-                .then(() => {
-                  setCreationStatus("");
-                  navigate(`/practices/${exercise.trialId}`);
-                })
-                .catch((err: Error) => {
-                  enqueueSnackbar(err.message, { variant: "error" });
-                });
-            }}
-          >
-            Create
-          </Button>
+          {originalExercise == null ? (
+            <Button
+              variant="outlined"
+              sx={{
+                mx: 1,
+                display: activeStep < steps.length - 1 ? "none" : "block",
+              }}
+              disabled={
+                activeStep != steps.length - 1 || !isTestcasesStepComplete
+              }
+              onClick={() => {
+                handleSubmit()
+                  .then(() => {
+                    setCreationStatus("");
+                    navigate(`/practices/${exercise.trialId}`);
+                  })
+                  .catch((err: Error) => {
+                    enqueueSnackbar(err.message, { variant: "error" });
+                  });
+              }}
+            >
+              Create
+            </Button>
+          ) : (
+            <Button
+              variant="outlined"
+              sx={{
+                mx: 1,
+                display: activeStep < steps.length - 1 ? "none" : "block",
+              }}
+              disabled={
+                activeStep != steps.length - 1 || !isTestcasesStepComplete
+              }
+              onClick={() => {
+                handleUpdate()
+                  .then(() => {
+                    setCreationStatus("");
+                    navigate(
+                      `/practices/${exercise.trialId}/exercises/${originalExercise.id}`,
+                    );
+                  })
+                  .catch((err: Error) => {
+                    enqueueSnackbar(err.message, { variant: "error" });
+                  });
+              }}
+            >
+              Update
+            </Button>
+          )}
         </Box>
       </Box>
       <Backdrop

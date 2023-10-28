@@ -8,14 +8,14 @@ const getStatusIcon: (status: string) => JSX.Element = (status: string) => {
   switch (status) {
     case "online":
       return (
-        <Tooltip title={status} placement="left">
+        <Tooltip title={"Online"} placement="left">
           <CheckCircle color="success" />
         </Tooltip>
       );
 
     case "offline":
       return (
-        <Tooltip title={status} placement="left">
+        <Tooltip title={"Offline"} placement="left">
           <ErrorIcon color="error" />
         </Tooltip>
       );

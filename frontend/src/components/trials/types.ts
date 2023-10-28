@@ -1,3 +1,5 @@
+import { User } from "@authentication/types.ts";
+
 interface Trial {
   id: string;
   courseId: string;
@@ -26,6 +28,24 @@ function isExam(trial: Trial): trial is Exam {
   return trial.trialType === "EXAM";
 }
 
+interface UserExerciseSummary {
+  submissionId?: string;
+  userId: string;
+  exerciseId: string;
+  status: "CORRECT" | "WRONG" | "PENDING" | "MISSING";
+}
+
+interface UserTrialSummary {
+  user: User;
+  startTime: Date;
+  summary: [
+    {
+      exerciseId: string;
+      status: "CORRECT" | "WRONG" | "PENDING" | "MISSING";
+    },
+  ];
+}
+
 interface UserTrial {
   id: string;
   userId: string;
@@ -36,5 +56,23 @@ interface UserTrial {
   hasExtraTime: boolean;
 }
 
-export type { Trial, Practice, Exam, UserTrial };
+interface UserTrialDetail {
+  id: string;
+  user: User;
+  trialId: string;
+  startTime: Date;
+  finishTime: Date;
+  deadline: Date;
+  hasExtraTime: boolean;
+}
+
+export type {
+  Trial,
+  Practice,
+  Exam,
+  UserTrial,
+  UserExerciseSummary,
+  UserTrialSummary,
+  UserTrialDetail,
+};
 export { isPractice, isExam };

@@ -31,21 +31,21 @@ const TrialDetailExercisesTab = ({
   trial,
   course,
 }: TrialDetailExercisesTabProps) => {
-  const { getExercisesByTrialId } = useExerciseService();
+  const { getExercisesByTrial } = useExerciseService();
   const [exercises, setExercises] = useState<Exercise[]>();
   const [user] = useAtom(userAtom);
   const theme = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getExercisesByTrialId(trial)
+    getExercisesByTrial(trial)
       .then((exercises) => {
         setExercises(exercises);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getExercisesByTrialId, trial]);
+  }, [getExercisesByTrial, trial]);
 
   if (exercises === undefined) {
     return (
@@ -100,8 +100,19 @@ const TrialDetailExercisesTab = ({
         )}
         {exercises
           .filter((exercise) => exercise.isVisible)
-          .map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} trial={trial} />
+          .map((exercise, i) => (
+            <ExerciseCard
+              key={exercise.id}
+              onChange={(e: Exercise) => {
+                setExercises((prevState) => {
+                  if (prevState == null) return undefined;
+                  prevState[i] = e;
+                  return [...prevState];
+                });
+              }}
+              exercise={exercise}
+              trial={trial}
+            />
           ))}
       </Stack>
       {((user != null && user.isSuperuser) ||
@@ -123,9 +134,16 @@ const TrialDetailExercisesTab = ({
           <Stack spacing={2}>
             {exercises
               .filter((exercise) => !exercise.isVisible)
-              .map((exercise) => (
+              .map((exercise, i) => (
                 <ExerciseCard
                   key={exercise.id}
+                  onChange={(e: Exercise) => {
+                    setExercises((prevState) => {
+                      if (prevState == null) return undefined;
+                      prevState[i] = e;
+                      return [...prevState];
+                    });
+                  }}
                   exercise={exercise}
                   trial={trial}
                 />

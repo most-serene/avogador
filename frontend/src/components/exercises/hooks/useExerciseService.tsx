@@ -10,7 +10,7 @@ import {
   SubmissionResultMap,
   Testcase,
 } from "@exercises/types.ts";
-import { Trial } from "@trials/types.ts";
+import { Trial, UserExerciseSummary } from "@trials/types.ts";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 
@@ -72,15 +72,23 @@ const useExerciseService = () => {
     [avogadorApi, user],
   );
 
-  const getExercisesByTrialId: (trial: Trial) => Promise<Exercise[]> =
+  const getExercisesByTrialId: (trialId: string) => Promise<Exercise[]> =
     useCallback(
-      async (trial: Trial) => {
+      async (trialId: string) => {
         const { data: exercises }: { data: Exercise[] } = await avogadorApi.get(
-          `/exercises/trials/${trial.id}`,
+          `/exercises/trials/${trialId}`,
         );
         return exercises;
       },
       [avogadorApi],
+    );
+
+  const getExercisesByTrial: (trial: Trial) => Promise<Exercise[]> =
+    useCallback(
+      async (trial: Trial) => {
+        return getExercisesByTrialId(trial.id);
+      },
+      [getExercisesByTrialId],
     );
 
   const getExerciseById: (exerciseId: string) => Promise<Exercise> =
@@ -105,16 +113,18 @@ const useExerciseService = () => {
       [avogadorApi],
     );
 
-  const getMergedTemplateFromExercise: (exerciseId: string) => Promise<Strox> =
-    useCallback(
-      async (exerciseId: string) => {
-        const { data: template }: { data: Strox } = await avogadorApi.get(
-          `/exercises/${exerciseId}/template?merged=true`,
-        );
-        return template;
-      },
-      [avogadorApi],
-    );
+  const getTemplateFromExercise: (
+    exerciseId: string,
+    merged?: boolean,
+  ) => Promise<Strox> = useCallback(
+    async (exerciseId: string, merged?: boolean) => {
+      const { data: template }: { data: Strox } = await avogadorApi.get(
+        `/exercises/${exerciseId}/template?merged=${merged ?? false}`,
+      );
+      return template;
+    },
+    [avogadorApi],
+  );
 
   const getUserLastSubmissionFromExercise: (
     exerciseId: string,
@@ -133,16 +143,58 @@ const useExerciseService = () => {
     [avogadorApi, user],
   );
 
+  const getExerciseResultSummary: (
+    exerciseId: string,
+  ) => Promise<UserExerciseSummary[]> = useCallback(
+    async (exerciseId: string) => {
+      const { data: summary }: { data: UserExerciseSummary[] } =
+        await avogadorApi.get(`/exercises/${exerciseId}/results`);
+      return summary;
+    },
+    [avogadorApi],
+  );
+
+  const updateExercise: (exercise: Exercise) => Promise<Exercise> = useCallback(
+    async (exercise: Exercise) => {
+      const { data: updatedExercise }: { data: Exercise } =
+        await avogadorApi.put(`/exercises/${exercise.id}`, {
+          ...exercise,
+          trialId: exercise.trialId ?? exercise.trial.id,
+        });
+      return updatedExercise;
+    },
+    [avogadorApi],
+  );
+
+  const updateTestcase: (
+    exerciseId: string,
+    testcase: PartialTestcase,
+  ) => Promise<Testcase> = useCallback(
+    async (exerciseId: string, testcase: PartialTestcase) => {
+      const { data: updatedTestcase }: { data: Testcase } =
+        await avogadorApi.put(
+          `/exercises/${exerciseId}/testcases/${testcase.id}`,
+          testcase,
+        );
+      return updatedTestcase;
+    },
+    [avogadorApi],
+  );
+
   return {
     createExercise,
     createTemplate,
     createTestcase,
     createSubmission,
+    getExercisesByTrial,
     getExercisesByTrialId,
     getExerciseById,
     getTestcasesFromExercise,
-    getMergedTemplateFromExercise,
+    getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
+    getExerciseResultSummary,
+    updateExercise,
+    updateTestcase,
   };
 };
 

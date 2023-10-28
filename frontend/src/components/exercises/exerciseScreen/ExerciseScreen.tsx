@@ -9,21 +9,23 @@ import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
 
-const ExerciseScreen = () => {
+interface ExerciseScreenProps {
+  exerciseId: string;
+}
+
+const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
   const {
     getExerciseById,
     getTestcasesFromExercise,
     getUserLastSubmissionFromExercise,
   } = useExerciseService();
-  const { exerciseId, trialId } = useParams();
+  const { trialId } = useParams();
   const [exercise, setExercise] = useState<Exercise>();
   const [testcases, setTestcases] = useState<Testcase[]>([]);
   const [submissionResult, setSubmissionResult] =
     useState<SubmissionResultMap>();
 
   useEffect(() => {
-    if (exerciseId == null) return;
-
     getExerciseById(exerciseId)
       .then((exercise) => {
         setExercise(exercise);
@@ -54,7 +56,7 @@ const ExerciseScreen = () => {
     getUserLastSubmissionFromExercise,
   ]);
 
-  if (trialId == null || exerciseId == null || exercise == null) {
+  if (trialId == null) {
     return <CircularProgress />;
   }
 

@@ -77,11 +77,18 @@ const SubmissionResultsPopup = ({
   const [results, setResults] = useState<SubmissionResult[]>([]);
 
   useEffect(() => {
-    setVisible(true);
     const keys = Object.keys(submissionResult);
-    if (keys.length === 0) return;
+    if (keys.length === 0) {
+      setVisible(false);
+      return;
+    }
 
+    setVisible(true);
     setResults(submissionResult[keys[0]]);
+
+    return () => {
+      setResults([]);
+    };
   }, [submissionResult]);
 
   return (
@@ -134,6 +141,11 @@ const SubmissionResultsPopup = ({
                   </Box>
                 ))}
               </Box>
+              {results.length === 0 && (
+                <Typography variant="body1">
+                  Solve the problem and make your first submission!
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </Collapse>

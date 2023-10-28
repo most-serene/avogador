@@ -7,6 +7,7 @@ import {
   Practice,
   Trial,
   UserTrial,
+  UserTrialDetail,
 } from "@trials/types.ts";
 import { User } from "@authentication/types.ts";
 import { addMinutes } from "date-fns";
@@ -65,6 +66,15 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  const updatePractice: (practice: Practice) => Promise<Practice> = useCallback(
+    async (practice: Practice) => {
+      const { data: updatedPractice }: { data: Practice } =
+        await avogadorApi.put(`/trials/practices/${practice.id}`, practice);
+      return updatedPractice;
+    },
+    [avogadorApi],
+  );
+
   const getUserTrials: (user: User) => Promise<UserTrial[]> = useCallback(
     async (user: User) => {
       const { data: userTrials }: { data: UserTrial[] } = await avogadorApi.get(
@@ -81,6 +91,16 @@ const useTrialService = () => {
         const { data: userTrial }: { data: UserTrial | null } =
           await avogadorApi.put(`/trials/practices/${practiceId}/join`);
         return userTrial;
+      },
+      [avogadorApi],
+    );
+
+  const getUsersFromTrial: (trial: Trial) => Promise<UserTrialDetail[]> =
+    useCallback(
+      async (trial: Trial) => {
+        const { data: userTrials }: { data: UserTrialDetail[] } =
+          await avogadorApi.get(`/trials/${trial.id}/users`);
+        return userTrials;
       },
       [avogadorApi],
     );
@@ -131,8 +151,10 @@ const useTrialService = () => {
     getUserTrial,
     getTrialsByCourseId,
     createPractice,
+    updatePractice,
     getUserTrials,
     joinPractice,
+    getUsersFromTrial,
     isTrialScheduled,
     isTrialOngoing,
     isTrialEnded,

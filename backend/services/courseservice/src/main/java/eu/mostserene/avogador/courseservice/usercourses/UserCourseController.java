@@ -129,7 +129,14 @@ public class UserCourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
 
-        return userCourseService.getCoursesByUserId(userId, false);
+        if (!user.getIsSuperuser()) {
+            return userCourseService.getCoursesByUserId(userId, false);
+        }
+
+        return courseService.getAll().stream()
+                .map(course -> userCourseService.getUserCourse(userId, course.getId())
+                        .orElseGet(() -> new UserCourse(userId, course, CourseRole.EXTERNAL)))
+                .toList();
     }
 
     /**
