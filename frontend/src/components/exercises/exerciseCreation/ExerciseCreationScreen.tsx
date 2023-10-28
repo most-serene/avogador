@@ -88,7 +88,6 @@ const ExerciseCreationScreen = ({
         setTestcases([]);
       };
     }
-
   }, [originalExercise, setExercise, setTemplate, setTestcases]);
 
   const handleSubmit = async () => {
