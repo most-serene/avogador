@@ -89,7 +89,6 @@ const ExerciseCreationScreen = ({
       };
     }
 
-    console.log("CIAO!");
   }, [originalExercise, setExercise, setTemplate, setTestcases]);
 
   const handleSubmit = async () => {
