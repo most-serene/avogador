@@ -133,8 +133,10 @@ public class UserCourseController {
             return userCourseService.getCoursesByUserId(userId, false);
         }
 
-        return courseService.getAll()
-                .stream().map(course -> new UserCourse(userId, course, CourseRole.EXTERNAL)).toList();
+        return courseService.getAll().stream()
+                .map(course -> userCourseService.getUserCourse(userId, course.getId())
+                        .orElseGet(() -> new UserCourse(userId, course, CourseRole.EXTERNAL)))
+                .toList();
     }
 
     /**
