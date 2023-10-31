@@ -40,7 +40,6 @@ const SubmissionEditor = ({
   const [trial, setTrial] = useState<Trial>();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [template, setTemplate] = useState<Strox>();
   const theme = useTheme();
 
   const handleChange = (value: string | undefined, i: number) => {
@@ -49,6 +48,7 @@ const SubmissionEditor = ({
     }
     const cells = strox.cells;
     cells[i].content = value;
+    localStorage.setItem(`sub-${exerciseId}`, JSON.stringify(cells));
     setStrox({ ...strox, cells: cells });
     updateCellsSize(cells);
   };
@@ -127,54 +127,53 @@ const SubmissionEditor = ({
   };
 
   useEffect(() => {
-    if (strox == null || strox === template) return;
-    localStorage.setItem(`sub-${exerciseId}`, JSON.stringify(strox.cells));
-  }, [exerciseId, strox, template]);
-
-  useEffect(() => {
+    let snackbarKey: string | number;
     getTemplateFromExercise(exerciseId, true)
       .then((responseTemplate) => {
         setStrox(responseTemplate);
-        setTemplate(responseTemplate);
         updateCellsSize(responseTemplate.cells);
 
         if (localStorage.getItem(`sub-${exerciseId}`) != null) {
-          enqueueSnackbar("You have local changes, wanna load them?", {
-            variant: "info",
-            action: (snackbarId) => (
-              <>
-                <IconButton
-                  onClick={() => {
-                    const storedCells = localStorage.getItem(
-                      `sub-${exerciseId}`,
-                    );
-                    if (storedCells == null) return;
-                    const parsedStoredCells: StroxCell[] = JSON.parse(
-                      storedCells,
-                    ) as StroxCell[];
+          snackbarKey = enqueueSnackbar(
+            "You have local changes, wanna load them?",
+            {
+              variant: "info",
+              preventDuplicate: false,
+              action: (snackbarId) => (
+                <>
+                  <IconButton
+                    onClick={() => {
+                      const storedCells = localStorage.getItem(
+                        `sub-${exerciseId}`,
+                      );
+                      if (storedCells == null) return;
+                      const parsedStoredCells: StroxCell[] = JSON.parse(
+                        storedCells,
+                      ) as StroxCell[];
 
-                    if (localStorage.getItem(`sub-${exerciseId}`) != null) {
-                      setStrox({
-                        ...responseTemplate,
-                        cells: parsedStoredCells,
-                      });
-                    }
-                    closeSnackbar(snackbarId);
-                  }}
-                >
-                  <CheckIcon />
-                </IconButton>
-                <IconButton
-                  onClick={() => {
-                    closeSnackbar(snackbarId);
-                    localStorage.removeItem(`sub-${exerciseId}`);
-                  }}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </>
-            ),
-          });
+                      if (localStorage.getItem(`sub-${exerciseId}`) != null) {
+                        setStrox({
+                          ...responseTemplate,
+                          cells: parsedStoredCells,
+                        });
+                      }
+                      closeSnackbar(snackbarId);
+                    }}
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      closeSnackbar(snackbarId);
+                      localStorage.removeItem(`sub-${exerciseId}`);
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </>
+              ),
+            },
+          );
         }
       })
       .catch((err: Error) => {
@@ -188,7 +187,9 @@ const SubmissionEditor = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
+
     return () => {
+      closeSnackbar(snackbarKey);
       setStrox(undefined);
     };
   }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
