@@ -155,6 +155,22 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
     }
 
+    @Override
+    public Optional<Strox> getSubmissionStrox(Submission submission) {
+        Strox submissionStrox = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://filesystem/courses/" + submission.getExercise().getTrial().getCourseId() +
+                                "/trials/ " + submission.getExercise().getTrial().getId() +
+                                "/exercises/" + submission.getExercise().getId() +
+                                "/submissions/" + submission.getId() + "/strox",
+                        Strox.class);
+
+        if (submissionStrox == null){
+            return Optional.empty();
+        }
+        return Optional.of(submissionStrox);
+    }
+
     public Optional<Strox> getExerciseTemplate(Exercise exercise) {
         Strox stroxTemplate = new RestTemplateBuilder()
                 .build()
