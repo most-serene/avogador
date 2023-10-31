@@ -4,12 +4,14 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class Strox {
     private String sourceFileName;
     private List<StroxCell> cells;
     private String path;
+    private Map<String, String> outputs;
 
     public Strox() {
     }

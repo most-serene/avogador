@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.filesystemservice.strox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+@Service
 public class StroxStorageImpl implements StroxStorage {
     @Override
     public void saveToFile(Strox strox) {

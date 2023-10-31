@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 public class ExerciseStorageImpl implements ExerciseStorage {
@@ -109,6 +106,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         StroxStorage stroxStorage = new StroxStorageImpl();
         File submissionFolder = createSubmissionFolder(submissionId);
         submission.setPath(submissionFolder + "/submission.strox");
+        submission.setOutputs(new HashMap<>());
         stroxStorage.saveToFile(submission);
         String sourceCode = Strox.merge(getTemplate()
                         .orElseThrow(() -> new FileNotFoundException("Template of exercise " + submissionId + " not found")), submission)

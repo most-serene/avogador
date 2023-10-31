@@ -6,7 +6,11 @@ import eu.mostserene.avogador.filesystemservice.courses.CourseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.filesystemservice.exercises.ExerciseTemplateDTO;
+import eu.mostserene.avogador.filesystemservice.strox.Strox;
+import eu.mostserene.avogador.filesystemservice.strox.StroxStorage;
+import eu.mostserene.avogador.filesystemservice.strox.StroxStorageImpl;
 import eu.mostserene.avogador.filesystemservice.submission.SubmissionDTO;
+import eu.mostserene.avogador.filesystemservice.submission.SubmissionOutputDto;
 import eu.mostserene.avogador.filesystemservice.submission.SubmissionSavedDTO;
 import eu.mostserene.avogador.filesystemservice.testcases.TestcaseDTO;
 import eu.mostserene.avogador.filesystemservice.trials.TrialDTO;
@@ -15,14 +19,19 @@ import eu.mostserene.avogador.filesystemservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 public class Receiver implements MessageListener {
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private StroxStorage stroxStorage;
 
     private void handleMessage(Message message) {
         switch (message.getMessageProperties().getReceivedRoutingKey()) {
@@ -32,6 +41,7 @@ public class Receiver implements MessageListener {
             case "fs.exercise.create" -> exerciseCreationHandler(message);
             case "fs.template.create" -> exerciseTemplateCreationHandler(message);
             case "fs.submission.create" -> submissionCreationHandler(message);
+            case "fs.submission.output" -> submissionSaveOutputHandler(message);
             case "fs.testcase.create" -> testcaseCreationHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
@@ -78,6 +88,28 @@ public class Receiver implements MessageListener {
 
             (new Sender()).send("exercises", "exercises.submission.save",
                     mapper.writeValueAsString(new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO.getSubmission())));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void submissionSaveOutputHandler(Message message) {
+        try {
+            SubmissionOutputDto submissionDTO = mapper.readValue(message.getBody(), SubmissionOutputDto.class);
+            Strox strox = ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
+                    .getSubmissionStrox(submissionDTO.getSubmissionId())
+                    .orElseThrow(RuntimeException::new);
+
+            strox.getOutputs().put(submissionDTO.getTestcaseId(), submissionDTO.getExecutionOutput());
+
+            stroxStorage.saveToFile(strox);
+
+            /*
+
+            (new Sender()).send("exercises", "exercises.submission.save",
+                    mapper.writeValueAsString(new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO)));
+
+             */
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
