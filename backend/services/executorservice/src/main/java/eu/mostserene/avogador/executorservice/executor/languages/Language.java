@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import eu.mostserene.avogador.executorservice.submission.Submission;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 
@@ -12,7 +13,7 @@ public interface Language {
 
     String getSupportedExtension();
 
-    File compile(DockerClient dockerClient, File sourceCode);
+    Pair<File, String> compile(DockerClient dockerClient, File sourceCode);
 
     CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, Submission submission);
 

@@ -3,13 +3,16 @@ package eu.mostserene.avogador.filesystemservice.strox;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class Strox {
     private String sourceFileName;
     private List<StroxCell> cells;
     private String path;
+    private Map<String, String> outputs = new HashMap<>();
 
     static public Strox merge(Strox template, Strox submission) {
         Strox merged = new Strox();

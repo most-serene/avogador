@@ -1,19 +1,27 @@
 package eu.mostserene.avogador.executorservice.executor.languages;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.WaitResponse;
+import eu.mostserene.avogador.executorservice.amqp.Sender;
+import eu.mostserene.avogador.executorservice.executor.CodeExecutor;
 import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class JavaLang implements Language {
@@ -28,7 +36,7 @@ public class JavaLang implements Language {
     }
 
     @Override
-    public File compile(DockerClient dockerClient, File sourceCode) {
+    public Pair<File, String> compile(DockerClient dockerClient, File sourceCode) {
         log.info(LoggerColors.warn("Compiling Java: " + sourceCode));
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
                 .withCmd("/bin/bash", "-c", "javac -d /execution /" + sourceCode.getName())
@@ -43,6 +51,7 @@ public class JavaLang implements Language {
                 .exec();
 
         dockerClient.startContainerCmd(compilerDocker.getId()).exec();
+        ByteArrayOutputStream compilerOutputStream = new ByteArrayOutputStream();
         try {
             dockerClient.waitContainerCmd(compilerDocker.getId()).exec(new ResultCallback.Adapter<>() {
                 @Override
@@ -50,6 +59,23 @@ public class JavaLang implements Language {
                     super.onNext(object);
                 }
             }).awaitCompletion();
+
+
+            dockerClient.logContainerCmd(compilerDocker.getId())
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .withFollowStream(false)
+                    .exec(new ResultCallback.Adapter<>() {
+                        @Override
+                        public void onNext(Frame object) {
+                            super.onNext(object);
+                            try {
+                                compilerOutputStream.write(object.getPayload());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }).awaitCompletion();
 
             InputStream inputStream = dockerClient.copyArchiveFromContainerCmd(compilerDocker.getId(), "/execution")
                     .exec();
@@ -74,7 +100,7 @@ public class JavaLang implements Language {
             throw new RuntimeException(e);
         }
 
-        return new File(sourceCode.getParent() + "/program/execution");
+        return Pair.of(new File(sourceCode.getParent() + "/program/execution"), compilerOutputStream.toString(StandardCharsets.UTF_8));
     }
 
     @Override

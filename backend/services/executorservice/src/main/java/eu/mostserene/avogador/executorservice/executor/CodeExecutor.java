@@ -19,6 +19,7 @@ import eu.mostserene.avogador.executorservice.amqp.Sender;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
 import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
 import eu.mostserene.avogador.executorservice.submission.SubmissionResult;
 import eu.mostserene.avogador.executorservice.submission.SubmissionStatus;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
@@ -26,6 +27,7 @@ import eu.mostserene.avogador.executorservice.utils.LoggerUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.reflections.Reflections;
@@ -168,15 +170,20 @@ public class CodeExecutor {
             }
 
             File executable = null;
+            String compileOutput = null;
 
             try {
-                executable = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
+                Pair<File, String> compiled = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
+
+                executable = compiled.getLeft();
+                compileOutput = compiled.getRight();
 
                 if (!executable.exists() || (executable.isDirectory() && Objects.requireNonNull(executable.list()).length == 0)) {
                     log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
                     submission.getTestcases()
                             .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
                                     testcase, SubmissionStatus.COMPILE_ERROR)));
+                    postOutput(new SubmissionOutput(submission, "compile", compileOutput));
                     return;
                 }
 
@@ -193,9 +200,11 @@ public class CodeExecutor {
                 submission.getTestcases()
                         .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
                                 testcase, SubmissionStatus.COMPILE_ERROR)));
+                postOutput(new SubmissionOutput(submission, "compile", compileOutput));
                 return;
             }
             log.info(LoggerColors.success("Submission " + submission.getId() + ": Compiled successfully"));
+            postOutput(new SubmissionOutput(submission, "compile", compileOutput));
 
             File finalExecutable = executable;
             submission.getTestcases()
@@ -225,7 +234,7 @@ public class CodeExecutor {
         }
     }
 
-    private File compile(File sourceCode) {
+    private Pair<File, String> compile(File sourceCode) {
         return languages.stream()
                 .filter(language -> language.getSupportedExtension()
                         .equals(FilenameUtils.getExtension(sourceCode.getName())))
@@ -260,6 +269,7 @@ public class CodeExecutor {
         log.info(LoggerColors.cyan("Submission " + submission.getId() +
                 " Testcase " + testcaseId + " Expected output:\n" + expectedOutput));
 
+        postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
         boolean result = executionOutput.equals(expectedOutput);
 
         log.info(result ?
@@ -358,8 +368,11 @@ public class CodeExecutor {
                 log.info(LoggerColors.error(errorStream.toString()));
                 if (errorStream.toString(StandardCharsets.UTF_8).contains("timeout: sending signal TERM to command")) {
                     submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
+                    postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
                 } else {
                     submissionResult.setStatus(SubmissionStatus.RUNTIME_ERROR);
+                    postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
+                            errorStream.toString(StandardCharsets.UTF_8)));
                 }
             }
 
@@ -376,6 +389,17 @@ public class CodeExecutor {
         try {
             (new Sender()).send("exercises", "exercises.submission.result",
                     mapper.writeValueAsString(submissionResult));
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void postOutput(SubmissionOutput submissionOutput) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            (new Sender()).send("filesystem", "fs.submission.output",
+                    mapper.writeValueAsString(submissionOutput));
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
