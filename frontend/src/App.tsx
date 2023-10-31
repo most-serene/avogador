@@ -92,7 +92,7 @@ function App() {
                 <MobileWrapper>
                   <Box
                     id="fullScreenWrapper"
-                    height={`calc(100vh - ${occupiedHeight}px)`}
+                    height={`calc(100dvh - ${occupiedHeight}px)`}
                   >
                     <Routes>
                       <Route
