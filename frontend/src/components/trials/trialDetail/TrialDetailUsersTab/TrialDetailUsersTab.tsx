@@ -24,7 +24,7 @@ interface TrialDetailUsersTabProps {
   trial: Trial;
 }
 
-const columns: GridColDef<UserTrialSummary>[] = [
+const staticColumns: GridColDef<UserTrialSummary>[] = [
   {
     field: "enroll",
     headerName: "Enroll No.",
@@ -59,7 +59,9 @@ const getMissingSubmission = (
   };
 };
 
-const getStatusIcon = (status: "CORRECT" | "WRONG" | "PENDING" | "MISSING") => {
+const getStatusIcon = (
+  status: "CORRECT" | "WRONG" | "PENDING" | "MISSING" | undefined,
+) => {
   switch (status) {
     case "CORRECT":
       return <Chip icon={<CheckCircle />} label="Correct" color="success" />;
@@ -67,7 +69,7 @@ const getStatusIcon = (status: "CORRECT" | "WRONG" | "PENDING" | "MISSING") => {
       return <Chip icon={<Cancel />} label="Wrong" color="error" />;
     case "PENDING":
       return <Chip icon={<Help />} label="Pending" color="warning" />;
-    case "MISSING":
+    default:
       return <Chip icon={<Help />} label="Missing" color="secondary" />;
   }
 };
@@ -79,6 +81,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
     useExerciseService();
   const { getUsersFromTrial } = useTrialService();
   const [rows, setRows] = useState<GridRowsProp<UserTrialSummary>>();
+  const [columns, setColumns] = useState(staticColumns);
 
   useEffect(() => {
     const generateRows = async () => {
@@ -110,22 +113,29 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         }),
       );
 
-      exercises.forEach((exercise) => {
-        if (!columns.some((column) => column.field == exercise.id)) {
-          columns.push({
-            field: exercise.id,
-            align: "center",
-            headerName: exercise.name,
-            renderCell: (params) =>
-              getStatusIcon(
-                params.row.summary.filter(
-                  (summary) => summary.exerciseId === exercise.id,
-                )[0].status,
-              ),
-            flex: 1,
+      if (Object.keys(summaries).length > 0) {
+        exercises.forEach((exercise) => {
+          setColumns((columns) => {
+            if (columns.some((column) => column.field == exercise.id))
+              return [...columns];
+            return [
+              ...columns,
+              {
+                field: exercise.id,
+                align: "center",
+                headerName: exercise.name,
+                renderCell: (params) =>
+                  getStatusIcon(
+                    params.row.summary.filter(
+                      (summary) => summary.exerciseId === exercise.id,
+                    )[0].status,
+                  ),
+                flex: 1,
+              },
+            ];
           });
-        }
-      });
+        });
+      }
     };
 
     generateRows().catch((err: Error) => {
