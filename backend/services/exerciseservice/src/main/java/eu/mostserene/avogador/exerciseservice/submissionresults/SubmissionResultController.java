@@ -143,14 +143,11 @@ public class SubmissionResultController {
                 .orElseThrow(NotFoundException::new)
                 .getOutputs();
 
+        boolean canSeeHidden = user.getIsSuperuser() || courseRole.canSeeHiddenExercises();
+
         testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()
-                .filter(testcase -> {
-                    boolean canSeeHidden = user.getIsProfessor() || user.getIsSuperuser() ||
-                            courseRole.canSeeHiddenExercises();
-
-                    return !testcase.getIsVisible() && !canSeeHidden;
-                })
+                .filter(testcase -> !testcase.getIsVisible() && !canSeeHidden)
                 .forEach(testcase -> outputs.remove(testcase.getId().toString()));
 
         return outputs;
