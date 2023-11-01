@@ -3,9 +3,12 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
@@ -32,6 +35,10 @@ public class SubmissionResultController {
     private SubmissionService submissionService;
     @Autowired
     private UserTrialService userTrialService;
+    @Autowired
+    private FileSystemService fileSystemService;
+    @Autowired
+    private TestcaseService testcaseService;
 
 
     @GetMapping("/users/{userId}/results")
@@ -113,6 +120,40 @@ public class SubmissionResultController {
         }
 
         return submissionResultService.getResultsFromSubmission(submission);
+    }
+
+    @GetMapping("/submissions/{submissionId}/outputs")
+    private Map<String, String> getSubmissionOutputs(
+            @RequestHeader(name = "User") UserDto user,
+            @PathVariable UUID exerciseId,
+            @PathVariable UUID submissionId
+    ) {
+        var exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+        var submission = submissionService.getSubmission(submissionId)
+                .orElseThrow(NotFoundException::new);
+
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())){
+            throw new ForbiddenException(user);
+        }
+
+        Map<String, String> outputs = fileSystemService.getSubmissionStrox(submission)
+                .orElseThrow(NotFoundException::new)
+                .getOutputs();
+
+        testcaseService.getSimpleTestcasesFromExercise(exercise)
+                .stream()
+                .filter(testcase -> {
+                    boolean canSeeHidden = user.getIsProfessor() || user.getIsSuperuser() ||
+                            courseRole.canSeeHiddenExercises();
+
+                    return !testcase.getIsVisible() && !canSeeHidden;
+                })
+                .forEach(testcase -> outputs.remove(testcase.getId().toString()));
+
+        return outputs;
     }
 
 
