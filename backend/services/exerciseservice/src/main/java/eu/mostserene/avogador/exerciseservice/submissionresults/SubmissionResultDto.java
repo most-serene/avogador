@@ -1,9 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
-import eu.mostserene.avogador.exerciseservice.submissions.Submission;
-import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.UUID;
@@ -14,6 +10,7 @@ public class SubmissionResultDto {
     private UUID submissionId;
     private UUID testcaseId;
     private SubmissionStatus status;
+    private String output;
 
     public SubmissionResultDto() {
     }
