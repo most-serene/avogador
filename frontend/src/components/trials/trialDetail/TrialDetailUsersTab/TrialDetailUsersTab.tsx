@@ -124,6 +124,10 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
                 field: exercise.id,
                 align: "center",
                 headerName: exercise.name,
+                valueGetter: (params) =>
+                  params.row.summary.filter(
+                    (summary) => summary.exerciseId === exercise.id,
+                  )[0].status,
                 renderCell: (params) =>
                   getStatusIcon(
                     params.row.summary.filter(

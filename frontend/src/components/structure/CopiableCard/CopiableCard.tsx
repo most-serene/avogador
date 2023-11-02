@@ -17,7 +17,17 @@ const CopiableCard = ({ children: text, fontFamily }: CopiableCardProps) => {
         <CopyAll />
       </IconButton>
       <Card sx={{ p: 2 }}>
-        <Typography fontFamily={fontFamily ?? ""}>{text}</Typography>
+        <Typography
+          fontFamily={fontFamily ?? ""}
+          className="hidden-scrollbar"
+          sx={{
+            whiteSpace: "pre-wrap",
+            maxHeight: "15rem",
+            overflowY: "scroll",
+          }}
+        >
+          {text}
+        </Typography>
       </Card>
     </Box>
   );
