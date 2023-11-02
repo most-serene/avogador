@@ -15,6 +15,7 @@ import { CourseDetail } from "@courses/types.ts";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 import TrialDetailUsersTab from "@trials/trialDetail/TrialDetailUsersTab/TrialDetailUsersTab.tsx";
+import TrialDetailSettingsTab from "@trials/trialDetail/TrialDetailSettingsTab/TrialDetailSettingsTab.tsx";
 
 const tabs = ["Exercises", "Users", "Settings"];
 
@@ -63,30 +64,28 @@ const TrialDetailCollaboratorScreen = ({
           <Tab key={i} label={tab} />
         ))}
       </Tabs>
-      <Container maxWidth={false}>
+      <Container maxWidth={false} sx={{ height: "100%" }}>
         <Box display={"flex"} justifyContent={"center"}>
-          <Box>
-            <Typography
-              ref={trialTitleRef}
-              id="trialTitle"
-              variant="h3"
-              align="center"
+          <Typography
+            ref={trialTitleRef}
+            id="trialTitle"
+            variant="h3"
+            align="center"
+          >
+            {trial.name}
+          </Typography>
+          <Box style={{ position: "absolute", left: "8rem", top: "5rem" }}>
+            <Button
+              variant={"outlined"}
+              onClick={() => {
+                navigate(`/courses/${course.id}?tab=1`);
+              }}
             >
-              {trial.name}
-            </Typography>
-            <Box style={{ position: "absolute", left: "8rem", top: "5rem" }}>
-              <Button
-                variant={"outlined"}
-                onClick={() => {
-                  navigate(`/courses/${course.id}?tab=1`);
-                }}
-              >
-                <ArrowBackIosNewIcon />
-                {course.name.length > 25
-                  ? course.name.substring(0, 25) + "..."
-                  : course.name}
-              </Button>
-            </Box>
+              <ArrowBackIosNewIcon />
+              {course.name.length > 25
+                ? course.name.substring(0, 25) + "..."
+                : course.name}
+            </Button>
           </Box>
         </Box>
         <TabPanel
@@ -108,7 +107,7 @@ const TrialDetailCollaboratorScreen = ({
           index={2}
           occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
         >
-          <>Settings tab</>
+          <TrialDetailSettingsTab trial={trial} />
         </TabPanel>
       </Container>
     </Box>
