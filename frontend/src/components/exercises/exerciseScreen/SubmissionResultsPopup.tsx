@@ -87,8 +87,24 @@ const ResultButton = ({
   selected,
   onClick: handleClick,
 }: ResultButtonProps) => {
-  if (output == null || status === "PENDING") {
-    return <Box margin={0.5}>{getResultBadge(status)}</Box>;
+  if (status === "PENDING") {
+    return <Box margin={0.75}>{getResultBadge(status)}</Box>;
+  }
+  if (output == null) {
+    return (
+      <Box
+        margin={0.5}
+        width="1.75rem"
+        height="1.75rem"
+        border={6}
+        borderColor="rgba(0,0,0,0)"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        {getResultBadge(status)}
+      </Box>
+    );
   }
   return (
     <Box
