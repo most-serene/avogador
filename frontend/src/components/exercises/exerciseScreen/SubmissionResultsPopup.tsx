@@ -23,6 +23,10 @@ import {
   SubmissionResult,
   SubmissionResultMap,
 } from "@exercises/types.ts";
+import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
+import { useParams } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
+import CopiableCard from "@structure/CopiableCard/CopiableCard.tsx";
 
 interface SubmissionResultsPopupProps {
   exerciseId?: string;
@@ -70,11 +74,84 @@ const getResultBadge = (status: SubmissionStatus) => {
   }
 };
 
+interface ResultButtonProps {
+  status: SubmissionStatus;
+  output: string | undefined;
+  onClick: () => void;
+  selected: boolean;
+}
+
+const ResultButton = ({
+  status,
+  output,
+  selected,
+  onClick: handleClick,
+}: ResultButtonProps) => {
+  if (status === "PENDING") {
+    return <Box margin={0.75}>{getResultBadge(status)}</Box>;
+  }
+  if (output == null) {
+    return (
+      <Box
+        margin={0.5}
+        width="1.75rem"
+        height="1.75rem"
+        border={6}
+        borderColor="rgba(0,0,0,0)"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        {getResultBadge(status)}
+      </Box>
+    );
+  }
+  return (
+    <Box
+      margin={0.5}
+      sx={{
+        width: "1.75rem",
+        height: "1.75rem",
+        border: 6,
+        borderColor: selected ? "primary.main" : "secondary.dark",
+        borderRadius: "100%",
+      }}
+    >
+      <CardActionArea
+        sx={{
+          ml: "-6px",
+          mt: "-6px",
+          width: "1.75rem",
+          height: "1.75rem",
+          display: "flex",
+          justifyContent: "center",
+          position: "relative",
+        }}
+        onClick={handleClick}
+      >
+        {getResultBadge(status)}
+      </CardActionArea>
+    </Box>
+  );
+};
+
 const SubmissionResultsPopup = ({
   submissionResult,
 }: SubmissionResultsPopupProps) => {
+  const { getSubmissionOutputs } = useExerciseService();
+  const { exerciseId } = useParams();
   const [visible, setVisible] = useState(false);
   const [results, setResults] = useState<SubmissionResult[]>([]);
+  const [outputs, setOutputs] = useState<Record<string, string>>({});
+  const [selectedResult, setSelectedResult] = useState("");
+
+  const handleSelectResult = (id: string) => {
+    if (selectedResult === id) {
+      setSelectedResult("");
+    } else {
+      setSelectedResult(id);
+    }
+  };
 
   useEffect(() => {
     const keys = Object.keys(submissionResult);
@@ -85,11 +162,31 @@ const SubmissionResultsPopup = ({
 
     setVisible(true);
     setResults(submissionResult[keys[0]]);
+    if (
+      !submissionResult[keys[0]].some(
+        (submissionResult) => submissionResult.status === "PENDING",
+      ) &&
+      exerciseId != null
+    ) {
+      getSubmissionOutputs(exerciseId, keys[0])
+        .then((outputs) => {
+          setOutputs(outputs);
+          if (outputs.compile !== "") {
+            setSelectedResult("compile");
+          }
+        })
+        .catch((err: Error) => {
+          enqueueSnackbar(err.message, { variant: "error" });
+        });
+    } else {
+      setSelectedResult("");
+      setOutputs({});
+    }
 
     return () => {
       setResults([]);
     };
-  }, [submissionResult]);
+  }, [exerciseId, getSubmissionOutputs, submissionResult]);
 
   return (
     <>
@@ -136,11 +233,25 @@ const SubmissionResultsPopup = ({
               <Typography variant="h5">Last Submission Results</Typography>
               <Box display="flex" flexWrap="wrap">
                 {results.map((result) => (
-                  <Box key={result.id} margin={0.5}>
-                    {getResultBadge(result.status)}
-                  </Box>
+                  <ResultButton
+                    key={result.id}
+                    status={result.status}
+                    output={outputs[result.testcaseId]}
+                    onClick={() => {
+                      handleSelectResult(result.testcaseId);
+                    }}
+                    selected={result.testcaseId === selectedResult}
+                  />
                 ))}
               </Box>
+              <Collapse in={selectedResult !== ""}>
+                <Typography variant="body1" fontWeight="bold">
+                  Your output
+                </Typography>
+                <CopiableCard fontFamily="monospace">
+                  {outputs[selectedResult]}
+                </CopiableCard>
+              </Collapse>
               {results.length === 0 && (
                 <Typography variant="body1">
                   Solve the problem and make your first submission!

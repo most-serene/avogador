@@ -154,6 +154,20 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const getSubmissionOutputs: (
+    exerciseId: string,
+    submissionId: string,
+  ) => Promise<Record<string, string>> = useCallback(
+    async (exerciseId: string, submissionId: string) => {
+      const { data: submission }: { data: Record<string, string> } =
+        await avogadorApi.get(
+          `/exercises/${exerciseId}/submissions/${submissionId}/outputs`,
+        );
+      return submission;
+    },
+    [avogadorApi],
+  );
+
   const updateExercise: (exercise: Exercise) => Promise<Exercise> = useCallback(
     async (exercise: Exercise) => {
       const { data: updatedExercise }: { data: Exercise } =
@@ -193,6 +207,7 @@ const useExerciseService = () => {
     getTemplateFromExercise,
     getUserLastSubmissionFromExercise,
     getExerciseResultSummary,
+    getSubmissionOutputs,
     updateExercise,
     updateTestcase,
   };
