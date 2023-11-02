@@ -25,7 +25,7 @@ import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { UserCourse } from "@courses/types.ts";
 import { DateTimePicker } from "@mui/x-date-pickers";
-import { addDays } from "date-fns";
+import { addDays, setSeconds } from "date-fns";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 
 const TrialCreationScreen = () => {
@@ -265,7 +265,7 @@ const TrialCreationScreen = () => {
                       disablePast
                       value={startDate}
                       onChange={(newVal) => {
-                        if (newVal) setStartDate(newVal);
+                        if (newVal) setStartDate(setSeconds(newVal, 0));
                       }}
                       label="Start timestamp"
                       maxDate={deadline}
@@ -277,7 +277,7 @@ const TrialCreationScreen = () => {
                       ampm={false}
                       value={deadline}
                       onChange={(newVal) => {
-                        if (newVal) setDeadline(newVal);
+                        if (newVal) setDeadline(setSeconds(newVal, 0));
                       }}
                       disablePast
                       label="Deadline"
