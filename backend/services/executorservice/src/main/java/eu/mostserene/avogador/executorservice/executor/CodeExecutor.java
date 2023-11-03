@@ -178,7 +178,7 @@ public class CodeExecutor {
                 executable = compiled.getLeft();
                 compileOutput = compiled.getRight();
 
-                if (!executable.exists() || (executable.isDirectory() && Objects.requireNonNull(executable.list()).length == 0)) {
+                if (executable == null || !executable.exists() || (executable.isDirectory() && Objects.requireNonNull(executable.list()).length == 0)) {
                     log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
                     submission.getTestcases()
                             .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
@@ -403,18 +403,6 @@ public class CodeExecutor {
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static final class TLEDetector {
-        private boolean detected;
-
-        public void detect() {
-            detected = true;
-        }
-
-        public boolean wasDetected() {
-            return detected;
         }
     }
 }
