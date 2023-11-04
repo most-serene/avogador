@@ -23,22 +23,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Slf4j
-public class CLang implements Language {
+public class CPPLang implements Language {
     @Override
     public String getName() {
-        return "C";
+        return "CPP";
     }
 
     @Override
     public String getSupportedExtension() {
-        return "c";
+        return "cpp";
     }
 
     @Override
     public Pair<File, String> compile(DockerClient dockerClient, File sourceCode) {
-        log.info(LoggerColors.warn("Compiling c: " + sourceCode));
+        log.info(LoggerColors.warn("Compiling c++: " + sourceCode));
         CreateContainerResponse compilerDocker = dockerClient.createContainerCmd("gotti27/runtime-env:stable")
-                .withCmd("gcc", "-o", "/execution/program", "/" + sourceCode.getName()) //, "-lstdc++")
+                .withCmd("g++", "-o", "/execution/program", "/" + sourceCode.getName()) //, "-lstdc++")
                 .withNetworkDisabled(true)
                 .exec();
 
@@ -146,6 +146,4 @@ public class CLang implements Language {
 
         return container;
     }
-
-
 }
