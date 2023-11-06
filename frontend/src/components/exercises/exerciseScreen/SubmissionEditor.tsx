@@ -6,16 +6,14 @@ import {
 } from "@exercises/types.ts";
 import { Editor } from "@monaco-editor/react";
 import React, { useEffect, useState } from "react";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { enqueueSnackbar } from "notistack";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
-import { Button, CircularProgress, IconButton, useTheme } from "@mui/material";
+import { Button, CircularProgress, useTheme } from "@mui/material";
 import Box from "@mui/material/Box";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
 import { Trial } from "@trials/types.ts";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -115,66 +113,11 @@ const SubmissionEditor = ({
       });
   };
 
-  const handleReset = () => {
-    getTemplateFromExercise(exerciseId)
-      .then((template) => {
-        setStrox(template);
-        updateCellsSize(template.cells);
-      })
-      .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
-      });
-  };
-
   useEffect(() => {
-    let snackbarKey: string | number;
     getTemplateFromExercise(exerciseId, true)
       .then((responseTemplate) => {
         setStrox(responseTemplate);
         updateCellsSize(responseTemplate.cells);
-
-        if (localStorage.getItem(`sub-${exerciseId}`) != null) {
-          snackbarKey = enqueueSnackbar(
-            "You have local changes, wanna load them?",
-            {
-              variant: "info",
-              preventDuplicate: false,
-              action: (snackbarId) => (
-                <>
-                  <IconButton
-                    onClick={() => {
-                      const storedCells = localStorage.getItem(
-                        `sub-${exerciseId}`,
-                      );
-                      if (storedCells == null) return;
-                      const parsedStoredCells: StroxCell[] = JSON.parse(
-                        storedCells,
-                      ) as StroxCell[];
-
-                      if (localStorage.getItem(`sub-${exerciseId}`) != null) {
-                        setStrox({
-                          ...responseTemplate,
-                          cells: parsedStoredCells,
-                        });
-                      }
-                      closeSnackbar(snackbarId);
-                    }}
-                  >
-                    <CheckIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => {
-                      closeSnackbar(snackbarId);
-                      localStorage.removeItem(`sub-${exerciseId}`);
-                    }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </>
-              ),
-            },
-          );
-        }
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -189,7 +132,6 @@ const SubmissionEditor = ({
       });
 
     return () => {
-      closeSnackbar(snackbarKey);
       setStrox(undefined);
     };
   }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
@@ -200,7 +142,13 @@ const SubmissionEditor = ({
 
   return (
     <Box position="relative" height="100%">
-      <EditorToolbar onReset={handleReset} strox={strox} />
+      <EditorToolbar
+        strox={strox}
+        setStrox={(updatedStrox: Strox) => {
+          setStrox(updatedStrox);
+          updateCellsSize(updatedStrox.cells);
+        }}
+      />
       <Box
         style={{ overflow: "scroll", height: "calc(100% - 42px)" }}
         className="hidden-scrollbar"
