@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 
 interface ButtonWithConfirmationProps {
-  as?: "IconButton" | "Button";
+  as?: "IconButton" | "Button" | "Plain";
   confirmColor?: "primary" | "secondary" | "error" | "success";
   color?: "primary" | "secondary" | "error" | "success";
   variant?: "outlined" | "contained" | "text";
@@ -54,7 +54,7 @@ const ButtonWithConfirmation = ({
 
   return (
     <>
-      {buttonType === "Button" ? (
+      {buttonType === "Button" && (
         <Button
           color={color}
           disabled={disabled}
@@ -63,10 +63,14 @@ const ButtonWithConfirmation = ({
         >
           {children}
         </Button>
-      ) : (
+      )}
+      {buttonType === "IconButton" ? (
         <IconButton color={color} disabled={disabled} onClick={handleOpen}>
           {children}
         </IconButton>
+      ) : (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+        <div onClick={handleOpen}>{children}</div>
       )}
       {isModalOpen && (
         <Modal
