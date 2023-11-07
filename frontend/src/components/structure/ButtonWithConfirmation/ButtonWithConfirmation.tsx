@@ -1,4 +1,4 @@
-import { ReactNode, SyntheticEvent, useState } from "react";
+import { ReactNode, SyntheticEvent, useCallback, useState } from "react";
 import {
   Button,
   Card,
@@ -52,9 +52,9 @@ const ButtonWithConfirmation = ({
     setIsModalOpen(false);
   };
 
-  return (
-    <>
-      {buttonType === "Button" && (
+  const getButton = useCallback(() => {
+    if (buttonType === "Button") {
+      return (
         <Button
           color={color}
           disabled={disabled}
@@ -63,15 +63,24 @@ const ButtonWithConfirmation = ({
         >
           {children}
         </Button>
-      )}
-      {buttonType === "IconButton" ? (
+      );
+    }
+
+    if (buttonType === "IconButton") {
+      return (
         <IconButton color={color} disabled={disabled} onClick={handleOpen}>
           {children}
         </IconButton>
-      ) : (
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-        <div onClick={handleOpen}>{children}</div>
-      )}
+      );
+    }
+
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    return <div onClick={handleOpen}>{children}</div>;
+  }, [buttonType, children, color, disabled, variant]);
+
+  return (
+    <>
+      {getButton()}
       {isModalOpen && (
         <Modal
           open={isModalOpen}
