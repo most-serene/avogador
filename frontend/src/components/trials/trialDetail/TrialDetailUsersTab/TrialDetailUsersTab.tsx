@@ -163,6 +163,15 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         loading={rows == null}
         columns={[...columns]}
         slots={{ toolbar: GridToolbar }}
+        slotProps={{
+          toolbar: {
+            csvOptions: { fileName: `${trial.name}-results` },
+            printOptions: {
+              fileName: `${trial.name}-results`,
+              hideToolbar: true,
+            },
+          },
+        }}
         getRowId={(row) => row.user.id}
         showColumnVerticalBorder
         showCellVerticalBorder
