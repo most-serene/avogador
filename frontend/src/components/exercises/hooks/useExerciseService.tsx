@@ -162,11 +162,11 @@ const useExerciseService = () => {
     userId: string,
   ) => Promise<Submission[]> = useCallback(
     async (exerciseId: string, userId: string) => {
-      const { data: submission }: { data: Submission[] } =
+      const { data: submissions }: { data: Submission[] } =
         await avogadorApi.get(
           `/exercises/${exerciseId}/submissions/users/${userId}`,
         );
-      return submission;
+      return submissions;
     },
     [avogadorApi],
   );

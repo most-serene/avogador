@@ -7,10 +7,10 @@ const useUserService = () => {
 
   const getUserById: (userId: string) => Promise<User> = useCallback(
     async (userId: string) => {
-      const { data: trial }: { data: User } = await avogadorApi.get(
+      const { data: user }: { data: User } = await avogadorApi.get(
         `/users/${userId}`,
       );
-      return trial;
+      return user;
     },
     [avogadorApi],
   );
