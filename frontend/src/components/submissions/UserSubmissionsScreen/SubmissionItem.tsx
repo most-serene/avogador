@@ -95,7 +95,13 @@ const SubmissionItem = ({
               {format(submission.timestamp, "yyyy/MM/dd HH:mm:ss")}
             </Typography>
           </Box>
-          {results.map((result) => getResultBadge(result.status))}
+          <Box display="flex" flexWrap="wrap">
+            {results.map((result) => (
+              <Box key={result.id} margin={0.25}>
+                {getResultBadge(result.status)}
+              </Box>
+            ))}
+          </Box>
         </CardContent>
       </CardActionArea>
     </Card>

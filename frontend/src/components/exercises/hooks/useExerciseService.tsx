@@ -148,11 +148,11 @@ const useExerciseService = () => {
     userId: string,
   ) => Promise<SubmissionResultMap> = useCallback(
     async (exerciseId: string, userId: string) => {
-      const { data: submission }: { data: SubmissionResultMap } =
+      const { data: submissions }: { data: SubmissionResultMap } =
         await avogadorApi.get(
           `/exercises/${exerciseId}/users/${userId}/results`,
         );
-      return submission;
+      return submissions;
     },
     [avogadorApi],
   );
