@@ -25,7 +25,6 @@ const ExerciseEditWrapper = () => {
 
     getExerciseById(exerciseId)
       .then((exercise) => {
-        console.log(exercise);
         setOriginalExercise(exercise);
         setExercise({
           ...exercise,
