@@ -27,6 +27,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExerciseNavigatorWrapper from "@exercises/exerciseScreen/ExerciseNavigatorWrapper.tsx";
 import ExerciseEditWrapper from "@exercises/exerciseCreation/ExerciseEditWrapper.tsx";
 import UserSubmissionsScreen from "@components/submissions/UserSubmissionsScreen/UserSubmissionsScreen.tsx";
+import UsersScreen from "@components/users/usersScreen/UsersScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -109,6 +110,14 @@ function App() {
                         element={
                           <Container>
                             <StatusPage />
+                          </Container>
+                        }
+                      />
+                      <Route
+                        path="/users"
+                        element={
+                          <Container maxWidth={false} sx={{ height: "100%" }}>
+                            <UsersScreen />
                           </Container>
                         }
                       />
