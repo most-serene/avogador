@@ -7,7 +7,6 @@ import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
-import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +46,7 @@ public class UserController {
     @Value("${spring.profiles.active}")
     private String activeProfile;
 
-    @GetMapping("/")
+    @GetMapping("")
     private List<AuthUserDTO> getUsers(@RequestHeader(name = "User") AuthUserDTO user) {
         if (!user.getIsSuperuser()) {
             throw new ForbiddenException(user);
