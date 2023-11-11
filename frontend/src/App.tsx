@@ -26,6 +26,7 @@ import WebSocketWrapper from "./WebSocketWrapper.tsx";
 import CloseIcon from "@mui/icons-material/Close";
 import ExerciseNavigatorWrapper from "@exercises/exerciseScreen/ExerciseNavigatorWrapper.tsx";
 import ExerciseEditWrapper from "@exercises/exerciseCreation/ExerciseEditWrapper.tsx";
+import UserSubmissionsScreen from "@components/submissions/UserSubmissionsScreen/UserSubmissionsScreen.tsx";
 
 const NotFound = () => {
   return (
@@ -148,6 +149,10 @@ function App() {
                       <Route
                         path={"/practices/:trialId/exercises/:exerciseId"}
                         element={<ExerciseNavigatorWrapper />}
+                      />
+                      <Route
+                        path={"/practices/:trialId/users/:userId"}
+                        element={<UserSubmissionsScreen />}
                       />
                       <Route
                         path="/exercises/new"

@@ -163,7 +163,6 @@ const ExerciseCreationScreen = ({
       if (testcase.id == null) {
         await createTestcase(updatedExercise.id, testcase);
       } else {
-        console.log(testcase);
         await updateTestcase(updatedExercise.id, testcase);
       }
     }

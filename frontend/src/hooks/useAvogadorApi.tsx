@@ -55,6 +55,7 @@ const dateFields = [
   "startTimestamp",
   "startTime",
   "finishTime",
+  "timestamp",
 ];
 
 /* eslint-disable */

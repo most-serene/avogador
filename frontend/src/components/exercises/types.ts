@@ -60,6 +60,16 @@ interface SubmissionResult {
   status: SubmissionStatus;
 }
 
+interface SubmissionResultDetail {
+  id: string;
+  exerciseId: string;
+  userId: string;
+  timestamp: Date;
+  stroxCells: StroxCell[];
+  exercise: Exercise;
+  results: SubmissionResult[];
+}
+
 type SubmissionStatus =
   | "PENDING"
   | "CORRECT"
@@ -81,4 +91,5 @@ export type {
   SubmissionResult,
   SubmissionResultMap,
   SubmissionStatus,
+  SubmissionResultDetail,
 };
