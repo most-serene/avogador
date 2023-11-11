@@ -1,4 +1,4 @@
-import { Card, IconButton, Typography } from "@mui/material";
+import { Card, IconButton, Tooltip, Typography } from "@mui/material";
 import { CopyAll, Download, Replay } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import { Strox, StroxCell } from "@exercises/types.ts";
@@ -28,6 +28,7 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
   const { getTrialById } = useTrialService();
   const [userCourse, setUserCourse] = useState<CourseDetail>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isChangesTooltipOpen, setIsChangesTooltipOpen] = useState(false);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -79,6 +80,13 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
   useEffect(() => {
     if (trialId == null) return;
 
+    if (localStorage.getItem(`sub-${exerciseId}`) != null) {
+      setIsChangesTooltipOpen(true);
+      setTimeout(() => {
+        setIsChangesTooltipOpen(false);
+      }, 6000);
+    }
+
     getTrialById(trialId)
       .then((trial) => {
         getCourseById(trial.courseId)
@@ -92,7 +100,7 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [trialId, getTrialById, getCourseById]);
+  }, [trialId, exerciseId, getTrialById, getCourseById]);
 
   return (
     <Card
@@ -121,9 +129,15 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
           </IconButton>
         )}
       <Box sx={{ marginLeft: "auto" }}>
-        <IconButton onClick={handleOpenMenu}>
-          <Replay />
-        </IconButton>
+        <Tooltip
+          open={isChangesTooltipOpen}
+          title={`You have unsubmitted changes. Click here to load them`}
+          arrow
+        >
+          <IconButton onClick={handleOpenMenu}>
+            <Replay />
+          </IconButton>
+        </Tooltip>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
