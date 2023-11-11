@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAvogadorApi } from "@hooks/useAvogadorApi";
+import { useAvogadorApi } from "@hooks/useAvogadorApi.tsx";
 import { User } from "@authentication/types.ts";
 
 const useUserService = () => {
@@ -15,8 +15,14 @@ const useUserService = () => {
     [avogadorApi],
   );
 
+  const getUsers: () => Promise<User[]> = useCallback(async () => {
+    const { data: users }: { data: User[] } = await avogadorApi.get(`/users`);
+    return users;
+  }, [avogadorApi]);
+
   return {
     getUserById,
+    getUsers,
   };
 };
 

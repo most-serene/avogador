@@ -19,7 +19,7 @@ import {
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import Box from "@mui/material/Box";
 import { User } from "@authentication/types.ts";
-import useUserService from "@hooks/useUserService.tsx";
+import useUserService from "@components/users/hooks/useUserService.tsx";
 import { enqueueSnackbar } from "notistack";
 import { Check, ChevronLeft, FilterList } from "@mui/icons-material";
 import MenuItem from "@mui/material/MenuItem";
