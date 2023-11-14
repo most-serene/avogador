@@ -176,13 +176,14 @@ const UserSubmissionsScreen = () => {
     <Grid container sx={{ height: "100%" }}>
       <Grid
         item
-        xs={6}
+        xs={5}
         sx={{ height: "100%", overflow: "scroll" }}
         className="hidden-scrollbar"
       >
         <Box paddingX={2}>
           <Box display="flex" justifyContent="space-between" marginY={1}>
             <Button
+              sx={{ mr: 1 }}
               variant="outlined"
               onClick={() => {
                 navigate(`/practices/${trialId}?tab=1`);
@@ -251,7 +252,7 @@ const UserSubmissionsScreen = () => {
           </Stack>
         </Box>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={7} sx={{ height: "100%" }}>
         {selectedSubmission != null ? (
           <SubmissionViewer
             template={templates[selectedSubmission.exerciseId]}
