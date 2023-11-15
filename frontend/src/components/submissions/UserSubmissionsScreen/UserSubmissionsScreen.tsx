@@ -26,9 +26,9 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { compareDesc } from "date-fns";
 import SubmissionItem from "@components/submissions/UserSubmissionsScreen/SubmissionItem.tsx";
-import SubmissionViewer from "@components/submissions/UserSubmissionsScreen/SubmissionViewer.tsx";
 import { Trial } from "@trials/types.ts";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
+import SubmissionDetail from "@components/submissions/UserSubmissionsScreen/SubmissionDetail.tsx";
 
 const UserSubmissionsScreen = () => {
   const navigate = useNavigate();
@@ -254,10 +254,10 @@ const UserSubmissionsScreen = () => {
       </Grid>
       <Grid item xs={7} sx={{ height: "100%" }}>
         {selectedSubmission != null ? (
-          <SubmissionViewer
+          <SubmissionDetail
             template={templates[selectedSubmission.exerciseId]}
-            submissionCode={selectedSubmission.stroxCells}
             language={trial.language}
+            submission={selectedSubmission}
           />
         ) : (
           <Typography align="center">

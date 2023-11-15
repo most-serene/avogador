@@ -38,7 +38,7 @@ const SubmissionViewer = ({
   }
 
   return (
-    <Box height="100%" overflow="scroll">
+    <Box height="100%">
       {code.map((cell, i) => (
         <Box
           key={i}
