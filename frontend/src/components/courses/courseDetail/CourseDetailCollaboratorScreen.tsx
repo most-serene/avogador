@@ -13,11 +13,11 @@ import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import Container from "@mui/material/Container";
 import LeaveCourse from "@courses/courseDetail/LeaveCourse.tsx";
 import TabPanel from "@structure/TabPanel.tsx";
-import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab.tsx";
 import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab.tsx";
 import CourseMembersTab from "@courses/courseDetail/CourseMemebersTab/CourseMembersTab.tsx";
 import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSettingsTab.tsx";
 import { useAtom } from "jotai";
+import CourseOverviewCollaboratorTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewCollaboratorTab.tsx";
 
 const tabs = ["Overview", "Tests", "Members", "Settings"];
 
@@ -87,7 +87,7 @@ const CourseDetailCollaboratorScreen = () => {
           index={0}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <CourseOverviewTab course={course} />
+          <CourseOverviewCollaboratorTab course={course} />
         </TabPanel>
         <TabPanel
           value={openTab}

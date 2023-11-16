@@ -14,8 +14,8 @@ import { Box, Skeleton, Tab, Tabs, Typography } from "@mui/material";
 import Container from "@mui/material/Container";
 import LeaveCourse from "@courses/courseDetail/LeaveCourse.tsx";
 import TabPanel from "@structure/TabPanel.tsx";
-import CourseOverviewTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewTab.tsx";
 import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab.tsx";
+import CourseOverviewStudentTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewStudentTab.tsx";
 
 const tabs = ["Overview", "Tests"];
 
@@ -78,7 +78,7 @@ const CourseDetailStudentScreen = () => {
           index={0}
           occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
         >
-          <CourseOverviewTab course={course} />
+          <CourseOverviewStudentTab course={course} />
         </TabPanel>
         <TabPanel
           value={openTab}
