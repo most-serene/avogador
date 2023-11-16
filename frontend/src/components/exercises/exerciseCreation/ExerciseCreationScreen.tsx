@@ -53,6 +53,7 @@ const ExerciseCreationScreen = ({
   const [testcases, setTestcases] = useAtom(testcasesAtom);
   const [creationStatus, setCreationStatus] = useState("");
   const [creationPercentage, setCreationPercentage] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const isInformationStepComplete = useMemo<boolean>(() => {
     return (
@@ -82,6 +83,7 @@ const ExerciseCreationScreen = ({
       setExercise(getInitializedExercise());
       setTemplate([...getInitializedTemplate()]);
       setTestcases([]);
+      setIsInitialized(true);
 
       return () => {
         setExercise(getInitializedExercise());
@@ -163,11 +165,14 @@ const ExerciseCreationScreen = ({
       if (testcase.id == null) {
         await createTestcase(updatedExercise.id, testcase);
       } else {
-        console.log(testcase);
         await updateTestcase(updatedExercise.id, testcase);
       }
     }
   };
+
+  if (!isInitialized) {
+    return <></>;
+  }
 
   return (
     <>

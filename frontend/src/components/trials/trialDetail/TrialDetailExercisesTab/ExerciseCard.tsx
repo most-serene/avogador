@@ -49,7 +49,6 @@ const ExerciseCard = ({
               updateExercise({ ...exercise, isVisible: false })
                 .then((updatedExercise) => {
                   handleChange(updatedExercise);
-                  console.log(updatedExercise);
                 })
                 .catch((err: Error) => {
                   enqueueSnackbar(err.message, { variant: "error" });

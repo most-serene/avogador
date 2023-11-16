@@ -7,6 +7,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.StroxException;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
@@ -50,6 +51,9 @@ public class SubmissionController {
     @Autowired
     private UserTrialService userTrialService;
 
+    @Autowired
+    private FileSystemService fileSystemService;
+
     @GetMapping("/{submissionId}")
     private SubmissionDto getSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
         Exercise exercise = exerciseService.getExercise(exerciseId)
@@ -66,6 +70,33 @@ public class SubmissionController {
         }
 
         return submissionService.exportToDto(submission);
+    }
+
+    @GetMapping("/users/{userId}")
+    private List<SubmissionDto> getUserSubmissions(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID userId) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)) {
+            throw new ForbiddenException(user);
+        }
+
+        List<Submission> submissions = submissionService.getSubmissionsFromExerciseAndUserId(exercise, userId);
+
+        return submissions.stream()
+                .map(submission -> new SubmissionDto(submission.getId(),
+                        submission.getExercise().getId(),
+                        userId,
+                        submission.getTimestamp(),
+                        fileSystemService.getSubmissionStrox(submission)
+                                .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
+                                .getCells()
+                        )
+                )
+                .toList();
     }
 
     @PostMapping("")

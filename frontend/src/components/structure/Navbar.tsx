@@ -51,6 +51,15 @@ const Navbar = forwardRef<HTMLElement>(function Navbar(_, ref) {
       },
     },
   ];
+
+  if (user?.isSuperuser === true) {
+    pages.push({
+      name: "Users",
+      callback: () => {
+        navigate("/users");
+      },
+    });
+  }
   const settings: SettingsItem[] = [
     {
       name: "Profile",

@@ -1,3 +1,3 @@
 import { atom } from "jotai";
 
-export default atom<"dark" | "light">("light");
+export default atom<"dark" | "light">("dark");

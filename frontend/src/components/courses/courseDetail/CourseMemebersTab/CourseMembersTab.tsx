@@ -198,6 +198,15 @@ export default function CourseMembersTab({
         loading={rows == null}
         columns={[...columns, actionsColumn]}
         slots={{ toolbar: GridToolbar }}
+        slotProps={{
+          toolbar: {
+            csvOptions: { fileName: `${userCourse?.name}-members` },
+            printOptions: {
+              fileName: `${userCourse?.name}-members`,
+              hideToolbar: true,
+            },
+          },
+        }}
         showColumnVerticalBorder
         showCellVerticalBorder
         checkboxSelection

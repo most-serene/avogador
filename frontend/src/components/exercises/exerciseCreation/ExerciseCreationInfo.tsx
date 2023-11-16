@@ -50,6 +50,16 @@ const ExerciseCreationInfo = () => {
   useEffect(() => {
     if (user == null) return;
 
+    if (state != null) {
+      setExercise((prev) => {
+        return {
+          ...prev,
+          courseId: state.courseId,
+          trialId: state.trialId,
+        };
+      });
+    }
+
     getUserCourses(user.id)
       .then((userCourses: UserCourse[]) => {
         setUserCourses(
@@ -62,7 +72,7 @@ const ExerciseCreationInfo = () => {
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getUserCourses, globalErrorSetter, state, user]);
+  }, [getUserCourses, globalErrorSetter, user, state, setExercise]);
 
   useEffect(() => {
     if (user == null || exercise.courseId === "") return;
@@ -84,7 +94,6 @@ const ExerciseCreationInfo = () => {
   }, [
     getTrialsByCourseId,
     globalErrorSetter,
-    state,
     user,
     exercise.courseId,
     userCourses,
@@ -126,7 +135,7 @@ const ExerciseCreationInfo = () => {
             <FormControl fullWidth>
               <InputLabel id="courseId">Course</InputLabel>
               <Select
-                disabled={exerciseId != null}
+                disabled={exerciseId != null || state != null}
                 value={exercise.courseId}
                 label="Course"
                 onChange={(event) => {
@@ -151,7 +160,7 @@ const ExerciseCreationInfo = () => {
                 <>
                   <InputLabel id="trialId">Test</InputLabel>
                   <Select
-                    disabled={exerciseId != null}
+                    disabled={exerciseId != null || state != null}
                     value={exercise.trialId}
                     label="Test"
                     onChange={(event) => {

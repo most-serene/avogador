@@ -7,7 +7,6 @@ import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
-import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,6 +45,14 @@ public class UserController {
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
+
+    @GetMapping("")
+    private List<AuthUserDTO> getUsers(@RequestHeader(name = "User") AuthUserDTO user) {
+        if (!user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+        return userService.getUsers().stream().map(User::generateAuthUserDTO).toList();
+    }
 
     /**
      * Get the user claimed by the current JWT cookie

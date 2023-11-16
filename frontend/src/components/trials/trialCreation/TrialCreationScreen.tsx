@@ -227,12 +227,8 @@ const TrialCreationScreen = () => {
                         label="Language"
                       >
                         <MenuItem value={"C"}>C</MenuItem>
-                        <MenuItem value={"CPP"} disabled>
-                          C++
-                        </MenuItem>
-                        <MenuItem value={"PYTHON"} disabled>
-                          Python
-                        </MenuItem>
+                        <MenuItem value={"CPP"}>C++</MenuItem>
+                        <MenuItem value={"PYTHON"}>Python</MenuItem>
                         <MenuItem value={"JAVA"}>Java</MenuItem>
                       </Select>
                     </FormControl>

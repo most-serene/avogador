@@ -163,6 +163,15 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         loading={rows == null}
         columns={[...columns]}
         slots={{ toolbar: GridToolbar }}
+        slotProps={{
+          toolbar: {
+            csvOptions: { fileName: `${trial.name}-results` },
+            printOptions: {
+              fileName: `${trial.name}-results`,
+              hideToolbar: true,
+            },
+          },
+        }}
         getRowId={(row) => row.user.id}
         showColumnVerticalBorder
         showCellVerticalBorder
@@ -171,15 +180,19 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         density="compact"
         autoPageSize
         onCellClick={(cell) => {
-          if (
-            !["enroll", "fullName", "startDate", "__check__"].includes(
-              cell.field,
-            )
-          ) {
+          if (["startDate", "__check__"].includes(cell.field)) {
+            return;
+          } else if (["enroll", "fullName"].includes(cell.field)) {
             navigate(
-              `/${trial.trialType === "PRACTICE" ? "practice" : "exam"}/${
+              `/${trial.trialType === "PRACTICE" ? "practices" : "exams"}/${
                 trial.id
-              }/exercises/${cell.field}/users/${cell.id}`,
+              }/users/${cell.id}`,
+            );
+          } else {
+            navigate(
+              `/${trial.trialType === "PRACTICE" ? "practices" : "exams"}/${
+                trial.id
+              }/users/${cell.id}?exerciseId=${cell.field}`,
             );
           }
         }}

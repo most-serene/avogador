@@ -66,7 +66,6 @@ const ExerciseNavigatorWrapper = () => {
     exercises.forEach((exercise) => {
       getUserLastSubmissionFromExercise(exercise.id)
         .then((submission) => {
-          console.log(Object.values(submission)[0]);
           setResults((prevState) => {
             return {
               ...prevState,
