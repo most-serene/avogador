@@ -1,5 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
+import lombok.Getter;
+
+@Getter
 public enum CourseRole {
     EXTERNAL(-1),
     STUDENT(0),
@@ -12,11 +15,7 @@ public enum CourseRole {
         this.clearance = clearance;
     }
 
-    public Integer getClearance(){
-        return this.clearance;
-    }
-
-    public boolean canSeeHiddenExercises() {
+    public boolean hasCollaboratorClearance() {
         return this.clearance >= COLLABORATOR.getClearance();
     }
 }

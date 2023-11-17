@@ -7,7 +7,6 @@ import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
-import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
@@ -143,7 +142,7 @@ public class SubmissionResultController {
                 .orElseThrow(NotFoundException::new)
                 .getOutputs();
 
-        boolean canSeeHidden = user.getIsSuperuser() || courseRole.canSeeHiddenExercises();
+        boolean canSeeHidden = user.getIsSuperuser() || courseRole.hasCollaboratorClearance();
 
         testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()

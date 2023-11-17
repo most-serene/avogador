@@ -15,7 +15,6 @@ import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.InjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -207,7 +206,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        return exerciseService.getExercisesFromTrial(trial, courseRole.canSeeHiddenExercises())
+        return exerciseService.getExercisesFromTrial(trial, courseRole.hasCollaboratorClearance())
                 .stream().map(Exercise::toDto).toList();
     }
 
