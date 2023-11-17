@@ -66,4 +66,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         return statusMap;
     }
+
+    @Override
+    public void getExerciseResults() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void getSubmissionsTrend() {
+        throw new UnsupportedOperationException();
+    }
 }

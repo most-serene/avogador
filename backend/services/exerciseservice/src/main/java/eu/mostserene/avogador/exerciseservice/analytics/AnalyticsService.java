@@ -5,4 +5,8 @@ import java.util.UUID;
 
 public interface AnalyticsService {
     Map<UUID, StudentTrialStatus> getStudentProgress(UUID userId, UUID courseId);
+
+    void getExerciseResults();
+
+    void getSubmissionsTrend();
 }
