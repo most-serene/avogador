@@ -134,6 +134,8 @@ public class UserCourseControllerTests {
         public void fromOutside_get403() throws Exception{
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/collaborators/00000000-0000-0000-0000-000000000001").header("User", student1Header))
                     .andDo(print())
@@ -201,6 +203,8 @@ public class UserCourseControllerTests {
         public void fromOutside_get403() throws Exception{
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/students/00000000-0000-0000-0000-000000000001").header("User", student1Header))
                     .andDo(print())
