@@ -75,9 +75,15 @@ public class UserCourseController {
     @PutMapping("/{courseId}/collaborators/{userId}")
     private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course"));
+                .orElseGet(UserCourse::new);
+        if (reqUserCourse.getCourse() == null){
+            reqUserCourse.setCourse(
+                    courseService.getCourse(courseId)
+                            .orElseThrow(() -> new NotFoundException("Course with id " + courseId.toString()))
+            );
+        }
 
-        if (reqUserCourse.getRole() != CourseRole.ADMIN){
+        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course");
         }
         if (reqUserCourse.getCourse().getIsArchived()){
@@ -101,13 +107,19 @@ public class UserCourseController {
     @PutMapping("/{courseId}/students/{userId}")
     private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot demote users in this course"));
+                .orElseGet(UserCourse::new);
+        if (reqUserCourse.getCourse() == null){
+            reqUserCourse.setCourse(
+                    courseService.getCourse(courseId)
+                            .orElseThrow(() -> new NotFoundException("Course with id " + courseId.toString()))
+            );
+        }
 
         if (reqUserCourse.getCourse().getIsArchived()){
             throw new ArchivedCourseException();
         }
 
-        if (reqUserCourse.getRole() != CourseRole.ADMIN){
+        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot demote users in this course");
         }
 
@@ -150,8 +162,8 @@ public class UserCourseController {
                                                        @RequestParam Optional<Integer> offset, @RequestParam Optional<String> orderBy, @RequestParam Optional<String> direction){
 
         var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course"));
-        if (userCourse.getRole() == CourseRole.STUDENT){
+                .orElseGet(UserCourse::new);
+        if (userCourse.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course");
         }
 
