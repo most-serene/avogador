@@ -30,7 +30,7 @@ public class AnalyticsController {
         CourseRole courseRole = userCourseService.getUserCourseRole(courseId, user.getId())
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && !courseRole.canSeeHiddenExercises() && !user.getId().equals(userId)) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
         }
 
