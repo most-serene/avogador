@@ -53,7 +53,7 @@ const ExerciseCreationScreen = ({
   const [testcases, setTestcases] = useAtom(testcasesAtom);
   const [creationStatus, setCreationStatus] = useState("");
   const [creationPercentage, setCreationPercentage] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(exerciseId != null);
 
   const isInformationStepComplete = useMemo<boolean>(() => {
     return (
