@@ -337,7 +337,7 @@ services:
         max-file: "10"
         max-size: "5m"
     ports:
-      - "${REACT_PORT}:3000"
+      - "${REACT_PORT}:80"
 
   kuma:
     hostname: uptime-kuma
