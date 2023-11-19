@@ -13,6 +13,8 @@ import {
 import { Trial, UserExerciseSummary } from "@trials/types.ts";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
+import { enqueueSnackbar } from "notistack";
+import { saveResponseToFile } from "../../../utils/fileHandling.ts";
 
 const useExerciseService = () => {
   const avogadorApi = useAvogadorApi();
@@ -70,6 +72,29 @@ const useExerciseService = () => {
       return createdSubmission;
     },
     [avogadorApi, user],
+  );
+
+  const downloadSubmission: (submission: Submission) => void = useCallback(
+    (submission: Submission) => {
+      enqueueSnackbar("download started", { variant: "info" });
+      avogadorApi
+        .get(
+          `/exercises/${submission.exerciseId}/submissions/${submission.id}/download`,
+          {
+            responseType: "blob",
+            onDownloadProgress: (progressEvent) => {
+              console.log(progressEvent);
+            },
+          },
+        )
+        .then((res) => {
+          saveResponseToFile(res, `${submission.id}.tar.gz`);
+        })
+        .catch((err: Error) => {
+          enqueueSnackbar(err.message, { variant: "error" });
+        });
+    },
+    [avogadorApi],
   );
 
   const getExercisesByTrialId: (trialId: string) => Promise<Exercise[]> =
@@ -228,6 +253,7 @@ const useExerciseService = () => {
     createTemplate,
     createTestcase,
     createSubmission,
+    downloadSubmission,
     getExercisesByTrial,
     getExercisesByTrialId,
     getExerciseById,
