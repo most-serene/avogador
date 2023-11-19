@@ -1,7 +1,7 @@
 import { Card, IconButton, Tooltip, Typography } from "@mui/material";
 import { CopyAll, Download, Replay } from "@mui/icons-material";
 import Box from "@mui/material/Box";
-import { Strox, StroxCell } from "@exercises/types.ts";
+import { Strox, StroxCell, Submission } from "@exercises/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
@@ -22,7 +22,11 @@ interface EditorToolbarProps {
 
 const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
   const { trialId, exerciseId } = useParams();
-  const { getTemplateFromExercise } = useExerciseService();
+  const {
+    getTemplateFromExercise,
+    downloadSubmission,
+    getUserSubmissionsFromExercise,
+  } = useExerciseService();
   const [user] = useAtom(userAtom);
   const { getCourseById } = useCourseService();
   const { getTrialById } = useTrialService();
@@ -62,7 +66,19 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
   };
 
   const handleDownload = () => {
-    // TODO: Download handling
+    if (exerciseId == null || user == null) return;
+    getUserSubmissionsFromExercise(exerciseId, user.id)
+      .then((submissions) => {
+        const lastSubmission: Submission | undefined = submissions
+          .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+          .pop();
+        if (lastSubmission == null) return;
+
+        downloadSubmission(lastSubmission);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
   };
 
   const handleLoadLocal = () => {
@@ -124,7 +140,7 @@ const EditorToolbar = ({ strox, setStrox }: EditorToolbarProps) => {
         (userCourse.role === "COLLABORATOR" ||
           userCourse.role === "ADMIN" ||
           user?.isSuperuser === true) && (
-          <IconButton onClick={handleDownload} disabled>
+          <IconButton onClick={handleDownload}>
             <Download />
           </IconButton>
         )}
