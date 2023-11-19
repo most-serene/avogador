@@ -22,6 +22,9 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -70,6 +73,29 @@ public class SubmissionController {
         }
 
         return submissionService.exportToDto(submission);
+    }
+
+    @GetMapping("/{submissionId}/download")
+    private ResponseEntity<Resource> downloadSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        Submission submission = submissionService.getSubmission(submissionId)
+                .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        Resource submissionSource = fileSystemService.getSubmissionSource(submission)
+                .orElseThrow(() -> new NotFoundException("Submission - " + submissionId + ": sourcecode not found"));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"submission.tar.gz\"")
+                .body(submissionSource);
     }
 
     @GetMapping("/users/{userId}")
