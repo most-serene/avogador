@@ -91,6 +91,8 @@ public class Receiver implements MessageListener {
             submissionResultDto.setId(storedResult.getId());
             submissionResultService.saveSubmissionResult(storedResult);
 
+            submissionResultDto.setOutput(null);
+
             (new Sender()).send("users", "users.notify.socket", mapper.writeValueAsString(
                     new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
                             mapper.writeValueAsString(submissionResultDto)
