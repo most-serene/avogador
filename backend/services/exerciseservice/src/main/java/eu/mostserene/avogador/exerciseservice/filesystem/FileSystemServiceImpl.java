@@ -13,6 +13,7 @@ import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -169,6 +170,22 @@ public class FileSystemServiceImpl implements FileSystemService {
             return Optional.empty();
         }
         return Optional.of(submissionStrox);
+    }
+
+    @Override
+    public Optional<Resource> getSubmissionSource(Submission submission) {
+        Resource submissionSourceCode = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://filesystem/courses/" + submission.getExercise().getTrial().getCourseId() +
+                                "/trials/ " + submission.getExercise().getTrial().getId() +
+                                "/exercises/" + submission.getExercise().getId() +
+                                "/submissions/" + submission.getId() + "/source",
+                        Resource.class);
+
+        if (submissionSourceCode == null){
+            return Optional.empty();
+        }
+        return Optional.of(submissionSourceCode);
     }
 
     public Optional<Strox> getExerciseTemplate(Exercise exercise) {
