@@ -2,7 +2,6 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

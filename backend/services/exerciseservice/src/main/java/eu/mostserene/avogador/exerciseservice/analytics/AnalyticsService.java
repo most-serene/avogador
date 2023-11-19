@@ -1,12 +1,15 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;
+
 import java.util.Map;
 import java.util.UUID;
 
 public interface AnalyticsService {
     Map<UUID, StudentTrialStatus> getStudentProgress(UUID userId, UUID courseId);
 
-    void getExerciseResults();
+    Map<SubmissionStatus, Long> getExerciseResults(Exercise exercise);
 
     void getSubmissionsTrend();
 }
