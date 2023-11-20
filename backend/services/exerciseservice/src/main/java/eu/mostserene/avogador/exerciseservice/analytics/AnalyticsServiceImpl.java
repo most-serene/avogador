@@ -74,12 +74,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Override
     public Map<SubmissionStatus, Long> getExerciseResults(Exercise exercise) {
         var results = submissionResultService.getResultsFromExercise(exercise);
-        return Stream.of(
-                        SubmissionStatus.CORRECT,
-                        SubmissionStatus.COMPILE_ERROR,
-                        SubmissionStatus.RUNTIME_ERROR,
-                        SubmissionStatus.TIME_LIMIT_EXCEEDED,
-                        SubmissionStatus.WRONG_ANSWER)
+        return Stream.of(SubmissionStatus.values())
+                .filter(submissionStatus -> !submissionStatus.equals(SubmissionStatus.PENDING))
                 .collect(Collectors.toMap(
                         Function.identity(),
                         status -> results.stream().filter(result -> result.getStatus() == status).count()
