@@ -1,6 +1,9 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi.tsx";
-import { UserTrialProgress } from "@components/analytics/types.ts";
+import {
+  ExerciseResults,
+  UserTrialProgress,
+} from "@components/analytics/types.ts";
 
 const useAnalyticsService = () => {
   const avogadorApi = useAvogadorApi();
@@ -20,7 +23,20 @@ const useAnalyticsService = () => {
     [avogadorApi],
   );
 
-  return { getUserTrialProgress };
+  const getExerciseResults: (
+    trialId: string,
+    exerciseId: string,
+  ) => Promise<ExerciseResults> = useCallback(
+    async (trialId: string, exerciseId: string) => {
+      const { data: results }: { data: ExerciseResults } =
+        await avogadorApi.get(
+          `analytics/trials/${trialId}/exercises/${exerciseId}/results`,
+        );
+      return results;
+    },
+    [avogadorApi],
+  );
+  return { getUserTrialProgress, getExerciseResults };
 };
 
 export default useAnalyticsService;
