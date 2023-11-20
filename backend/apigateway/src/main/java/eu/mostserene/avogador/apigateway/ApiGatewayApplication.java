@@ -106,6 +106,11 @@ public class ApiGatewayApplication {
         return statusService.getMicroservicesStatus();
     }
 
+    @GetMapping("/version/webapp")
+    String getWebappVersion() {
+        return "0.3.0";
+    }
+
     @PostConstruct
     private void postConstruct() {
         String profile = profileManager.getActiveProfiles();

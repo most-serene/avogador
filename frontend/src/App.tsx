@@ -28,6 +28,7 @@ import ExerciseNavigatorWrapper from "@exercises/exerciseScreen/ExerciseNavigato
 import ExerciseEditWrapper from "@exercises/exerciseCreation/ExerciseEditWrapper.tsx";
 import UserSubmissionsScreen from "@components/submissions/UserSubmissionsScreen/UserSubmissionsScreen.tsx";
 import UsersScreen from "@components/users/usersScreen/UsersScreen.tsx";
+import useVersionChecker from "@hooks/useVersionChecker.tsx";
 
 const NotFound = () => {
   return (
@@ -56,6 +57,7 @@ function App() {
   const [occupiedHeight, setOccupiedHeight] = useState(0);
 
   const { connectToGlitchTip } = useGlitchTip();
+  const { checkWebAppVersion } = useVersionChecker();
   const [user] = useAtom(userAtom);
 
   useEffect(() => {
@@ -71,6 +73,13 @@ function App() {
         (footerRef.current?.clientHeight ?? 0),
     );
   }, [navbarRef, footerRef]);
+
+  useEffect(() => {
+    checkWebAppVersion();
+    setInterval(() => {
+      checkWebAppVersion();
+    }, 5000 * 60);
+  }, [checkWebAppVersion]);
 
   return (
     <div className="App">

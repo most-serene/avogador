@@ -2,7 +2,7 @@ package eu.mostserene.avogador.courseservice.controllers;
 
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
-import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.usercourses.*;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
@@ -36,7 +36,7 @@ public class UserCourseControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean CourseService courseService;
     private @MockBean UserService userService;
-    private @MockBean FileSystemService fileSystemService;
+    private @MockBean StorageService storageService;
     private @MockBean ProfileManager profileManager;
 
     private @MockBean BuildProperties buildProperties;

@@ -1,7 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     @Autowired
     private TestcaseRepository repository;
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Override
     public Optional<Testcase> getSimpleTestcase(UUID testcaseId) {
@@ -27,7 +27,7 @@ public class TestcaseServiceImpl implements TestcaseService {
         Optional<Testcase> testcase = repository.findById(testcaseId);
 
         return testcase.map(tc-> {
-            Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(exercise, testcaseId);
+            Optional<TestcaseIODto> testcaseIO = storageService.getTestcase(exercise, testcaseId);
             return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
                     .orElse(null);
         });
@@ -38,7 +38,7 @@ public class TestcaseServiceImpl implements TestcaseService {
         List<Testcase> testcases = repository.findByExercise_Id(exercise.getId());
         List<TestcaseDetailDto> testcaseDetails = testcases.stream()
                 .map(tc -> {
-                    Optional<TestcaseIODto> testcaseIO = fileSystemService.getTestcase(exercise, tc.getId());
+                    Optional<TestcaseIODto> testcaseIO = storageService.getTestcase(exercise, tc.getId());
                     return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
                             .orElse(null);
                 })
@@ -60,7 +60,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise) {
         var savedTestcase = repository.save(new Testcase(exercise, testcase.getIsVisible(), testcase.getIndex()));
 
-        fileSystemService.createTestcase(exercise,
+        storageService.createTestcase(exercise,
                 savedTestcase.toDetailDto(testcase.getInput(), testcase.getOutput()));
 
         return testcase;
@@ -74,7 +74,7 @@ public class TestcaseServiceImpl implements TestcaseService {
 
     @Override
     public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-        fileSystemService.updateTestcase(exercise, testcase);
+        storageService.updateTestcase(exercise, testcase);
         return testcase;
     }
 }
