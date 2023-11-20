@@ -8,37 +8,20 @@ interface ExerciseResultsChartProps {
   results: ExerciseResults | undefined;
 }
 
-const getStatusColor = (status: SubmissionStatus) => {
+const getStatusMetadata = (status: SubmissionStatus) => {
   switch (status) {
     case "CORRECT":
-      return "green";
+      return { color: "green", label: "Correct" };
     case "WRONG_ANSWER":
-      return "red";
+      return { color: "red", label: "Wrong Answer" };
     case "TIME_LIMIT_EXCEEDED":
-      return "orange";
+      return { color: "orange", label: "Time Limit" };
     case "COMPILE_ERROR":
-      return "purple";
+      return { color: "purple", label: "Compile err." };
     case "RUNTIME_ERROR":
-      return "cyan";
+      return { color: "cyan", label: "Runtime err." };
     default:
-      return "gray";
-  }
-};
-
-const getStatusName = (status: SubmissionStatus) => {
-  switch (status) {
-    case "CORRECT":
-      return "Correct";
-    case "WRONG_ANSWER":
-      return "Wrong Answer";
-    case "TIME_LIMIT_EXCEEDED":
-      return "Time Limit";
-    case "COMPILE_ERROR":
-      return "Compile";
-    case "RUNTIME_ERROR":
-      return "Runtime";
-    default:
-      return "gray";
+      return { color: "gray", label: "Unknown" };
   }
 };
 
@@ -69,13 +52,19 @@ const ExerciseResultsChart = ({ results }: ExerciseResultsChartProps) => {
       series={[
         {
           data: Object.entries(results).map(([type, value]) => {
+            const { color, label } = getStatusMetadata(
+              type as SubmissionStatus,
+            );
             return {
               id: type,
               value,
-              label: getStatusName(type as SubmissionStatus),
-              color: getStatusColor(type as SubmissionStatus),
+              label,
+              color,
             };
           }),
+          paddingAngle: 2,
+          cornerRadius: 5,
+          innerRadius: 25,
         },
       ]}
       height={200}
