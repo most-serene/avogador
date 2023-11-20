@@ -18,7 +18,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public File fetchAndSaveSubmissionCode(Submission submission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://filesystem/courses/" + submission.getCourseId() +
+        String endpoint = "http://storage/courses/" + submission.getCourseId() +
                 "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
                 submission.getId() + "/source";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
@@ -35,7 +35,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public File fetchAndSaveTestcases(Submission submission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://filesystem/courses/" + submission.getCourseId() +
+        String endpoint = "http://storage/courses/" + submission.getCourseId() +
                 "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/testcases";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
                 .getBody();
@@ -51,7 +51,7 @@ public class StorageServiceImpl implements StorageService {
 
 
 /*
-String requestUrl = "http://filesystem/courses/" + submission.getCourseId() +
+String requestUrl = "http://storage/courses/" + submission.getCourseId() +
                 "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
                 submission.getId() + "/source";  // Replace with the actual download URL
         String outputFile = "/avogador/output.tar.gz";  // Replace with the desired output file name

@@ -1,9 +1,8 @@
 package eu.mostserene.avogador.courseservice.courses;
 
 import eu.mostserene.avogador.courseservice.courses.dtos.CourseDetailDto;
-import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
-import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
@@ -25,7 +24,7 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
 
     /**
@@ -45,7 +44,7 @@ public class CourseController {
         }
 
         var course = courseService.createCourse(reqCourse);
-        fileSystemService.createCourse(course.getId());
+        storageService.createCourse(course.getId());
         userCourseService.createAdmin(user, course);
 
         return course;
@@ -129,7 +128,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
         }
 
-        fileSystemService.deleteCourse(courseId);
+        storageService.deleteCourse(courseId);
         courseService.deleteCourse(courseId);
     }
 
@@ -151,7 +150,7 @@ public class CourseController {
         }
 
         course.setIsArchived(true);
-        fileSystemService.archiveCourse(courseId);
+        storageService.archiveCourse(courseId);
 
         return course;
     }
