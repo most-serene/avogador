@@ -1,10 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
-import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     private ExerciseRepository exerciseRepository;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Autowired
     private TrialService trialService;
@@ -38,7 +37,7 @@ public class ExerciseServiceImpl implements ExerciseService {
                 exerciseDto.getTimeLimit(), exerciseDto.getIsVisible());
 
         Exercise createdExercise = exerciseRepository.save(exercise);
-        fileSystemService.createExercise(createdExercise);
+        storageService.createExercise(createdExercise);
         return createdExercise;
     }
 
@@ -50,7 +49,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Override
     public void deleteExercise(Exercise exercise) {
         exerciseRepository.delete(exercise);
-        fileSystemService.deleteExercise(exercise);
+        storageService.deleteExercise(exercise);
     }
 
     @Override

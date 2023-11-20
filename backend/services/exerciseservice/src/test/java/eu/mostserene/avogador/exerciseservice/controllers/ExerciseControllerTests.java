@@ -7,7 +7,7 @@ import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseController;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
@@ -49,7 +49,7 @@ public class ExerciseControllerTests {
     private @MockBean UserTrialService userTrialService;
     private @MockBean UserCourseService userCourseService;
     private @MockBean TrialService trialService;
-    private @MockBean FileSystemService fileSystemService;
+    private @MockBean StorageService storageService;
     private @MockBean SubmissionService submissionService;
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",

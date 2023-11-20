@@ -7,7 +7,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.StroxException;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
@@ -55,7 +55,7 @@ public class SubmissionController {
     private UserTrialService userTrialService;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @GetMapping("/{submissionId}")
     private SubmissionDto getSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
@@ -90,7 +90,7 @@ public class SubmissionController {
             throw new ForbiddenException(user);
         }
 
-        Resource submissionSource = fileSystemService.getSubmissionSource(submission)
+        Resource submissionSource = storageService.getSubmissionSource(submission)
                 .orElseThrow(() -> new NotFoundException("Submission - " + submissionId + ": sourcecode not found"));
 
         return ResponseEntity.ok()
@@ -117,7 +117,7 @@ public class SubmissionController {
                         submission.getExercise().getId(),
                         userId,
                         submission.getTimestamp(),
-                        fileSystemService.getSubmissionStrox(submission)
+                        storageService.getSubmissionStrox(submission)
                                 .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
                                 .getCells()
                         )

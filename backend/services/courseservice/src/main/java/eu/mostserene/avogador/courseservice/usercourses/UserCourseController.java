@@ -3,10 +3,9 @@ package eu.mostserene.avogador.courseservice.usercourses;
 
 import eu.mostserene.avogador.courseservice.courses.ArchivedCourseException;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
-import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
-import eu.mostserene.avogador.courseservice.utils.LoggerColors;
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class UserCourseController {
     @Autowired
     private CourseService courseService;
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     /**
      * @param user the request user

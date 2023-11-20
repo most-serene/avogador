@@ -398,7 +398,7 @@ public class CodeExecutor {
     private void postOutput(SubmissionOutput submissionOutput) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            (new Sender()).send("filesystem", "fs.submission.output",
+            (new Sender()).send("storage", "storage.submission.output",
                     mapper.writeValueAsString(submissionOutput));
 
         } catch (JsonProcessingException e) {

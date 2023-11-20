@@ -182,14 +182,14 @@ services:
     networks:
       - avogador-inner-network
 
-  filesystem:
-    image: "avogador-filesystemservice:dev-latest" 
+  storage:
+    image: "avogador-storageservice:dev-latest" 
     restart: always
     build:
-      context: ./backend/services/filesystemservice
+      context: ./backend/services/storageservice
       network: host
       dockerfile: Dockerfile.dev
-      target: ${FILESYSTEMSERVICE_TARGET}
+      target: ${STORAGESERVICE_TARGET}
     logging:
       driver: json-file
       options:
@@ -201,8 +201,8 @@ services:
     environment:
       sentry.dsn: ${BACKEND_GLITCHTIP_DSN}
       spring.rabbitmq.host: ${RABBITMQ_BROKER_HOST}
-      spring.rabbitmq.username: ${FILESYSTEMSERVICE_RABBITMQ_USERNAME}
-      spring.rabbitmq.password: ${FILESYSTEMSERVICE_RABBITMQ_PASSWORD}
+      spring.rabbitmq.username: ${STORAGESERVICE_RABBITMQ_USERNAME}
+      spring.rabbitmq.password: ${STORAGESERVICE_RABBITMQ_PASSWORD}
       server.port: 80
       logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: ${SPRING_LOGGING_LEVEL}
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
@@ -210,13 +210,13 @@ services:
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
       # spring.servlet.multipart.max-file-size: 2GB
       # spring.servlet.multipart.max-request-size: 2GB
-      spring.profiles.active: ${FILESYSTEMSERVICE_PROFILE}
+      spring.profiles.active: ${STORAGESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
       # multipart.enabled: false
       fs.root: /avogador
     ports:
-      - "${FILESYSTEMSERVICE_PORT}:80"
+      - "${STORAGESERVICE_PORT}:80"
     volumes:
       - filesystem-volume:/avogador
     networks:
@@ -291,8 +291,8 @@ volumes:
     driver: local
     driver_opts:
       type: cifs    
-      device: //${FILESYSTEMSERVICE_VOLUME_ADDRESS}/${FILESYSTEMSERVICE_VOLUME_NAME}
-      o: "addr=${FILESYSTEMSERVICE_VOLUME_ADDRESS},username=${FILESYSTEMSERVICE_VOLUME_USER},password=${FILESYSTEMSERVICE_VOLUME_PASS},file_mode=0777,dir_mode=0777"
+      device: //${STORAGESERVICE_VOLUME_ADDRESS}/${STORAGESERVICE_VOLUME_NAME}
+      o: "addr=${STORAGESERVICE_VOLUME_ADDRESS},username=${STORAGESERVICE_VOLUME_USER},password=${STORAGESERVICE_VOLUME_PASS},file_mode=0777,dir_mode=0777"
 
 networks:
   avogador-inner-network:

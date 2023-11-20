@@ -2,7 +2,7 @@ package eu.mostserene.avogador.exerciseservice.exercises;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
@@ -42,7 +42,7 @@ public class ExerciseController {
     private TrialService trialService;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Autowired
     private SubmissionService submissionService;
@@ -119,7 +119,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        fileSystemService.createExerciseTemplate(exercise, strox);
+        storageService.createExerciseTemplate(exercise, strox);
     }
 
     /**
@@ -230,11 +230,11 @@ public class ExerciseController {
         }
 
         if (!merged || submission.isEmpty()){
-            template = fileSystemService.getExerciseTemplate(exercise)
+            template = storageService.getExerciseTemplate(exercise)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
         else {
-            template = fileSystemService.getMergedSubmission(submission.get())
+            template = storageService.getMergedSubmission(submission.get())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
 

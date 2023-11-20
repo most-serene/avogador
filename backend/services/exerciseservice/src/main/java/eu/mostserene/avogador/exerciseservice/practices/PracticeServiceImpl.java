@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.practices;
 
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ public class PracticeServiceImpl implements PracticeService {
     private PracticeRepository practiceRepository;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Override
     public Optional<Practice> getPractice(UUID practiceId) {
@@ -24,7 +24,7 @@ public class PracticeServiceImpl implements PracticeService {
     @Override
     public Practice createPractice(Practice practice) {
         Practice createdPractice = practiceRepository.save(practice);
-        fileSystemService.createTrial(createdPractice);
+        storageService.createTrial(createdPractice);
         return createdPractice;
     }
 
@@ -36,6 +36,6 @@ public class PracticeServiceImpl implements PracticeService {
     @Override
     public void deletePractice(Practice practice) {
         practiceRepository.delete(practice);
-        fileSystemService.deleteTrial(practice);
+        storageService.deleteTrial(practice);
     }
 }
