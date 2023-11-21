@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 
 interface ExerciseResultsChartProps {
   results: ExerciseResults | undefined;
+  height: number;
 }
 
 const getStatusMetadata = (status: SubmissionStatus) => {
@@ -25,7 +26,10 @@ const getStatusMetadata = (status: SubmissionStatus) => {
   }
 };
 
-const ExerciseResultsChart = ({ results }: ExerciseResultsChartProps) => {
+const ExerciseResultsChart = ({
+  results,
+  height,
+}: ExerciseResultsChartProps) => {
   if (results == null) {
     return (
       <Box
@@ -41,7 +45,7 @@ const ExerciseResultsChart = ({ results }: ExerciseResultsChartProps) => {
 
   if (Object.values(results).reduce((a, b) => a + b, 0) === 0) {
     return (
-      <Typography textAlign="center" sx={{ height: 200 }}>
+      <Typography textAlign="center" sx={{ height: height }}>
         No data to show
       </Typography>
     );
@@ -67,7 +71,7 @@ const ExerciseResultsChart = ({ results }: ExerciseResultsChartProps) => {
           innerRadius: 25,
         },
       ]}
-      height={200}
+      height={height}
     />
   );
 };

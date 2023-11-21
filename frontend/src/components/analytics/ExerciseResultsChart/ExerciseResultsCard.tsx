@@ -21,9 +21,13 @@ import MenuItem from "@mui/material/MenuItem";
 
 interface ExerciseResultsCardProps {
   courseId: string;
+  height?: number;
 }
 
-const ExerciseResultsCard = ({ courseId }: ExerciseResultsCardProps) => {
+const ExerciseResultsCard = ({
+  courseId,
+  height = 200,
+}: ExerciseResultsCardProps) => {
   const { getTrialsByCourseId } = useTrialService();
   const { getExercisesByTrialId } = useExerciseService();
   const { getExerciseResults } = useAnalyticsService();
@@ -82,7 +86,7 @@ const ExerciseResultsCard = ({ courseId }: ExerciseResultsCardProps) => {
       <Card raised>
         <CardContent
           sx={{
-            height: 200,
+            height: height,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -142,11 +146,11 @@ const ExerciseResultsCard = ({ courseId }: ExerciseResultsCardProps) => {
           </Grid>
         </Grid>
         {selectedExercise === "" ? (
-          <Typography sx={{ height: 200 }} textAlign="center">
+          <Typography sx={{ height: height }} textAlign="center">
             Select an exercise to view its data
           </Typography>
         ) : (
-          <ExerciseResultsChart results={results} />
+          <ExerciseResultsChart results={results} height={height} />
         )}
       </CardContent>
     </Card>
