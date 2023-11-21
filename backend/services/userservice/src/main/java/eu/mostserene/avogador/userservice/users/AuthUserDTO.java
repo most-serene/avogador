@@ -2,6 +2,7 @@ package eu.mostserene.avogador.userservice.users;
 
 import lombok.Data;
 
+import java.security.Principal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,5 +53,9 @@ public class AuthUserDTO {
     public Optional<AuthUserDTO> requireSuperuser() {
         if (getIsSuperuser())  return Optional.of(this);
         return Optional.empty();
+    }
+
+    public Principal toPrincipal() {
+        return () -> String.valueOf(getId());
     }
 }

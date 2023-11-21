@@ -62,4 +62,8 @@ public interface AuthService {
                         Function<AuthUserDTO, T> superUserCallback);
 
     AuthUserDTO validateApiKey(String apiKey);
+
+    String generateWebSocketToken(AuthUserDTO user);
+
+    AuthUserDTO decodeWebSocketToken(String webSocketToken);
 }
