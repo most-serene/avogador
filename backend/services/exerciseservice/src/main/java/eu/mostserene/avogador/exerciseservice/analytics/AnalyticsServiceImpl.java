@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
@@ -68,8 +72,15 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public void getExerciseResults() {
-        throw new UnsupportedOperationException();
+    public Map<SubmissionStatus, Long> getExerciseResults(Exercise exercise) {
+        var results = submissionResultService.getResultsFromExercise(exercise);
+        return Stream.of(SubmissionStatus.values())
+                .filter(submissionStatus -> !submissionStatus.equals(SubmissionStatus.PENDING))
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        status -> results.stream().filter(result -> result.getStatus() == status).count()
+                        )
+                );
     }
 
     @Override

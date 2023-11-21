@@ -8,7 +8,7 @@ import { getJoinLink } from "@courses/courseDetail/CourseOverviewTab/utils";
 import JoinCourseQRCodeModal from "@courses/courseDetail/CourseOverviewTab/JoinCourseQRCodeModal";
 import InfoPoint from "@structure/InfoPoint/InfoPoint";
 
-interface JoinCourseLinkVisualizerProps {
+interface JoinCourseLinkCardProps {
   course: UserCourseDetail | undefined;
 }
 const copyJoinLink = (course: UserCourseDetail) => {
@@ -28,13 +28,11 @@ const copyJoinLink = (course: UserCourseDetail) => {
     });
 };
 
-const JoinCourseLinkVisualizer = ({
-  course,
-}: JoinCourseLinkVisualizerProps) => {
+const JoinCourseLinkCard = ({ course }: JoinCourseLinkCardProps) => {
   const [showQrJoinCode, setShowQrJoinCode] = useState(false);
 
   return (
-    <Card sx={{ width: "32rem" }} raised>
+    <Card sx={{ width: "100%" }} raised>
       <CardContent>
         <Box display={"flex"} justifyContent={"space-between"}>
           <Typography
@@ -87,4 +85,4 @@ const JoinCourseLinkVisualizer = ({
   );
 };
 
-export default JoinCourseLinkVisualizer;
+export default JoinCourseLinkCard;
