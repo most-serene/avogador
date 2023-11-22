@@ -4,6 +4,7 @@ import {
   ExerciseResults,
   UserTrialProgress,
 } from "@components/analytics/types.ts";
+import { parseJSON } from "date-fns";
 
 const useAnalyticsService = () => {
   const avogadorApi = useAvogadorApi();
@@ -36,7 +37,21 @@ const useAnalyticsService = () => {
     },
     [avogadorApi],
   );
-  return { getUserTrialProgress, getExerciseResults };
+
+  const getSubmissionTimeSeries: (courseId: string) => Promise<Date[]> =
+    useCallback(
+      async (courseId: string) => {
+        const { data: submissionsTimestamps }: { data: string[] } =
+          await avogadorApi.get(
+            `analytics/courses/${courseId}/submissions-trend`,
+          );
+
+        return submissionsTimestamps.map((timestamp) => parseJSON(timestamp));
+      },
+      [avogadorApi],
+    );
+
+  return { getUserTrialProgress, getExerciseResults, getSubmissionTimeSeries };
 };
 
 export default useAnalyticsService;
