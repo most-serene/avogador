@@ -64,6 +64,11 @@ public class UserController {
         return authService.decodeJwt(authService.extractJwt(request));
     }
 
+    @GetMapping("/websocket-token")
+    private String getWebSocketToken(@RequestHeader(name = "User") AuthUserDTO user) {
+        return authService.generateWebSocketToken(user);
+    }
+
     /**
      * Get a user by id, if called by a student, and it's not themselves, the email is obfuscated
      *
