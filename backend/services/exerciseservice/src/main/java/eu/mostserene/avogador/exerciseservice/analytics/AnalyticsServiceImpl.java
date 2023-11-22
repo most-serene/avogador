@@ -12,6 +12,7 @@ import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,7 +85,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public void getSubmissionsTrend() {
-        throw new UnsupportedOperationException();
+    public List<Date> getSubmissionsTrend(UUID courseId) {
+        return trialService.getTrialsByCourseId(courseId, true)
+                .stream()
+                .flatMap(trial -> exerciseService.getExercisesFromTrial(trial, true).stream())
+                .flatMap(exercise -> submissionService.getSubmissionsFromExercise(exercise).stream())
+                .map(Submission::getTimestamp)
+                .toList();
     }
 }

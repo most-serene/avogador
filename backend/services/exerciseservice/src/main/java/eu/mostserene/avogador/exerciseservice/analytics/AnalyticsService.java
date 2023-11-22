@@ -3,6 +3,8 @@ package eu.mostserene.avogador.exerciseservice.analytics;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,5 +13,5 @@ public interface AnalyticsService {
 
     Map<SubmissionStatus, Long> getExerciseResults(Exercise exercise);
 
-    void getSubmissionsTrend();
+    List<Date> getSubmissionsTrend(UUID courseId);
 }

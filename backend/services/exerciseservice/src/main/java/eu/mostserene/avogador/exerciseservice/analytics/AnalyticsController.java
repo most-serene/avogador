@@ -71,4 +71,17 @@ public class AnalyticsController {
         return analyticsService.getExerciseResults(exercise);
     }
 
+    @GetMapping("/courses/{courseId}/submissions-trend")
+    private List<Date> getCourseSubmissionTrend(@RequestHeader(name = "User") UserDto user,
+                                          @PathVariable UUID courseId) {
+        var courseRole = userCourseService.getUserCourseRole(courseId, user.getId())
+                .orElseThrow(NotFoundException::new);
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+            throw new ForbiddenException("You don't have the right authorization");
+        }
+
+        return analyticsService.getSubmissionsTrend(courseId);
+    }
+
 }

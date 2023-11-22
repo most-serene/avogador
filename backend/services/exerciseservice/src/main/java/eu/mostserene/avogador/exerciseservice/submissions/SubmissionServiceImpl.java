@@ -27,6 +27,11 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
+    public List<Submission> getSubmissionsFromExercise(Exercise exercise) {
+        return submissionRepository.findByExercise_IdOrderByTimestampAsc(exercise.getId());
+    }
+
+    @Override
     public List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId) {
         return submissionRepository.findByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
     }
