@@ -1,3 +1,5 @@
+import React, { useMemo, useState } from "react";
+import Box from "@mui/material/Box";
 import {
   Backdrop,
   Button,
@@ -7,53 +9,53 @@ import {
   Stepper,
   Typography,
 } from "@mui/material";
-import ExerciseCreationInfo from "@exercises/exerciseCreation/ExerciseCreationInfo.tsx";
-import { useEffect, useMemo, useState } from "react";
-import Box from "@mui/material/Box";
-import { useAtom } from "jotai";
-import exerciseAtom, {
-  getInitializedExercise,
-} from "@exercises/exerciseCreation/ExerciseAtom.ts";
-import ExerciseCreationTemplate from "@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx";
-import templateAtom, {
-  getInitializedTemplate,
-} from "@exercises/exerciseCreation/TemplateAtom.ts";
-import ExerciseCreationTestcases from "@exercises/exerciseCreation/testcases/ExerciseCreationTestcases.tsx";
-import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
-import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { enqueueSnackbar } from "notistack";
-import { Exercise, Testcase } from "@exercises/types.ts";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
+import templateAtom from "@exercises/exerciseCreation/TemplateAtom.ts";
+import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
+import ExerciseCreationInfo from "@exercises/exerciseCreation/ExerciseCreationInfo.tsx";
+import ExerciseCreationTemplate from "@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx";
+import ExerciseCreationTestcases from "@exercises/exerciseCreation/testcases/ExerciseCreationTestcases.tsx";
 
-interface ExerciseCreationScreenProps {
-  originalExercise?: Exercise;
+interface ExerciseSettingsStepperProps {
+  onComplete: (
+    handleProgress: React.Dispatch<React.SetStateAction<number>>,
+    handleStep: React.Dispatch<React.SetStateAction<string>>,
+  ) => Promise<void>;
+  exerciseId?: string;
+  selectedCourse?: boolean;
 }
 
-const steps = [
-  { label: "General Info", component: <ExerciseCreationInfo /> },
-  { label: "Template", component: <ExerciseCreationTemplate /> },
-  { label: "Testcases", component: <ExerciseCreationTestcases /> },
-];
-
-const ExerciseCreationScreen = ({
-  originalExercise,
-}: ExerciseCreationScreenProps) => {
-  const {
-    createExercise,
-    createTestcase,
-    createTemplate,
-    updateExercise,
-    updateTestcase,
-  } = useExerciseService();
+const ExerciseSettingsStepper = ({
+  onComplete: handleComplete,
+  exerciseId,
+  selectedCourse = false,
+}: ExerciseSettingsStepperProps) => {
   const navigate = useNavigate();
-  const { exerciseId } = useParams();
   const [activeStep, setActiveStep] = useState(0);
-  const [exercise, setExercise] = useAtom(exerciseAtom);
-  const [template, setTemplate] = useAtom(templateAtom);
-  const [testcases, setTestcases] = useAtom(testcasesAtom);
+  const [exercise] = useAtom(exerciseAtom);
+  const [template] = useAtom(templateAtom);
+  const [testcases] = useAtom(testcasesAtom);
   const [creationStatus, setCreationStatus] = useState("");
   const [creationPercentage, setCreationPercentage] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(exerciseId != null);
+
+  const steps = useMemo(
+    () => [
+      {
+        label: "General Info",
+        component: (
+          <ExerciseCreationInfo
+            disableTrialSelection={exerciseId != null || selectedCourse}
+          />
+        ),
+      },
+      { label: "Template", component: <ExerciseCreationTemplate /> },
+      { label: "Testcases", component: <ExerciseCreationTestcases /> },
+    ],
+    [exerciseId, selectedCourse],
+  );
 
   const isInformationStepComplete = useMemo<boolean>(() => {
     return (
@@ -77,102 +79,6 @@ const ExerciseCreationScreen = ({
       )
     );
   }, [testcases]);
-
-  useEffect(() => {
-    if (exerciseId == null) {
-      setExercise(getInitializedExercise());
-      setTemplate([...getInitializedTemplate()]);
-      setTestcases([]);
-      setIsInitialized(true);
-
-      return () => {
-        setExercise(getInitializedExercise());
-        setTemplate([...getInitializedTemplate()]);
-        setTestcases([]);
-      };
-    }
-  }, [exerciseId, setExercise, setTemplate, setTestcases]);
-
-  const handleSubmit = async () => {
-    let createdExercise: Exercise;
-    const createdTestcases: Testcase[] = [];
-
-    try {
-      setCreationStatus("Creating the Database entry");
-      createdExercise = await createExercise({
-        trialId: exercise.trialId,
-        name: exercise.name,
-        statement: exercise.statement,
-        timeLimit: exercise.timeLimit,
-        isVisible: exercise.isVisible,
-      });
-      setCreationPercentage((prev) => prev + 25);
-    } catch (err) {
-      if (err instanceof Error) {
-        enqueueSnackbar(err.message, { variant: "error" });
-      }
-      setCreationStatus("");
-      setCreationPercentage(0);
-      return;
-    }
-
-    try {
-      await createTemplate(createdExercise, template);
-      setCreationPercentage((prev) => prev + 25);
-    } catch (err) {
-      if (err instanceof Error) {
-        enqueueSnackbar(err.message, { variant: "error" });
-      }
-      setCreationStatus("");
-      setCreationPercentage(0);
-    }
-
-    let i = 1;
-    for (const testcase of testcases) {
-      let createdTestcase: Testcase;
-      try {
-        setCreationStatus(
-          `Creating the Testcase entry ${i++}/${testcases.length}`,
-        );
-        createdTestcase = await createTestcase(createdExercise.id, testcase);
-        setCreationPercentage(
-          (prev) => prev + ((i - 1) / testcases.length) * 50,
-        );
-      } catch (err) {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
-        setCreationStatus("");
-        setCreationPercentage(0);
-        return;
-      }
-      createdTestcases.push(createdTestcase);
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (originalExercise == null) return;
-    const updatedExercise: Exercise = {
-      ...exercise,
-      id: originalExercise.id,
-      trial: originalExercise.trial,
-    };
-
-    await updateExercise(updatedExercise);
-    await createTemplate(updatedExercise, template);
-
-    for (const testcase of testcases) {
-      if (testcase.id == null) {
-        await createTestcase(updatedExercise.id, testcase);
-      } else {
-        await updateTestcase(updatedExercise.id, testcase);
-      }
-    }
-  };
-
-  if (!isInitialized) {
-    return <></>;
-  }
 
   return (
     <>
@@ -215,7 +121,7 @@ const ExerciseCreationScreen = ({
           >
             Next
           </Button>
-          {originalExercise == null ? (
+          {exerciseId == null ? (
             <Button
               variant="outlined"
               sx={{
@@ -226,7 +132,7 @@ const ExerciseCreationScreen = ({
                 activeStep != steps.length - 1 || !isTestcasesStepComplete
               }
               onClick={() => {
-                handleSubmit()
+                handleComplete(setCreationPercentage, setCreationStatus)
                   .then(() => {
                     setCreationStatus("");
                     navigate(`/practices/${exercise.trialId}`);
@@ -249,11 +155,11 @@ const ExerciseCreationScreen = ({
                 activeStep != steps.length - 1 || !isTestcasesStepComplete
               }
               onClick={() => {
-                handleUpdate()
+                handleComplete(setCreationPercentage, setCreationStatus)
                   .then(() => {
                     setCreationStatus("");
                     navigate(
-                      `/practices/${exercise.trialId}/exercises/${originalExercise.id}`,
+                      `/practices/${exercise.trialId}/exercises/${exerciseId}`,
                     );
                   })
                   .catch((err: Error) => {
@@ -286,4 +192,4 @@ const ExerciseCreationScreen = ({
   );
 };
 
-export default ExerciseCreationScreen;
+export default ExerciseSettingsStepper;
