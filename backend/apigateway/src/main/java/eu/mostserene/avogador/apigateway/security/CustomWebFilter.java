@@ -44,7 +44,7 @@ public class CustomWebFilter implements WebFilter {
     @Order(5)
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         try {
-            return foo(exchange, chain);
+            return handleRequest(exchange, chain);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -143,7 +143,7 @@ public class CustomWebFilter implements WebFilter {
         return exchange.getResponse().setComplete();
     }
 
-    private Mono<Void> foo(ServerWebExchange exchange, WebFilterChain chain) throws JsonProcessingException {
+    private Mono<Void> handleRequest(ServerWebExchange exchange, WebFilterChain chain) throws JsonProcessingException {
         String uri = exchange.getRequest().getURI().getPath();
         String requestId = RandomStringUtils.randomAlphanumeric(10);
         String cookieName = getCookieName();
