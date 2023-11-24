@@ -1,5 +1,5 @@
 import { Course } from "@courses/types.ts";
-import { Card, CardContent, CircularProgress } from "@mui/material";
+import { Alert, Card, CardContent, CircularProgress } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import useAnalyticsService from "@components/analytics/hooks/useAnalyticsService.tsx";
 import { enqueueSnackbar } from "notistack";
@@ -55,25 +55,38 @@ const SubmissionsTrendChart = ({ course }: SubmissionsTrendChart) => {
     <Card raised>
       <CardContent>
         {timeSeries ? (
-          <LineChart
-            height={250}
-            series={[
-              {
-                data: Object.values(timeSeries),
-                label: "submissions",
-                curve: "monotoneY",
-                showMark: false,
-              },
-            ]}
-            xAxis={[
-              {
-                scaleType: "time",
-                data: Object.keys(timeSeries).map(
-                  (value) => new Date(Number.parseInt(value)),
-                ),
-              },
-            ]}
-          />
+          Object.keys(timeSeries).length > 0 ? (
+            <LineChart
+              height={250}
+              series={[
+                {
+                  data: Object.values(timeSeries),
+                  label: "submissions",
+                  curve: "monotoneY",
+                  showMark: false,
+                },
+              ]}
+              xAxis={[
+                {
+                  scaleType: "time",
+                  data: Object.keys(timeSeries).map(
+                    (value) => new Date(Number.parseInt(value)),
+                  ),
+                },
+              ]}
+            />
+          ) : (
+            <Box
+              width={"100%"}
+              display={"flex"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
+              <Alert severity="info" variant={"outlined"}>
+                No submission trend data
+              </Alert>
+            </Box>
+          )
         ) : (
           <Box
             height={300}
