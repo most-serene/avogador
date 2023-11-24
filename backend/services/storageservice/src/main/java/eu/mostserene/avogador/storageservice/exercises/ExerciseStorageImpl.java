@@ -5,10 +5,8 @@ import eu.mostserene.avogador.storageservice.strox.Strox;
 import eu.mostserene.avogador.storageservice.strox.StroxStorage;
 import eu.mostserene.avogador.storageservice.strox.StroxStorageImpl;
 import eu.mostserene.avogador.storageservice.testcases.TestcaseResponseTDO;
-import eu.mostserene.avogador.storageservice.utils.CompressionUtils;
-import eu.mostserene.avogador.storageservice.utils.FileCreationFailed;
+import eu.mostserene.avogador.storageservice.utils.*;
 import eu.mostserene.avogador.storageservice.utils.FileNotFoundException;
-import eu.mostserene.avogador.storageservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -215,5 +213,18 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     @Override
     public void delete() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteTestcase(UUID testcaseId) {
+        File inputFile = new File(getTestcasesFolder() + "/" + testcaseId + ".in");
+        File outputFile = new File(getTestcasesFolder() + "/" + testcaseId + ".out");
+
+        try {
+            Files.deleteIfExists(inputFile.toPath());
+            Files.deleteIfExists(outputFile.toPath());
+        } catch (IOException e) {
+            throw new FileDeletionFailed("Testcase " + testcaseId + ": testcase files deletion failed");
+        }
     }
 }

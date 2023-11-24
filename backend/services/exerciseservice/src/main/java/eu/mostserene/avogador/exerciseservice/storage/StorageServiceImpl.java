@@ -94,8 +94,21 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteTestcase(TestcaseDetailDto testcase) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public void deleteTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        try {
+            (new Sender())
+                    .send("storage", "storage.testcase.create",
+                            mapper.writeValueAsString(new TestcaseStorageDto(
+                                    exercise.getTrial().getCourseId(),
+                                    exercise.getTrial().getId(),
+                                    testcase.getExerciseId(),
+                                    testcase.getId(),
+                                    "",
+                                    ""
+                            )));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
