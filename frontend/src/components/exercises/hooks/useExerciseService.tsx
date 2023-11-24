@@ -248,6 +248,18 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const deleteTestcase: (
+    exerciseId: string,
+    testcase: Testcase,
+  ) => Promise<void> = useCallback(
+    async (exerciseId: string, testcase: Testcase) => {
+      await avogadorApi.delete(
+        `/exercises/${exerciseId}/testcases/${testcase.id}`,
+      );
+    },
+    [avogadorApi],
+  );
+
   return {
     createExercise,
     createTemplate,
@@ -266,6 +278,7 @@ const useExerciseService = () => {
     getSubmissionOutputs,
     updateExercise,
     updateTestcase,
+    deleteTestcase,
   };
 };
 

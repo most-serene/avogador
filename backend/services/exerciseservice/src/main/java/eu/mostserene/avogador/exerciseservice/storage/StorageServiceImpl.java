@@ -94,15 +94,15 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+    public void deleteTestcase(Exercise exercise, UUID testcaseId) {
         try {
             (new Sender())
-                    .send("storage", "storage.testcase.create",
+                    .send("storage", "storage.testcase.delete",
                             mapper.writeValueAsString(new TestcaseStorageDto(
                                     exercise.getTrial().getCourseId(),
                                     exercise.getTrial().getId(),
-                                    testcase.getExerciseId(),
-                                    testcase.getId(),
+                                    exercise.getId(),
+                                    testcaseId,
                                     "",
                                     ""
                             )));

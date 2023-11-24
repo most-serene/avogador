@@ -2,6 +2,7 @@ package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TestcaseController {
     @Autowired
+    private TestcaseRepository testcaseRepository;
+    @Autowired
     private TestcaseService testcaseService;
 
     @Autowired
@@ -39,16 +42,7 @@ public class TestcaseController {
 
     @PostMapping()
     private TestcaseDetailDto createTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody TestcaseDetailDto testcase){
-        var exercise = exerciseService.getExercise(exerciseId)
-                .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
-        var trial = trialService.getTrialById(exercise.getTrial().getId())
-                .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
-            throw new ForbiddenException(user);
-        }
+        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         var exerciseTestcases = testcaseService.getSimpleTestcasesFromExercise(exercise);
         testcase.setIndex(exerciseTestcases.size());
@@ -105,16 +99,7 @@ public class TestcaseController {
 
     @PatchMapping("/order")
     private void updateTestcaseOrder(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody List<UUID> testcaseIds){
-        var exercise = exerciseService.getExercise(exerciseId)
-                .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
-        var trial = trialService.getTrialById(exercise.getTrial().getId())
-                .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
-            throw new ForbiddenException(user);
-        }
+        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         var testcases = testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()
@@ -131,6 +116,26 @@ public class TestcaseController {
 
     @PutMapping("/{testcaseId}")
     private TestcaseDetailDto updateTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId, @RequestBody TestcaseDetailDto testcase){
+        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
+
+        var oldTestcase = testcaseService.getSimpleTestcase(testcaseId)
+                .orElseThrow(() -> new NotFoundException("Not found testcase with id :" + testcaseId));
+
+        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())){
+            throw new BadRequestException("You cannot modify this fields");
+        }
+
+        return testcaseService.updateTestcase(exercise, testcase);
+    }
+
+    @DeleteMapping("/{testcaseId}")
+    private void deleteTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId){
+        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
+
+        testcaseService.deleteTestcase(exercise, testcaseId);
+    }
+
+    private Exercise getExerciseIfCollaboratorClearance(UUID exerciseId, UserDto user){
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -141,15 +146,7 @@ public class TestcaseController {
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
-
-        var oldTestcase = testcaseService.getTestcase(exercise, testcaseId)
-                .orElseThrow(() -> new NotFoundException("Not found testcase with id :" + testcaseId));
-
-        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())){
-            throw new BadRequestException("You cannot modify this fields");
-        }
-
-        return testcaseService.updateTestcase(exercise, testcase);
+        return  exercise;
     }
 
 }

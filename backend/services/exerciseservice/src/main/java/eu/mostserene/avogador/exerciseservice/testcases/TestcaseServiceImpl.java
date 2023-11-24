@@ -2,6 +2,7 @@ package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class TestcaseServiceImpl implements TestcaseService {
     @Autowired
     private TestcaseRepository repository;
@@ -74,7 +76,15 @@ public class TestcaseServiceImpl implements TestcaseService {
 
     @Override
     public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        repository.updateIsVisibleById(testcase.getIsVisible(), testcase.getId());
+        log.info(testcase.getIsVisible().toString());
         storageService.updateTestcase(exercise, testcase);
         return testcase;
+    }
+
+    @Override
+    public void deleteTestcase(Exercise exercise, UUID testcaseId) {
+        repository.deleteById(testcaseId);
+        storageService.deleteTestcase(exercise, testcaseId);
     }
 }
