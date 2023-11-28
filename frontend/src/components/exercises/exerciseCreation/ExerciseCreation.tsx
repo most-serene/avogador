@@ -7,7 +7,7 @@ import templateAtom, {
   getInitializedTemplate,
 } from "@exercises/exerciseCreation/TemplateAtom.ts";
 import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
-import { Exercise, Testcase } from "@exercises/types.ts";
+import { Exercise } from "@exercises/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import ExerciseSettingsStepper from "@exercises/exerciseCreation/ExerciseSettingsStepper.tsx";
@@ -21,7 +21,7 @@ interface ExerciseCreationState {
 }
 
 const ExerciseCreation = () => {
-  const { createExercise, createTestcase, createTemplate } =
+  const { createExercise, insertTestcase, createTemplate } =
     useExerciseService();
   const { state }: ExerciseCreationState =
     useLocation() as ExerciseCreationState;
@@ -52,7 +52,14 @@ const ExerciseCreation = () => {
     handleStep: React.Dispatch<React.SetStateAction<string>>,
   ) => {
     let createdExercise: Exercise;
-    const createdTestcases: Testcase[] = [];
+
+    const handleCatch = (err: unknown) => {
+      if (err instanceof Error) {
+        enqueueSnackbar(err.message, { variant: "error" });
+      }
+      handleStep("");
+      handleProgress(0);
+    };
 
     try {
       handleStep("Creating the Database entry");
@@ -65,41 +72,29 @@ const ExerciseCreation = () => {
       });
       handleProgress((prev) => prev + 25);
     } catch (err) {
-      if (err instanceof Error) {
-        enqueueSnackbar(err.message, { variant: "error" });
-      }
-      handleStep("");
-      handleProgress(0);
+      handleCatch(err);
       return;
     }
 
     try {
+      handleStep("Creating the Template");
       await createTemplate(createdExercise, template);
       handleProgress((prev) => prev + 25);
     } catch (err) {
-      if (err instanceof Error) {
-        enqueueSnackbar(err.message, { variant: "error" });
-      }
-      handleStep("");
-      handleProgress(0);
+      handleCatch(err);
     }
 
-    let i = 1;
-    for (const testcase of testcases) {
-      let createdTestcase: Testcase;
-      try {
-        handleStep(`Creating the Testcase entry ${i++}/${testcases.length}`);
-        createdTestcase = await createTestcase(createdExercise.id, testcase);
-        handleProgress((prev) => prev + ((i - 1) / testcases.length) * 50);
-      } catch (err) {
-        if (err instanceof Error) {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
-        handleStep("");
-        handleProgress(0);
-        return;
-      }
-      createdTestcases.push(createdTestcase);
+    try {
+      handleStep("Creating the Testcases");
+      await Promise.all(
+        testcases.map((testcase, i) => {
+          return insertTestcase(createdExercise.id, { ...testcase, index: i });
+        }),
+      );
+      handleProgress((prev) => prev + 25);
+    } catch (err) {
+      handleCatch(err);
+      return;
     }
   };
 

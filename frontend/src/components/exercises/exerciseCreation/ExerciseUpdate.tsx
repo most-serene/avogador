@@ -18,10 +18,9 @@ const ExerciseUpdate = () => {
     getExerciseById,
     getTestcasesFromExercise,
     getTemplateFromExercise,
-    createTestcase,
+    insertTestcase,
     createTemplate,
     updateExercise,
-    updateTestcase,
     deleteTestcase,
   } = useExerciseService();
   const { getTrialById } = useTrialService();
@@ -78,6 +77,14 @@ const ExerciseUpdate = () => {
   ) => {
     if (originalExercise == null || originalTestcases == null) return;
 
+    const handleCatch = (err: unknown) => {
+      if (err instanceof Error) {
+        enqueueSnackbar(err.message, { variant: "error" });
+      }
+      handleStep("");
+      handleProgress(0);
+    };
+
     const updatedExercise: Exercise = {
       ...exercise,
       id: originalExercise.id,
@@ -86,31 +93,46 @@ const ExerciseUpdate = () => {
 
     handleStep("Updating exercise data");
     handleProgress((prev) => prev + 25);
-    await updateExercise(updatedExercise);
+    try {
+      await updateExercise(updatedExercise);
+    } catch (err) {
+      handleCatch(err);
+    }
     handleStep("Updating template");
     handleProgress((prev) => prev + 25);
 
-    await createTemplate(updatedExercise, template);
+    try {
+      await createTemplate(updatedExercise, template);
+    } catch (err) {
+      handleCatch(err);
+    }
 
     handleStep("Updating testcases");
-    let i = 0;
-    for (const testcase of testcases) {
-      handleProgress((prev) => prev + (50 * ++i) / testcases.length);
-      if (testcase.id == null) {
-        await createTestcase(updatedExercise.id, testcase);
-      } else {
-        await updateTestcase(updatedExercise.id, testcase);
-      }
+
+    try {
+      await Promise.all(
+        testcases.map((testcase, i) => {
+          return insertTestcase(updatedExercise.id, { ...testcase, index: i });
+        }),
+      );
+      handleProgress((prev) => prev + 25);
+      handleStep("Deleting old testcases");
+    } catch (err) {
+      handleCatch(err);
     }
 
-    handleStep("Deleting old testcases");
-    for (const testcase of originalTestcases.filter(
-      (otc) => !testcases.some((tc) => tc.id === otc.id),
-    )) {
-      deleteTestcase(originalExercise.id, testcase).catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
-      });
+    try {
+      await Promise.all(
+        originalTestcases
+          .filter((otc) => !testcases.some((tc) => tc.id === otc.id))
+          .map((testcase) => {
+            return deleteTestcase(updatedExercise.id, testcase);
+          }),
+      );
+    } catch (err) {
+      handleCatch(err);
     }
+
     handleProgress(100);
   };
 

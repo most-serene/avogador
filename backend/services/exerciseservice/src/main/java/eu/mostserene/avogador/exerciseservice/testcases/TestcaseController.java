@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TestcaseController {
     @Autowired
-    private TestcaseRepository testcaseRepository;
-    @Autowired
     private TestcaseService testcaseService;
 
     @Autowired
@@ -40,8 +38,11 @@ public class TestcaseController {
     @Autowired
     private UserCourseService userCourseService;
 
+    /**
+     * @deprecated since 0.4.1, use insertTestcase instead
+     */
     @PostMapping()
-    private TestcaseDetailDto createTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody TestcaseDetailDto testcase){
+    private TestcaseDetailDto createTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody TestcaseDetailDto testcase) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         var exerciseTestcases = testcaseService.getSimpleTestcasesFromExercise(exercise);
@@ -52,7 +53,7 @@ public class TestcaseController {
     }
 
     @GetMapping()
-    private List<TestcaseDetailDto> getTestcasesFromExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId){
+    private List<TestcaseDetailDto> getTestcasesFromExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -60,7 +61,7 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
@@ -70,13 +71,13 @@ public class TestcaseController {
                     .filter(tc -> tc.getIsVisible() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
                     .sorted(Comparator.comparingInt(TestcaseDetailDto::getIndex))
                     .toList();
-        } catch (IllegalStateException exception){
+        } catch (IllegalStateException exception) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Missing testcases");
         }
     }
 
     @GetMapping("/{testcaseId}")
-    private TestcaseDetailDto getTestcaseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId){
+    private TestcaseDetailDto getTestcaseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -84,12 +85,12 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
         var testcase = testcaseService.getTestcase(exercise, testcaseId)
-                .orElseThrow(()-> new NotFoundException("Not found testcase with id: " + testcaseId));
+                .orElseThrow(() -> new NotFoundException("Not found testcase with id: " + testcaseId));
         if (!testcase.getIsVisible() && courseRole == CourseRole.STUDENT) {
             throw new ForbiddenException(user);
         }
@@ -98,14 +99,14 @@ public class TestcaseController {
     }
 
     @PatchMapping("/order")
-    private void updateTestcaseOrder(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody List<UUID> testcaseIds){
+    private void updateTestcaseOrder(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody List<UUID> testcaseIds) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         var testcases = testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()
                 .collect(Collectors.toMap(Testcase::getId, Function.identity()));
 
-        if (testcaseIds.size() != testcases.size()){
+        if (testcaseIds.size() != testcases.size()) {
             throw new BadRequestException("List size mismatch");
         }
 
@@ -114,28 +115,50 @@ public class TestcaseController {
         }
     }
 
+    /**
+     * @deprecated since 0.4.1, use insertTestcase instead
+     */
     @PutMapping("/{testcaseId}")
-    private TestcaseDetailDto updateTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId, @RequestBody TestcaseDetailDto testcase){
+    private TestcaseDetailDto updateTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId, @RequestBody TestcaseDetailDto testcase) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         var oldTestcase = testcaseService.getSimpleTestcase(testcaseId)
                 .orElseThrow(() -> new NotFoundException("Not found testcase with id :" + testcaseId));
 
-        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())){
+        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())) {
             throw new BadRequestException("You cannot modify this fields");
         }
 
         return testcaseService.updateTestcase(exercise, testcase);
     }
 
+    @PutMapping("")
+    private TestcaseDetailDto insertTestcase(
+            @RequestHeader(name = "User") UserDto user,
+            @PathVariable UUID exerciseId,
+            @RequestBody TestcaseDetailDto testcase) {
+        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
+        testcase.setExerciseId(exerciseId);
+
+        if (testcase.getIndex() == null) {
+            testcase.setIndex((int) Short.MAX_VALUE);
+        }
+
+        if (testcase.getId() == null) {
+            return testcaseService.createTestcase(testcase, exercise);
+        } else {
+            return testcaseService.updateTestcase(exercise, testcase);
+        }
+    }
+
     @DeleteMapping("/{testcaseId}")
-    private void deleteTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId){
+    private void deleteTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
         testcaseService.deleteTestcase(exercise, testcaseId);
     }
 
-    private Exercise getExerciseIfCollaboratorClearance(UUID exerciseId, UserDto user){
+    private Exercise getExerciseIfCollaboratorClearance(UUID exerciseId, UserDto user) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -146,7 +169,7 @@ public class TestcaseController {
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
-        return  exercise;
+        return exercise;
     }
 
 }

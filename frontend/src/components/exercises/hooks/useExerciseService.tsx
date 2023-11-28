@@ -43,6 +43,9 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  /**
+   * @deprecated, since 0.4.1 ,use insertTestcase instead
+   * */
   const createTestcase: (
     exerciseId: string,
     testcase: PartialTestcase,
@@ -233,6 +236,9 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  /**
+   * @deprecated, since 0.4.1, use insertTestcase instead
+   * */
   const updateTestcase: (
     exerciseId: string,
     testcase: PartialTestcase,
@@ -248,6 +254,19 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const updateTestcaseOrder: (
+    exerciseId: string,
+    testcaseIds: string[],
+  ) => Promise<void> = useCallback(
+    async (exerciseId: string, testcaseIds: string[]) => {
+      await avogadorApi.patch(
+        `/exercises/${exerciseId}/testcases/order`,
+        testcaseIds,
+      );
+    },
+    [avogadorApi],
+  );
+
   const deleteTestcase: (
     exerciseId: string,
     testcase: Testcase,
@@ -256,6 +275,21 @@ const useExerciseService = () => {
       await avogadorApi.delete(
         `/exercises/${exerciseId}/testcases/${testcase.id}`,
       );
+    },
+    [avogadorApi],
+  );
+
+  const insertTestcase: (
+    exerciseId: string,
+    testcase: PartialTestcase & { index: number },
+  ) => Promise<Testcase> = useCallback(
+    async (
+      exerciseId: string,
+      testcase: PartialTestcase & { index: number },
+    ) => {
+      const { data: createdTestcase }: { data: Testcase } =
+        await avogadorApi.put(`/exercises/${exerciseId}/testcases`, testcase);
+      return createdTestcase;
     },
     [avogadorApi],
   );
@@ -278,7 +312,9 @@ const useExerciseService = () => {
     getSubmissionOutputs,
     updateExercise,
     updateTestcase,
+    updateTestcaseOrder,
     deleteTestcase,
+    insertTestcase,
   };
 };
 
