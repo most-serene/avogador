@@ -1,8 +1,10 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
 
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialDetailDto;
@@ -22,6 +24,12 @@ public class TrialController {
     private TrialService trialService;
     @Autowired
     private UserCourseService userCourseService;
+
+    @Autowired
+    private ExerciseService exerciseService;
+
+    @Autowired
+    private AntiPlagiarismService antiPlagiarismService;
 
     @GetMapping("/{trialId}")
     private Trial getTrialById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
@@ -59,6 +67,22 @@ public class TrialController {
         }
 
         return trialService.getTrialsByCourseId(courseId, true);
+    }
+
+    @PutMapping("/{trialId}/similarity")
+    private void generateSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
+        var trial = trialService.getTrialById(trialId)
+                .orElseThrow(() -> new NotFoundException(trialId.toString()));
+        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        var exercises = exerciseService.getExercisesFromTrial(trial, true);
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        exercises.forEach(exercise -> antiPlagiarismService.executeSimilarityTool(exercise));
     }
 
     /**
