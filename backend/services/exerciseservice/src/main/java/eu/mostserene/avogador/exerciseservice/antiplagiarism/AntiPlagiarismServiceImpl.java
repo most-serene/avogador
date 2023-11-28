@@ -84,7 +84,8 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
                     .withBaseCodeSubmissionDirectory(baseCode)
                     .withClusteringOptions(new ClusteringOptions().withEnabled(true));
 
-            handleToolRun(options, exercise, workingDirectory);
+            handleToolRun(options, workingDirectory);
+            storageService.uploadSimilarityReport(exercise, new File(workingDirectory + "/results.zip"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -113,17 +114,12 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         };
     }
 
-    private void handleToolRun(JPlagOptions options, Exercise exercise, File workingDirectory) throws ExitException {
-        boolean retry = true;
-        while (retry) {
-            try {
-                runTool(options, workingDirectory);
-                retry = false;
-                storageService.uploadSimilarityReport(exercise, new File(workingDirectory + "/results.zip"));
-            } catch (BasecodeException basecodeException) {
-                options = new JPlagOptions(options.language(), options.submissionDirectories(), Set.of())
-                        .withClusteringOptions(new ClusteringOptions().withEnabled(true));
-            }
+    private void handleToolRun(JPlagOptions options, File workingDirectory) throws ExitException {
+        try {
+            runTool(options, workingDirectory);
+        } catch (BasecodeException basecodeException) {
+            runTool(new JPlagOptions(options.language(), options.submissionDirectories(), Set.of())
+                    .withClusteringOptions(new ClusteringOptions().withEnabled(true)), workingDirectory);
         }
     }
 
