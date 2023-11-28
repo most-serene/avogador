@@ -34,4 +34,8 @@ public class Strox {
 
         return merged;
     }
+
+    static public String generateSourceCode(Strox strox) {
+        return String.join("\n", strox.getCells().stream().map(StroxCell::getContent).toList());
+    }
 }

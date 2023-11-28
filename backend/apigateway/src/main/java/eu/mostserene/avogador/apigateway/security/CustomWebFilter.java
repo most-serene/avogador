@@ -114,9 +114,7 @@ public class CustomWebFilter implements WebFilter {
             return false;
         }
 
-        String cookieName = getCookieName();
-        HttpCookie jwtCookie = request.getCookies().getFirst(cookieName);
-
+        HttpCookie jwtCookie = request.getCookies().getFirst(getCookieName());
         if (jwtCookie == null) return false;
 
         String jwtHash = Hashing.sha256()
@@ -124,7 +122,6 @@ public class CustomWebFilter implements WebFilter {
                 .toString();
 
         String jwtSubHash = jwtHash.substring(jwtHash.length() - 20);
-        log.info(request.getHeaders().getFirst("Jwt-CSRF-Hash") + " " + jwtSubHash);
 
         return !jwtSubHash.equals(request.getHeaders().getFirst("Jwt-CSRF-Hash"));
     }

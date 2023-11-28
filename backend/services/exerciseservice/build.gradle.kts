@@ -30,6 +30,12 @@ repositories {
 }
 
 dependencies {
+	implementation("org.rauschig:jarchivelib:0.7.1")
+	implementation("commons-io:commons-io:2.15.0")
+	implementation("de.jplag:jplag:4.3.0")
+	implementation("de.jplag:java:4.3.0")
+	implementation("de.jplag:cpp2:4.3.0")
+	implementation("de.jplag:python-3:4.3.0")
 	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
 	implementation("org.apache.commons:commons-lang3:3.12.0")
