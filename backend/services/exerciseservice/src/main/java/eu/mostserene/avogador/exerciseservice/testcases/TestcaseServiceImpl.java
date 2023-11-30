@@ -81,7 +81,6 @@ public class TestcaseServiceImpl implements TestcaseService {
     @Override
     public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
         repository.updateIsVisibleAndIndexById(testcase.getIsVisible(), testcase.getIndex(), testcase.getId());
-        log.info(testcase.getIsVisible().toString());
         storageService.updateTestcase(exercise, testcase);
         return testcase;
     }
