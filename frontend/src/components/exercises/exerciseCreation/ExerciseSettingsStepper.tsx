@@ -134,8 +134,10 @@ const ExerciseSettingsStepper = ({
               onClick={() => {
                 handleComplete(setCreationPercentage, setCreationStatus)
                   .then(() => {
-                    setCreationStatus("");
-                    navigate(`/practices/${exercise.trialId}`);
+                    setTimeout(() => {
+                      setCreationStatus("");
+                      navigate(`/practices/${exercise.trialId}`);
+                    }, 2000); // TODO: remove this delay after fixing rabbit waiting
                   })
                   .catch((err: Error) => {
                     enqueueSnackbar(err.message, { variant: "error" });
