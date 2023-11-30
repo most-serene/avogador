@@ -72,8 +72,8 @@ public class UserController {
     /**
      * Get a user by id, if called by a student, and it's not themselves, the email is obfuscated
      *
-     * @param user the current user from the header
-     * @param userId  the id of the user
+     * @param user   the current user from the header
+     * @param userId the id of the user
      * @return the corresponding user
      */
     @GetMapping("/{userId}")
@@ -116,6 +116,36 @@ public class UserController {
                     userService.deleteUser(userToDelete);
                 }
         );
+    }
+
+    @PutMapping("/professors/{userId}")
+    private AuthUserDTO promoteUserToProfessor(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
+        if (!user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
+        var userToPromote = userService.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId));
+        userToPromote.setIsProfessor(true);
+
+        return userService
+                .updateUser(userToPromote)
+                .generateAuthUserDTO();
+    }
+
+    @PutMapping("/students/{userId}")
+    private AuthUserDTO demoteUserToStudent(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
+        if (!user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
+        var userToPromote = userService.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId));
+        userToPromote.setIsProfessor(false);
+
+        return userService
+                .updateUser(userToPromote)
+                .generateAuthUserDTO();
     }
 
     /**
@@ -283,8 +313,8 @@ public class UserController {
      * Revoke all the existing JWTs for the user.
      * This call is allowed only from a superuser or the user itself
      *
-     * @param user    the request user
-     * @param userId  the id of the user whose tokens have to be revoked
+     * @param user   the request user
+     * @param userId the id of the user whose tokens have to be revoked
      */
     @PatchMapping("/{userId}/revoke-jwt")
     private void revokeJWTs(@RequestHeader(name = "User") AuthUserDTO user, @PathVariable UUID userId) {
