@@ -8,12 +8,19 @@ import eu.mostserene.avogador.storageservice.testcases.TestcaseResponseTDO;
 import eu.mostserene.avogador.storageservice.utils.*;
 import eu.mostserene.avogador.storageservice.utils.FileNotFoundException;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.rauschig.jarchivelib.Archiver;
+import org.rauschig.jarchivelib.ArchiverFactory;
 
-import java.io.*;
-import java.nio.file.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
+@Getter
 @Slf4j
 public class ExerciseStorageImpl implements ExerciseStorage {
     private final UUID courseId;
@@ -32,21 +39,9 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         this.exerciseId = exerciseId;
     }
 
-    public UUID getCourseId() {
-        return courseId;
-    }
-
-    public UUID getTrialId() {
-        return trialId;
-    }
-
-    public UUID getExerciseId() {
-        return exerciseId;
-    }
-
     public File getBaseDirectory() {
         return new File(fileSystemRoot.getFileSystemRoot() + "/courses/" +
-                getCourseId().toString() + "/trials/" + getTrialId().toString() );
+                getCourseId().toString() + "/trials/" + getTrialId().toString());
     }
 
     @Override
@@ -226,5 +221,60 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         } catch (IOException e) {
             throw new FileDeletionFailed("Testcase " + testcaseId + ": testcase files deletion failed");
         }
+    }
+
+    @Override
+    public File getSubmissionsCode(List<UUID> submissionIds) {
+        try {
+            File exportingDir = Files.createTempDirectory("submissions").toFile();
+            File exportedDir = Files.createTempDirectory("exported").toFile();
+
+
+            Arrays.stream(Objects.requireNonNull(getSubmissionsFolder().list()))
+                    .filter(submissionFolderName ->
+                            submissionIds.contains(UUID.fromString(submissionFolderName)))
+                    .forEach(submissionFolderName -> {
+                        log.info(LoggerColors.cyan(submissionFolderName));
+                        File exportingSubmissionDirectory = new File(exportingDir + "/" + submissionFolderName);
+                        exportingSubmissionDirectory.mkdirs();
+                        log.info(LoggerColors.cyan(getSubmissionsFolder() + "/" + submissionFolderName + "/source"));
+                        log.info(LoggerColors.cyan(exportingSubmissionDirectory.getPath()));
+
+                        Arrays.stream(Objects.requireNonNull(new File(getSubmissionsFolder() + "/" + submissionFolderName + "/source").list()))
+                                .forEach(s -> {
+                                    try {
+                                        FileUtils.copyToDirectory(
+                                                new File(getSubmissionsFolder() + "/" + submissionFolderName + "/source/" + s)
+                                                , exportingSubmissionDirectory);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                });
+
+                    });
+
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.create("submissions", exportedDir, exportingDir);
+
+            return new File(exportedDir + "/submissions.tar.gz");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void saveSimilarityReport(byte[] similarityReportBytes) {
+        File archive = new File(get() + "/similarity.zip");
+        try {
+            Files.write(archive.toPath(), similarityReportBytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<File> getSimilarityReport() {
+        File archive = new File(get() + "/similarity.zip");
+        return archive.exists() ? Optional.of(archive) : Optional.empty();
     }
 }

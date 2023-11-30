@@ -1,21 +1,14 @@
 package eu.mostserene.avogador.executorservice.executor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
-import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.PullResponseItem;
-import com.github.dockerjava.api.model.Statistics;
-import com.github.dockerjava.api.model.WaitResponse;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
-import eu.mostserene.avogador.executorservice.amqp.Sender;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
 import eu.mostserene.avogador.executorservice.submission.Submission;
@@ -24,6 +17,7 @@ import eu.mostserene.avogador.executorservice.submission.SubmissionResult;
 import eu.mostserene.avogador.executorservice.submission.SubmissionStatus;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import eu.mostserene.avogador.executorservice.utils.LoggerUtils;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -35,7 +29,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.springframework.core.env.Environment;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -60,6 +53,7 @@ public class CodeExecutor {
     private CodeExecutor() {
     }
 
+    @PostConstruct
     static void configure(Environment environment, StorageService storageService) {
         CodeExecutor.executor = new CodeExecutor();
 
@@ -148,6 +142,85 @@ public class CodeExecutor {
     public void checkSubmission(Submission submission) {
         log.info(LoggerColors.warn("Submission " + submission.getId() + ": Execution started"));
 
+        File submissionFolder = createFolder(submission);
+        String compileOutput = null;
+        try {
+            File code = storageService.fetchAndSaveSubmissionCode(submission);
+            File testcases = storageService.fetchAndSaveTestcases(submission);
+
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.extract(code, new File(code.getParentFile() + "/code"));
+            archiver.extract(testcases, new File(testcases.getParentFile() + "/testcases"));
+
+            Pair<File, String> compiled = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
+
+            File executable = compiled.getLeft();
+            compileOutput = compiled.getRight();
+
+            if (isCompilationFailed(executable)) {
+                handleCompilationFailure(submission, compileOutput);
+            } else {
+                handleCompilationSuccess(executable, submission, compileOutput);
+            }
+        } catch (NotFoundException e) {
+            handleCompilationFailure(submission, compileOutput);
+        } catch (Exception e) {
+            handleGeneralException(submission, e);
+        } finally {
+            FileSystemUtils.deleteRecursively(submissionFolder);
+            log.info(LoggerColors.success("Submission " + submission.getId() + ": Cleanup completed"));
+        }
+    }
+
+    private void handleCompilationSuccess(File executable, Submission submission, String compileOutput) throws IOException {
+        setupExecutablePermissions(executable);
+        log.info(LoggerColors.success("Submission " + submission.getId() + ": Compiled successfully"));
+        CommunicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+
+        submission.getTestcases()
+                .forEach(testcase -> testCaseExecutionWrapper(testcase, submission, executable));
+
+        log.info(LoggerColors.success("Submission " + submission.getId() + ": Execution done"));
+    }
+
+    private void handleGeneralException(Submission submission, Exception e) {
+        log.info(LoggerColors.error("Submission " + submission.getId() + ": Execution failed \n" + e));
+        LoggerUtils.logErrorToSentry(e);
+        submission.getTestcases()
+                .forEach(testcase -> CommunicationUtils.postResult(new SubmissionResult(submission.getId(),
+                        testcase, SubmissionStatus.RUNTIME_ERROR)));
+    }
+
+    private void handleCompilationFailure(Submission submission, String compileOutput) {
+        log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
+        submission.getTestcases()
+                .forEach(testcase -> CommunicationUtils.postResult(new SubmissionResult(submission.getId(),
+                        testcase, SubmissionStatus.COMPILE_ERROR)));
+        CommunicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+    }
+
+    private boolean isCompilationFailed(File executable) {
+        return executable == null ||
+                !executable.exists() ||
+                (executable.isDirectory() && isDirectoryEmpty(executable));
+    }
+
+    private boolean isDirectoryEmpty(File executable) {
+        return Objects.requireNonNull(executable.list()).length == 0;
+    }
+
+    private void setupExecutablePermissions(File executable) throws IOException {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+
+        Files.setPosixFilePermissions(executable.toPath(), perms);
+    }
+
+    private File createFolder(Submission submission) {
         File submissionFolder = new File("/avogador/" + submission.getId());
         if (submissionFolder.exists()) {
             log.info(LoggerColors.error("Submission " + submission.getId() + ": Already in execution - terminating"));
@@ -156,82 +229,7 @@ public class CodeExecutor {
         if (submissionFolder.mkdirs()) {
             log.info(LoggerColors.success("Submission " + submission.getId() + ": folder created"));
         }
-        try {
-
-            File code = storageService.fetchAndSaveSubmissionCode(submission);
-            File testcases = storageService.fetchAndSaveTestcases(submission);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            try {
-                archiver.extract(code, new File(code.getParentFile() + "/code"));
-                archiver.extract(testcases, new File(testcases.getParentFile() + "/testcases"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            File executable = null;
-            String compileOutput = null;
-
-            try {
-                Pair<File, String> compiled = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
-
-                executable = compiled.getLeft();
-                compileOutput = compiled.getRight();
-
-                if (executable == null || !executable.exists() || (executable.isDirectory() && Objects.requireNonNull(executable.list()).length == 0)) {
-                    log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
-                    submission.getTestcases()
-                            .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
-                                    testcase, SubmissionStatus.COMPILE_ERROR)));
-                    postOutput(new SubmissionOutput(submission, "compile", compileOutput));
-                    return;
-                }
-
-                Set<PosixFilePermission> perms = new HashSet<>();
-                perms.add(PosixFilePermission.OWNER_READ);
-                perms.add(PosixFilePermission.OWNER_WRITE);
-                perms.add(PosixFilePermission.OTHERS_EXECUTE);
-                perms.add(PosixFilePermission.OWNER_EXECUTE);
-                perms.add(PosixFilePermission.GROUP_EXECUTE);
-
-                Files.setPosixFilePermissions(executable.toPath(), perms);
-            } catch (NotFoundException e) {
-                log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
-                submission.getTestcases()
-                        .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
-                                testcase, SubmissionStatus.COMPILE_ERROR)));
-                postOutput(new SubmissionOutput(submission, "compile", compileOutput));
-                return;
-            }
-            log.info(LoggerColors.success("Submission " + submission.getId() + ": Compiled successfully"));
-            postOutput(new SubmissionOutput(submission, "compile", compileOutput));
-
-            File finalExecutable = executable;
-            submission.getTestcases()
-                    .forEach(testcase -> {
-                                SubmissionResult result = new SubmissionResult(submission, testcase);
-
-                                try {
-                                    executeTestCase(finalExecutable, testcase, submission, result);
-                                } catch (Exception e) {
-                                    log.error(e.toString());
-                                    result.setStatus(SubmissionStatus.RUNTIME_ERROR);
-                                } finally {
-                                    postResult(result);
-                                }
-                            }
-                    );
-            log.info(LoggerColors.success("Submission " + submission.getId() + ": Execution done"));
-        } catch (Exception e) {
-            log.info(LoggerColors.error("Submission " + submission.getId() + ": Execution failed \n" + e));
-            LoggerUtils.logErrorToSentry(e);
-            submission.getTestcases()
-                    .forEach(testcase -> postResult(new SubmissionResult(submission.getId(),
-                            testcase, SubmissionStatus.RUNTIME_ERROR)));
-        } finally {
-            FileSystemUtils.deleteRecursively(submissionFolder);
-            log.info(LoggerColors.success("Submission " + submission.getId() + ": Cleanup completed"));
-        }
+        return submissionFolder;
     }
 
     private Pair<File, String> compile(File sourceCode) {
@@ -243,7 +241,19 @@ public class CodeExecutor {
                 .compile(dockerClient, sourceCode);
     }
 
-    private void executeTestCase(File executable, UUID testcaseId, Submission submission, SubmissionResult submissionResult) {
+    void testCaseExecutionWrapper(UUID testcase, Submission submission, File executable) {
+        SubmissionResult result = new SubmissionResult(submission, testcase);
+        try {
+            executeTestCase(executable, testcase, submission, result);
+        } catch (Exception e) {
+            log.error(e.toString());
+            result.setStatus(SubmissionStatus.RUNTIME_ERROR);
+        } finally {
+            CommunicationUtils.postResult(result);
+        }
+    }
+
+    private void executeTestCase(File executable, UUID testcaseId, Submission submission, SubmissionResult submissionResult) throws IOException {
         File input = new File("/avogador/" + submission.getId() + "/testcases/" + testcaseId + ".in");
         File output = new File("/avogador/" + submission.getId() + "/testcases/" + testcaseId + ".out");
 
@@ -252,16 +262,11 @@ public class CodeExecutor {
         if (submissionResult.getStatus() != SubmissionStatus.PENDING) {
             log.info(LoggerColors.purple("Submission " + submission.getId() +
                     " Testcase " + testcaseId + ": Skipping output check - " + submissionResult.getStatus()));
-            postResult(submissionResult);
+            CommunicationUtils.postResult(submissionResult);
             return;
         }
 
-        String expectedOutput = null;
-        try {
-            expectedOutput = Files.readString(output.toPath(), StandardCharsets.UTF_8).trim();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String expectedOutput = Files.readString(output.toPath(), StandardCharsets.UTF_8).trim();;
 
         log.info(LoggerColors.purple("Submission " + submission.getId() +
                 " Testcase " + testcaseId + " User output:\n" + executionOutput));
@@ -269,7 +274,7 @@ public class CodeExecutor {
         log.info(LoggerColors.cyan("Submission " + submission.getId() +
                 " Testcase " + testcaseId + " Expected output:\n" + expectedOutput));
 
-        postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
+        CommunicationUtils.postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
         boolean result = executionOutput.equals(expectedOutput);
 
         log.info(result ?
@@ -291,92 +296,9 @@ public class CodeExecutor {
 
         dockerClient.startContainerCmd(cExec.getId()).exec();
 
-        InspectContainerResponse res = dockerClient.inspectContainerCmd(cExec.getId()).exec();
-
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-            TLEDetector tleDetector = new TLEDetector();
-
-            dockerClient.statsCmd(cExec.getId()).exec(new ResultCallback.Adapter<>() {
-                @Override
-                public void onNext(Statistics stats) {
-                    super.onNext(stats);
-
-                    if (Objects.requireNonNull(Objects.requireNonNull(stats.getCpuStats().getCpuUsage())
-                            .getTotalUsage()) / 1000000000L >= submission.getTimeLimit()) {
-                        dockerClient.stopContainerCmd(cExec.getId()).withTimeout(0).exec();
-                        log.info(LoggerColors.error("Submission " + submission.getId() +
-                                " Testcase " + submissionResult.getTestcaseId() + ": time limit detected"));
-
-                        tleDetector.detect();
-                        onComplete();
-                    }
-                    if (Boolean.FALSE.equals(dockerClient.inspectContainerCmd(cExec.getId()).exec().getState().getRunning())) {
-                        onComplete();
-                    }
-                }
-
-                @Override
-                public void onComplete() {
-                    super.onComplete();
-                }
-            }).awaitCompletion();
-
-            dockerClient.waitContainerCmd(cExec.getId()).exec(new ResultCallback.Adapter<>() {
-                @Override
-                public void onNext(WaitResponse object) {
-                    super.onNext(object);
-                }
-            }).awaitCompletion();
-
-            dockerClient.logContainerCmd(res.getId())
-                    .withStdOut(true)
-                    .withFollowStream(false)
-                    .exec(new ResultCallback.Adapter<>() {
-                        @Override
-                        public void onNext(Frame object) {
-                            super.onNext(object);
-                            try {
-                                outputStream.write(object.getPayload());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }).awaitCompletion();
-
-            dockerClient.logContainerCmd(res.getId())
-                    .withStdErr(true)
-                    .withFollowStream(false)
-                    .exec(new ResultCallback.Adapter<>() {
-                        @Override
-                        public void onNext(Frame object) {
-                            super.onNext(object);
-                            try {
-                                errorStream.write(object.getPayload());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }).awaitCompletion();
-
-            if (tleDetector.wasDetected()) {
-                submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
-            }
-
-            if (!errorStream.toString().isBlank()) {
-                log.info(LoggerColors.error(errorStream.toString()));
-                if (errorStream.toString(StandardCharsets.UTF_8).contains("timeout: sending signal TERM to command")) {
-                    submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
-                    postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
-                } else {
-                    submissionResult.setStatus(SubmissionStatus.RUNTIME_ERROR);
-                    postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
-                            errorStream.toString(StandardCharsets.UTF_8)));
-                }
-            }
-
-            return outputStream.toString();
+            return handleContainerExecution(dockerClient.inspectContainerCmd(cExec.getId())
+                    .exec().getId(), submission, submissionResult);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
@@ -384,25 +306,34 @@ public class CodeExecutor {
         }
     }
 
-    private void postResult(SubmissionResult submissionResult) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            (new Sender()).send("exercises", "exercises.submission.result",
-                    mapper.writeValueAsString(submissionResult));
+    private String handleContainerExecution(String containerId, Submission submission, SubmissionResult submissionResult) throws InterruptedException {
+        TLEDetector tleDetector = new TLEDetector();
 
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        dockerClient.statsCmd(containerId)
+                .exec(tleDetector.getTleChecker(dockerClient, containerId, submission, submissionResult))
+                .awaitCompletion();
+
+        SandboxesUtils.waitContainer(dockerClient, containerId);
+
+        String outputStream = SandboxesUtils.writeContainerLog(dockerClient, containerId, true, false);
+        String errorStream = SandboxesUtils.writeContainerLog(dockerClient, containerId, false, true);
+
+        if (tleDetector.wasDetected()) {
+            submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
         }
-    }
 
-    private void postOutput(SubmissionOutput submissionOutput) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            (new Sender()).send("storage", "storage.submission.output",
-                    mapper.writeValueAsString(submissionOutput));
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        if (!errorStream.isBlank()) {
+            log.info(LoggerColors.error(errorStream));
+            if (errorStream.contains("timeout: ")) {
+                submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
+                CommunicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
+            } else {
+                submissionResult.setStatus(SubmissionStatus.RUNTIME_ERROR);
+                CommunicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
+                        errorStream));
+            }
         }
+
+        return outputStream;
     }
 }

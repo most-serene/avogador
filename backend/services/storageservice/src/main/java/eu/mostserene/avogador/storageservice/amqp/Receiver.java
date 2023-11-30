@@ -6,6 +6,7 @@ import eu.mostserene.avogador.storageservice.courses.CourseStorageImpl;
 import eu.mostserene.avogador.storageservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.storageservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.storageservice.exercises.ExerciseTemplateDTO;
+import eu.mostserene.avogador.storageservice.exercises.SimilarityReportStorageDto;
 import eu.mostserene.avogador.storageservice.strox.Strox;
 import eu.mostserene.avogador.storageservice.strox.StroxStorage;
 import eu.mostserene.avogador.storageservice.submission.SubmissionDTO;
@@ -37,6 +38,7 @@ public class Receiver implements MessageListener {
             case "storage.course.create" -> courseCreationHandler(message);
             case "storage.trial.create" -> trialCreationHandler(message);
             case "storage.exercise.create" -> exerciseCreationHandler(message);
+            case "storage.exercise.similarity" -> exerciseSimilaritySavingHandler(message);
             case "storage.template.create" -> exerciseTemplateCreationHandler(message);
             case "storage.submission.create" -> submissionCreationHandler(message);
             case "storage.submission.output" -> submissionSaveOutputHandler(message);
@@ -64,6 +66,17 @@ public class Receiver implements MessageListener {
         try {
             ExerciseDTO exerciseDTO = mapper.readValue(message.getBody(), ExerciseDTO.class);
             ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).create();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void exerciseSimilaritySavingHandler(Message message) {
+        try {
+            SimilarityReportStorageDto similarityReportStorageDto = mapper.readValue(message.getBody(), SimilarityReportStorageDto.class);
+            ExerciseStorageImpl.of(similarityReportStorageDto.getCourseId(), similarityReportStorageDto.getTrialId(),
+                    similarityReportStorageDto.getExerciseId())
+                    .saveSimilarityReport(similarityReportStorageDto.getSimilarityReportZip());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

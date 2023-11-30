@@ -11,10 +11,15 @@ import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.io.FileUtils;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -235,6 +240,54 @@ public class StorageServiceImpl implements StorageService {
         return Optional.of(Strox.merge(stroxTemplate.get(), stroxSubmission));
     }
 
+    @Override
+    public Resource getExerciseLatestSubmissionsSources(Exercise exercise, List<UUID> submissionIds) {
+        return new RestTemplateBuilder()
+                .build()
+                .patchForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
+                                "/trials/ " + exercise.getTrial().getId() +
+                                "/exercises/" + exercise.getId() +
+                                "/submissions/source", submissionIds,
+                        Resource.class);
+    }
+
+    @Override
+    public void uploadSimilarityReport(Exercise exercise, File reportZip) {
+        try {
+            (new Sender())
+                    .send("storage", "storage.exercise.similarity",
+                            mapper.writeValueAsString(new SimilarityReportStorageDto(
+                                    exercise.getTrial().getCourseId(),
+                                    exercise.getTrial().getId(),
+                                    exercise.getId(),
+                                    reportZip
+                            )));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<Resource> getSimilarityReport(Exercise exercise) {
+        Resource similarityReport = null;
+        try {
+            similarityReport = new RestTemplateBuilder()
+                .build()
+                .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
+                                "/trials/ " + exercise.getTrial().getId() +
+                                "/exercises/" + exercise.getId() +
+                                "/similarity-report",
+                        Resource.class);
+        } catch (HttpClientErrorException.NotFound notFoundException) {
+            return Optional.empty();
+        }
+
+        if (similarityReport == null){
+            return Optional.empty();
+        }
+        return Optional.of(similarityReport);
+    }
+
     @Data
     private static class TrialStorageDTO {
         private UUID courseId;
@@ -319,6 +372,24 @@ public class StorageServiceImpl implements StorageService {
             this.exerciseId = exerciseId;
             this.submissionId = submissionId;
             this.submission = submission;
+        }
+    }
+
+    @Data
+    private static class SimilarityReportStorageDto {
+        private UUID courseId;
+        private UUID trialId;
+        private UUID exerciseId;
+        private byte[] similarityReportZip;
+
+        public SimilarityReportStorageDto() {
+        }
+
+        public SimilarityReportStorageDto(UUID courseId, UUID trialId, UUID exerciseId, File similarityReportZipFile) throws IOException {
+            this.courseId = courseId;
+            this.trialId = trialId;
+            this.exerciseId = exerciseId;
+            this.similarityReportZip = FileUtils.readFileToByteArray(similarityReportZipFile);;
         }
     }
 }

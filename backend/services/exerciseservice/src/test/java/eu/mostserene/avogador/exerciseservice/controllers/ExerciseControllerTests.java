@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
@@ -51,6 +52,7 @@ public class ExerciseControllerTests {
     private @MockBean TrialService trialService;
     private @MockBean StorageService storageService;
     private @MockBean SubmissionService submissionService;
+    private @MockBean AntiPlagiarismService antiPlagiarismService;
 
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));

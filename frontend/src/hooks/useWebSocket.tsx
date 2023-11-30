@@ -1,15 +1,22 @@
 import { Client, Message, StompSubscription } from "@stomp/stompjs";
 import { atom, useAtom } from "jotai";
 import { useCallback, useEffect } from "react";
-import { useAvogadorApi } from "@hooks/useAvogadorApi.tsx";
 import { enqueueSnackbar } from "notistack";
+import axios from "axios";
 
 const isSocketConnectedAtom = atom(false);
 const websocketTokenAtom = atom(async () => {
-  const avogadorApi = useAvogadorApi();
   try {
-    const { data: token }: { data: string } = await avogadorApi.get(
-      "/users/websocket-token",
+    const { data: token }: { data: string } = await axios.get(
+      `${
+        import.meta.env.VITE_AVOGADOR_BACKEND_API_ADDRESS
+      }/users/websocket-token`,
+      {
+        withCredentials: true,
+        headers: {
+          "Jwt-CSRF-Hash": localStorage.getItem("Jwt-CSRF-Hash"),
+        },
+      },
     );
     return token;
   } catch (err) {

@@ -8,6 +8,8 @@ import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,4 +29,7 @@ public interface StorageService {
     Optional<Resource> getSubmissionSource(Submission submission);
     Optional<Strox> getExerciseTemplate(Exercise exercise);
     Optional<Strox> getMergedSubmission(Submission submission);
+    Resource getExerciseLatestSubmissionsSources(Exercise exercise, List<UUID> submissionIds);
+    void uploadSimilarityReport(Exercise exercise, File reportZip);
+    Optional<Resource> getSimilarityReport(Exercise exercise);
 }
