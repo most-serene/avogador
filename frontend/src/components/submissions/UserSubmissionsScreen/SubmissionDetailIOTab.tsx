@@ -17,7 +17,7 @@ const SubmissionDetailIOTab = ({
 }: SubmissionDetailIOTabProps) => {
   const { getSubmissionOutputs, getTestcasesFromExercise } =
     useExerciseService();
-  const [outputs, setOutputs] = useState<Record<string, string>>();
+  const [outputs, setOutputs] = useState<Record<string, string | undefined>>();
   const [testcases, setTestcases] = useState<Testcase[]>();
 
   useEffect(() => {
@@ -50,17 +50,15 @@ const SubmissionDetailIOTab = ({
   if (outputs == null || testcases == null) {
     return <CircularProgress />;
   }
-  if (outputs.compile !== "") {
-    return (
-      <>
-        <Typography variant="h5">Compilation Output</Typography>
-        <CopiableCard>{outputs.compile}</CopiableCard>
-      </>
-    );
-  }
 
   return (
     <Grid container spacing={1}>
+      {outputs.compile !== "" && outputs.compile != null && (
+        <Grid item xs={12}>
+          <Typography variant="h5">Compilation Output</Typography>
+          <CopiableCard>{outputs.compile}</CopiableCard>
+        </Grid>
+      )}
       {testcases.map((testcase, i) => (
         <>
           <Grid item xs={12}>
