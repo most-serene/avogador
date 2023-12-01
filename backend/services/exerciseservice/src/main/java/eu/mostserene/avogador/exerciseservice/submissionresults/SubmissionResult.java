@@ -2,7 +2,6 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
-import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

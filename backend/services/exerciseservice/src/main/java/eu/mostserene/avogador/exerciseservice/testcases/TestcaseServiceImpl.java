@@ -2,6 +2,9 @@ package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +14,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class TestcaseServiceImpl implements TestcaseService {
     @Autowired
     private TestcaseRepository repository;
+    @Autowired
+    private SubmissionResultService submissionResultService;
     @Autowired
     private StorageService storageService;
 
@@ -26,7 +32,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     public Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId) {
         Optional<Testcase> testcase = repository.findById(testcaseId);
 
-        return testcase.map(tc-> {
+        return testcase.map(tc -> {
             Optional<TestcaseIODto> testcaseIO = storageService.getTestcase(exercise, testcaseId);
             return testcaseIO.map(testcaseIODto -> tc.toDetailDto(testcaseIODto.getInput(), testcaseIODto.getOutput()))
                     .orElse(null);
@@ -34,7 +40,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     }
 
     @Override
-    public List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException{
+    public List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException {
         List<Testcase> testcases = repository.findByExercise_Id(exercise.getId());
         List<TestcaseDetailDto> testcaseDetails = testcases.stream()
                 .map(tc -> {
@@ -45,7 +51,7 @@ public class TestcaseServiceImpl implements TestcaseService {
                 .filter(Objects::nonNull)
                 .toList();
 
-        if (testcases.size() != testcaseDetails.size()){
+        if (testcases.size() != testcaseDetails.size()) {
             throw new IllegalStateException("Some testcase files are missing");
         }
         return testcaseDetails;
@@ -74,7 +80,16 @@ public class TestcaseServiceImpl implements TestcaseService {
 
     @Override
     public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+        repository.updateIsVisibleAndIndexById(testcase.getIsVisible(), testcase.getIndex(), testcase.getId());
         storageService.updateTestcase(exercise, testcase);
         return testcase;
+    }
+
+    @Override
+    @Transactional
+    public void deleteTestcase(Exercise exercise, UUID testcaseId) {
+        submissionResultService.deleteSubmissionResultsByTestcaseId(testcaseId);
+        storageService.deleteTestcase(exercise, testcaseId);
+        repository.deleteById(testcaseId);
     }
 }

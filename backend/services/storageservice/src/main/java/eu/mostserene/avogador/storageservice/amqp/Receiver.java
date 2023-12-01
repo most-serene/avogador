@@ -43,6 +43,7 @@ public class Receiver implements MessageListener {
             case "storage.submission.create" -> submissionCreationHandler(message);
             case "storage.submission.output" -> submissionSaveOutputHandler(message);
             case "storage.testcase.create" -> testcaseCreationHandler(message);
+            case "storage.testcase.delete" -> testcaseDeleteHandler(message);
             default -> log.error(LoggerColors.error("call not handled"));
         }
     }
@@ -131,6 +132,16 @@ public class Receiver implements MessageListener {
             TestcaseDTO testcaseDTO = mapper.readValue(message.getBody(), TestcaseDTO.class);
             ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
                     .saveTestcase(testcaseDTO.getTestcaseId(), testcaseDTO.getInput(), testcaseDTO.getOutput());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void testcaseDeleteHandler(Message message) {
+        try {
+            TestcaseDTO testcaseDTO = mapper.readValue(message.getBody(), TestcaseDTO.class);
+            ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
+                    .deleteTestcase(testcaseDTO.getTestcaseId());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

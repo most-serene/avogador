@@ -21,7 +21,7 @@ public interface StorageService {
     void createExerciseTemplate(Exercise exercise, Strox template);
     void deleteExercise(Exercise exercise);
     void createTestcase(Exercise exercise, TestcaseDetailDto testcase);
-    void deleteTestcase(TestcaseDetailDto testcase);
+    void deleteTestcase(Exercise exercise, UUID testcaseId);
     Optional<TestcaseIODto> getTestcase(Exercise exercise, UUID testcaseId);
     void updateTestcase(Exercise exercise,TestcaseDetailDto testcase);
     void createSubmission(Submission submission, Strox strox);

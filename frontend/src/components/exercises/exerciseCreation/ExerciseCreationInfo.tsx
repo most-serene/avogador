@@ -14,7 +14,6 @@ import MenuItem from "@mui/material/MenuItem";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
-import { useLocation, useParams } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { useEffect, useState } from "react";
@@ -27,20 +26,16 @@ import Markdown from "react-markdown";
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 import Box from "@mui/material/Box";
 
-interface ExerciseCreationState {
-  state: null | {
-    courseId: string;
-    trialId: string;
-  };
+interface ExerciseCreationInfo {
+  disableTrialSelection?: boolean;
 }
 
-const ExerciseCreationInfo = () => {
-  const { exerciseId } = useParams();
+const ExerciseCreationInfo = ({
+  disableTrialSelection = false,
+}: ExerciseCreationInfo) => {
   const globalErrorSetter = useGlobalErrorSetter();
   const { getUserCourses } = useCourseService();
   const { getTrialsByCourseId, isTrialEnded } = useTrialService();
-  const { state }: ExerciseCreationState =
-    useLocation() as ExerciseCreationState;
   const [user] = useAtom(userAtom);
   const [areCoursesFetched, setAreCoursesFetched] = useState(false);
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
@@ -49,16 +44,6 @@ const ExerciseCreationInfo = () => {
 
   useEffect(() => {
     if (user == null) return;
-
-    if (state != null) {
-      setExercise((prev) => {
-        return {
-          ...prev,
-          courseId: state.courseId,
-          trialId: state.trialId,
-        };
-      });
-    }
 
     getUserCourses(user.id)
       .then((userCourses: UserCourse[]) => {
@@ -72,7 +57,7 @@ const ExerciseCreationInfo = () => {
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getUserCourses, globalErrorSetter, user, state, setExercise]);
+  }, [getUserCourses, globalErrorSetter, user, setExercise]);
 
   useEffect(() => {
     if (user == null || exercise.courseId === "") return;
@@ -135,7 +120,7 @@ const ExerciseCreationInfo = () => {
             <FormControl fullWidth>
               <InputLabel id="courseId">Course</InputLabel>
               <Select
-                disabled={exerciseId != null || state != null}
+                disabled={disableTrialSelection}
                 value={exercise.courseId}
                 label="Course"
                 onChange={(event) => {
@@ -160,7 +145,7 @@ const ExerciseCreationInfo = () => {
                 <>
                   <InputLabel id="trialId">Test</InputLabel>
                   <Select
-                    disabled={exerciseId != null || state != null}
+                    disabled={disableTrialSelection}
                     value={exercise.trialId}
                     label="Test"
                     onChange={(event) => {

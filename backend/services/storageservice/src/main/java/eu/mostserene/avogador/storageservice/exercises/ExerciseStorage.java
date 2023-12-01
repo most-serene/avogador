@@ -23,4 +23,5 @@ public interface ExerciseStorage {
     File getSubmissionsCode(List<UUID> submissionIds);
     void saveSimilarityReport(byte[] similarityReportBytes);
     Optional<File> getSimilarityReport();
+    void deleteTestcase(UUID testcaseId);
 }

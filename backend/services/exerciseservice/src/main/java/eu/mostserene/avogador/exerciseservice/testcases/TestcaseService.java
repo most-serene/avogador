@@ -14,5 +14,6 @@ public interface TestcaseService {
     TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise);
     Testcase updateTestcaseIndex(Testcase testcase, int index);
     TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase);
+    void deleteTestcase(Exercise exercise, UUID testcase);
 
 }
