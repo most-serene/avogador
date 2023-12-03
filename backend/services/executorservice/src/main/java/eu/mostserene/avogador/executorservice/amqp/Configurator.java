@@ -3,24 +3,19 @@ package eu.mostserene.avogador.executorservice.amqp;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 @Configuration
 @Slf4j
 public class Configurator {
-    @Autowired
-    private Environment environment;
 
     @Value("${spring.rabbitmq.host}")
     private String rabbitHostname;
@@ -32,57 +27,47 @@ public class Configurator {
     private String rabbitPassword;
 
     @Bean
-    Queue queue() {
-        return new Queue("executorQueue", true);
-    }
-
-    @Bean
     Exchange exchange() {
         return new TopicExchange("executor", true, false);
     }
 
-    @Bean
-    Binding binding() {
-        return new Binding("executorQueue", Binding.DestinationType.QUEUE, "executor", "exec.#", null);
-    }
-
-    @Bean
-    Receiver receiver() {
-        return new Receiver();
-    }
-
-    @Bean
-    void configureSender() {
-        Sender.configure(rabbitHostname, rabbitUsername, rabbitPassword);
-        log.info(LoggerColors.success("|-- Sender Configured --|"));
-    }
 
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(rabbitHostname);
         connectionFactory.setUsername(rabbitUsername);
         connectionFactory.setPassword(rabbitPassword);
+        //connectionFactory.setPublisherReturns(true);
+        //connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
         return connectionFactory;
     }
 
     @Bean
-    MessageConverter contentTypeConverter() {
+    public Jackson2JsonMessageConverter contentTypeConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
     @Bean
-    public MessageListener messageListener() {
-        return new Receiver();
+    public RabbitTemplate rabbitTemplate() {
+        return new RabbitTemplate(connectionFactory());
     }
 
     @Bean
-    public SimpleMessageListenerContainer messageListenerContainer() {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConcurrentConsumers(10);
-        container.setConnectionFactory(connectionFactory());
-        container.setQueueNames("executorQueue");
-        container.setMessageListener(messageListener());
-        return container;
+    public AsyncRabbitTemplate asyncRabbitTemplate() {
+        return new AsyncRabbitTemplate(new RabbitTemplate(connectionFactory()));
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory());
+        factory.setConcurrentConsumers(10);
+        factory.setErrorHandler(throwable -> {
+            log.error(LoggerColors.error("call not handled"));
+            log.error(LoggerColors.error(throwable.toString()));
+        });
+        factory.setMessageConverter(contentTypeConverter());
+        return factory;
     }
 
 }

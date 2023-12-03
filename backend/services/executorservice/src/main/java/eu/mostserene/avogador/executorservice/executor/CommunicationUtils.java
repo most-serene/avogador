@@ -5,16 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.executorservice.amqp.Sender;
 import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
 import eu.mostserene.avogador.executorservice.submission.SubmissionResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CommunicationUtils {
+    @Autowired
+    private Sender sender;
 
     private CommunicationUtils() {
     }
 
-    public static void postResult(SubmissionResult submissionResult) {
+    public void postResult(SubmissionResult submissionResult) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            (new Sender()).send("exercises", "exercises.submission.result",
+            sender.send("exercises", "exercises.submission.result",
                     mapper.writeValueAsString(submissionResult));
 
         } catch (JsonProcessingException e) {
@@ -22,10 +27,10 @@ public class CommunicationUtils {
         }
     }
 
-    public static void postOutput(SubmissionOutput submissionOutput) {
+    public void postOutput(SubmissionOutput submissionOutput) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            (new Sender()).send("storage", "storage.submission.output",
+            sender.send("storage", "storage.submission.output",
                     mapper.writeValueAsString(submissionOutput));
 
         } catch (JsonProcessingException e) {

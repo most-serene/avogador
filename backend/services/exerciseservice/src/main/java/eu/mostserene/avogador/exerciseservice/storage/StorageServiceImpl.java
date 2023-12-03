@@ -12,6 +12,7 @@ import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,12 @@ import java.util.UUID;
 public class StorageServiceImpl implements StorageService {
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Autowired
+    private Sender sender;
+
     @Override
     public void createTrial(Trial trial) {
-        try {
-            (new Sender())
-                    .send("storage", "storage.trial.create", mapper.writeValueAsString(new TrialStorageDTO(trial.getCourseId(), trial.getId())));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.trial.create", new TrialStorageDTO(trial.getCourseId(), trial.getId()));
     }
 
     @Override
@@ -44,14 +43,10 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void createExercise(Exercise exercise) {
-        try {
-            (new Sender())
-                    .send("storage", "storage.exercise.create",
-                            mapper.writeValueAsString(new ExerciseStorageDTO(
-                                    exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId())));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        sender.send("storage", "storage.exercise.create",
+                new ExerciseStorageDTO(
+                        exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId()));
+
     }
 
     @Override
@@ -65,14 +60,9 @@ public class StorageServiceImpl implements StorageService {
         };
 
         template.setSourceFileName(filename);
-        try {
-            (new Sender())
-                    .send("storage", "storage.template.create",
-                            mapper.writeValueAsString(new ExerciseTemplateStorageDTO(
-                                    exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId(), template)));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.template.create",
+                    new ExerciseTemplateStorageDTO(
+                            exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId(), template));
     }
 
     @Override
@@ -82,38 +72,28 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void createTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-        try {
-            (new Sender())
-                    .send("storage", "storage.testcase.create",
-                            mapper.writeValueAsString(new TestcaseStorageDto(
-                                    exercise.getTrial().getCourseId(),
-                                    exercise.getTrial().getId(),
-                                    testcase.getExerciseId(),
-                                    testcase.getId(),
-                                    testcase.getInput(),
-                                    testcase.getOutput()
-                            )));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.testcase.create",
+                    new TestcaseStorageDto(
+                            exercise.getTrial().getCourseId(),
+                            exercise.getTrial().getId(),
+                            testcase.getExerciseId(),
+                            testcase.getId(),
+                            testcase.getInput(),
+                            testcase.getOutput()
+                    ));
     }
 
     @Override
     public void deleteTestcase(Exercise exercise, UUID testcaseId) {
-        try {
-            (new Sender())
-                    .send("storage", "storage.testcase.delete",
-                            mapper.writeValueAsString(new TestcaseStorageDto(
-                                    exercise.getTrial().getCourseId(),
-                                    exercise.getTrial().getId(),
-                                    exercise.getId(),
-                                    testcaseId,
-                                    "",
-                                    ""
-                            )));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.testcase.delete",
+                    new TestcaseStorageDto(
+                            exercise.getTrial().getCourseId(),
+                            exercise.getTrial().getId(),
+                            exercise.getId(),
+                            testcaseId,
+                            "",
+                            ""
+                    ));
     }
 
     @Override
@@ -131,20 +111,15 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-        try {
-            (new Sender())
-                    .send("storage", "storage.testcase.create",
-                            mapper.writeValueAsString(new TestcaseStorageDto(
-                                    exercise.getTrial().getCourseId(),
-                                    exercise.getTrial().getId(),
-                                    testcase.getExerciseId(),
-                                    testcase.getId(),
-                                    testcase.getInput(),
-                                    testcase.getOutput()
-                            )));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.testcase.create",
+                    new TestcaseStorageDto(
+                            exercise.getTrial().getCourseId(),
+                            exercise.getTrial().getId(),
+                            testcase.getExerciseId(),
+                            testcase.getId(),
+                            testcase.getInput(),
+                            testcase.getOutput()
+                    ));
     }
 
     @Override
@@ -158,19 +133,14 @@ public class StorageServiceImpl implements StorageService {
         };
 
         strox.setSourceFileName(filename);
-        try {
-            (new Sender())
-                    .send("storage", "storage.submission.create",
-                            mapper.writeValueAsString(new SubmissionStorageDto(
-                                    submission.getExercise().getTrial().getCourseId(),
-                                    submission.getExercise().getTrial().getId(),
-                                    submission.getExercise().getId(),
-                                    submission.getId(),
-                                    strox
-                            )));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+            sender.send("storage", "storage.submission.create",
+                    new SubmissionStorageDto(
+                            submission.getExercise().getTrial().getCourseId(),
+                            submission.getExercise().getTrial().getId(),
+                            submission.getExercise().getId(),
+                            submission.getId(),
+                            strox
+                    ));
     }
 
     @Override
@@ -183,7 +153,7 @@ public class StorageServiceImpl implements StorageService {
                                 "/submissions/" + submission.getId() + "/strox",
                         Strox.class);
 
-        if (submissionStrox == null){
+        if (submissionStrox == null) {
             return Optional.empty();
         }
         return Optional.of(submissionStrox);
@@ -199,7 +169,7 @@ public class StorageServiceImpl implements StorageService {
                                 "/submissions/" + submission.getId() + "/source",
                         Resource.class);
 
-        if (submissionSourceCode == null){
+        if (submissionSourceCode == null) {
             return Optional.empty();
         }
         return Optional.of(submissionSourceCode);
@@ -214,7 +184,7 @@ public class StorageServiceImpl implements StorageService {
                                 "/template",
                         Strox.class);
 
-        if (stroxTemplate == null){
+        if (stroxTemplate == null) {
             return Optional.empty();
         }
         return Optional.of(stroxTemplate);
@@ -254,14 +224,13 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public void uploadSimilarityReport(Exercise exercise, File reportZip) {
         try {
-            (new Sender())
-                    .send("storage", "storage.exercise.similarity",
-                            mapper.writeValueAsString(new SimilarityReportStorageDto(
-                                    exercise.getTrial().getCourseId(),
-                                    exercise.getTrial().getId(),
-                                    exercise.getId(),
-                                    reportZip
-                            )));
+            sender.send("storage", "storage.exercise.similarity",
+                    new SimilarityReportStorageDto(
+                            exercise.getTrial().getCourseId(),
+                            exercise.getTrial().getId(),
+                            exercise.getId(),
+                            reportZip
+                    ));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -272,17 +241,17 @@ public class StorageServiceImpl implements StorageService {
         Resource similarityReport = null;
         try {
             similarityReport = new RestTemplateBuilder()
-                .build()
-                .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
-                                "/trials/ " + exercise.getTrial().getId() +
-                                "/exercises/" + exercise.getId() +
-                                "/similarity-report",
-                        Resource.class);
+                    .build()
+                    .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
+                                    "/trials/ " + exercise.getTrial().getId() +
+                                    "/exercises/" + exercise.getId() +
+                                    "/similarity-report",
+                            Resource.class);
         } catch (HttpClientErrorException.NotFound notFoundException) {
             return Optional.empty();
         }
 
-        if (similarityReport == null){
+        if (similarityReport == null) {
             return Optional.empty();
         }
         return Optional.of(similarityReport);
@@ -389,7 +358,8 @@ public class StorageServiceImpl implements StorageService {
             this.courseId = courseId;
             this.trialId = trialId;
             this.exerciseId = exerciseId;
-            this.similarityReportZip = FileUtils.readFileToByteArray(similarityReportZipFile);;
+            this.similarityReportZip = FileUtils.readFileToByteArray(similarityReportZipFile);
+            ;
         }
     }
 }

@@ -1,23 +1,34 @@
 package eu.mostserene.avogador.courseservice.amqp;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.RabbitConverterFuture;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
+@Slf4j
+@Service
 public class Sender {
-    static RabbitTemplate rabbitTemplate;
 
-    static void configure(String rabbitHostname, String username, String password) {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory(rabbitHostname);
-        connectionFactory.setUsername(username);
-        connectionFactory.setPassword(password);
-        rabbitTemplate = new RabbitTemplate(connectionFactory);
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private AsyncRabbitTemplate asyncRabbitTemplate;
+
+    public void send(String exchange, String routingKey, Object message) {
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
     }
 
-
-    public void send(String exchange, String routingKey, String message) {
-        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+    public <T> void send(String exchange, String routingKey, Object message, BiConsumer<T, Throwable> callback) {
+        RabbitConverterFuture<T> rabbitConverterFuture = asyncRabbitTemplate.
+                convertSendAndReceive(exchange, routingKey, message);
+        rabbitConverterFuture.whenCompleteAsync(callback);
     }
 }
