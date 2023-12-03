@@ -1,43 +1,37 @@
 package eu.mostserene.avogador.executorservice.amqp;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.executorservice.executor.CodeExecutor;
 import eu.mostserene.avogador.executorservice.submission.Submission;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Slf4j
-public class Receiver implements MessageListener {
-    private static final ObjectMapper mapper = new ObjectMapper();
+@Service
+public class Receiver {
 
-    private void handleMessage(Message message) {
-        switch (message.getMessageProperties().getReceivedRoutingKey()) {
-            case "exec.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
-            case "exec.submission.execute" -> executeSubmissionHandler(message);
-            default -> log.error(LoggerColors.error("call not handled"));
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "pingExecutor"),
+            exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
+            key = "exec.ping."))
+    private void pingExecutor() {
+        log.info(LoggerColors.cyan("Hello from rabbit"));
     }
 
-    private void executeSubmissionHandler(Message message) {
-        try {
-            Submission submission = mapper.readValue(message.getBody(), Submission.class);
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "executeSubmissionHandler"),
+            exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
+            key = "exec.submission.execute")
+    )
+    private String executeSubmissionHandler(Submission submission) {
             CodeExecutor.getExecutor().checkSubmission(submission);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void onMessage(Message message) {
-        try {
-            handleMessage(message);
-        } catch (Exception e) {
-            log.error(e.toString());
-            log.error(LoggerColors.error("call not handled"));
-        }
+            return "done";
     }
 }

@@ -57,6 +57,9 @@ public class SubmissionController {
     @Autowired
     private StorageService storageService;
 
+    @Autowired
+    private Sender sender;
+
     @GetMapping("/{submissionId}")
     private SubmissionDto getSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
         Exercise exercise = exerciseService.getExercise(exerciseId)
@@ -186,10 +189,10 @@ public class SubmissionController {
                             @Override
                             public void run() {
                                 try {
-                                    new Sender().send("users", "users.notify.socket", mapper.writeValueAsString(
+                                    sender.send("users", "users.notify.socket",
                                             new WebSocketMessage("/" + submissionResult.getSubmission().getId() + "/results",
                                                     mapper.writeValueAsString(submissionResult.toDto())
-                                            )));
+                                            ));
                                 } catch (JsonProcessingException e) {
                                     log.error(LoggerColors.error(e.toString()));
                                 }

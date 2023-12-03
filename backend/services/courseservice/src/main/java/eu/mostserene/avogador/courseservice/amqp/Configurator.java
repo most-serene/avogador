@@ -3,9 +3,11 @@ package eu.mostserene.avogador.courseservice.amqp;
 import eu.mostserene.avogador.courseservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -34,30 +36,15 @@ public class Configurator {
     private String rabbitPassword;
 
     @Bean
-    Queue queue() {
-        return new Queue("coursesQueue", true);
-    }
-
-    @Bean
     Exchange exchange() {
         return new TopicExchange("courses", true, false);
     }
 
     @Bean
-    Binding binding() {
-        return new Binding("coursesQueue", Binding.DestinationType.QUEUE, "courses", "courses.#", null);
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 
-    @Bean
-    Receiver receiver() {
-        return new Receiver();
-    }
-
-    @Bean
-    void configureSender() {
-        Sender.configure(rabbitHostname, rabbitUsername, rabbitPassword);
-        log.info(LoggerColors.success("|-- Sender Configured --|"));
-    }
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -68,37 +55,28 @@ public class Configurator {
     }
 
     @Bean
-    MessageConverter contentTypeConverter() {
-        return new Jackson2JsonMessageConverter();
+    public RabbitTemplate rabbitTemplate() {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory());
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
     }
 
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory
-            (MessageConverter contentTypeConverter,
-             SimpleRabbitListenerContainerFactoryConfigurer configurator, ConnectionFactory connectionFactory) {
+    public AsyncRabbitTemplate asyncRabbitTemplate() {
+        return new AsyncRabbitTemplate(rabbitTemplate());
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-
-        // the number of consumers is set as 5
+        factory.setConnectionFactory(connectionFactory());
         factory.setConcurrentConsumers(5);
-
-        configurator.configure(factory, connectionFactory);
-        factory.setMessageConverter(contentTypeConverter);
+        factory.setErrorHandler(throwable -> {
+            log.error(LoggerColors.error("call not handled"));
+            log.error(LoggerColors.error(throwable.toString()));
+        });
+        factory.setMessageConverter(messageConverter());
         return factory;
-    }
-
-
-    @Bean
-    public MessageListener messageListener() {
-        return new Receiver();
-    }
-
-    @Bean
-    public SimpleMessageListenerContainer messageListenerContainer() {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory());
-        container.setQueueNames("coursesQueue");
-        container.setMessageListener(messageListener());
-        return container;
     }
 
 }

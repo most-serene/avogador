@@ -17,143 +17,119 @@ import eu.mostserene.avogador.storageservice.trials.TrialDTO;
 import eu.mostserene.avogador.storageservice.trials.TrialStorageImpl;
 import eu.mostserene.avogador.storageservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
-public class Receiver implements MessageListener {
+@Service
+public class Receiver {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private StroxStorage stroxStorage;
 
-    private void handleMessage(Message message) {
-        switch (message.getMessageProperties().getReceivedRoutingKey()) {
-            case "storage.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
-            case "storage.course.create" -> courseCreationHandler(message);
-            case "storage.trial.create" -> trialCreationHandler(message);
-            case "storage.exercise.create" -> exerciseCreationHandler(message);
-            case "storage.exercise.similarity" -> exerciseSimilaritySavingHandler(message);
-            case "storage.template.create" -> exerciseTemplateCreationHandler(message);
-            case "storage.submission.create" -> submissionCreationHandler(message);
-            case "storage.submission.output" -> submissionSaveOutputHandler(message);
-            case "storage.testcase.create" -> testcaseCreationHandler(message);
-            case "storage.testcase.delete" -> testcaseDeleteHandler(message);
-            default -> log.error(LoggerColors.error("call not handled"));
-        }
+    @Autowired
+    private Sender sender;
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "pingStorage"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.ping."))
+    private void pingStorage() {
+        log.info(LoggerColors.cyan("Hello from rabbit"));
     }
 
-    private void courseCreationHandler(Message message) {
-        UUID courseId = UUID.fromString(new String(message.getBody(), StandardCharsets.UTF_8));
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "courseCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.course.create"))
+    private void courseCreationHandler(String courseStringId) {
+        UUID courseId = UUID.fromString(courseStringId);
         CourseStorageImpl.of(courseId).create();
     }
 
-    private void trialCreationHandler(Message message) {
-        try {
-            TrialDTO trialDTO = mapper.readValue(message.getBody(), TrialDTO.class);
-            TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).create();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "trialCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.trial.create"))
+    private void trialCreationHandler(TrialDTO trialDTO) {
+        TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).create();
     }
 
-    private void exerciseCreationHandler(Message message) {
-        try {
-            ExerciseDTO exerciseDTO = mapper.readValue(message.getBody(), ExerciseDTO.class);
-            ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).create();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "exerciseCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.exercise.create"))
+    private void exerciseCreationHandler(ExerciseDTO exerciseDTO) {
+        ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).create();
     }
 
-    private void exerciseSimilaritySavingHandler(Message message) {
-        try {
-            SimilarityReportStorageDto similarityReportStorageDto = mapper.readValue(message.getBody(), SimilarityReportStorageDto.class);
-            ExerciseStorageImpl.of(similarityReportStorageDto.getCourseId(), similarityReportStorageDto.getTrialId(),
-                    similarityReportStorageDto.getExerciseId())
-                    .saveSimilarityReport(similarityReportStorageDto.getSimilarityReportZip());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "exerciseSimilaritySavingHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.exercise.similarity"))
+    private void exerciseSimilaritySavingHandler(SimilarityReportStorageDto similarityReportStorageDto) {
+        ExerciseStorageImpl.of(similarityReportStorageDto.getCourseId(), similarityReportStorageDto.getTrialId(),
+                        similarityReportStorageDto.getExerciseId())
+                .saveSimilarityReport(similarityReportStorageDto.getSimilarityReportZip());
     }
 
-    private void exerciseTemplateCreationHandler(Message message) {
-        try {
-            ExerciseTemplateDTO templateDTO = mapper.readValue(message.getBody(), ExerciseTemplateDTO.class);
-            ExerciseStorageImpl.of(templateDTO.getCourseId(), templateDTO.getTrialId(), templateDTO.getExerciseId())
-                    .saveTemplate(templateDTO.getTemplate());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "exerciseTemplateCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.template.create"))
+    private void exerciseTemplateCreationHandler(ExerciseTemplateDTO templateDTO) {
+        ExerciseStorageImpl.of(templateDTO.getCourseId(), templateDTO.getTrialId(), templateDTO.getExerciseId())
+                .saveTemplate(templateDTO.getTemplate());
     }
 
-    private void submissionCreationHandler(Message message) {
-        try {
-            SubmissionDTO submissionDTO = mapper.readValue(message.getBody(), SubmissionDTO.class);
-            ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
-                    .saveSubmission(submissionDTO.getSubmissionId(), submissionDTO.getSubmission());
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "submissionCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.submission.create"))
+    private void submissionCreationHandler(SubmissionDTO submissionDTO) {
+        ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
+                .saveSubmission(submissionDTO.getSubmissionId(), submissionDTO.getSubmission());
 
-            (new Sender()).send("exercises", "exercises.submission.save",
-                    mapper.writeValueAsString(new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO.getSubmission())));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sender.send("exercises", "exercises.submission.save",
+                new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO.getSubmission()));
     }
 
-    private void submissionSaveOutputHandler(Message message) {
-        try {
-            SubmissionOutputDto submissionDTO = mapper.readValue(message.getBody(), SubmissionOutputDto.class);
-            Strox strox = ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
-                    .getSubmissionStrox(submissionDTO.getSubmissionId())
-                    .orElseThrow(RuntimeException::new);
-
-            strox.getOutputs().put(submissionDTO.getTestcaseId(), submissionDTO.getExecutionOutput());
-
-            stroxStorage.saveToFile(strox);
-
-            /*
-
-            (new Sender()).send("exercises", "exercises.submission.save",
-                    mapper.writeValueAsString(new SubmissionSavedDTO(submissionDTO.getSubmissionId(), submissionDTO)));
-
-             */
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "submissionSaveOutputHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.submission.output"))
+    private void submissionSaveOutputHandler(SubmissionOutputDto submissionDTO) {
+        Strox strox = ExerciseStorageImpl.of(submissionDTO.getCourseId(), submissionDTO.getTrialId(), submissionDTO.getExerciseId())
+                .getSubmissionStrox(submissionDTO.getSubmissionId())
+                .orElseThrow(RuntimeException::new);
+        strox.getOutputs().put(submissionDTO.getTestcaseId(), submissionDTO.getExecutionOutput());
+        stroxStorage.saveToFile(strox);
     }
 
-    private void testcaseCreationHandler(Message message) {
-        try {
-            TestcaseDTO testcaseDTO = mapper.readValue(message.getBody(), TestcaseDTO.class);
-            ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
-                    .saveTestcase(testcaseDTO.getTestcaseId(), testcaseDTO.getInput(), testcaseDTO.getOutput());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "testcaseCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.testcase.create"))
+    private void testcaseCreationHandler(TestcaseDTO testcaseDTO) {
+        ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
+                .saveTestcase(testcaseDTO.getTestcaseId(), testcaseDTO.getInput(), testcaseDTO.getOutput());
     }
 
-    private void testcaseDeleteHandler(Message message) {
-        try {
-            TestcaseDTO testcaseDTO = mapper.readValue(message.getBody(), TestcaseDTO.class);
-            ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
-                    .deleteTestcase(testcaseDTO.getTestcaseId());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "testcaseDeleteHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.testcase.delete"))
+    private void testcaseDeleteHandler(TestcaseDTO testcaseDTO) {
+        ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
+                .deleteTestcase(testcaseDTO.getTestcaseId());
     }
 
-    @Override
-    public void onMessage(Message message) {
-        try {
-            handleMessage(message);
-        } catch (Exception e) {
-            log.error(e.toString());
-            log.error(LoggerColors.error("call not handled"));
-        }
-    }
 }

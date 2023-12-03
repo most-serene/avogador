@@ -1,6 +1,6 @@
-package eu.mostserene.avogador.userservice.amqp;
+package eu.mostserene.avogador.exerciseservice.amqp;
 
-import eu.mostserene.avogador.userservice.utils.LoggerColors;
+import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
@@ -15,7 +15,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
-public class Configurator {
+public class RabbitConfig {
+
     @Value("${spring.rabbitmq.host}")
     private String rabbitHostname;
 
@@ -27,8 +28,14 @@ public class Configurator {
 
     @Bean
     Exchange exchange() {
-        return new TopicExchange("users", true, false);
+        return new TopicExchange("exercises", true, false);
     }
+
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -39,18 +46,15 @@ public class Configurator {
     }
 
     @Bean
-    public Jackson2JsonMessageConverter contentTypeConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
     public RabbitTemplate rabbitTemplate() {
-        return new RabbitTemplate(connectionFactory());
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory());
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
     }
 
     @Bean
     public AsyncRabbitTemplate asyncRabbitTemplate() {
-        return new AsyncRabbitTemplate(new RabbitTemplate(connectionFactory()));
+        return new AsyncRabbitTemplate(rabbitTemplate());
     }
 
     @Bean
@@ -62,8 +66,7 @@ public class Configurator {
             log.error(LoggerColors.error("call not handled"));
             log.error(LoggerColors.error(throwable.toString()));
         });
-        factory.setMessageConverter(contentTypeConverter());
+        factory.setMessageConverter(messageConverter());
         return factory;
     }
-
 }

@@ -1,31 +1,22 @@
 package eu.mostserene.avogador.courseservice.amqp;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.courseservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 @Slf4j
-public class Receiver implements MessageListener {
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    private void handleMessage(Message message) {
-        switch (message.getMessageProperties().getReceivedRoutingKey()) {
-            case "courses.ping." -> log.info(LoggerColors.error("Hello from rabbit"));
-            case "courses.ping.test" -> log.info(LoggerColors.error("Not supported in this version"));
-            default -> log.error(LoggerColors.error("call not handled"));
-        }
+public class Receiver  {
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "pingCourses"),
+            exchange = @Exchange(value = "courses", type = ExchangeTypes.TOPIC),
+            key = "courses.ping."))
+    private void pingCourses() {
+        log.info(LoggerColors.cyan("Hello from rabbit"));
     }
 
-    @Override
-    public void onMessage(Message message) {
-        try {
-            handleMessage(message);
-        } catch (Exception e) {
-            log.error(e.toString());
-            log.error(LoggerColors.error("call not handled"));
-        }
-    }
 }

@@ -50,11 +50,13 @@ public class CodeExecutor {
     @Getter
     private static CodeExecutor executor;
 
+    private CommunicationUtils communicationUtils;
+
     private CodeExecutor() {
     }
 
     @PostConstruct
-    static void configure(Environment environment, StorageService storageService) {
+    static void configure(Environment environment, StorageService storageService, CommunicationUtils communicationUtils) {
         CodeExecutor.executor = new CodeExecutor();
 
         DefaultDockerClientConfig config = DefaultDockerClientConfig
@@ -74,6 +76,8 @@ public class CodeExecutor {
         executor.dockerClient = DockerClientImpl.getInstance(config, httpClient);
 
         executor.storageService = storageService;
+
+        executor.communicationUtils = communicationUtils;
 
         /*
         executor.dockerClient.listContainersCmd().withShowAll(true).exec()
@@ -175,7 +179,7 @@ public class CodeExecutor {
     private void handleCompilationSuccess(File executable, Submission submission, String compileOutput) throws IOException {
         setupExecutablePermissions(executable);
         log.info(LoggerColors.success("Submission " + submission.getId() + ": Compiled successfully"));
-        CommunicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+        communicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
 
         submission.getTestcases()
                 .forEach(testcase -> testCaseExecutionWrapper(testcase, submission, executable));
@@ -187,16 +191,16 @@ public class CodeExecutor {
         log.info(LoggerColors.error("Submission " + submission.getId() + ": Execution failed \n" + e));
         LoggerUtils.logErrorToSentry(e);
         submission.getTestcases()
-                .forEach(testcase -> CommunicationUtils.postResult(new SubmissionResult(submission.getId(),
+                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(submission.getId(),
                         testcase, SubmissionStatus.RUNTIME_ERROR)));
     }
 
     private void handleCompilationFailure(Submission submission, String compileOutput) {
         log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
         submission.getTestcases()
-                .forEach(testcase -> CommunicationUtils.postResult(new SubmissionResult(submission.getId(),
+                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(submission.getId(),
                         testcase, SubmissionStatus.COMPILE_ERROR)));
-        CommunicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+        communicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
     }
 
     private boolean isCompilationFailed(File executable) {
@@ -249,7 +253,7 @@ public class CodeExecutor {
             log.error(e.toString());
             result.setStatus(SubmissionStatus.RUNTIME_ERROR);
         } finally {
-            CommunicationUtils.postResult(result);
+            communicationUtils.postResult(result);
         }
     }
 
@@ -262,7 +266,7 @@ public class CodeExecutor {
         if (submissionResult.getStatus() != SubmissionStatus.PENDING) {
             log.info(LoggerColors.purple("Submission " + submission.getId() +
                     " Testcase " + testcaseId + ": Skipping output check - " + submissionResult.getStatus()));
-            CommunicationUtils.postResult(submissionResult);
+            communicationUtils.postResult(submissionResult);
             return;
         }
 
@@ -274,7 +278,7 @@ public class CodeExecutor {
         log.info(LoggerColors.cyan("Submission " + submission.getId() +
                 " Testcase " + testcaseId + " Expected output:\n" + expectedOutput));
 
-        CommunicationUtils.postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
+        communicationUtils.postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
         boolean result = executionOutput.equals(expectedOutput);
 
         log.info(result ?
@@ -326,10 +330,10 @@ public class CodeExecutor {
             log.info(LoggerColors.error(errorStream));
             if (errorStream.contains("timeout: ")) {
                 submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
-                CommunicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
+                communicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
             } else {
                 submissionResult.setStatus(SubmissionStatus.RUNTIME_ERROR);
-                CommunicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
+                communicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
                         errorStream));
             }
         }
