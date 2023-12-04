@@ -37,8 +37,6 @@ public class Configurator {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory(rabbitHostname);
         connectionFactory.setUsername(rabbitUsername);
         connectionFactory.setPassword(rabbitPassword);
-        //connectionFactory.setPublisherReturns(true);
-        //connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
         return connectionFactory;
     }
 
@@ -49,12 +47,14 @@ public class Configurator {
 
     @Bean
     public RabbitTemplate rabbitTemplate() {
-        return new RabbitTemplate(connectionFactory());
+        RabbitTemplate template = new RabbitTemplate(connectionFactory());
+        template.setMessageConverter(contentTypeConverter());
+        return template;
     }
 
     @Bean
     public AsyncRabbitTemplate asyncRabbitTemplate() {
-        return new AsyncRabbitTemplate(new RabbitTemplate(connectionFactory()));
+        return new AsyncRabbitTemplate(rabbitTemplate());
     }
 
     @Bean
