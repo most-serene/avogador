@@ -1,29 +1,27 @@
 import { User } from "@authentication/types";
-import { useAtom } from "jotai";
-import userAtom from "@authentication/userAtom";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import { useCallback } from "react";
+import { enqueueSnackbar } from "notistack";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
 
 export const useAuthService = () => {
-  const [, setUser] = useAtom(userAtom);
   const avogadorApi = useAvogadorApi();
+  const [, setUser] = useAtom(userAtom);
 
   const getCurrent = useCallback(async () => {
     try {
       const { data: responseUser }: { data: User } = await avogadorApi.get(
         "/users/current",
       );
-      setUser(responseUser);
       return responseUser;
     } catch {
-      setUser(null);
       return null;
     }
-  }, [avogadorApi, setUser]);
+  }, [avogadorApi]);
 
   const login: (googleToken: string) => Promise<User> = useCallback(
     async (googleToken: string) => {
-      setUser(undefined);
       return avogadorApi
         .post("/users/google-auth", {
           googleToken: googleToken,
@@ -45,12 +43,11 @@ export const useAuthService = () => {
               isProfessor: user.isProfessor,
               isSuperuser: user.isSuperuser,
             };
-            setUser(u);
             return u;
           },
         );
     },
-    [avogadorApi, setUser],
+    [avogadorApi],
   );
 
   const logout = useCallback(() => {
@@ -60,8 +57,8 @@ export const useAuthService = () => {
         setUser(null);
         localStorage.removeItem("profile-picture");
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
       });
   }, [avogadorApi, setUser]);
 
