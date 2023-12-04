@@ -29,7 +29,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
           setUser(u);
         })
         .catch((err: Error) => {
-          console.log(err);
+          setUser(null);
           enqueueSnackbar(err.message, { variant: "error" });
         });
     }
