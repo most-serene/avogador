@@ -11,9 +11,12 @@ import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
 import { useAtom } from "jotai";
 import showSplashScreenAtom from "@structure/SplashScreen/showSplashScreenAtom.ts";
+import userAtom from "@authentication/userAtom.ts";
+import { User } from "@authentication/types.ts";
 
 const LoginGoogle = () => {
   const { login } = useAuthService();
+  const [, setUser] = useAtom(userAtom);
   const [, setShowSplashScreen] = useAtom(showSplashScreenAtom);
 
   return (
@@ -46,7 +49,11 @@ const LoginGoogle = () => {
               if (credentialResponse.credential !== undefined) {
                 setShowSplashScreen(true);
                 login(credentialResponse.credential)
-                  .catch((err) => {
+                  .then((u: User) => {
+                    setUser(u);
+                  })
+                  .catch((err: Error) => {
+                    setUser(null);
                     if (
                       err instanceof AxiosError &&
                       err.response?.status === 400
