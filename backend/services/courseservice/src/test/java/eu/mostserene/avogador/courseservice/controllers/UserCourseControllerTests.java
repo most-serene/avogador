@@ -2,7 +2,7 @@ package eu.mostserene.avogador.courseservice.controllers;
 
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseService;
-import eu.mostserene.avogador.courseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.usercourses.*;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
@@ -36,7 +36,7 @@ public class UserCourseControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean CourseService courseService;
     private @MockBean UserService userService;
-    private @MockBean FileSystemService fileSystemService;
+    private @MockBean StorageService storageService;
     private @MockBean ProfileManager profileManager;
 
     private @MockBean BuildProperties buildProperties;
@@ -134,6 +134,8 @@ public class UserCourseControllerTests {
         public void fromOutside_get403() throws Exception{
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/collaborators/00000000-0000-0000-0000-000000000001").header("User", student1Header))
                     .andDo(print())
@@ -201,6 +203,8 @@ public class UserCourseControllerTests {
         public void fromOutside_get403() throws Exception{
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/students/00000000-0000-0000-0000-000000000001").header("User", student1Header))
                     .andDo(print())

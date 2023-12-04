@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
     Optional<Submission> findFirstByExercise_IdAndUserIdOrderByTimestampDesc(UUID id, UUID userId);
     List<Submission> findByExercise_IdAndUserIdOrderByTimestampDesc(UUID id, UUID userId);
+    List<Submission> findByExercise_IdOrderByTimestampAsc(UUID id);
 }

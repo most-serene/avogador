@@ -1,7 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +19,16 @@ public class SubmissionServiceImpl implements SubmissionService {
     private SubmissionRepository submissionRepository;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Override
     public Optional<Submission> getSubmission(UUID submissionId) {
         return submissionRepository.findById(submissionId);
+    }
+
+    @Override
+    public List<Submission> getSubmissionsFromExercise(Exercise exercise) {
+        return submissionRepository.findByExercise_IdOrderByTimestampAsc(exercise.getId());
     }
 
     @Override
@@ -45,13 +50,13 @@ public class SubmissionServiceImpl implements SubmissionService {
         Strox strox = new Strox();
         strox.setCells(submissionDto.getStroxCells().stream().toList());
 
-        fileSystemService.createSubmission(submission, strox);
+        storageService.createSubmission(submission, strox);
         return submission;
     }
 
     @Override
     public SubmissionDto exportToDto(Submission submission) {
-        Strox strox = fileSystemService.getMergedSubmission(submission)
+        Strox strox = storageService.getMergedSubmission(submission)
                 .orElseThrow(() -> new RuntimeException("Template or Submission not existing in storage"));
 
         return new SubmissionDto(submission.getId(), submission.getExercise().getId(),

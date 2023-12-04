@@ -1,6 +1,6 @@
 import CoursesPreview from "@home/CoursesPreview.tsx";
 import Grid from "@mui/material/Grid";
-import DeadlineStack from "@home/DeadlineStack.tsx";
+import DeadlineStack from "@home/DeadlineStack/DeadlineStack.tsx";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";

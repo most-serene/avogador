@@ -20,14 +20,15 @@ import CourseCreationScreen from "@courses/courseCreation/CourseCreationScreen.t
 import CoursesScreen from "@courses/coursesPage/CoursesScreen.tsx";
 import MobileWrapper from "@structure/MobileWrapper/MobileWrapper";
 import TrialCreationScreen from "@trials/trialCreation/TrialCreationScreen.tsx";
-import ExerciseCreationScreen from "@exercises/exerciseCreation/ExerciseCreationScreen.tsx";
 import TrialDetailScreen from "@trials/trialDetail/TrialDetailScreen.tsx";
 import WebSocketWrapper from "./WebSocketWrapper.tsx";
 import CloseIcon from "@mui/icons-material/Close";
 import ExerciseNavigatorWrapper from "@exercises/exerciseScreen/ExerciseNavigatorWrapper.tsx";
-import ExerciseEditWrapper from "@exercises/exerciseCreation/ExerciseEditWrapper.tsx";
 import UserSubmissionsScreen from "@components/submissions/UserSubmissionsScreen/UserSubmissionsScreen.tsx";
 import UsersScreen from "@components/users/usersScreen/UsersScreen.tsx";
+import useVersionChecker from "@hooks/useVersionChecker.tsx";
+import ExerciseCreation from "@exercises/exerciseCreation/ExerciseCreation.tsx";
+import ExerciseUpdate from "@exercises/exerciseCreation/ExerciseUpdate.tsx";
 
 const NotFound = () => {
   return (
@@ -56,6 +57,7 @@ function App() {
   const [occupiedHeight, setOccupiedHeight] = useState(0);
 
   const { connectToGlitchTip } = useGlitchTip();
+  const { checkWebAppVersion } = useVersionChecker();
   const [user] = useAtom(userAtom);
 
   useEffect(() => {
@@ -71,6 +73,13 @@ function App() {
         (footerRef.current?.clientHeight ?? 0),
     );
   }, [navbarRef, footerRef]);
+
+  useEffect(() => {
+    checkWebAppVersion();
+    setInterval(() => {
+      checkWebAppVersion();
+    }, 5000 * 60);
+  }, [checkWebAppVersion]);
 
   return (
     <div className="App">
@@ -167,7 +176,7 @@ function App() {
                         path="/exercises/new"
                         element={
                           <Container maxWidth={"xl"} style={{ height: "100%" }}>
-                            <ExerciseCreationScreen />
+                            <ExerciseCreation />
                           </Container>
                         }
                       />
@@ -175,7 +184,7 @@ function App() {
                         path="/exercises/:exerciseId/edit"
                         element={
                           <Container maxWidth={"xl"} style={{ height: "100%" }}>
-                            <ExerciseEditWrapper />
+                            <ExerciseUpdate />
                           </Container>
                         }
                       />

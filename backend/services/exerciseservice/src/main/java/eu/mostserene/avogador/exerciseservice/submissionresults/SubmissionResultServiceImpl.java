@@ -27,4 +27,14 @@ public class SubmissionResultServiceImpl implements SubmissionResultService {
     public SubmissionResult saveSubmissionResult(SubmissionResult submissionResult) {
         return repository.save(submissionResult);
     }
+
+    @Override
+    public List<SubmissionResult> getResultsFromExercise(Exercise exercise) {
+        return repository.findBySubmission_Exercise_Id(exercise.getId());
+    }
+
+    @Override
+    public void deleteSubmissionResultsByTestcaseId(UUID testcaseId) {
+        repository.deleteByTestcase_Id(testcaseId);
+    }
 }

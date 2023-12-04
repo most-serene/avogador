@@ -90,6 +90,9 @@ public class ApiGatewayApplication {
                 .route("exercises-api", r -> r.path("/api/exercises/**")
                         .filters(f -> f.rewritePath("/api/exercises/(?<segment>)", "/public/exercises/${segment}"))
                         .uri("http://exercises"))
+                .route("analytics", r -> r.path("/analytics/**")
+                        .filters(f -> f.rewritePath("/analytics/(?<segment>)", "/public/analytics/${segment}"))
+                        .uri("http://exercises"))
                 .build();
     }
 
@@ -101,6 +104,11 @@ public class ApiGatewayApplication {
     @GetMapping("/status")
     List<MicroServiceStatus> getStatus() {
         return statusService.getMicroservicesStatus();
+    }
+
+    @GetMapping("/version/webapp")
+    String getWebappVersion() {
+        return "0.4.0";
     }
 
     @PostConstruct

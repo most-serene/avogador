@@ -15,17 +15,23 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 @Slf4j
-public class Receiver implements MessageListener {
+@Service
+public class Receiver {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
@@ -37,26 +43,32 @@ public class Receiver implements MessageListener {
     @Autowired
     private TestcaseService testcaseService;
 
-    private void handleMessage(Message message) {
-        switch (message.getMessageProperties().getReceivedRoutingKey()) {
-            case "exercises.ping." -> log.info(LoggerColors.cyan("Hello from rabbit"));
-            case "exercises.submission.save" -> submissionSavedHandler(message);
-            case "exercises.submission.result" -> submissionResultHandler(message);
-            default -> log.error(LoggerColors.error("call not handled"));
-        }
+    @Autowired
+    private Sender sender;
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "pingExercises"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "exercises.ping."))
+    private void pingExercises() {
+        log.info(LoggerColors.cyan("Hello from rabbit"));
     }
 
-    private void submissionSavedHandler(Message message) {
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "submissionSavedHandler"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "exercises.submission.save"))
+    private void submissionSavedHandler(SubmissionSavedDto submissionSavedDto) {
         try {
-            SubmissionSavedDto submissionSavedDto = mapper.readValue(message.getBody(), SubmissionSavedDto.class);
-
             Submission submission = submissionService.getSubmission(submissionSavedDto.getSubmissionId())
                     .orElseThrow(RuntimeException::new);
 
             TimeUnit.SECONDS.sleep(1 );
 
-            (new Sender()).send("executor", "exec.submission.execute",
-                    mapper.writeValueAsString(new SubmissionExecutionDto(
+            log.info(LoggerColors.warn("hej"));
+
+            sender.send("executor", "exec.submission.execute",
+                    new SubmissionExecutionDto(
                             submission.getId(),
                             submission.getExercise().getTrial().getCourseId(),
                             submission.getExercise().getTrial().getId(),
@@ -68,15 +80,21 @@ public class Receiver implements MessageListener {
                                     .stream()
                                     .map(TestcaseDetailDto::getId)
                                     .toList()
-                    )));
-        } catch (IOException | InterruptedException e) {
+                    ), (BiConsumer<String, Throwable>) (s, throwable) -> {
+                        log.info(LoggerColors.success(s));
+                        log.info(LoggerColors.error(String.valueOf(throwable)));
+                    });
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void submissionResultHandler(Message message) {
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "submissionResultHandler"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "exercises.submission.result"))
+    private void submissionResultHandler(SubmissionResultDto submissionResultDto) {
         try {
-            SubmissionResultDto submissionResultDto = mapper.readValue(message.getBody(), SubmissionResultDto.class);
             Submission submission = submissionService.getSubmission(submissionResultDto.getSubmissionId())
                     .orElseThrow(NotFoundException::new);
 
@@ -93,22 +111,11 @@ public class Receiver implements MessageListener {
 
             submissionResultDto.setOutput(null);
 
-            (new Sender()).send("users", "users.notify.socket", mapper.writeValueAsString(
-                    new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
+            sender.send("users", "users.notify.socket", new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
                             mapper.writeValueAsString(submissionResultDto)
-                    )));
+                    ));
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void onMessage(Message message) {
-        try {
-            handleMessage(message);
-        } catch (Exception e) {
-            log.error(e.toString());
-            log.error(LoggerColors.error("call not handled"));
         }
     }
 

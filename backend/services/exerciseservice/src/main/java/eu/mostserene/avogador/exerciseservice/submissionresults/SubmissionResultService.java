@@ -12,4 +12,6 @@ public interface SubmissionResultService {
     List<SubmissionResult> getResultsFromExerciseAndUser(Exercise exercise, UUID userId);
     List<SubmissionResult> getResultsFromSubmission(Submission submission);
     SubmissionResult saveSubmissionResult(SubmissionResult submissionResult);
+    List<SubmissionResult> getResultsFromExercise(Exercise exercise);
+    void deleteSubmissionResultsByTestcaseId(UUID testcaseId);
 }

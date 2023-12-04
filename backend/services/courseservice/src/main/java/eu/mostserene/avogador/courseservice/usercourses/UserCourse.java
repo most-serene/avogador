@@ -30,7 +30,7 @@ public class UserCourse {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private CourseRole role = CourseRole.STUDENT;
+    private CourseRole role = CourseRole.EXTERNAL;
 
     @NotNull
     private Date joinDate = new Date(Calendar.getInstance().getTimeInMillis());

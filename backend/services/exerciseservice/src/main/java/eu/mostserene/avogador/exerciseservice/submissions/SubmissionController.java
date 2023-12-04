@@ -7,7 +7,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.StroxException;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
@@ -22,6 +22,9 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
@@ -52,7 +55,10 @@ public class SubmissionController {
     private UserTrialService userTrialService;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
+
+    @Autowired
+    private Sender sender;
 
     @GetMapping("/{submissionId}")
     private SubmissionDto getSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
@@ -70,6 +76,29 @@ public class SubmissionController {
         }
 
         return submissionService.exportToDto(submission);
+    }
+
+    @GetMapping("/{submissionId}/download")
+    private ResponseEntity<Resource> downloadSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        Submission submission = submissionService.getSubmission(submissionId)
+                .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        Resource submissionSource = storageService.getSubmissionSource(submission)
+                .orElseThrow(() -> new NotFoundException("Submission - " + submissionId + ": sourcecode not found"));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"submission.tar.gz\"")
+                .body(submissionSource);
     }
 
     @GetMapping("/users/{userId}")
@@ -91,7 +120,7 @@ public class SubmissionController {
                         submission.getExercise().getId(),
                         userId,
                         submission.getTimestamp(),
-                        fileSystemService.getSubmissionStrox(submission)
+                        storageService.getSubmissionStrox(submission)
                                 .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
                                 .getCells()
                         )
@@ -160,10 +189,10 @@ public class SubmissionController {
                             @Override
                             public void run() {
                                 try {
-                                    new Sender().send("users", "users.notify.socket", mapper.writeValueAsString(
+                                    sender.send("users", "users.notify.socket",
                                             new WebSocketMessage("/" + submissionResult.getSubmission().getId() + "/results",
                                                     mapper.writeValueAsString(submissionResult.toDto())
-                                            )));
+                                            ));
                                 } catch (JsonProcessingException e) {
                                     log.error(LoggerColors.error(e.toString()));
                                 }

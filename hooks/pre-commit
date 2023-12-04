@@ -65,16 +65,16 @@ then
     echo "hook on ExerciseService service done"
 fi
 
-SRC_PATTERN_FILESYSTEMSERVICE="backend/services/filesystemservice/"
-if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_FILESYSTEMSERVICE"
+SRC_PATTERN_STORAGESERVICE="backend/services/storageservice/"
+if git diff --cached --name-only | grep --quiet "$SRC_PATTERN_STORAGESERVICE"
 then
-    echo "detected changes in FileSystem service"
+    echo "detected changes in Storage service"
     
-    cd $SRC_PATTERN_FILESYSTEMSERVICE
+    cd $SRC_PATTERN_STORAGESERVICE
     ./gradlew clean test 
     cd ../../../
 
-    echo "hook on FileSystem service done"
+    echo "hook on Storage service done"
 fi
 
 SRC_PATTERN_EXECUTORSERVICE="backend/services/executorservice/"

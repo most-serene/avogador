@@ -3,11 +3,10 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
-import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
@@ -36,7 +35,7 @@ public class SubmissionResultController {
     @Autowired
     private UserTrialService userTrialService;
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
     @Autowired
     private TestcaseService testcaseService;
 
@@ -139,11 +138,11 @@ public class SubmissionResultController {
             throw new ForbiddenException(user);
         }
 
-        Map<String, String> outputs = fileSystemService.getSubmissionStrox(submission)
+        Map<String, String> outputs = storageService.getSubmissionStrox(submission)
                 .orElseThrow(NotFoundException::new)
                 .getOutputs();
 
-        boolean canSeeHidden = user.getIsSuperuser() || courseRole.canSeeHiddenExercises();
+        boolean canSeeHidden = user.getIsSuperuser() || courseRole.hasCollaboratorClearance();
 
         testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()

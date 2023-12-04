@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { GetApp, Publish } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
 import { AxiosError } from "axios";
+import userAtom from "@authentication/userAtom.ts";
 
 declare global {
   interface Array<T> {
@@ -73,6 +74,7 @@ const columns: GridColDef<CourseMemberDetail>[] = [
 export default function CourseMembersTab({
   userCourse,
 }: CourseMembersTabProps) {
+  const [user] = useAtom(userAtom);
   const [colorMode] = useAtom(ColorModeAtom);
   const { getCourseMembers, promoteUser, demoteUser } = useCourseService();
   const [rows, setRows] = useState<GridRowsProp<CourseMemberDetail>>();
@@ -137,6 +139,7 @@ export default function CourseMembersTab({
       const actions: ReactElement[] = [];
       actions.pushIfRole = function (element, role) {
         if (
+          (user != null && user.isSuperuser) ||
           userCourse?.role === "ADMIN" ||
           (role === "COLLABORATOR" && userCourse?.role === "COLLABORATOR")
         ) {
@@ -215,7 +218,9 @@ export default function CourseMembersTab({
         autoPageSize
         columnVisibilityModel={{
           actions:
-            userCourse?.role !== "STUDENT" && userCourse?.role !== "EXTERNAL",
+            (userCourse?.role !== "STUDENT" &&
+              userCourse?.role !== "EXTERNAL") ||
+            (user != null && user.isSuperuser),
         }}
       />
     </Card>

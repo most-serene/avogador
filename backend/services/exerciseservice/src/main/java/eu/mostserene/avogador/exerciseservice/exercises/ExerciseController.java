@@ -1,8 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
@@ -15,9 +16,11 @@ import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.InjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -43,10 +46,13 @@ public class ExerciseController {
     private TrialService trialService;
 
     @Autowired
-    private FileSystemService fileSystemService;
+    private StorageService storageService;
 
     @Autowired
     private SubmissionService submissionService;
+
+    @Autowired
+    private AntiPlagiarismService antiPlagiarismService;
 
     /**
      * Returns the exercise given the exercise ID
@@ -120,7 +126,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        fileSystemService.createExerciseTemplate(exercise, strox);
+        storageService.createExerciseTemplate(exercise, strox);
     }
 
     /**
@@ -207,7 +213,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        return exerciseService.getExercisesFromTrial(trial, courseRole.canSeeHiddenExercises())
+        return exerciseService.getExercisesFromTrial(trial, courseRole.hasCollaboratorClearance())
                 .stream().map(Exercise::toDto).toList();
     }
 
@@ -231,11 +237,11 @@ public class ExerciseController {
         }
 
         if (!merged || submission.isEmpty()){
-            template = fileSystemService.getExerciseTemplate(exercise)
+            template = storageService.getExerciseTemplate(exercise)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
         else {
-            template = fileSystemService.getMergedSubmission(submission.get())
+            template = storageService.getMergedSubmission(submission.get())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
 
@@ -247,6 +253,24 @@ public class ExerciseController {
         );
 
         return template;
+    }
+
+    @GetMapping("/{exerciseId}/similarity-report")
+    private ResponseEntity<Resource> getSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+        var exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
+
+        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"similarity.zip\"")
+                .body(antiPlagiarismService.getSimilarityReport(exercise)
+                        .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found")));
     }
 
 }

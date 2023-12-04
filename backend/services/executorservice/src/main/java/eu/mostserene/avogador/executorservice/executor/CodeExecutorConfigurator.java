@@ -17,9 +17,12 @@ public class CodeExecutorConfigurator {
     @Autowired
     private StorageService storageService;
 
+    @Autowired
+    private CommunicationUtils communicationUtils;
+
     @Bean
     void configure() {
-        CodeExecutor.configure(environment, storageService);
+        CodeExecutor.configure(environment, storageService, communicationUtils);
         log.info(LoggerColors.success("|-- Docker Configured --|"));
     }
 }

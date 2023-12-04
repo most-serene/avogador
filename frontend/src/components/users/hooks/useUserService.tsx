@@ -20,9 +20,31 @@ const useUserService = () => {
     return users;
   }, [avogadorApi]);
 
+  const promoteToProfessor: (user: User) => Promise<User> = useCallback(
+    async (user: User) => {
+      const { data: updatedUser }: { data: User } = await avogadorApi.put(
+        `/users/professors/${user.id}`,
+      );
+      return updatedUser;
+    },
+    [avogadorApi],
+  );
+
+  const demoteToStudent: (user: User) => Promise<User> = useCallback(
+    async (user: User) => {
+      const { data: updatedUser }: { data: User } = await avogadorApi.put(
+        `/users/students/${user.id}`,
+      );
+      return updatedUser;
+    },
+    [avogadorApi],
+  );
+
   return {
     getUserById,
     getUsers,
+    promoteToProfessor,
+    demoteToStudent,
   };
 };
 

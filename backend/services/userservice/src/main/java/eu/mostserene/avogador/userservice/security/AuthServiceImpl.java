@@ -210,6 +210,54 @@ public class AuthServiceImpl implements AuthService {
         ).orElseThrow(() -> new ForbiddenException("API key not valid")).generateAuthUserDTO();
     }
 
+    @Override
+    public String generateWebSocketToken(AuthUserDTO user) {
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
+        long nowMillis = System.currentTimeMillis();
+        Date now = new Date(nowMillis);
+
+        byte[] apiKeySecretBytes = Base64.getEncoder().encode(jwtSecret.getBytes());
+        Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
+
+        return Jwts.builder()
+                .setId(String.valueOf(user.getId()) + "-websocket")
+                .setIssuedAt(now)
+                .setSubject(user.getEmail() + "-websocket")
+                .setIssuer("Avogador")
+                .claim("userId", user.getId())
+                .claim("generation_timestamp", Timestamp.from(Instant.now()))
+                .signWith(signatureAlgorithm, signingKey)
+                .compact();
+    }
+
+    @Override
+    public AuthUserDTO decodeWebSocketToken(String webSocketToken) {
+        final ObjectMapper mapper = new ObjectMapper();
+        Claims jwsMap = null;
+
+        try {
+            jwsMap = Jwts.parser()
+                    .setSigningKey(Base64.getEncoder().encode(jwtSecret.getBytes()))
+                    .parseClaimsJws(webSocketToken)
+                    .getBody();
+        } catch (JwtException jwtException) {
+            Sentry.captureException(jwtException);
+            throw new ForbiddenException(jwtException.getMessage());
+        }
+
+        UUID userId = UUID.fromString(mapper.convertValue(jwsMap.get("userId"), String.class));
+        Timestamp generationTimestamp = mapper.convertValue(jwsMap.get("generation_timestamp"), Timestamp.class);
+
+        User authUser = userService.getUserById(userId)
+                .orElseThrow(() -> new ForbiddenException("The token is revoked"));
+
+        if (isJwtRevoked(authUser, generationTimestamp)) {
+            throw new ForbiddenException("The token is revoked");
+        }
+        return authUser.generateAuthUserDTO();
+    }
+
     /**
      * Record representing the GoogleUser returned by the call to the Google Auth API
      *

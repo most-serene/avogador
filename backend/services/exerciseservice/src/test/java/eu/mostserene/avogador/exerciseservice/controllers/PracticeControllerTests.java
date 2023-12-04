@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
-import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.filesystem.FileSystemService;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController;
 import eu.mostserene.avogador.exerciseservice.practices.PracticeRepository;
@@ -52,7 +51,7 @@ public class PracticeControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
-    private @MockBean FileSystemService fileSystemService;
+    private @MockBean StorageService storageService;
     private @MockBean ExerciseService exerciseService;
     private @MockBean UserTrialService userTrialService;
 
