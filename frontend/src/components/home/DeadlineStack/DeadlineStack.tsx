@@ -74,15 +74,22 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
             setCollaboratorTrials((prev) => {
               if (prev == null) return trials;
 
-              return [...prev, ...trials].sort((a, b) => {
-                const deadlineA = isPractice(a) ? a.deadline : undefined;
-                const deadlineB = isPractice(b) ? b.deadline : undefined;
+              return [...prev, ...trials]
+                .sort((a, b) => {
+                  const startA = a.startTimestamp;
+                  const startB = b.startTimestamp;
 
-                return (
-                  (deadlineA?.getTime() ?? new Date().getTime()) -
-                  (deadlineB?.getTime() ?? new Date().getTime())
-                );
-              });
+                  return startB.getTime() - startA.getTime();
+                })
+                .sort((a, b) => {
+                  const deadlineA = isPractice(a) ? a.deadline : undefined;
+                  const deadlineB = isPractice(b) ? b.deadline : undefined;
+
+                  return (
+                    (deadlineA?.getTime() ?? new Date().getTime()) -
+                    (deadlineB?.getTime() ?? new Date().getTime())
+                  );
+                });
             });
           })
           .catch((err: Error) => {

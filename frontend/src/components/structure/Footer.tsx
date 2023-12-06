@@ -1,7 +1,8 @@
 import Typography from "@mui/material/Typography";
-import { Button, Container, Grid, Paper, Stack } from "@mui/material";
+import { Button, Container, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { forwardRef } from "react";
+import Box from "@mui/material/Box";
 
 const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
   const navigate = useNavigate();
@@ -24,40 +25,28 @@ const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
       variant="outlined"
     >
       <Container maxWidth={false}>
-        <Grid container display={"flex"}>
-          <Grid item xs={4}></Grid>
-          <Grid
-            item
-            xs={4}
-            display={"flex"}
-            justifyContent={"center"}
-            alignContent={"center"}
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          position="relative"
+        >
+          <Button
+            sx={{ justifyContent: "center", margin: 0 }}
+            onClick={() => {
+              navigate("/status");
+            }}
           >
-            <Button
-              sx={{ justifyContent: "center", margin: 0 }}
-              onClick={() => {
-                navigate("/status");
-              }}
-            >
-              <Typography align="center" margin={0}>
-                System status
-              </Typography>
-            </Button>
-          </Grid>
-          <Grid
-            item
-            xs={4}
-            display={"flex"}
-            justifyContent={"flex-end"}
-            alignContent={"center"}
+            System status
+          </Button>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            style={{ float: "right", position: "absolute", right: 0 }}
           >
-            <Stack direction="column" justifyContent="center">
-              <Typography variant="body2" color="text.secondary">
-                {import.meta.env.APP_VERSION}
-              </Typography>
-            </Stack>
-          </Grid>
-        </Grid>
+            {import.meta.env.APP_VERSION}
+          </Typography>
+        </Box>
       </Container>
     </Paper>
   );
