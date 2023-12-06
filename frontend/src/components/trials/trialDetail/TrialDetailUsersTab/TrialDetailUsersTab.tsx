@@ -3,8 +3,15 @@ import {
   // eslint-disable-next-line import/named
   GridColDef,
   // eslint-disable-next-line import/named
+  GridPaginationModel,
+  // eslint-disable-next-line import/named
   GridRowsProp,
+  // eslint-disable-next-line import/named
+  GridSortDirection,
+  // eslint-disable-next-line import/named
+  GridSortModel,
   GridToolbar,
+  useGridApiRef,
 } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Trial, UserExerciseSummary, UserTrialSummary } from "@trials/types.ts";
@@ -22,6 +29,15 @@ import { useNavigate } from "react-router-dom";
 
 interface TrialDetailUsersTabProps {
   trial: Trial;
+}
+
+interface DataGridSettings {
+  trialId?: string;
+  page?: number;
+  order?: {
+    field: string;
+    sort: GridSortDirection;
+  };
 }
 
 const staticColumns: GridColDef<UserTrialSummary>[] = [
@@ -74,6 +90,8 @@ const getStatusIcon = (
   }
 };
 
+const SESSION_STORAGE_SETTINGS_KEY = "trial-table-settings";
+
 const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
   const [colorMode] = useAtom(ColorModeAtom);
   const navigate = useNavigate();
@@ -82,6 +100,30 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
   const { getUsersFromTrial } = useTrialService();
   const [rows, setRows] = useState<GridRowsProp<UserTrialSummary>>();
   const [columns, setColumns] = useState(staticColumns);
+  const apiRef = useGridApiRef();
+
+  useEffect(() => {
+    const tableSettings: DataGridSettings = JSON.parse(
+      sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
+    ) as DataGridSettings;
+
+    if (tableSettings.trialId == null || tableSettings.trialId != trial.id) {
+      sessionStorage.setItem(
+        SESSION_STORAGE_SETTINGS_KEY,
+        JSON.stringify({
+          trialId: trial.id,
+        }),
+      );
+      return;
+    }
+
+    if (tableSettings.page != null) {
+      apiRef.current.setPage(tableSettings.page);
+    }
+    if (tableSettings.order != null) {
+      apiRef.current.setSortModel([tableSettings.order]);
+    }
+  }, [apiRef, trial]);
 
   useEffect(() => {
     const generateRows = async () => {
@@ -147,6 +189,43 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
     });
   }, [trial, getExercisesByTrial, getExerciseResultSummary, getUsersFromTrial]);
 
+  const handlePaginationModelChange = ({ page }: GridPaginationModel) => {
+    const tableSettings: DataGridSettings = JSON.parse(
+      sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
+    ) as DataGridSettings;
+
+    sessionStorage.setItem(
+      SESSION_STORAGE_SETTINGS_KEY,
+      JSON.stringify({
+        ...tableSettings,
+        page,
+      }),
+    );
+  };
+
+  const handleSortModelChange = (model: GridSortModel) => {
+    const tableSettings: DataGridSettings = JSON.parse(
+      sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
+    ) as DataGridSettings;
+
+    if (model.length === 0) {
+      sessionStorage.setItem(
+        SESSION_STORAGE_SETTINGS_KEY,
+        JSON.stringify({ ...tableSettings, order: undefined }),
+      );
+      return;
+    }
+
+    const { field, sort } = model[0];
+    sessionStorage.setItem(
+      SESSION_STORAGE_SETTINGS_KEY,
+      JSON.stringify({
+        ...tableSettings,
+        order: { field, sort },
+      }),
+    );
+  };
+
   return (
     <Card
       sx={{
@@ -159,6 +238,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
       }}
     >
       <DataGrid
+        apiRef={apiRef}
         rows={rows ?? []}
         loading={rows == null}
         columns={[...columns]}
@@ -179,6 +259,8 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         disableRowSelectionOnClick
         density="compact"
         autoPageSize
+        onPaginationModelChange={handlePaginationModelChange}
+        onSortModelChange={handleSortModelChange}
         onCellClick={(cell) => {
           if (["startDate", "__check__"].includes(cell.field)) {
             return;

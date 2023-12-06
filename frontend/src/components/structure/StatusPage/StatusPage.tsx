@@ -46,11 +46,9 @@ const StatusPage = () => {
         <Card sx={{ width: "32rem" }} raised>
           <CardContent>
             <Typography variant="h5">API gateway address:</Typography>
-            <Grid container justifyContent="center">
-              <Typography variant="body1" textAlign={"center"}>
-                {version}
-              </Typography>
-            </Grid>
+            <Typography variant="body1" textAlign={"center"}>
+              {version}
+            </Typography>
           </CardContent>
         </Card>
       </>
@@ -99,7 +97,9 @@ const StatusPage = () => {
             <GatewayAddressCard />
             <Card sx={{ width: "32rem" }} raised>
               <CardContent>
-                <Typography variant="h5">Services status:</Typography>
+                <Typography variant="h5" marginBottom={1}>
+                  Services status:
+                </Typography>
                 {gatewayError ? (
                   <Typography variant="body1">
                     The gateway is offline

@@ -83,7 +83,7 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
 
   return (
     <Grid container height="100%" width={"100%"} spacing={2}>
-      <Grid item height="100%" xs={4}>
+      <Grid item height="100%" xs={12} md={4}>
         <KanbanColumn
           title="Scheduled"
           trials={scheduledTrials}
@@ -93,14 +93,14 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
           }
         />
       </Grid>
-      <Grid item height="100%" xs={4}>
+      <Grid item height="100%" xs={12} md={4}>
         <KanbanColumn
           title="In progress"
           trials={ongoingTrials}
           isLoading={isLoading}
         />
       </Grid>
-      <Grid item height="100%" xs={4}>
+      <Grid item height="100%" xs={12} md={4}>
         <KanbanColumn
           title="Completed"
           trials={endedTrials}
