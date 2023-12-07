@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.storage;
 
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
@@ -31,5 +32,5 @@ public interface StorageService {
     Optional<Strox> getMergedSubmission(Submission submission);
     Resource getExerciseLatestSubmissionsSources(Exercise exercise, List<UUID> submissionIds);
     void uploadSimilarityReport(Exercise exercise, File reportZip);
-    Optional<Resource> getSimilarityReport(Exercise exercise);
+    Optional<PlagiarismReport> getSimilarityReport(Exercise exercise);
 }

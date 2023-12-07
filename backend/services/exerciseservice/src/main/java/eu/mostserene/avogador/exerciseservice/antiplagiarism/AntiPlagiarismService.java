@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface AntiPlagiarismService {
     void executeSimilarityTool(Exercise exercise);
-    Optional<Resource> getSimilarityReport(Exercise exercise);
+    Optional<PlagiarismReport> getSimilarityReport(Exercise exercise);
 }
