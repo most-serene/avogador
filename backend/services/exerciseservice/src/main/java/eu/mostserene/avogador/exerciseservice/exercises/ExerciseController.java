@@ -1,8 +1,10 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.security.restapicontrol.EnablePublicRestAPI;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
@@ -256,7 +258,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/{exerciseId}/similarity-report")
-    private ResponseEntity<Resource> getSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+    private PlagiarismReport getSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
@@ -267,10 +269,8 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"similarity.zip\"")
-                .body(antiPlagiarismService.getSimilarityReport(exercise)
-                        .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found")));
+        return antiPlagiarismService.getSimilarityReport(exercise)
+                .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found"));
     }
 
 }

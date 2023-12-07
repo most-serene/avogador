@@ -1,8 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.storage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
@@ -33,7 +33,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void createTrial(Trial trial) {
-            sender.send("storage", "storage.trial.create", new TrialStorageDTO(trial.getCourseId(), trial.getId()));
+        sender.send("storage", "storage.trial.create", new TrialStorageDTO(trial.getCourseId(), trial.getId()));
     }
 
     @Override
@@ -60,9 +60,9 @@ public class StorageServiceImpl implements StorageService {
         };
 
         template.setSourceFileName(filename);
-            sender.send("storage", "storage.template.create",
-                    new ExerciseTemplateStorageDTO(
-                            exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId(), template));
+        sender.send("storage", "storage.template.create",
+                new ExerciseTemplateStorageDTO(
+                        exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId(), template));
     }
 
     @Override
@@ -72,28 +72,28 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void createTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-            sender.send("storage", "storage.testcase.create",
-                    new TestcaseStorageDto(
-                            exercise.getTrial().getCourseId(),
-                            exercise.getTrial().getId(),
-                            testcase.getExerciseId(),
-                            testcase.getId(),
-                            testcase.getInput(),
-                            testcase.getOutput()
-                    ));
+        sender.send("storage", "storage.testcase.create",
+                new TestcaseStorageDto(
+                        exercise.getTrial().getCourseId(),
+                        exercise.getTrial().getId(),
+                        testcase.getExerciseId(),
+                        testcase.getId(),
+                        testcase.getInput(),
+                        testcase.getOutput()
+                ));
     }
 
     @Override
     public void deleteTestcase(Exercise exercise, UUID testcaseId) {
-            sender.send("storage", "storage.testcase.delete",
-                    new TestcaseStorageDto(
-                            exercise.getTrial().getCourseId(),
-                            exercise.getTrial().getId(),
-                            exercise.getId(),
-                            testcaseId,
-                            "",
-                            ""
-                    ));
+        sender.send("storage", "storage.testcase.delete",
+                new TestcaseStorageDto(
+                        exercise.getTrial().getCourseId(),
+                        exercise.getTrial().getId(),
+                        exercise.getId(),
+                        testcaseId,
+                        "",
+                        ""
+                ));
     }
 
     @Override
@@ -111,15 +111,15 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-            sender.send("storage", "storage.testcase.create",
-                    new TestcaseStorageDto(
-                            exercise.getTrial().getCourseId(),
-                            exercise.getTrial().getId(),
-                            testcase.getExerciseId(),
-                            testcase.getId(),
-                            testcase.getInput(),
-                            testcase.getOutput()
-                    ));
+        sender.send("storage", "storage.testcase.create",
+                new TestcaseStorageDto(
+                        exercise.getTrial().getCourseId(),
+                        exercise.getTrial().getId(),
+                        testcase.getExerciseId(),
+                        testcase.getId(),
+                        testcase.getInput(),
+                        testcase.getOutput()
+                ));
     }
 
     @Override
@@ -133,14 +133,14 @@ public class StorageServiceImpl implements StorageService {
         };
 
         strox.setSourceFileName(filename);
-            sender.send("storage", "storage.submission.create",
-                    new SubmissionStorageDto(
-                            submission.getExercise().getTrial().getCourseId(),
-                            submission.getExercise().getTrial().getId(),
-                            submission.getExercise().getId(),
-                            submission.getId(),
-                            strox
-                    ));
+        sender.send("storage", "storage.submission.create",
+                new SubmissionStorageDto(
+                        submission.getExercise().getTrial().getCourseId(),
+                        submission.getExercise().getTrial().getId(),
+                        submission.getExercise().getId(),
+                        submission.getId(),
+                        strox
+                ));
     }
 
     @Override
@@ -237,24 +237,19 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Optional<Resource> getSimilarityReport(Exercise exercise) {
-        Resource similarityReport = null;
+    public Optional<PlagiarismReport> getSimilarityReport(Exercise exercise) {
         try {
-            similarityReport = new RestTemplateBuilder()
+            PlagiarismReport similarityReport = new RestTemplateBuilder()
                     .build()
                     .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
                                     "/trials/ " + exercise.getTrial().getId() +
                                     "/exercises/" + exercise.getId() +
                                     "/similarity-report",
-                            Resource.class);
+                            PlagiarismReport.class);
+            return (similarityReport == null) ? Optional.empty() : Optional.of(similarityReport);
         } catch (HttpClientErrorException.NotFound notFoundException) {
             return Optional.empty();
         }
-
-        if (similarityReport == null) {
-            return Optional.empty();
-        }
-        return Optional.of(similarityReport);
     }
 
     @Data
