@@ -78,7 +78,7 @@ public class Receiver {
     private void exerciseSimilaritySavingHandler(SimilarityReportStorageDto similarityReportStorageDto) {
         ExerciseStorageImpl.of(similarityReportStorageDto.getCourseId(), similarityReportStorageDto.getTrialId(),
                         similarityReportStorageDto.getExerciseId())
-                .saveSimilarityReport(similarityReportStorageDto.getSimilarityReportZip());
+                .saveSimilarityReport(similarityReportStorageDto.getSimilarityReport());
     }
 
     @RabbitListener(bindings = @QueueBinding(
