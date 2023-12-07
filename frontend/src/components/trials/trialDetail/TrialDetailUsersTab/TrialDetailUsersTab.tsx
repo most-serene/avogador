@@ -3,6 +3,10 @@ import {
   // eslint-disable-next-line import/named
   GridColDef,
   // eslint-disable-next-line import/named
+  GridFilterItem,
+  // eslint-disable-next-line import/named
+  GridFilterModel,
+  // eslint-disable-next-line import/named
   GridPaginationModel,
   // eslint-disable-next-line import/named
   GridRowsProp,
@@ -38,6 +42,8 @@ interface DataGridSettings {
     field: string;
     sort: GridSortDirection;
   };
+  quickFilterValues?: string[];
+  filter?: GridFilterItem[];
 }
 
 const staticColumns: GridColDef<UserTrialSummary>[] = [
@@ -46,7 +52,7 @@ const staticColumns: GridColDef<UserTrialSummary>[] = [
     headerName: "Enroll No.",
     valueGetter: (params) => params.row.user.email.split("@")[0],
     flex: 0.25,
-    minWidth: 125,
+    minWidth: 75,
   },
   {
     field: "fullName",
@@ -54,12 +60,14 @@ const staticColumns: GridColDef<UserTrialSummary>[] = [
     valueGetter: (params) =>
       `${params.row.user.familyName} ${params.row.user.givenName}`,
     flex: 1,
+    minWidth: 150,
   },
   {
     field: "startDate",
     headerName: "Started",
     valueGetter: (params) => format(params.row.startTime, "yyyy/MM/dd HH:mm"),
     flex: 1,
+    minWidth: 125,
   },
 ];
 
@@ -102,10 +110,14 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
   const [columns, setColumns] = useState(staticColumns);
   const apiRef = useGridApiRef();
 
-  useEffect(() => {
-    const tableSettings: DataGridSettings = JSON.parse(
+  const getDatagridSettings = () => {
+    return JSON.parse(
       sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
     ) as DataGridSettings;
+  };
+
+  useEffect(() => {
+    const tableSettings = getDatagridSettings();
 
     if (tableSettings.trialId == null || tableSettings.trialId != trial.id) {
       sessionStorage.setItem(
@@ -122,6 +134,12 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
     }
     if (tableSettings.order != null) {
       apiRef.current.setSortModel([tableSettings.order]);
+    }
+    if (tableSettings.filter != null) {
+      apiRef.current.setFilterModel({ items: tableSettings.filter });
+    }
+    if (tableSettings.quickFilterValues != null) {
+      apiRef.current.setQuickFilterValues(tableSettings.quickFilterValues);
     }
   }, [apiRef, trial]);
 
@@ -177,6 +195,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
                     )[0].status,
                   ),
                 flex: 1,
+                minWidth: 150,
               },
             ];
           });
@@ -190,39 +209,35 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
   }, [trial, getExercisesByTrial, getExerciseResultSummary, getUsersFromTrial]);
 
   const handlePaginationModelChange = ({ page }: GridPaginationModel) => {
-    const tableSettings: DataGridSettings = JSON.parse(
-      sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
-    ) as DataGridSettings;
+    const tableSettings = getDatagridSettings();
+    tableSettings.page = page;
 
     sessionStorage.setItem(
       SESSION_STORAGE_SETTINGS_KEY,
-      JSON.stringify({
-        ...tableSettings,
-        page,
-      }),
+      JSON.stringify(tableSettings),
     );
   };
 
   const handleSortModelChange = (model: GridSortModel) => {
-    const tableSettings: DataGridSettings = JSON.parse(
-      sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
-    ) as DataGridSettings;
+    const tableSettings = getDatagridSettings();
 
-    if (model.length === 0) {
-      sessionStorage.setItem(
-        SESSION_STORAGE_SETTINGS_KEY,
-        JSON.stringify({ ...tableSettings, order: undefined }),
-      );
-      return;
-    }
+    tableSettings.order = model.length === 0 ? undefined : model[0];
 
-    const { field, sort } = model[0];
     sessionStorage.setItem(
       SESSION_STORAGE_SETTINGS_KEY,
-      JSON.stringify({
-        ...tableSettings,
-        order: { field, sort },
-      }),
+      JSON.stringify(tableSettings),
+    );
+  };
+
+  const handleFilterModelChange = (model: GridFilterModel) => {
+    const tableSettings = getDatagridSettings();
+
+    tableSettings.quickFilterValues = model.quickFilterValues;
+    tableSettings.filter = model.items;
+
+    sessionStorage.setItem(
+      SESSION_STORAGE_SETTINGS_KEY,
+      JSON.stringify(tableSettings),
     );
   };
 
@@ -245,6 +260,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         slots={{ toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
+            showQuickFilter: true,
             csvOptions: { fileName: `${trial.name}-results` },
             printOptions: {
               fileName: `${trial.name}-results`,
@@ -261,6 +277,7 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
         autoPageSize
         onPaginationModelChange={handlePaginationModelChange}
         onSortModelChange={handleSortModelChange}
+        onFilterModelChange={handleFilterModelChange}
         onCellClick={(cell) => {
           if (["startDate", "__check__"].includes(cell.field)) {
             return;
