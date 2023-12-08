@@ -29,6 +29,7 @@ import UsersScreen from "@components/users/usersScreen/UsersScreen.tsx";
 import useVersionChecker from "@hooks/useVersionChecker.tsx";
 import ExerciseCreation from "@exercises/exerciseCreation/ExerciseCreation.tsx";
 import ExerciseUpdate from "@exercises/exerciseCreation/ExerciseUpdate.tsx";
+import SimilarityReport from "@components/antiplagiarism/report/SimilarityReport.tsx";
 
 const NotFound = () => {
   return (
@@ -187,6 +188,10 @@ function App() {
                             <ExerciseUpdate />
                           </Container>
                         }
+                      />
+                      <Route
+                        path="/exercises/:exerciseId/similarity-report"
+                        element={<SimilarityReport />}
                       />
                       <Route path="/profile" element={<ProfileScreen />} />
                       <Route path="*" element={<NotFound />} />
