@@ -81,47 +81,9 @@ const SimilarityReport = () => {
         );
       })
       .catch((err: Error) => {
-        // FIXME: enqueueSnackbar(err.message, { variant: "error" });
-
-        if (
-          report &&
-          report.submissions[selectedSubmission].email ===
-            "884718@stud.unive.it"
-        ) {
-          setFirstSubmission([
-            {
-              type: "EDITABLE",
-              content:
-                "private int last1;\n" +
-                "    private int last2;\n" +
-                "    private int index;\n" +
-                "\n" +
-                "    Fibonacci(){\n" +
-                "        this.last1=1;\n" +
-                "        this.last2=1;\n" +
-                "        this.index=0;\n" +
-                "    }\n" +
-                "\n" +
-                "    int next(){\n" +
-                "        if(this.index==0){\n" +
-                "            this.index++;\n" +
-                "            return 1;\n" +
-                "        }else if (this.index ==1){\n" +
-                "            this.index++;\n" +
-                "            return 1;\n" +
-                "        }else{\n" +
-                "            this.index++;\n" +
-                "            int nextFib = this.last1 + this.last2;\n" +
-                "            this.last1=this.last2;\n" +
-                "            this.last2=nextFib;\n" +
-                "            return nextFib;\n" +
-                "        }\n" +
-                "    }",
-            },
-          ]);
-        }
+        enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [exercise, getSubmission, selectedSubmission]);
+  }, [exercise, getSubmission, selectedSubmission, template?.cells]);
 
   useEffect(() => {
     if (exercise == null || comparedSubmission == null) return;
@@ -137,88 +99,15 @@ const SimilarityReport = () => {
         );
       })
       .catch((err: Error) => {
-        // FIXME: enqueueSnackbar(err.message, { variant: "error" });
-
-        if (
-          report &&
-          report.submissions[comparedSubmission].email ===
-            "895879@stud.unive.it"
-        ) {
-          setSecondSubmission([
-            {
-              type: "EDITABLE",
-              content:
-                "private int last1;\n" +
-                "    private int last2;\n" +
-                "    private int index;\n" +
-                "\n" +
-                "    Fibonacci()\n" +
-                "    {\n" +
-                "        last1=1;\n" +
-                "        last2=1;\n" +
-                "        index=0;\n" +
-                "    }\n" +
-                "\n" +
-                "    public int next()\n" +
-                "    {\n" +
-                "        if(index==0||index==1)\n" +
-                "        {\n" +
-                "            index++;\n" +
-                "            return 1;\n" +
-                "        }\n" +
-                "        else\n" +
-                "        {\n" +
-                "            index++;\n" +
-                "            int ritorno=last1+last2;\n" +
-                "            last2=last1;\n" +
-                "            last1=ritorno;\n" +
-                "            return ritorno;\n" +
-                "        }\n" +
-                "    }",
-            },
-          ]);
-        }
+        enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [comparedSubmission, exercise, getSubmission]);
+  }, [comparedSubmission, exercise, getSubmission, template?.cells]);
 
   useEffect(() => {
     if (exercise == undefined) return;
     getTemplateFromExercise(exercise.id)
       .then((t) => {
-        // FIXME setTemplate(t);
-        setTemplate({
-          sourceFileName: "Main.java",
-          cells: [
-            {
-              type: "HIDDEN",
-              content: "import java.util.*;\nclass Fibonacci{",
-            },
-            {
-              type: "EDITABLE",
-              content: "hej",
-            },
-            {
-              type: "HIDDEN",
-              content: "}",
-            },
-            {
-              type: "HIDDEN",
-              content:
-                "public class Main {\n" +
-                "    public static void main(String args[]) throws Exception {\n" +
-                "        Scanner sc = new Scanner(System.in);\n" +
-                "        int n = sc.nextInt();\n" +
-                "        Fibonacci generator = new Fibonacci();\n" +
-                "        for (int i = 0; i < n; i++) {\n" +
-                "            System.out.print(generator.next());\n" +
-                "            if (n != i - 1)\n" +
-                '                System.out.print(" ");\n' +
-                "        }\n" +
-                "    }\n" +
-                "}",
-            },
-          ],
-        });
+        setTemplate(t);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });

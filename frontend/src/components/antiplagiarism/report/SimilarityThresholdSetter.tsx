@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
+import React from "react";
 
 interface SimilarityThresholdSetterProps {
   report: PlagiarismReport;
