@@ -71,7 +71,7 @@ public class ExerciseController {
         CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -211,7 +211,7 @@ public class ExerciseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()){
             throw new ForbiddenException(user);
         }
 

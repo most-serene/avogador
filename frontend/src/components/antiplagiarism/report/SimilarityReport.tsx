@@ -125,11 +125,17 @@ const SimilarityReport = () => {
 
   return (
     <Container maxWidth={false} style={{ height: "100%" }}>
-      <Box display={"flex"} justifyContent={"center"} sx={{ mb: "1rem" }}>
+      <Box
+        display="flex"
+        position="relative"
+        justifyContent={"center"}
+        alignItems="center"
+        sx={{ mb: 1 }}
+      >
         <Typography variant="h3" align="center">
           {exercise.name} - Similarity Report
         </Typography>
-        <Box style={{ position: "absolute", left: "1rem", top: "5rem" }}>
+        <Box style={{ position: "absolute", left: 0 }}>
           <Button
             variant={"outlined"}
             onClick={() => {
@@ -143,8 +149,8 @@ const SimilarityReport = () => {
           </Button>
         </Box>
       </Box>
-      <Grid container spacing={2} sx={{ height: "100%" }}>
-        <Grid item xs={4}>
+      <Grid container spacing={2} style={{ height: "calc(100% - 57px)" }}>
+        <Grid item xs={4} style={{ height: "100%", overflow: "scroll" }}>
           <Stack spacing={1}>
             <SimilarityThresholdSetter
               report={report}
@@ -154,7 +160,7 @@ const SimilarityReport = () => {
             <SimilarityClustersCard report={report} />
           </Stack>
         </Grid>
-        <Grid item xs={8} style={{ height: "93%" }}>
+        <Grid item xs={8} style={{ height: "100%" }}>
           <SimilarityComparisonDetail
             report={report}
             selectedSubmissionState={[

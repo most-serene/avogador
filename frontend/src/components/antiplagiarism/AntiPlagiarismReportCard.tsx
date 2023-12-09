@@ -1,5 +1,13 @@
 import { Trial } from "@trials/types.ts";
-import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import useAntiPlagiarismService from "@components/antiplagiarism/hooks/useAntiPlagiarismService.tsx";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
@@ -48,6 +56,12 @@ const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
             Run tool
           </Button>
         </Box>
+        <Divider sx={{ my: 1 }} />
+        {exercises == null && (
+          <Box display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
+        )}
         <Stack spacing={2}>
           {exercises?.map((e) => (
             <Button
@@ -57,7 +71,8 @@ const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
                 visualizeReport(e);
               }}
             >
-              Visualize {e.name} report
+              <Typography sx={{ fontStyle: "italic" }}>{e.name}</Typography>
+              <Typography sx={{ mx: 1 }}>Report</Typography>
             </Button>
           ))}
         </Stack>

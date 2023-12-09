@@ -45,30 +45,24 @@ const SubmissionsList = ({
   };
 
   return (
-    <Stack
-      spacing={1}
-      style={{ height: "100%", overflow: "scroll" }}
-      className={"hidden-scrollbar"}
-    >
-      {Object.entries(report.submissions).map(([submissionId, user]) => {
-        return (
-          <Card
-            key={submissionId}
-            raised
-            onClick={() => {
-              setSelectedSubmission(submissionId);
-            }}
-            style={getSelectableCardStyle(submissionId)}
-          >
-            <CardContent>
-              <Typography>{user.email}</Typography>
-              <Typography>
-                {user.givenName} {user.familyName}
-              </Typography>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <Stack spacing={1}>
+      {Object.entries(report.submissions).map(([submissionId, user]) => (
+        <Card
+          key={submissionId}
+          raised
+          onClick={() => {
+            setSelectedSubmission(submissionId);
+          }}
+          style={getSelectableCardStyle(submissionId)}
+        >
+          <CardContent>
+            <Typography>{user.email}</Typography>
+            <Typography>
+              {user.givenName} {user.familyName}
+            </Typography>
+          </CardContent>
+        </Card>
+      ))}
     </Stack>
   );
 };
@@ -107,7 +101,7 @@ const ComparisonsList = ({
           alignItems={"center"}
           height={"10rem"}
         >
-          <Typography>No matches!</Typography>
+          <Typography variant="h6">No matches found!</Typography>
         </Box>
       ) : (
         <Stack spacing={1}>
@@ -149,33 +143,19 @@ const SimilarityComparisonDetail = ({
   threshold,
 }: SimilarityComparisonDetailProps) => {
   return (
-    <Card
-      style={{ height: "100%", overflow: "scroll" }}
-      className={"hidden-scrollbar"}
-    >
-      <CardContent>
-        <Grid container spacing={1}>
-          <Grid
-            item
-            xs={3}
-            style={{ overflow: "scroll" }}
-            className={"hidden-scrollbar"}
-          >
-            <Box
-              width="100%"
-              style={{ height: "100%", overflow: "scroll" }}
-              className={"hidden-scrollbar"}
-            >
-              <SubmissionsList
-                report={report}
-                selectedSubmissionState={[
-                  selectedSubmission,
-                  setSelectedSubmission,
-                ]}
-              />
-            </Box>
+    <Card style={{ height: "100%" }}>
+      <CardContent style={{ height: "100%" }}>
+        <Grid container spacing={1} style={{ height: "100%" }}>
+          <Grid item xs={3} style={{ height: "100%", overflow: "scroll" }}>
+            <SubmissionsList
+              report={report}
+              selectedSubmissionState={[
+                selectedSubmission,
+                setSelectedSubmission,
+              ]}
+            />
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={9} style={{ height: "100%", overflow: "scroll" }}>
             <Card raised>
               <CardContent>
                 {selectedSubmission == undefined ? (
@@ -185,7 +165,7 @@ const SimilarityComparisonDetail = ({
                     alignItems={"center"}
                     height={"10rem"}
                   >
-                    <Typography>Select one</Typography>
+                    <Typography variant="h6">Select a User</Typography>
                   </Box>
                 ) : (
                   <ComparisonsList
