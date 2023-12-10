@@ -16,8 +16,9 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 import TrialDetailUsersTab from "@trials/trialDetail/TrialDetailUsersTab/TrialDetailUsersTab.tsx";
 import TrialDetailSettingsTab from "@trials/trialDetail/TrialDetailSettingsTab/TrialDetailSettingsTab.tsx";
+import TrialDetailReportsTab from "@trials/trialDetail/TrialDetailReportsTab/TrialDetailReportsTab.tsx";
 
-const tabs = ["Exercises", "Users", "Settings"];
+const tabs = ["Exercises", "Users", "Reports", "Settings"];
 
 interface TrialDetailCollaboratorScreenProps {
   trial: Practice | Exam;
@@ -105,6 +106,13 @@ const TrialDetailCollaboratorScreen = ({
         <TabPanel
           value={openTab}
           index={2}
+          occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
+        >
+          <TrialDetailReportsTab trial={trial} />
+        </TabPanel>
+        <TabPanel
+          value={openTab}
+          index={3}
           occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
         >
           <TrialDetailSettingsTab trial={trial} />

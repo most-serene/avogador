@@ -60,6 +60,7 @@ const dateFields = [
   "startTime",
   "finishTime",
   "timestamp",
+  "executionDate",
 ];
 
 /* eslint-disable */
