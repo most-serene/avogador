@@ -10,9 +10,10 @@ import {
 } from "@mui/material";
 import SubmissionViewer from "@components/submissions/UserSubmissionsScreen/SubmissionViewer.tsx";
 import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
-import { Strox, StroxCell } from "@exercises/types.ts";
+import { Exercise, Strox, StroxCell } from "@exercises/types.ts";
 
 interface SimilarityComparisonModalProps {
+  exercise: Exercise;
   report: PlagiarismReport;
   template?: Strox;
   firstSubmissionId?: string;
@@ -22,6 +23,7 @@ interface SimilarityComparisonModalProps {
 }
 
 const SimilarityComparisonModal = ({
+  exercise,
   report,
   template,
   firstSubmissionId,
@@ -72,7 +74,7 @@ const SimilarityComparisonModal = ({
                 <SubmissionViewer
                   template={template}
                   submissionCode={firstSubmission}
-                  language={"JAVA"}
+                  language={exercise.trial.language}
                 />
               </CardContent>
             </Card>
@@ -89,7 +91,7 @@ const SimilarityComparisonModal = ({
                 <SubmissionViewer
                   template={template}
                   submissionCode={secondSubmission}
-                  language={"JAVA"}
+                  language={exercise.trial.language}
                 />
               </CardContent>
             </Card>

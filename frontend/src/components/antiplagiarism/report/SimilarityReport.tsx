@@ -187,6 +187,7 @@ const SimilarityReport = () => {
         }}
       >
         <SimilarityComparisonModal
+          exercise={exercise}
           report={report}
           template={template}
           firstSubmissionId={selectedSubmission}
