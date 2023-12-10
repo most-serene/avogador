@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CardActionArea,
   CardContent,
   Grid,
   Stack,
@@ -50,17 +51,20 @@ const SubmissionsList = ({
         <Card
           key={submissionId}
           raised
-          onClick={() => {
-            setSelectedSubmission(submissionId);
-          }}
           style={getSelectableCardStyle(submissionId)}
         >
-          <CardContent>
-            <Typography>{user.email}</Typography>
-            <Typography>
-              {user.givenName} {user.familyName}
-            </Typography>
-          </CardContent>
+          <CardActionArea
+            onClick={() => {
+              setSelectedSubmission(submissionId);
+            }}
+          >
+            <CardContent>
+              <Typography>{user.email}</Typography>
+              <Typography>
+                {user.givenName} {user.familyName}
+              </Typography>
+            </CardContent>
+          </CardActionArea>
         </Card>
       ))}
     </Stack>
@@ -110,22 +114,25 @@ const ComparisonsList = ({
               return (
                 <Card
                   key={sid}
-                  onClick={() => {
-                    setComparedSubmission(sid);
-                  }}
                   style={getThresholdStyle(comparison.similarity)}
                 >
-                  <CardContent>
-                    <Typography>
-                      {report.submissions[sid].email} -{" "}
-                      {report.submissions[sid].givenName}{" "}
-                      {report.submissions[sid].familyName}
-                    </Typography>
-                    <Typography>
-                      Similarity:{" "}
-                      {Math.round(comparison.similarity * 10000) / 100}%
-                    </Typography>
-                  </CardContent>
+                  <CardActionArea
+                    onClick={() => {
+                      setComparedSubmission(sid);
+                    }}
+                  >
+                    <CardContent>
+                      <Typography>
+                        {report.submissions[sid].email} -{" "}
+                        {report.submissions[sid].givenName}{" "}
+                        {report.submissions[sid].familyName}
+                      </Typography>
+                      <Typography>
+                        Similarity:{" "}
+                        {Math.round(comparison.similarity * 10000) / 100}%
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
                 </Card>
               );
             },
@@ -146,7 +153,12 @@ const SimilarityComparisonDetail = ({
     <Card style={{ height: "100%" }}>
       <CardContent style={{ height: "100%" }}>
         <Grid container spacing={1} style={{ height: "100%" }}>
-          <Grid item xs={3} style={{ height: "100%", overflow: "scroll" }}>
+          <Grid
+            item
+            xs={3}
+            style={{ height: "100%", overflowY: "scroll" }}
+            className="hidden-scrollbar"
+          >
             <SubmissionsList
               report={report}
               selectedSubmissionState={[
@@ -155,7 +167,12 @@ const SimilarityComparisonDetail = ({
               ]}
             />
           </Grid>
-          <Grid item xs={9} style={{ height: "100%", overflow: "scroll" }}>
+          <Grid
+            item
+            xs={9}
+            style={{ height: "100%", overflowY: "scroll" }}
+            className="hidden-scrollbar"
+          >
             <Card raised>
               <CardContent>
                 {selectedSubmission == undefined ? (

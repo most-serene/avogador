@@ -25,7 +25,7 @@ const SimilarityThresholdSetter = ({
         <Typography>
           Execution date: {format(report.executionDate, "dd/MM/yyyy HH:mm:ss")}
         </Typography>
-        <Divider />
+        <Divider sx={{ mb: 1 }} />
         <Typography>Alert threshold:</Typography>
         <Box display={"flex"} justifyContent={"center"}>
           <Slider

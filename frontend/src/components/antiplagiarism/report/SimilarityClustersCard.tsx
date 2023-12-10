@@ -5,7 +5,7 @@ const SimilarityClustersCard = ({ report }: { report: PlagiarismReport }) => {
   return (
     <Card>
       <CardContent>
-        <Typography>Clusters:</Typography>
+        <Typography sx={{ mb: 1 }}>Clusters:</Typography>
         <Stack spacing={1}>
           {report.clusters.map((cluster, i) => {
             return (

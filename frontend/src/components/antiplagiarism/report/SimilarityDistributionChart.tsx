@@ -14,11 +14,11 @@ const SimilarityDistributionChart = ({
           height={250}
           series={[
             {
-              label: "average similarity distribution",
+              label: "Average similarity distribution",
               data: report.averageMetrics.distribution,
             },
             {
-              label: "max similarity distribution",
+              label: "Max similarity distribution",
               data: report.maxMetrics.distribution,
             },
           ]}

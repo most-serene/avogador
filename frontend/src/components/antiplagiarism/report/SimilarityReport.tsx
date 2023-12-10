@@ -150,7 +150,12 @@ const SimilarityReport = () => {
         </Box>
       </Box>
       <Grid container spacing={2} style={{ height: "calc(100% - 57px)" }}>
-        <Grid item xs={4} style={{ height: "100%", overflow: "scroll" }}>
+        <Grid
+          item
+          xs={4}
+          style={{ height: "100%", overflowY: "scroll" }}
+          className="hidden-scrollbar"
+        >
           <Stack spacing={1}>
             <SimilarityThresholdSetter
               report={report}
