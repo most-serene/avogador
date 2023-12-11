@@ -19,7 +19,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -127,6 +129,7 @@ public class UserController {
         var userToPromote = userService.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User " + userId));
         userToPromote.setIsProfessor(true);
+        userToPromote.setJwtValidity(Timestamp.from(Instant.now()));
 
         return userService
                 .updateUser(userToPromote)
@@ -142,6 +145,7 @@ public class UserController {
         var userToPromote = userService.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User " + userId));
         userToPromote.setIsProfessor(false);
+        userToPromote.setJwtValidity(Timestamp.from(Instant.now()));
 
         return userService
                 .updateUser(userToPromote)
