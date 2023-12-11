@@ -1,7 +1,7 @@
 import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
 import { Exercise, Strox, StroxCell } from "@exercises/types.ts";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useAntiPlagiarismService from "@components/antiplagiarism/hooks/useAntiPlagiarismService.tsx";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { enqueueSnackbar } from "notistack";
@@ -38,11 +38,7 @@ const CircularLoading = () => {
 };
 
 const SimilarityReport = () => {
-  const { state }: { state: undefined | { exercise: Exercise } } =
-    useLocation() as { state: undefined | { exercise: Exercise } };
-  const [exercise, setExercise] = useState<Exercise | undefined>(() =>
-    state == undefined ? undefined : state.exercise,
-  );
+  const [exercise, setExercise] = useState<Exercise>();
   const { exerciseId } = useParams();
   const { getPlagiarismReport } = useAntiPlagiarismService();
   const { getExerciseById, getTemplateFromExercise, getSubmission } =
@@ -71,14 +67,7 @@ const SimilarityReport = () => {
     if (exercise == null || selectedSubmission == null) return;
     getSubmission(exercise.id, selectedSubmission)
       .then((resSub) => {
-        setFirstSubmission(
-          template?.cells.map((cell) => {
-            if (cell.type === "EDITABLE") {
-              cell.content = resSub.stroxCells.shift()?.content ?? "";
-            }
-            return cell;
-          }),
-        );
+        setFirstSubmission(resSub.stroxCells);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -89,14 +78,7 @@ const SimilarityReport = () => {
     if (exercise == null || comparedSubmission == null) return;
     getSubmission(exercise.id, comparedSubmission)
       .then((resSub) => {
-        setSecondSubmission(
-          template?.cells.map((cell) => {
-            if (cell.type === "EDITABLE") {
-              cell.content = resSub.stroxCells.shift()?.content ?? "";
-            }
-            return cell;
-          }),
-        );
+        setSecondSubmission(resSub.stroxCells);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -139,7 +121,7 @@ const SimilarityReport = () => {
           <Button
             variant={"outlined"}
             onClick={() => {
-              navigate(`/practices/${exercise.trialId}?tab=2`);
+              navigate(`/practices/${exercise.trial.id}?tab=2`);
             }}
           >
             <ArrowBackIosNewIcon />

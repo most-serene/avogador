@@ -28,9 +28,7 @@ const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
 
   const visualizeReport = useCallback(
     (e: Exercise) => {
-      navigate(`/exercises/${e.id}/similarity-report`, {
-        state: { exercise: e },
-      });
+      navigate(`/exercises/${e.id}/similarity-report`);
     },
     [navigate],
   );

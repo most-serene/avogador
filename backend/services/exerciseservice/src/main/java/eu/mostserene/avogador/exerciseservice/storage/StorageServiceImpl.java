@@ -344,16 +344,16 @@ public class StorageServiceImpl implements StorageService {
         private UUID courseId;
         private UUID trialId;
         private UUID exerciseId;
-        private byte[] similarityReportZip;
+        private byte[] similarityReport;
 
         public SimilarityReportStorageDto() {
         }
 
-        public SimilarityReportStorageDto(UUID courseId, UUID trialId, UUID exerciseId, File similarityReportZipFile) throws IOException {
+        public SimilarityReportStorageDto(UUID courseId, UUID trialId, UUID exerciseId, File similarityReportFile) throws IOException {
             this.courseId = courseId;
             this.trialId = trialId;
             this.exerciseId = exerciseId;
-            this.similarityReportZip = FileUtils.readFileToByteArray(similarityReportZipFile);
+            this.similarityReport = FileUtils.readFileToByteArray(similarityReportFile);
             ;
         }
     }
