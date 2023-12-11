@@ -69,11 +69,12 @@ const SimilarityComparisonModal = ({
                   {report.submissions[firstSubmissionId].givenName}{" "}
                   {report.submissions[firstSubmissionId].familyName}
                 </Typography>
-                )
                 <Divider />
                 <SubmissionViewer
                   template={template}
-                  submissionCode={firstSubmission}
+                  submissionCode={firstSubmission.filter(
+                    (cell) => cell.type === "EDITABLE",
+                  )}
                   language={exercise.trial.language}
                 />
               </CardContent>
@@ -90,7 +91,9 @@ const SimilarityComparisonModal = ({
                 <Divider />
                 <SubmissionViewer
                   template={template}
-                  submissionCode={secondSubmission}
+                  submissionCode={secondSubmission.filter(
+                    (cell) => cell.type === "EDITABLE",
+                  )}
                   language={exercise.trial.language}
                 />
               </CardContent>
