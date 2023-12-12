@@ -125,9 +125,9 @@ const SimilarityReport = () => {
             }}
           >
             <ArrowBackIosNewIcon />
-            {exercise.name.length > 25
-              ? exercise.name.substring(0, 25) + "..."
-              : exercise.name}
+            {exercise.trial.name.length > 25
+              ? exercise.trial.name.substring(0, 25) + "..."
+              : exercise.trial.name}
           </Button>
         </Box>
       </Box>
