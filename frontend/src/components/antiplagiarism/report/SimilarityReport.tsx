@@ -96,6 +96,34 @@ const SimilarityReport = () => {
       });
     getPlagiarismReport(exercise.id)
       .then((reportResponse: PlagiarismReport) => {
+        Object.entries(reportResponse.comparisons).forEach(
+          ([firstSubmission, comparisons]) => {
+            Object.entries(comparisons).forEach(
+              ([secondSubmission, comparison]) => {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                if (reportResponse.comparisons[secondSubmission] == null) {
+                  reportResponse.comparisons[secondSubmission] = {};
+                }
+                reportResponse.comparisons[secondSubmission][firstSubmission] =
+                  {
+                    similarity: comparison.similarity,
+                    matches: comparison.matches.map((match) => {
+                      return {
+                        firstFile: match.secondFile,
+                        secondFile: match.firstFile,
+                        firstStart: match.secondStart,
+                        firstEnd: match.secondEnd,
+                        secondStart: match.firstStart,
+                        secondEnd: match.firstEnd,
+                        tokens: match.tokens,
+                      };
+                    }),
+                  };
+              },
+            );
+          },
+        );
+
         setReport(reportResponse);
       })
       .catch((err: Error) => {
