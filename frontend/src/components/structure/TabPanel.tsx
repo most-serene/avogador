@@ -5,11 +5,11 @@ interface TabPanelProps {
   children?: ReactNode;
   index: number;
   value: number;
-  occupiedHeight: number;
+  occupiedHeight?: number;
 }
 
 export default function TabPanel(props: TabPanelProps) {
-  const { children, value, index, occupiedHeight, ...other } = props;
+  const { children, value, index, occupiedHeight = 0, ...other } = props;
 
   return (
     <Box
