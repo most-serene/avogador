@@ -125,7 +125,6 @@ const SimilarityReport = () => {
         );
 
         setReport(reportResponse);
-        console.log(reportResponse);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
