@@ -9,6 +9,8 @@ import de.jplag.exceptions.BasecodeException;
 import de.jplag.exceptions.ExitException;
 import de.jplag.options.JPlagOptions;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReport;
+import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -56,16 +59,24 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SimilarityReportRepository similarityReportRepository;
+
     @Override
     public void executeSimilarityTool(Exercise exercise) {
-        new Thread(() -> similarityCheckJobWrapper(exercise)).start();
-    }
-
-    private void similarityCheckJobWrapper(Exercise exercise) {
         log.debug(LoggerColors.cyan("Similarity Job started on exercise - " + exercise.getId()));
         try {
             similarityCheckJob(exercise);
             log.debug(LoggerColors.success("Similarity Job done on exercise - " + exercise.getId()));
+
+            similarityReportRepository.save(
+                    similarityReportRepository.findFirstByExercise_Id(exercise.getId())
+                            .map(similarityReport -> {
+                                similarityReport.setTimestamp(Date.from(Instant.now()));
+                                return similarityReport;
+                            })
+                    .orElseGet(() -> new SimilarityReport(exercise, Date.from(Instant.now())))
+            );
         } catch (Exception e) {
             log.error(LoggerColors.error("Similarity Job failed on exercise - " + exercise.getId()));
             log.error(LoggerColors.error(e.toString()));
@@ -74,7 +85,12 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
     }
 
     @Override
-    public Optional<PlagiarismReport> getSimilarityReport(Exercise exercise) {
+    public Optional<SimilarityReport> getSimilarityReport(Exercise exercise) {
+        return similarityReportRepository.findFirstByExercise_Id(exercise.getId());
+    }
+
+    @Override
+    public Optional<PlagiarismReport> retrieveSimilarityReportFile(Exercise exercise) {
         return storageService.getSimilarityReport(exercise);
     }
 

@@ -4,7 +4,6 @@ import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismServi
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.security.restapicontrol.EnablePublicRestAPI;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
@@ -19,10 +18,7 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -257,6 +253,21 @@ public class ExerciseController {
         return template;
     }
 
+    @GetMapping("/{exerciseId}/similarity-report-presence")
+    private boolean getSimilarityReportPresence(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+        var exercise = exerciseService.getExercise(exerciseId)
+                .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
+
+        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+            throw new ForbiddenException(user);
+        }
+
+        return antiPlagiarismService.getSimilarityReport(exercise).isPresent();
+    }
+
     @GetMapping("/{exerciseId}/similarity-report")
     private PlagiarismReport getSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
         var exercise = exerciseService.getExercise(exerciseId)
@@ -269,7 +280,7 @@ public class ExerciseController {
             throw new ForbiddenException(user);
         }
 
-        return antiPlagiarismService.getSimilarityReport(exercise)
+        return antiPlagiarismService.retrieveSimilarityReportFile(exercise)
                 .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found"));
     }
 

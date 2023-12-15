@@ -17,6 +17,22 @@ const useAntiPlagiarismService = () => {
       [avogadorApi],
     );
 
+  const checkReportPresence: (exerciseId: string) => Promise<boolean> =
+    useCallback(
+      async (exerciseId: string) => {
+        const {
+          data: response,
+        }: {
+          data: boolean;
+        } = await avogadorApi.get(
+          `/exercises/${exerciseId}/similarity-report-presence`,
+        );
+
+        return response;
+      },
+      [avogadorApi],
+    );
+
   const runAntiPlagiarismTool: (trial: Trial) => void = useCallback(
     (trial: Trial) => {
       avogadorApi
@@ -35,7 +51,7 @@ const useAntiPlagiarismService = () => {
     [avogadorApi],
   );
 
-  return { runAntiPlagiarismTool, getPlagiarismReport };
+  return { runAntiPlagiarismTool, checkReportPresence, getPlagiarismReport };
 };
 
 export default useAntiPlagiarismService;
