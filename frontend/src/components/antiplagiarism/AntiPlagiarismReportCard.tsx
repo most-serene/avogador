@@ -36,12 +36,13 @@ const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
           checkReportPresence(e.id)
             .then((presence) => {
               setExercisesReports((reports) => {
-                const freshCopy = { ...reports };
-                freshCopy[e.id] = {
-                  exercise: e,
-                  isPresent: presence,
+                return {
+                  ...reports,
+                  [e.id]: {
+                    exercise: e,
+                    isPresent: presence,
+                  },
                 };
-                return freshCopy;
               });
             })
             .catch((err: Error) => {
