@@ -194,7 +194,9 @@ const SimilarityReport = () => {
         open={comparedSubmission != null}
         onClose={() => {
           setComparedSubmission(undefined);
+          setSecondSubmission(undefined);
         }}
+        keepMounted
       >
         <SimilarityComparisonModal
           exercise={exercise}

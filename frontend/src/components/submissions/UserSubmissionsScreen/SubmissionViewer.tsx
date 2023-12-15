@@ -8,12 +8,20 @@ interface SubmissionViewerProps {
   template: Strox;
   submissionCode: StroxCell[];
   language: string;
+  highlights?: [number, number][];
 }
+
+const highlightColorClasses = [
+  "redMonacoDecorator",
+  "cyanMonacoDecorator",
+  "yellowMonacoDecorator",
+];
 
 const SubmissionViewer = ({
   template,
   submissionCode,
   language,
+  highlights,
 }: SubmissionViewerProps) => {
   const theme = useTheme();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
@@ -31,6 +39,10 @@ const SubmissionViewer = ({
       sizes.push(sizes.slice(-1)[0] + cell.content.split("\n").length),
     );
     setCellsSize([...sizes]);
+
+    return () => {
+      setCode([]);
+    };
   }, [submissionCode, template.cells]);
 
   if (code.length === 0 || cellsSize.length === 0) {
@@ -71,6 +83,40 @@ const SubmissionViewer = ({
               minimap: {
                 enabled: false,
               },
+            }}
+            onMount={(editor, monaco) => {
+              if (highlights == null) return;
+
+              highlights
+                .map((range, idx) => {
+                  return { range, idx };
+                })
+                .filter(({ range }) => cellsSize[i] < range[1])
+                .forEach(({ range, idx }) => {
+                  /* eslint-disable */
+                  editor.getModel()?.deltaDecorations(
+                    [],
+                    [
+                      {
+                        range: new monaco.Range(
+                          range[0] - cellsSize[i - 1 >= 0 ? i - 1 : 0] - 1,
+                          1,
+                          range[1] - cellsSize[i - 1 >= 0 ? i - 1 : 0] - 1,
+                          1,
+                        ),
+                        options: {
+                          isWholeLine: true,
+                          stickiness: 1,
+                          inlineClassName:
+                            highlightColorClasses[
+                              idx % highlightColorClasses.length
+                            ],
+                        },
+                      },
+                    ],
+                  );
+                  /* eslint-enable */
+                });
             }}
           />
         </Box>
