@@ -14,6 +14,9 @@ public class UserCourseDetailDto {
     private CourseRole role;
     private Date joinDate;
 
+    public UserCourseDetailDto() {
+    }
+
     public UserCourseDetailDto(UUID id, UserDto user, UUID courseId, CourseRole role, Date joinDate) {
         this.id = id;
         this.user = user;
