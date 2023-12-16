@@ -42,13 +42,13 @@ body {
 }
 
 .redMonacoDecorator {
-  background-color: rgba(139, 0, 0, 0.65);
+  background-color: rgba(100, 0, 0, 0.65);
 }
 
 .yellowMonacoDecorator {
-  background-color: rgba(255, 255, 0, 0.65);
+  background-color: rgba(100, 100, 0, 0.65);
 }
 
 .cyanMonacoDecorator {
-  background-color: rgba(0, 255, 255, 0.65);
+  background-color: rgba(0, 100, 100, 0.65);
 }

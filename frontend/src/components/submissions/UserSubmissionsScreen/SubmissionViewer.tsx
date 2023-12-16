@@ -86,7 +86,7 @@ const SubmissionViewer = ({
             }}
             onMount={(editor, monaco) => {
               if (highlights == null) return;
-
+              console.log(highlights);
               highlights
                 .map((range, idx) => {
                   return { range, idx };
@@ -99,9 +99,9 @@ const SubmissionViewer = ({
                     [
                       {
                         range: new monaco.Range(
-                          range[0] - cellsSize[i - 1 >= 0 ? i - 1 : 0] - 1,
+                          range[0] - cellsSize[i],
                           1,
-                          range[1] - cellsSize[i - 1 >= 0 ? i - 1 : 0] - 1,
+                          range[1] - cellsSize[i],
                           1,
                         ),
                         options: {
