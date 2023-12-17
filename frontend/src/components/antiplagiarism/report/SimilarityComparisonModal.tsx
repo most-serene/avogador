@@ -47,6 +47,7 @@ const SimilarityComparisonModal = forwardRef(
 
     return (
       <Box
+        tabIndex={-1}
         ref={ref}
         sx={{
           position: "absolute" as const,
@@ -82,6 +83,12 @@ const SimilarityComparisonModal = forwardRef(
                       (cell) => cell.type === "EDITABLE",
                     )}
                     language={exercise.trial.language}
+                    highlights={report.comparisons[firstSubmissionId][
+                      secondSubmissionId
+                    ].matches.map(({ firstStart, firstEnd }) => [
+                      firstStart,
+                      firstEnd,
+                    ])}
                   />
                 </CardContent>
               </Card>
@@ -101,6 +108,12 @@ const SimilarityComparisonModal = forwardRef(
                       (cell) => cell.type === "EDITABLE",
                     )}
                     language={exercise.trial.language}
+                    highlights={report.comparisons[firstSubmissionId][
+                      secondSubmissionId
+                    ].matches.map(({ secondStart, secondEnd }) => [
+                      secondStart,
+                      secondEnd,
+                    ])}
                   />
                 </CardContent>
               </Card>

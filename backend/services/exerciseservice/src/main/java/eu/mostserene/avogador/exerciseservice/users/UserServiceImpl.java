@@ -44,6 +44,10 @@ public class UserServiceImpl implements UserService {
         RestTemplate template= new RestTemplate();
         template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
+        if (ids.isEmpty()){
+            return List.of();
+        }
+
         return Arrays.stream(Objects.requireNonNull(template.patchForObject("http://users/users?limit=0", ids, UserDto[].class)))
                 .toList();
     }
