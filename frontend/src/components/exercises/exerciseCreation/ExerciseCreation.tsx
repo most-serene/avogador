@@ -65,7 +65,7 @@ const ExerciseCreation = () => {
       handleStep("Creating the Database entry");
       createdExercise = await createExercise({
         trialId: exercise.trialId,
-        name: exercise.name,
+        name: exercise.name.trim(),
         statement: exercise.statement,
         timeLimit: exercise.timeLimit,
         isVisible: exercise.isVisible,
