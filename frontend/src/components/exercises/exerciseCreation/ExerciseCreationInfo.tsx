@@ -174,7 +174,10 @@ const ExerciseCreationInfo = ({
               label="Exercise Name"
               value={exercise.name}
               onChange={(event) => {
-                setExercise({ ...exercise, name: event.target.value });
+                setExercise({
+                  ...exercise,
+                  name: event.target.value.trimStart(),
+                });
               }}
             />
           </Grid>

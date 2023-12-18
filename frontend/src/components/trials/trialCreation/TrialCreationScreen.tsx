@@ -203,7 +203,7 @@ const TrialCreationScreen = () => {
                       label="Trial name"
                       value={trialName}
                       onChange={(event) => {
-                        setTrialName(event.target.value);
+                        setTrialName(event.target.value.trimStart());
                       }}
                     />
                   </Grid>
