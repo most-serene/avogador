@@ -19,6 +19,8 @@ import React, { useState } from "react";
 import MenuItem from "@mui/material/MenuItem";
 import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
 
+type SortingStrategy = "Given Name" | "Family Name" | "Similarity" | "";
+
 interface SimilarityComparisonDetailProps {
   report: PlagiarismReport;
   selectedSubmissionState: [
@@ -39,7 +41,7 @@ interface SubmissionsListProps {
     string | undefined,
     React.Dispatch<React.SetStateAction<string | undefined>>,
   ];
-  sorting: string;
+  sorting: SortingStrategy;
   order: 1 | -1;
 }
 
@@ -50,9 +52,15 @@ interface ComparisonsListProps {
   setComparedSubmission: React.Dispatch<
     React.SetStateAction<string | undefined>
   >;
-  sorting: string;
+  sorting: SortingStrategy;
   order: 1 | -1;
 }
+
+const sortingStrategy: SortingStrategy[] = [
+  "Given Name",
+  "Family Name",
+  "Similarity",
+];
 
 const getGivenNameComparator =
   (report: PlagiarismReport, order: 1 | -1) => (a: string, b: string) =>
@@ -250,15 +258,13 @@ const ComparisonsList = ({
   );
 };
 
-const sortingStrategy = ["Given Name", "Family Name", "Similarity"];
-
 const SimilarityComparisonDetail = ({
   report,
   selectedSubmissionState: [selectedSubmission, setSelectedSubmission],
   comparedSubmissionState: [, setComparedSubmission],
   threshold,
 }: SimilarityComparisonDetailProps) => {
-  const [sorting, setSorting] = useState<string>("");
+  const [sorting, setSorting] = useState<SortingStrategy>("");
   const [order, setOrder] = useState<1 | -1>(1);
 
   return (
@@ -274,7 +280,7 @@ const SimilarityComparisonDetail = ({
                 label="Sort by"
                 value={sorting}
                 onChange={(event) => {
-                  setSorting(event.target.value);
+                  setSorting(event.target.value as SortingStrategy);
                 }}
               >
                 <MenuItem value={""}>
