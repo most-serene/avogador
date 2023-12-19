@@ -259,11 +259,13 @@ const TrialCreationScreen = () => {
                       sx={{ width: "100%" }}
                       ampm={false}
                       disablePast
+                      format={"dd/MM/yyyy HH:mm"}
                       value={startDate}
                       onChange={(newVal) => {
                         if (newVal) setStartDate(setSeconds(newVal, 0));
                       }}
                       label="Start timestamp"
+                      minDate={new Date()}
                       maxDate={deadline}
                     />
                   </Grid>
@@ -272,6 +274,7 @@ const TrialCreationScreen = () => {
                       sx={{ width: "100%" }}
                       ampm={false}
                       value={deadline}
+                      format={"dd/MM/yyyy HH:mm"}
                       onChange={(newVal) => {
                         if (newVal) setDeadline(setSeconds(newVal, 0));
                       }}
