@@ -35,11 +35,14 @@ export default function CourseCreationScreen() {
 
   const handleSubmit = () => {
     setIsRequestProcessing(true);
-    createCourse(name, year)
+    createCourse(name.trim(), year)
       .then((course) => {
-        enqueueSnackbar(`Course ${name} (${year}) created successfully`, {
-          variant: "success",
-        });
+        enqueueSnackbar(
+          `Course ${name.trim()} (${year}) created successfully`,
+          {
+            variant: "success",
+          },
+        );
         navigate(`/courses/${course.id}`);
       })
       .catch((err) => {
@@ -102,7 +105,7 @@ export default function CourseCreationScreen() {
                     value={name}
                     onChange={(event) => {
                       setIsError(false);
-                      setName(event.target.value);
+                      setName(event.target.value.trimStart());
                     }}
                   />
                 </Grid>
