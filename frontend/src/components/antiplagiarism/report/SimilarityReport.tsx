@@ -163,7 +163,8 @@ const SimilarityReport = () => {
         <Grid
           item
           xs={4}
-          style={{ height: "100%", overflowY: "scroll" }}
+          sx={{ mt: 2, pb: 2 }}
+          style={{ paddingTop: "0px", height: "100%", overflowY: "scroll" }}
           className="hidden-scrollbar"
         >
           <Stack spacing={1}>
