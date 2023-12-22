@@ -305,8 +305,8 @@ const SimilarityComparisonDetail = ({
               </IconButton>
             </Grow>
           </Grid>
-          {selectedSubmission != null && (
-            <Grid item xs={9}>
+          <Grid item xs={9}>
+            {selectedSubmission != null && (
               <Box
                 display="flex"
                 justifyContent="center"
@@ -319,8 +319,8 @@ const SimilarityComparisonDetail = ({
                   report
                 </Typography>
               </Box>
-            </Grid>
-          )}
+            )}
+          </Grid>
           <Grid
             item
             xs={3}
