@@ -1,4 +1,4 @@
-import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
+import { Cluster, PlagiarismReport } from "@components/antiplagiarism/types.ts";
 import { Exercise, Strox, StroxCell } from "@exercises/types.ts";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,7 +10,12 @@ import {
   Button,
   CircularProgress,
   Container,
+  Divider,
+  Drawer,
   Grid,
+  List,
+  ListItemButton,
+  ListItemText,
   Modal,
   Stack,
   Typography,
@@ -51,6 +56,7 @@ const SimilarityReport = () => {
   const [firstSubmission, setFirstSubmission] = useState<StroxCell[]>();
   const [secondSubmission, setSecondSubmission] = useState<StroxCell[]>();
   const [threshold, setThreshold] = useState<number>(80);
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
 
   useEffect(() => {
     if (exercise != undefined || exerciseId == undefined) return;
@@ -173,7 +179,12 @@ const SimilarityReport = () => {
               setThreshold={setThreshold}
             />
             <SimilarityDistributionChart report={report} />
-            <SimilarityClustersCard report={report} />
+            <SimilarityClustersCard
+              report={report}
+              onClick={(cluster) => {
+                setSelectedCluster(cluster);
+              }}
+            />
           </Stack>
         </Grid>
         <Grid item xs={8} style={{ height: "100%" }}>
@@ -209,6 +220,44 @@ const SimilarityReport = () => {
           secondSubmission={secondSubmission}
         />
       </Modal>
+      <Drawer
+        anchor="left"
+        open={selectedCluster != null}
+        onClose={() => {
+          setSelectedCluster(null);
+        }}
+      >
+        {selectedCluster && (
+          <Box padding={2} sx={{ width: 300 }}>
+            <Typography variant="h5">Cluster Data</Typography>
+            <Divider />
+            <Typography variant="h6">
+              Average Similarity:{" "}
+              {Math.round(selectedCluster.averageSimilarity * 10000) / 100}%
+            </Typography>
+            <Typography variant="h6">
+              Strength: {Math.round(selectedCluster.strength * 10000) / 100}%
+            </Typography>
+            <Typography variant="h6">Members:</Typography>
+            <List>
+              {Array.from(selectedCluster.members).map((submissionId) => (
+                <ListItemButton
+                  key={submissionId}
+                  onClick={() => {
+                    setSelectedCluster(null);
+                    setSelectedSubmission(submissionId);
+                  }}
+                >
+                  <ListItemText>
+                    {report.submissions[submissionId].givenName}{" "}
+                    {report.submissions[submissionId].familyName}
+                  </ListItemText>
+                </ListItemButton>
+              ))}
+            </List>
+          </Box>
+        )}
+      </Drawer>
     </Container>
   );
 };
