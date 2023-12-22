@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   CardContent,
   Checkbox,
@@ -22,9 +23,27 @@ import { Trial } from "@trials/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { ForbiddenError } from "@error/types.ts";
 import Grid from "@mui/material/Grid";
-import Markdown from "react-markdown";
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 import Box from "@mui/material/Box";
+import { MDXEditor } from "@mdxeditor/editor/MDXEditor";
+import {
+  headingsPlugin,
+  listsPlugin,
+  quotePlugin,
+  thematicBreakPlugin,
+  markdownShortcutPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  Separator,
+  CodeToggle,
+  ListsToggle,
+  InsertThematicBreak,
+  InsertTable,
+  tablePlugin,
+} from "@mdxeditor/editor";
+import { toolbarPlugin } from "@mdxeditor/editor/plugins/toolbar";
+import "@mdxeditor/editor/style.css";
+import OldMarkdownEditor from "@exercises/exerciseCreation/mardownEditors/OldMarkdownEditor.tsx";
 
 interface ExerciseCreationInfo {
   disableTrialSelection?: boolean;
@@ -41,6 +60,7 @@ const ExerciseCreationInfo = ({
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
   const [trials, setTrials] = useState<Trial[]>([]);
   const [exercise, setExercise] = useAtom(exerciseAtom);
+  const [isOldEditor, setIsOldEditor] = useState(false);
 
   useEffect(() => {
     if (user == null) return;
@@ -174,7 +194,10 @@ const ExerciseCreationInfo = ({
               label="Exercise Name"
               value={exercise.name}
               onChange={(event) => {
-                setExercise({ ...exercise, name: event.target.value });
+                setExercise({
+                  ...exercise,
+                  name: event.target.value.trimStart(),
+                });
               }}
             />
           </Grid>
@@ -210,28 +233,80 @@ const ExerciseCreationInfo = ({
           </Grid>
 
           <Grid item xs={12}>
-            <Divider sx={{ my: 2 }}>Problem Statement</Divider>
+            <Box position="relative">
+              <Divider sx={{ my: 2 }}>Problem Statement</Divider>
+              <Card
+                sx={{
+                  position: "absolute",
+                  right: 0,
+                  top: "50%",
+                  transform: "translate(0, -50%)",
+                }}
+              >
+                <Button
+                  onClick={() => {
+                    setIsOldEditor((prevState) => !prevState);
+                  }}
+                >
+                  Switch to {isOldEditor ? "new" : "old"} Editor
+                </Button>
+              </Card>
+            </Box>
           </Grid>
 
-          <Grid item xs={6}>
-            <TextField
-              fullWidth
-              multiline
-              minRows={3}
-              label="Problem statement"
-              value={exercise.statement}
-              onChange={(event) => {
-                setExercise({ ...exercise, statement: event.target.value });
-              }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Markdown>
-              {exercise.statement === ""
-                ? "_Start writing to see the markdown preview of the problem statement_"
-                : exercise.statement}
-            </Markdown>
-          </Grid>
+          {isOldEditor ? (
+            <OldMarkdownEditor />
+          ) : (
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  border: 1,
+                  borderColor: "rgba(122, 122, 122, 0.5)",
+                  borderRadius: 0.5,
+                }}
+              >
+                <MDXEditor
+                  className={"dark-theme"}
+                  markdown={exercise.statement}
+                  onChange={(markdown) => {
+                    console.log(markdown);
+                    setExercise({ ...exercise, statement: markdown });
+                  }}
+                  plugins={[
+                    headingsPlugin(),
+                    listsPlugin(),
+                    quotePlugin(),
+                    thematicBreakPlugin(),
+                    markdownShortcutPlugin(),
+                    tablePlugin(),
+                    toolbarPlugin({
+                      toolbarContents: () => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            width: "100%",
+                            borderBottom: 1,
+                            borderColor: "rgba(122, 122, 122, 0.5)",
+                            borderRadius: 0.5,
+                          }}
+                        >
+                          <UndoRedo />
+                          <Separator />
+                          <BoldItalicUnderlineToggles />
+                          <CodeToggle />
+                          <Separator />
+                          <ListsToggle />
+                          <Separator />
+                          <InsertTable />
+                          <InsertThematicBreak />
+                        </Box>
+                      ),
+                    }),
+                  ]}
+                />
+              </Box>
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </Card>

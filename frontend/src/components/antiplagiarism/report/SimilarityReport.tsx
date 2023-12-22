@@ -1,4 +1,4 @@
-import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
+import { Cluster, PlagiarismReport } from "@components/antiplagiarism/types.ts";
 import { Exercise, Strox, StroxCell } from "@exercises/types.ts";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,7 +10,12 @@ import {
   Button,
   CircularProgress,
   Container,
+  Divider,
+  Drawer,
   Grid,
+  List,
+  ListItemButton,
+  ListItemText,
   Modal,
   Stack,
   Typography,
@@ -51,6 +56,7 @@ const SimilarityReport = () => {
   const [firstSubmission, setFirstSubmission] = useState<StroxCell[]>();
   const [secondSubmission, setSecondSubmission] = useState<StroxCell[]>();
   const [threshold, setThreshold] = useState<number>(80);
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
 
   useEffect(() => {
     if (exercise != undefined || exerciseId == undefined) return;
@@ -96,6 +102,34 @@ const SimilarityReport = () => {
       });
     getPlagiarismReport(exercise.id)
       .then((reportResponse: PlagiarismReport) => {
+        Object.entries(reportResponse.comparisons).forEach(
+          ([firstSubmission, comparisons]) => {
+            Object.entries(comparisons).forEach(
+              ([secondSubmission, comparison]) => {
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                if (reportResponse.comparisons[secondSubmission] == null) {
+                  reportResponse.comparisons[secondSubmission] = {};
+                }
+                reportResponse.comparisons[secondSubmission][firstSubmission] =
+                  {
+                    similarity: comparison.similarity,
+                    matches: comparison.matches.map((match) => {
+                      return {
+                        firstFile: match.secondFile,
+                        secondFile: match.firstFile,
+                        firstStart: match.secondStart,
+                        firstEnd: match.secondEnd,
+                        secondStart: match.firstStart,
+                        secondEnd: match.firstEnd,
+                        tokens: match.tokens,
+                      };
+                    }),
+                  };
+              },
+            );
+          },
+        );
+
         setReport(reportResponse);
       })
       .catch((err: Error) => {
@@ -125,9 +159,9 @@ const SimilarityReport = () => {
             }}
           >
             <ArrowBackIosNewIcon />
-            {exercise.name.length > 25
-              ? exercise.name.substring(0, 25) + "..."
-              : exercise.name}
+            {exercise.trial.name.length > 25
+              ? exercise.trial.name.substring(0, 25) + "..."
+              : exercise.trial.name}
           </Button>
         </Box>
       </Box>
@@ -135,7 +169,8 @@ const SimilarityReport = () => {
         <Grid
           item
           xs={4}
-          style={{ height: "100%", overflowY: "scroll" }}
+          sx={{ mt: 2, pb: 2 }}
+          style={{ paddingTop: "0px", height: "100%", overflowY: "scroll" }}
           className="hidden-scrollbar"
         >
           <Stack spacing={1}>
@@ -144,7 +179,12 @@ const SimilarityReport = () => {
               setThreshold={setThreshold}
             />
             <SimilarityDistributionChart report={report} />
-            <SimilarityClustersCard report={report} />
+            <SimilarityClustersCard
+              report={report}
+              onClick={(cluster) => {
+                setSelectedCluster(cluster);
+              }}
+            />
           </Stack>
         </Grid>
         <Grid item xs={8} style={{ height: "100%" }}>
@@ -166,7 +206,9 @@ const SimilarityReport = () => {
         open={comparedSubmission != null}
         onClose={() => {
           setComparedSubmission(undefined);
+          setSecondSubmission(undefined);
         }}
+        keepMounted
       >
         <SimilarityComparisonModal
           exercise={exercise}
@@ -178,6 +220,44 @@ const SimilarityReport = () => {
           secondSubmission={secondSubmission}
         />
       </Modal>
+      <Drawer
+        anchor="left"
+        open={selectedCluster != null}
+        onClose={() => {
+          setSelectedCluster(null);
+        }}
+      >
+        {selectedCluster && (
+          <Box padding={2} sx={{ width: 300 }}>
+            <Typography variant="h5">Cluster Data</Typography>
+            <Divider />
+            <Typography variant="h6">
+              Average Similarity:{" "}
+              {Math.round(selectedCluster.averageSimilarity * 10000) / 100}%
+            </Typography>
+            <Typography variant="h6">
+              Strength: {Math.round(selectedCluster.strength * 10000) / 100}%
+            </Typography>
+            <Typography variant="h6">Members:</Typography>
+            <List>
+              {Array.from(selectedCluster.members).map((submissionId) => (
+                <ListItemButton
+                  key={submissionId}
+                  onClick={() => {
+                    setSelectedCluster(null);
+                    setSelectedSubmission(submissionId);
+                  }}
+                >
+                  <ListItemText>
+                    {report.submissions[submissionId].givenName}{" "}
+                    {report.submissions[submissionId].familyName}
+                  </ListItemText>
+                </ListItemButton>
+              ))}
+            </List>
+          </Box>
+        )}
+      </Drawer>
     </Container>
   );
 };

@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { Exercise, Testcase } from "@exercises/types.ts";
 import Markdown from "react-markdown";
 import SampleTestcaseCards from "@exercises/exerciseScreen/SampleTestcaseCards.tsx";
+import remarkGfm from "remark-gfm";
 
 interface ExerciseStatementProps {
   exercise: Exercise | undefined;
@@ -40,7 +41,7 @@ const ExerciseStatement = ({ exercise, testcases }: ExerciseStatementProps) => {
       className="hidden-scrollbar"
     >
       <Typography variant="h3">{exercise.name}</Typography>
-      <Markdown>{exercise.statement}</Markdown>
+      <Markdown remarkPlugins={[remarkGfm]}>{exercise.statement}</Markdown>
       <Box marginBottom="6rem">
         {testcases.map((testcase, i) => (
           <SampleTestcaseCards key={i} testcase={testcase} />

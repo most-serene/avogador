@@ -1,21 +1,22 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
 
+import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
-import eu.mostserene.avogador.exerciseservice.security.restapicontrol.EnablePublicRestAPI;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
-import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialDetailDto;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
+import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/public/trials")
@@ -32,14 +33,17 @@ public class TrialController {
     @Autowired
     private AntiPlagiarismService antiPlagiarismService;
 
+    @Autowired
+    private Sender sender;
+
     @GetMapping("/{trialId}")
-    private Trial getTrialById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
+    private Trial getTrialById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId).
                 orElseThrow(NotFoundException::new);
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()){
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
@@ -79,11 +83,22 @@ public class TrialController {
 
         var exercises = exerciseService.getExercisesFromTrial(trial, true);
 
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
             throw new ForbiddenException(user);
         }
 
-        exercises.forEach(exercise -> antiPlagiarismService.executeSimilarityTool(exercise));
+        CompletableFuture.allOf(
+                        exercises.stream()
+                                .map(exercise -> CompletableFuture.runAsync(() ->
+                                        antiPlagiarismService.executeSimilarityTool(exercise)
+                                ))
+                                .toList()
+                                .toArray(new CompletableFuture[0]))
+                .thenAcceptAsync(v -> userCourseService.getCourseCollaborators(trial.getCourseId())
+                        .forEach(userCourseDto -> sender.send("users", "users.notify.socket",
+                                new WebSocketMessage("/users/" + userCourseDto.getUserId() +"/trials/" + trial.getId() + "/similarity-report",
+                                        "Similarity report for " + trial.getName() + " ready"))
+                        ));
     }
 
     /**

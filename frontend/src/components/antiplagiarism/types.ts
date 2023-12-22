@@ -1,6 +1,4 @@
 export interface SubmissionComparison {
-  first: string;
-  second: string;
   similarity: number;
 }
 

@@ -40,3 +40,15 @@ body {
 .show-on-hover-source:hover > .show-on-hover-target {
   display: block;
 }
+
+.redMonacoDecorator {
+  background-color: rgba(100, 0, 0, 0.65);
+}
+
+.yellowMonacoDecorator {
+  background-color: rgba(100, 100, 0, 0.65);
+}
+
+.cyanMonacoDecorator {
+  background-color: rgba(0, 100, 100, 0.65);
+}
