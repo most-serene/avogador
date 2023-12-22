@@ -271,12 +271,11 @@ const SimilarityComparisonDetail = ({
     <Card style={{ height: "100%" }}>
       <CardContent style={{ height: "100%" }}>
         <Grid container spacing={1} style={{ height: "100%" }}>
-          <Grid item xs={12} style={{ display: "flex", alignItems: "center" }}>
-            <FormControl variant="standard">
+          <Grid item xs={3} style={{ display: "flex", alignItems: "center" }}>
+            <FormControl variant="standard" fullWidth>
               <InputLabel id="sorting-label">Sort by</InputLabel>
               <Select
                 labelId="sorting-label"
-                style={{ width: "15rem" }}
                 label="Sort by"
                 value={sorting}
                 onChange={(event) => {
@@ -305,6 +304,22 @@ const SimilarityComparisonDetail = ({
                 {order === 1 ? <ArrowDownward /> : <ArrowUpward />}
               </IconButton>
             </Grow>
+          </Grid>
+          <Grid item xs={9}>
+            {selectedSubmission != null && (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+              >
+                <Typography variant="h5" align="center">
+                  {report.submissions[selectedSubmission].givenName}{" "}
+                  {report.submissions[selectedSubmission].familyName} &apos;s
+                  report
+                </Typography>
+              </Box>
+            )}
           </Grid>
           <Grid
             item
