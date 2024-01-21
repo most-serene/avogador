@@ -174,7 +174,7 @@ public class CustomWebFilter implements WebFilter {
     }
 
     private boolean isAuthenticationCall(String uri) {
-        return uri.matches("^/|^/status$|^/users/google-auth.*|^/users/logout.*|^/users/current.*|^/version/webapp");
+        return uri.matches("^/|^/status$|^/users/google-auth.*|^/users/microsoft-auth.*|^/users/logout.*|^/users/current.*|^/version/webapp");
     }
 
     private boolean isApiCall(String uri) {
