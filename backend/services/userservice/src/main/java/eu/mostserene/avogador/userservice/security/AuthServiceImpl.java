@@ -19,6 +19,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -78,24 +79,60 @@ public class AuthServiceImpl implements AuthService {
             final String familyName = (String) response.get("family_name");
             final String picture = (String) response.get("picture");
 
-            log.info(LoggerColors.warn("Login attempt from " + email + " (" + givenName + " " + familyName + ")"));
-
             if (domain == null) {
                 domain = email.split("@")[1];
             }
 
-            if (!customerDomains.contains(domain)) {
-                log.error(LoggerColors.error("Login denied to " + email));
-                throw new InvalidDomainException();
-            }
+            GoogleUser googleUser = new GoogleUser(email, domain, givenName, familyName, picture);
 
-            log.info(LoggerColors.success("Login granted to " + email));
-            return new GoogleUser(email, domain, givenName, familyName, picture);
+            checkUserDomain(googleUser);
+
+            return googleUser;
         } catch (IOException | ParseException | URISyntaxException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public MicrosoftUser getMicrosoftUser(String microsoftToken) throws InvalidDomainException {
+        log.info(LoggerColors.cyan(microsoftToken));
+        try {
+            HttpRequest httpRequest = HttpRequest
+                    .newBuilder()
+                    .uri(new URI("https://graph.microsoft.com/v1.0/me"))
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + microsoftToken)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> content = HttpClient.newHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+            final JSONObject response = (JSONObject) parser.parse(content.body());
+
+            final String email = (String) response.get("mail");
+            final String domain = email.split("@")[1];
+            final String givenName = (String) response.get("givenName");
+            final String familyName = (String) response.get("surname");
+
+            MicrosoftUser microsoftUser = new MicrosoftUser(email, domain, givenName, familyName, null);
+            checkUserDomain(microsoftUser);
+
+            return microsoftUser;
+        } catch (IOException | ParseException | URISyntaxException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void checkUserDomain(ExternalAuthUser externalAuthUser) throws InvalidDomainException {
+        log.info(LoggerColors.warn("Login attempt from " + externalAuthUser.getEmail() + " (" + externalAuthUser.getGivenName() + " " + externalAuthUser.getFamilyName() + ")"));
+
+        if (!customerDomains.contains(externalAuthUser.getDomain())) {
+            log.error(LoggerColors.error("Login denied to " + externalAuthUser.getEmail()));
+            throw new InvalidDomainException();
+        }
+
+        log.info(LoggerColors.success("Login granted to " + externalAuthUser.getEmail()));
+    }
 
     @Override
     public String generateJWT(User user, long ttlMillis) {
@@ -259,15 +296,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Record representing the GoogleUser returned by the call to the Google Auth API
-     *
-     * @param email
-     * @param domain
-     * @param givenName
-     * @param familyName
-     * @param picture
+     * Class representing the GoogleUser returned by the call to the Google Auth API
      */
-    public record GoogleUser(String email, String domain, String givenName, String familyName, String picture) {
+    public static class GoogleUser extends ExternalAuthUser {
+        public GoogleUser(String email, String domain, String givenName, String familyName, String picture) {
+            super(email, domain, givenName, familyName, picture, "google");
+        }
+    }
+
+    /**
+     * Class representing the MicrosoftUser returned by the call to the Microsoft Auth API
+     */
+    public static class MicrosoftUser extends ExternalAuthUser {
+        public MicrosoftUser(String email, String domain, String givenName, String familyName, String picture) {
+            super(email, domain, givenName, familyName, picture, "microsoft");
+        }
     }
 
 }
