@@ -166,7 +166,7 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
         return exercise;
