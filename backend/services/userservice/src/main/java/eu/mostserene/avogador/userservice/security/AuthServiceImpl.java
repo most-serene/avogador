@@ -123,15 +123,15 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void checkUserDomain(ExternalAuthUser externalAuthUser) throws InvalidDomainException {
-        log.info(LoggerColors.warn("Login attempt from " + externalAuthUser.getEmail() + " (" + externalAuthUser.getGivenName() + " " + externalAuthUser.getFamilyName() + ")"));
+    private void checkUserDomain(ThirdPartyAuthUser thirdPartyAuthUser) throws InvalidDomainException {
+        log.info(LoggerColors.warn("Login attempt from " + thirdPartyAuthUser.getEmail() + " (" + thirdPartyAuthUser.getGivenName() + " " + thirdPartyAuthUser.getFamilyName() + ")"));
 
-        if (!customerDomains.contains(externalAuthUser.getDomain())) {
-            log.error(LoggerColors.error("Login denied to " + externalAuthUser.getEmail()));
+        if (!customerDomains.contains(thirdPartyAuthUser.getDomain())) {
+            log.error(LoggerColors.error("Login denied to " + thirdPartyAuthUser.getEmail()));
             throw new InvalidDomainException();
         }
 
-        log.info(LoggerColors.success("Login granted to " + externalAuthUser.getEmail()));
+        log.info(LoggerColors.success("Login granted to " + thirdPartyAuthUser.getEmail()));
     }
 
     @Override
@@ -298,7 +298,7 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Class representing the GoogleUser returned by the call to the Google Auth API
      */
-    public static class GoogleUser extends ExternalAuthUser {
+    public static class GoogleUser extends ThirdPartyAuthUser {
         public GoogleUser(String email, String domain, String givenName, String familyName, String picture) {
             super(email, domain, givenName, familyName, picture, "google");
         }
@@ -307,7 +307,7 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Class representing the MicrosoftUser returned by the call to the Microsoft Auth API
      */
-    public static class MicrosoftUser extends ExternalAuthUser {
+    public static class MicrosoftUser extends ThirdPartyAuthUser {
         public MicrosoftUser(String email, String domain, String givenName, String familyName, String picture) {
             super(email, domain, givenName, familyName, picture, "microsoft");
         }

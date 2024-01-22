@@ -3,7 +3,7 @@ package eu.mostserene.avogador.userservice.security;
 import lombok.Data;
 
 @Data
-public abstract class ExternalAuthUser {
+public abstract class ThirdPartyAuthUser {
     private String email;
     private String domain;
     private String givenName;
@@ -11,10 +11,10 @@ public abstract class ExternalAuthUser {
     private String picture;
     private String provider;
 
-    public ExternalAuthUser() {
+    public ThirdPartyAuthUser() {
     }
 
-    public ExternalAuthUser(String email, String domain, String givenName, String familyName, String picture, String provider) {
+    public ThirdPartyAuthUser(String email, String domain, String givenName, String familyName, String picture, String provider) {
         this.email = email;
         this.domain = domain;
         this.givenName = givenName;

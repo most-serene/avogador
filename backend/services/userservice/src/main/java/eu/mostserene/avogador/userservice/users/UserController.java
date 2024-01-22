@@ -3,9 +3,7 @@ package eu.mostserene.avogador.userservice.users;
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.security.AuthService;
-import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
-import eu.mostserene.avogador.userservice.security.AuthServiceImpl.MicrosoftUser;
-import eu.mostserene.avogador.userservice.security.ExternalAuthUser;
+import eu.mostserene.avogador.userservice.security.ThirdPartyAuthUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
@@ -185,25 +183,25 @@ public class UserController {
         );
     }
 
-    private AuthUserDTOImageHash authenticateUser(HttpServletResponse response, ExternalAuthUser externalAuthUser) {
-        Optional<User> queriedUser = userService.getUserByEmail(externalAuthUser.getEmail());
+    private AuthUserDTOImageHash authenticateUser(HttpServletResponse response, ThirdPartyAuthUser thirdPartyAuthUser) {
+        Optional<User> queriedUser = userService.getUserByEmail(thirdPartyAuthUser.getEmail());
 
         final User user = queriedUser.map(innerUser -> {
-            if (innerUser.getGivenName().equals(externalAuthUser.getGivenName()) &&
-                    innerUser.getFamilyName().equals(externalAuthUser.getFamilyName())) {
+            if (innerUser.getGivenName().equals(thirdPartyAuthUser.getGivenName()) &&
+                    innerUser.getFamilyName().equals(thirdPartyAuthUser.getFamilyName())) {
                 return innerUser;
             }
-            innerUser.setGivenName(externalAuthUser.getGivenName());
-            innerUser.setFamilyName(externalAuthUser.getFamilyName());
+            innerUser.setGivenName(thirdPartyAuthUser.getGivenName());
+            innerUser.setFamilyName(thirdPartyAuthUser.getFamilyName());
             return userService.updateUser(innerUser);
         }).orElseGet(() -> {
-            emailService.sendSimpleEmail(externalAuthUser.getEmail(), "Welcome to Avogador!",
-                    "Hi " + externalAuthUser.getGivenName() + "!\nYou have been successfully registered to Avogador, enjoy!");
+            emailService.sendSimpleEmail(thirdPartyAuthUser.getEmail(), "Welcome to Avogador!",
+                    "Hi " + thirdPartyAuthUser.getGivenName() + "!\nYou have been successfully registered to Avogador, enjoy!");
 
             return userService.createUser(new User(
-                    externalAuthUser.getEmail(),
-                    externalAuthUser.getGivenName(),
-                    externalAuthUser.getFamilyName())
+                    thirdPartyAuthUser.getEmail(),
+                    thirdPartyAuthUser.getGivenName(),
+                    thirdPartyAuthUser.getFamilyName())
             );
         });
 
@@ -221,7 +219,7 @@ public class UserController {
                 .hashString(jwtCookie.getValue(), StandardCharsets.UTF_8)
                 .toString();
 
-        return new AuthUserDTOImageHash(user.generateAuthUserDTO(), externalAuthUser.getPicture(),
+        return new AuthUserDTOImageHash(user.generateAuthUserDTO(), thirdPartyAuthUser.getPicture(),
                 jwtHash.substring(jwtHash.length() - 20));
 
     }
