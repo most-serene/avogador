@@ -20,13 +20,13 @@ const LoginMicrosoft = () => {
   const processLoginRequest = useCallback(() => {
     if (!isAuthenticated) return;
 
+    setShowSplashScreen(true);
     return instance
       .acquireTokenSilent({
         ...loginRequest,
         account: instance.getActiveAccount() ?? accounts[0],
       })
       .then((response) => {
-        setShowSplashScreen(true);
         loginWithMicrosoft(response.account.tenantId, response.accessToken)
           .then(setUser)
           .catch((err: Error) => {
