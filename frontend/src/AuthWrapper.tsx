@@ -4,7 +4,7 @@ import { useAuthService } from "@authentication/hooks/useAuthService.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
-import { LoginPage } from "@authentication/LoginPage/LoginPage.tsx";
+import { LoginScreen } from "@authentication/LoginPage/LoginScreen.tsx";
 import { enqueueSnackbar } from "notistack";
 import SplashScreen from "@structure/SplashScreen/SplashScreen.tsx";
 import showSplashScreenAtom from "@structure/SplashScreen/showSplashScreenAtom.ts";
@@ -38,7 +38,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   if (user === undefined || showSplashScreen) return <SplashScreen />;
 
   if (user === null && !allowedPaths.includes(pathname)) {
-    return <LoginPage />;
+    return <LoginScreen />;
   }
 
   return <>{children}</>;
