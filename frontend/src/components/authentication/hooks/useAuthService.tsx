@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
+import axios from "axios";
 
 export const useAuthService = () => {
   const avogadorApi = useAvogadorApi();
@@ -20,7 +21,7 @@ export const useAuthService = () => {
     }
   }, [avogadorApi]);
 
-  const login: (googleToken: string) => Promise<User> = useCallback(
+  const loginWithGoogle: (googleToken: string) => Promise<User> = useCallback(
     async (googleToken: string) => {
       return avogadorApi
         .post("/users/google-auth", {
@@ -50,6 +51,59 @@ export const useAuthService = () => {
     [avogadorApi],
   );
 
+  const getMicrosoftUserPicture: (microsoftToken: string) => Promise<string> =
+    useCallback(async (microsoftToken) => {
+      const { data }: { data: Blob } = await axios.get(
+        `https://graph.microsoft.com/v1.0/me/photo/$value`,
+        {
+          headers: { Authorization: `Bearer ${microsoftToken}` },
+          responseType: "blob",
+        },
+      );
+
+      return URL.createObjectURL(data);
+    }, []);
+
+  const loginWithMicrosoft: (
+    microsoftUserId: string,
+    microsoftToken: string,
+  ) => Promise<User> = useCallback(
+    async (microsoftUserId, microsoftToken) => {
+      return avogadorApi
+        .post("/users/microsoft-auth", {
+          microsoftUserId: microsoftUserId,
+          microsoftToken: microsoftToken,
+        })
+        .then(
+          async ({
+            data: user,
+          }: {
+            data: User & { hash: string; picture: string };
+          }) => {
+            try {
+              user.picture = await getMicrosoftUserPicture(microsoftToken);
+            } catch (e) {
+              user.picture = "";
+            }
+
+            avogadorApi.defaults.headers.common["Jwt-CSRF-Hash"] = user.hash;
+            localStorage.setItem("Jwt-CSRF-Hash", user.hash);
+            localStorage.setItem("profile-picture", user.picture);
+            const u: User = {
+              id: user.id,
+              email: user.email,
+              givenName: user.givenName,
+              familyName: user.familyName,
+              isProfessor: user.isProfessor,
+              isSuperuser: user.isSuperuser,
+            };
+            return u;
+          },
+        );
+    },
+    [avogadorApi, getMicrosoftUserPicture],
+  );
+
   const logout = useCallback(() => {
     avogadorApi
       .get("/users/logout")
@@ -64,7 +118,8 @@ export const useAuthService = () => {
 
   return {
     getCurrent,
-    login,
+    loginWithGoogle,
+    loginWithMicrosoft,
     logout,
   };
 };

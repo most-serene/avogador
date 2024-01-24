@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "eu.mostserene.avogador"
-version = "0.5.1"
+version = "0.7.0"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
