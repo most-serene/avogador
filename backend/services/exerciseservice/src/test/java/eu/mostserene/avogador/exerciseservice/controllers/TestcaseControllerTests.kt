@@ -169,6 +169,12 @@ class TestcaseControllerTests {
             .thenReturn(Optional.of(CourseRole.ADMIN))
         `when`(testcaseService.getTestcasesFromExercise(eq(exercise)))
             .thenReturn(listOf(visibleTestcase, hiddenTestcase))
+        `when`(testcaseService.getTestcase(any(), any()))
+            .thenReturn(Optional.empty())
+        `when`(testcaseService.getTestcase(eq(exercise), eq(visibleTestcase.id)))
+            .thenReturn(Optional.of(visibleTestcase))
+        `when`(testcaseService.getTestcase(eq(exercise), eq(hiddenTestcase.id)))
+            .thenReturn(Optional.of(hiddenTestcase))
     }
 
 
@@ -284,8 +290,99 @@ class TestcaseControllerTests {
                 jsonPath<String>("$[1].id", `is`(hiddenTestcase.id.toString()))
             }
         }
+    }
 
+    @Nested
+    inner class GetTestcaseById {
+        @Test
+        fun `(404) wrong exercise id`() {
+            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcase.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
 
+        @Test
+        fun `(403) external user`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${visibleTestcase.id}") {
+                header("User", externalHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(403) external user - hidden testcase`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${hiddenTestcase.id}") {
+                header("User", externalHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(404) wrong testcase id`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases/00000000-0000-0000-0000-000000000000") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
+        @Test
+        fun `(403) student user - hidden testcase`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${hiddenTestcase.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(200) student user`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${visibleTestcase.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user`(header: String) {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${visibleTestcase.id}") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user - hidden testcase`(header: String) {
+            mvc.get("/public/exercises/${exercise.id}/testcases/${hiddenTestcase.id}") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
     }
 
 

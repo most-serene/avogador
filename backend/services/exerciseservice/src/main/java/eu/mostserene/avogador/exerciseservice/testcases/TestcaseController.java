@@ -71,13 +71,13 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
         var testcase = testcaseService.getTestcase(exercise, testcaseId)
                 .orElseThrow(() -> new NotFoundException("Not found testcase with id: " + testcaseId));
-        if (!testcase.getIsVisible() && courseRole == CourseRole.STUDENT) {
+        if (!testcase.getIsVisible() && courseRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
