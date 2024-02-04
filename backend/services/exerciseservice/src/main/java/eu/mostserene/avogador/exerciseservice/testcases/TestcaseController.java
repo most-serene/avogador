@@ -38,20 +38,6 @@ public class TestcaseController {
     @Autowired
     private UserCourseService userCourseService;
 
-    /**
-     * @deprecated since 0.4.1, use insertTestcase instead
-     */
-    @PostMapping()
-    private TestcaseDetailDto createTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody TestcaseDetailDto testcase) {
-        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
-
-        var exerciseTestcases = testcaseService.getSimpleTestcasesFromExercise(exercise);
-        testcase.setIndex(exerciseTestcases.size());
-        testcase.setExerciseId(exerciseId);
-
-        return testcaseService.createTestcase(testcase, exercise);
-    }
-
     @GetMapping()
     private List<TestcaseDetailDto> getTestcasesFromExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
         var exercise = exerciseService.getExercise(exerciseId)
@@ -61,7 +47,7 @@ public class TestcaseController {
         var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
+        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -113,23 +99,6 @@ public class TestcaseController {
         for (int i = 0; i < testcaseIds.size(); i++) {
             testcaseService.updateTestcaseIndex(testcases.get(testcaseIds.get(i)), i);
         }
-    }
-
-    /**
-     * @deprecated since 0.4.1, use insertTestcase instead
-     */
-    @PutMapping("/{testcaseId}")
-    private TestcaseDetailDto updateTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId, @RequestBody TestcaseDetailDto testcase) {
-        var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
-
-        var oldTestcase = testcaseService.getSimpleTestcase(testcaseId)
-                .orElseThrow(() -> new NotFoundException("Not found testcase with id :" + testcaseId));
-
-        if (!testcaseId.equals(testcase.getId()) || !exerciseId.equals(testcase.getExerciseId()) || !Objects.equals(testcase.getIndex(), oldTestcase.getIndex())) {
-            throw new BadRequestException("You cannot modify this fields");
-        }
-
-        return testcaseService.updateTestcase(exercise, testcase);
     }
 
     @PutMapping("")

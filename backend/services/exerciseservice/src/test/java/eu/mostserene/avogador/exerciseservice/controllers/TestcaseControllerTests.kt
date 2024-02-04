@@ -15,18 +15,18 @@ import eu.mostserene.avogador.exerciseservice.trials.Trial
 import eu.mostserene.avogador.exerciseservice.trials.TrialService
 import eu.mostserene.avogador.exerciseservice.users.UserDto
 import eu.mostserene.avogador.exerciseservice.utils.ProfileManager
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.hasSize
+import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
-import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.info.BuildProperties
@@ -36,12 +36,12 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.stream.Stream
+import kotlin.test.assertEquals
 
 @WebMvcTest(TestcaseController::class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -124,13 +124,21 @@ class TestcaseControllerTests {
         )
     )
     private val exercise = Exercise(practice, "Exercise", "statement", 1, true)
-    private val testcase = TestcaseDetailDto(
+    private val visibleTestcase = TestcaseDetailDto(
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         true,
         1,
-        "in",
-        "out"
+        "in1",
+        "out1"
+    )
+    private val hiddenTestcase = TestcaseDetailDto(
+        UUID.fromString("00000000-0000-0000-0000-000000000002"),
+        UUID.fromString("00000000-0000-0000-0000-000000000001"),
+        false,
+        2,
+        "in2",
+        "out2"
     )
 
     @BeforeEach
@@ -145,11 +153,11 @@ class TestcaseControllerTests {
 
         `when`(exerciseService.getExercise(any()))
             .thenReturn(Optional.empty())
-        `when`(exerciseService.getExercise(UUID.fromString("00000000-0000-0000-0000-000000000001")))
+        `when`(exerciseService.getExercise(exercise.id))
             .thenReturn(Optional.of(exercise))
         `when`(trialService.getTrialById(any()))
             .thenReturn(Optional.empty())
-        `when`(trialService.getTrialById(UUID.fromString("00000000-0000-0000-0000-000000000001")))
+        `when`(trialService.getTrialById(practice.id))
             .thenReturn(Optional.of(practice))
         `when`(userCourseService.getUserCourseRole(any(), any()))
             .thenReturn(Optional.of(CourseRole.EXTERNAL))
@@ -159,7 +167,8 @@ class TestcaseControllerTests {
             .thenReturn(Optional.of(CourseRole.COLLABORATOR))
         `when`(userCourseService.getUserCourseRole(any(), eq(professor.id)))
             .thenReturn(Optional.of(CourseRole.ADMIN))
-
+        `when`(testcaseService.getTestcasesFromExercise(eq(exercise)))
+            .thenReturn(listOf(visibleTestcase, hiddenTestcase))
     }
 
 
@@ -171,6 +180,7 @@ class TestcaseControllerTests {
         )
 
     }
+
     class UnprivilegedUserHeadersProvider : ArgumentsProvider {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> = Stream.of(
             Arguments.of(TestcaseControllerTests().externalHeader),
@@ -186,7 +196,7 @@ class TestcaseControllerTests {
             mvc.put("/public/exercises/00000000-0000-0000-0000-000000000000/testcases") {
                 header("User", studentHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(testcase)
+                content = mapper.writeValueAsString(visibleTestcase)
             }.andDo {
                 print()
             }.andExpect {
@@ -196,11 +206,11 @@ class TestcaseControllerTests {
 
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
-        fun `(403) student user`(header: String){
-            mvc.put("/public/exercises/00000000-0000-0000-0000-000000000001/testcases") {
+        fun `(403) unprivileged user`(header: String) {
+            mvc.put("/public/exercises/${exercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(testcase)
+                content = mapper.writeValueAsString(visibleTestcase)
             }.andDo {
                 print()
             }.andExpect {
@@ -210,19 +220,73 @@ class TestcaseControllerTests {
 
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
-        fun `(200) privileged user`(header: String){
-            mvc.put("/public/exercises/00000000-0000-0000-0000-000000000001/testcases") {
+        fun `(200) privileged user`(header: String) {
+            mvc.put("/public/exercises/${exercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(testcase)
+                content = mapper.writeValueAsString(visibleTestcase)
             }.andDo {
                 print()
             }.andExpect {
                 status { isOk() }
             }
         }
+    }
+
+    @Nested
+    inner class GetTestcasesFromExercise {
+        @Test
+        fun `(404) wrong exercise id`() {
+            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
+        @Test
+        fun `(403) external user`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases") {
+                header("User", externalHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(200) student user`() {
+            mvc.get("/public/exercises/${exercise.id}/testcases") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+                jsonPath<Collection<TestcaseDetailDto>>("$", hasSize(1))
+                jsonPath<String>("$[0].id", `is`(visibleTestcase.id.toString()))
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user`(header: String) {
+            mvc.get("/public/exercises/${exercise.id}/testcases") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+                jsonPath<Collection<TestcaseDetailDto>>("$", hasSize(2))
+                jsonPath<String>("$[0].id", `is`(visibleTestcase.id.toString()))
+                jsonPath<String>("$[1].id", `is`(hiddenTestcase.id.toString()))
+            }
+        }
 
 
     }
+
 
 }
