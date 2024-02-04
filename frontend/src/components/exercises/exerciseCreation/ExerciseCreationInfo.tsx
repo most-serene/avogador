@@ -10,6 +10,7 @@ import {
   InputLabel,
   Select,
   TextField,
+  useTheme,
 } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
@@ -55,6 +56,7 @@ const ExerciseCreationInfo = ({
   const globalErrorSetter = useGlobalErrorSetter();
   const { getUserCourses } = useCourseService();
   const { getTrialsByCourseId, isTrialEnded } = useTrialService();
+  const theme = useTheme();
   const [user] = useAtom(userAtom);
   const [areCoursesFetched, setAreCoursesFetched] = useState(false);
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
@@ -266,7 +268,11 @@ const ExerciseCreationInfo = ({
                 }}
               >
                 <MDXEditor
-                  className={"dark-theme"}
+                  className={
+                    theme.palette.mode === "light"
+                      ? "light-theme"
+                      : "dark-theme"
+                  }
                   markdown={exercise.statement}
                   onChange={(markdown) => {
                     console.log(markdown);

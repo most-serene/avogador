@@ -18,6 +18,7 @@ import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
 import ExerciseCreationInfo from "@exercises/exerciseCreation/ExerciseCreationInfo.tsx";
 import ExerciseCreationTemplate from "@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx";
 import ExerciseCreationTestcases from "@exercises/exerciseCreation/testcases/ExerciseCreationTestcases.tsx";
+import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 
 interface ExerciseSettingsStepperProps {
   onComplete: (
@@ -94,16 +95,35 @@ const ExerciseSettingsStepper = ({
           {steps[activeStep].component}
         </Box>
         <Box display="flex" justifyContent="center">
-          <Button
-            variant="outlined"
-            sx={{ mx: 1 }}
-            disabled={activeStep <= 0}
-            onClick={() => {
-              setActiveStep(Math.max(activeStep - 1, 0));
-            }}
-          >
-            Go back
-          </Button>
+          {activeStep > 0 ? (
+            <Button
+              variant="outlined"
+              sx={{ mx: 1 }}
+              disabled={activeStep <= 0}
+              onClick={() => {
+                setActiveStep(Math.max(activeStep - 1, 0));
+              }}
+            >
+              Go back
+            </Button>
+          ) : (
+            <Box sx={{ mx: 1 }}>
+              <ButtonWithConfirmation
+                variant="outlined"
+                disabled={activeStep > 0}
+                confirmText={"Exit"}
+                confirmColor="error"
+                title="Exit exercise creation?"
+                description="You will lose all recent changes"
+                color="error"
+                onConfirm={() => {
+                  history.back();
+                }}
+              >
+                Cancel
+              </ButtonWithConfirmation>
+            </Box>
+          )}
           <Button
             variant="outlined"
             sx={{
