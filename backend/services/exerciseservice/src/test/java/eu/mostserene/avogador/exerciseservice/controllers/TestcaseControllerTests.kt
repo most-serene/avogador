@@ -7,6 +7,7 @@ import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.practices.Practice
+import eu.mostserene.avogador.exerciseservice.testcases.Testcase
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseController
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService
@@ -34,9 +35,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.put
+import org.springframework.test.web.servlet.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -124,6 +123,7 @@ class TestcaseControllerTests {
         )
     )
     private val exercise = Exercise(practice, "Exercise", "statement", 1, true)
+
     private val visibleTestcase = TestcaseDetailDto(
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
@@ -141,6 +141,9 @@ class TestcaseControllerTests {
         "out2"
     )
 
+    private val simpleVisibleTestcase = Testcase(exercise, true, 1)
+    private val simpleHiddenTestcase = Testcase(exercise, false, 2)
+
     @BeforeEach
     fun setup() {
         val exerciseId = Exercise::class.java.getDeclaredField("id")
@@ -150,6 +153,11 @@ class TestcaseControllerTests {
         val practiceId = Trial::class.java.getDeclaredField("id")
         practiceId.isAccessible = true
         practiceId.set(practice, UUID.fromString("00000000-0000-0000-0000-000000000001"))
+
+        val testcaseId = Testcase::class.java.getDeclaredField("id")
+        testcaseId.isAccessible = true
+        testcaseId.set(simpleVisibleTestcase, UUID.fromString("00000000-0000-0000-0000-000000000001"))
+        testcaseId.set(simpleHiddenTestcase, UUID.fromString("00000000-0000-0000-0000-000000000002"))
 
         `when`(exerciseService.getExercise(any()))
             .thenReturn(Optional.empty())
@@ -175,6 +183,8 @@ class TestcaseControllerTests {
             .thenReturn(Optional.of(visibleTestcase))
         `when`(testcaseService.getTestcase(eq(exercise), eq(hiddenTestcase.id)))
             .thenReturn(Optional.of(hiddenTestcase))
+        `when`(testcaseService.getSimpleTestcasesFromExercise(eq(exercise)))
+            .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
     }
 
 
@@ -376,6 +386,140 @@ class TestcaseControllerTests {
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user - hidden testcase`(header: String) {
             mvc.get("/public/exercises/${exercise.id}/testcases/${hiddenTestcase.id}") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
+    }
+
+    @Nested
+    inner class UpdateTestcaseOrder {
+        @Test
+        fun `(404) wrong exercise id`() {
+            mvc.patch("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/order") {
+                header("User", studentHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
+        fun `(403) unprivileged user`(header: String) {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", header)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(400) list size mismatch - smaller`() {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @Test
+        fun `(400) list size mismatch - bigger`() {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id, visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @Test
+        fun `(400) list with repetitions`() {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(visibleTestcase.id, visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @Test
+        fun `(400) list with wrong ids`() {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(UUID.fromString("00000000-0000-0000-0000-000000000000"), visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user`(header: String) {
+            mvc.patch("/public/exercises/${exercise.id}/testcases/order") {
+                header("User", header)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
+    }
+
+    @Nested
+    inner class DeleteTestcase {
+        @Test
+        fun `(404) wrong exercise id`() {
+            mvc.delete("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcase.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
+        fun `(403) unprivileged user`(header: String) {
+            mvc.delete("/public/exercises/${exercise.id}/testcases/${visibleTestcase.id}") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user`(header: String) {
+            mvc.delete("/public/exercises/${exercise.id}/testcases/${visibleTestcase.id}") {
                 header("User", header)
             }.andDo {
                 print()

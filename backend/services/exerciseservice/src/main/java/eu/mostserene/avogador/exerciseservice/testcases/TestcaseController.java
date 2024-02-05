@@ -15,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -88,11 +85,13 @@ public class TestcaseController {
     private void updateTestcaseOrder(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody List<UUID> testcaseIds) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
-        var testcases = testcaseService.getSimpleTestcasesFromExercise(exercise)
+        Map<UUID, Testcase> testcases = testcaseService.getSimpleTestcasesFromExercise(exercise)
                 .stream()
                 .collect(Collectors.toMap(Testcase::getId, Function.identity()));
 
-        if (testcaseIds.size() != testcases.size()) {
+        Set<UUID> uniqueIds = new HashSet<>(testcaseIds);
+
+        if (testcaseIds.size() != testcases.size() || uniqueIds.size() != testcases.size() || !uniqueIds.equals(testcases.keySet())) {
             throw new BadRequestException("List size mismatch");
         }
 
