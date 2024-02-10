@@ -55,17 +55,20 @@ const ExerciseResultsChart = ({
     <PieChart
       series={[
         {
-          data: Object.entries(results).map(([type, value]) => {
-            const { color, label } = getStatusMetadata(
-              type as SubmissionStatus,
-            );
-            return {
-              id: type,
-              value,
-              label,
-              color,
-            };
-          }),
+          data: Object.entries(results)
+            .filter(([, value]) => value !== 0)
+            .map(([type, value]) => {
+              console.log(results);
+              const { color, label } = getStatusMetadata(
+                type as SubmissionStatus,
+              );
+              return {
+                id: type,
+                value,
+                label,
+                color,
+              };
+            }),
           paddingAngle: 2,
           cornerRadius: 5,
           innerRadius: 25,
