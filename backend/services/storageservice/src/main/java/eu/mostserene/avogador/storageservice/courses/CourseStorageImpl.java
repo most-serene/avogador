@@ -1,14 +1,17 @@
 package eu.mostserene.avogador.storageservice.courses;
 
 import eu.mostserene.avogador.storageservice.FileSystemRoot;
+import eu.mostserene.avogador.storageservice.utils.CompressionUtils;
 import eu.mostserene.avogador.storageservice.utils.FileCreationFailed;
 import eu.mostserene.avogador.storageservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.UUID;
 
+@Getter
 @Slf4j
 public class CourseStorageImpl implements CourseStorage {
     private final UUID courseId;
@@ -25,10 +28,6 @@ public class CourseStorageImpl implements CourseStorage {
 
     private CourseStorageImpl(UUID courseId) {
         this.courseId = courseId;
-    }
-
-    public UUID getCourseId() {
-        return courseId;
     }
 
     @Override
@@ -48,7 +47,11 @@ public class CourseStorageImpl implements CourseStorage {
 
     @Override
     public void archive() {
-        throw new UnsupportedOperationException();
+        try {
+            File archive = CompressionUtils.createTarGzipFolder(get().toPath());
+        } catch (Exception e) {
+            log.error(LoggerColors.error(e.toString()));
+        }
     }
 
     @Override
