@@ -1,7 +1,7 @@
 {
   "name": "avogador-webapp",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.7.1",
   "type": "module",
   "homepage": ".",
   "scripts": {
@@ -17,14 +17,17 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@azure/msal-browser": "^3.7.0",
+    "@azure/msal-react": "^2.0.9",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
+    "@mdxeditor/editor": "^1.13.5",
     "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.14.3",
     "@mui/material": "^5.14.3",
     "@mui/x-charts": "^6.18.0",
-    "@mui/x-data-grid": "^6.17.0",
+    "@mui/x-data-grid": "^6.18.3",
     "@mui/x-date-pickers": "^6.17.0",
     "@react-oauth/google": "^0.11.1",
     "@sentry/browser": "^7.64.0",
@@ -41,6 +44,7 @@
     "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.11.1",
     "rehype-katex": "^7.0.0",
+    "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "semver": "^7.5.4",
     "serve": "^14.2.0"
@@ -72,7 +76,7 @@
     "storybook": "^7.3.1",
     "storybook-addon-react-router-v6": "^2.0.4",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "vite": "^4.4.12",
     "vite-plugin-pwa": "^0.16.4",
     "vitest": "^0.33.0",
     "workbox-window": "^7.0.0"

@@ -16,8 +16,9 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import TrialDetailExercisesTab from "@trials/trialDetail/TrialDetailExercisesTab/TrialDetailExercisesTab.tsx";
 import TrialDetailUsersTab from "@trials/trialDetail/TrialDetailUsersTab/TrialDetailUsersTab.tsx";
 import TrialDetailSettingsTab from "@trials/trialDetail/TrialDetailSettingsTab/TrialDetailSettingsTab.tsx";
+import TrialDetailReportsTab from "@trials/trialDetail/TrialDetailReportsTab/TrialDetailReportsTab.tsx";
 
-const tabs = ["Exercises", "Users", "Settings"];
+const tabs = ["Exercises", "Users", "Reports", "Settings"];
 
 interface TrialDetailCollaboratorScreenProps {
   trial: Practice | Exam;
@@ -88,27 +89,20 @@ const TrialDetailCollaboratorScreen = ({
             </Button>
           </Box>
         </Box>
-        <TabPanel
-          value={openTab}
-          index={0}
-          occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
-        >
-          <TrialDetailExercisesTab trial={trial} course={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={1}
-          occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
-        >
-          <TrialDetailUsersTab trial={trial} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={2}
-          occupiedHeight={trialTitleRef.current?.clientHeight ?? 0}
-        >
-          <TrialDetailSettingsTab trial={trial} />
-        </TabPanel>
+        <Box style={{ height: "calc(100% - 57px)" }}>
+          <TabPanel value={openTab} index={0}>
+            <TrialDetailExercisesTab trial={trial} course={course} />
+          </TabPanel>
+          <TabPanel value={openTab} index={1}>
+            <TrialDetailUsersTab trial={trial} />
+          </TabPanel>
+          <TabPanel value={openTab} index={2}>
+            <TrialDetailReportsTab trial={trial} />
+          </TabPanel>
+          <TabPanel value={openTab} index={3}>
+            <TrialDetailSettingsTab trial={trial} />
+          </TabPanel>
+        </Box>
       </Container>
     </Box>
   );

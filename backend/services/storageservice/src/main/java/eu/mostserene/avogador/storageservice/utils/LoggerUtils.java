@@ -27,6 +27,11 @@ public class LoggerUtils {
                 });
     }
 
+    public static void logErrorToSentry(Exception exception) {
+        Sentry.captureException(exception,
+                scope -> scope.setLevel(SentryLevel.ERROR));
+    }
+
     public static void logErrorToSentry(HttpServletRequest request) {
         Sentry.captureMessage("An internal server error has occurred",
                 scope -> {

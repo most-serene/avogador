@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Divider, Typography } from "@mui/material";
 import TrialItem from "@trials/TrialItem/TrialItem.tsx";
 import { Trial } from "@trials/types.ts";
 import Box from "@mui/material/Box";
@@ -30,10 +30,16 @@ const KanbanColumn = ({
       }}
     >
       <CardContent style={{ height: "100%" }}>
-        <Typography variant={"h5"} align={"center"} paddingBottom={1}>
+        <Typography variant={"h5"} align={"center"}>
           {title}
         </Typography>
-        <Box overflow="scroll" height="100%" className="hidden-scrollbar">
+        <Divider sx={{ mt: 1, mb: 0.5 }} />
+        <Box
+          overflow="scroll"
+          height="100%"
+          className="hidden-scrollbar"
+          paddingBottom={3}
+        >
           {isLoading ? (
             <TrialItemSkeleton />
           ) : (

@@ -26,12 +26,12 @@ public class ExerciseController {
 
     @GetMapping("/similarity-report")
     private ResponseEntity<Resource> getSimilarityReport(@PathVariable UUID courseId, @PathVariable UUID trialId, @PathVariable UUID exerciseId) {
-        Resource zipResource = new FileSystemResource(ExerciseStorageImpl.of(courseId, trialId, exerciseId)
+        Resource report = new FileSystemResource(ExerciseStorageImpl.of(courseId, trialId, exerciseId)
                 .getSimilarityReport()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exercise " + exerciseId + " similarity report not found")));
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"similarity.zip\"")
-                .body(zipResource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"similarity.json\"")
+                .body(report);
     }
 }

@@ -14,8 +14,10 @@ import eu.mostserene.avogador.storageservice.submission.SubmissionOutputDto;
 import eu.mostserene.avogador.storageservice.submission.SubmissionSavedDTO;
 import eu.mostserene.avogador.storageservice.testcases.TestcaseDTO;
 import eu.mostserene.avogador.storageservice.trials.TrialDTO;
+import eu.mostserene.avogador.storageservice.trials.TrialLogDto;
 import eu.mostserene.avogador.storageservice.trials.TrialStorageImpl;
 import eu.mostserene.avogador.storageservice.utils.LoggerColors;
+import eu.mostserene.avogador.storageservice.utils.LoggerUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -25,6 +27,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Slf4j
@@ -64,6 +67,20 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "logTrialEventHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.trial.log"))
+    private void logTrialEventHandler(TrialLogDto trialLogDto) {
+        try {
+            TrialStorageImpl.of(trialLogDto.getCourseId(), trialLogDto.getTrialId())
+                    .appendLog(trialLogDto.getAvogadorLogMessage());
+        } catch (IOException e) {
+            log.error(LoggerColors.error(e.getMessage()));
+            LoggerUtils.logErrorToSentry(e);
+        }
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "exerciseCreationHandler"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.exercise.create"))
@@ -78,7 +95,7 @@ public class Receiver {
     private void exerciseSimilaritySavingHandler(SimilarityReportStorageDto similarityReportStorageDto) {
         ExerciseStorageImpl.of(similarityReportStorageDto.getCourseId(), similarityReportStorageDto.getTrialId(),
                         similarityReportStorageDto.getExerciseId())
-                .saveSimilarityReport(similarityReportStorageDto.getSimilarityReportZip());
+                .saveSimilarityReport(similarityReportStorageDto.getSimilarityReport());
     }
 
     @RabbitListener(bindings = @QueueBinding(

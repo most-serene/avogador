@@ -264,7 +264,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
 
     @Override
     public void saveSimilarityReport(byte[] similarityReportBytes) {
-        File archive = new File(get() + "/similarity.zip");
+        File archive = new File(get() + "/similarity.json");
         try {
             Files.write(archive.toPath(), similarityReportBytes);
         } catch (IOException e) {
@@ -274,7 +274,7 @@ public class ExerciseStorageImpl implements ExerciseStorage {
 
     @Override
     public Optional<File> getSimilarityReport() {
-        File archive = new File(get() + "/similarity.zip");
+        File archive = new File(get() + "/similarity.json");
         return archive.exists() ? Optional.of(archive) : Optional.empty();
     }
 }

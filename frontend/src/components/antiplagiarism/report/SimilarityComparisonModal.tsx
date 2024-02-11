@@ -1,0 +1,130 @@
+import {
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Divider,
+  Grid,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import SubmissionViewer from "@components/submissions/UserSubmissionsScreen/SubmissionViewer.tsx";
+import { PlagiarismReport } from "@components/antiplagiarism/types.ts";
+import { Exercise, Strox, StroxCell } from "@exercises/types.ts";
+import { forwardRef } from "react";
+
+interface SimilarityComparisonModalProps {
+  exercise: Exercise;
+  report: PlagiarismReport;
+  template?: Strox;
+  firstSubmissionId?: string;
+  firstSubmission?: StroxCell[];
+  secondSubmissionId?: string;
+  secondSubmission?: StroxCell[];
+}
+
+const SimilarityComparisonModal = forwardRef(
+  (
+    {
+      exercise,
+      report,
+      template,
+      firstSubmissionId,
+      firstSubmission,
+      secondSubmissionId,
+      secondSubmission,
+    }: SimilarityComparisonModalProps,
+    ref,
+  ) => {
+    const theme = useTheme();
+
+    const loading =
+      template == null ||
+      firstSubmissionId == null ||
+      firstSubmission == null ||
+      secondSubmissionId == null ||
+      secondSubmission == null;
+
+    return (
+      <Box
+        tabIndex={-1}
+        ref={ref}
+        sx={{
+          position: "absolute" as const,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "80%",
+          bgcolor: "background.paper",
+          height: "80%",
+          overflow: "scroll",
+          border: "2px solid " + theme.palette.primary.main,
+          boxShadow: 24,
+          p: 4,
+        }}
+        className={"hidden-scrollbar"}
+      >
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Grid container spacing={1}>
+            <Grid item xs={6}>
+              <Card>
+                <CardContent>
+                  <Typography>
+                    {report.submissions[firstSubmissionId].email} -{" "}
+                    {report.submissions[firstSubmissionId].givenName}{" "}
+                    {report.submissions[firstSubmissionId].familyName}
+                  </Typography>
+                  <Divider />
+                  <SubmissionViewer
+                    template={template}
+                    submissionCode={firstSubmission.filter(
+                      (cell) => cell.type === "EDITABLE",
+                    )}
+                    language={exercise.trial.language}
+                    highlights={report.comparisons[firstSubmissionId][
+                      secondSubmissionId
+                    ].matches.map(({ firstStart, firstEnd }) => [
+                      firstStart,
+                      firstEnd,
+                    ])}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={6}>
+              <Card>
+                <CardContent>
+                  <Typography>
+                    {report.submissions[secondSubmissionId].email} -{" "}
+                    {report.submissions[secondSubmissionId].givenName}{" "}
+                    {report.submissions[secondSubmissionId].familyName}
+                  </Typography>
+                  <Divider />
+                  <SubmissionViewer
+                    template={template}
+                    submissionCode={secondSubmission.filter(
+                      (cell) => cell.type === "EDITABLE",
+                    )}
+                    language={exercise.trial.language}
+                    highlights={report.comparisons[firstSubmissionId][
+                      secondSubmissionId
+                    ].matches.map(({ secondStart, secondEnd }) => [
+                      secondStart,
+                      secondEnd,
+                    ])}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
+      </Box>
+    );
+  },
+);
+
+SimilarityComparisonModal.displayName = "SimilarityComparisonModal";
+
+export default SimilarityComparisonModal;

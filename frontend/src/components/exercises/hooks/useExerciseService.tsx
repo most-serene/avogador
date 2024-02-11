@@ -294,6 +294,19 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const getSubmission: (
+    exerciseId: string,
+    submissionId: string,
+  ) => Promise<Submission> = useCallback(
+    async (exerciseId: string, submissionId: string) => {
+      const { data: submission }: { data: Submission } = await avogadorApi.get(
+        `/exercises/${exerciseId}/submissions/${submissionId}`,
+      );
+      return submission;
+    },
+    [avogadorApi],
+  );
+
   return {
     createExercise,
     createTemplate,
@@ -315,6 +328,7 @@ const useExerciseService = () => {
     updateTestcaseOrder,
     deleteTestcase,
     insertTestcase,
+    getSubmission,
   };
 };
 

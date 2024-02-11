@@ -4,6 +4,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  Fade,
   IconButton,
   Modal,
   Typography,
@@ -81,13 +82,14 @@ const ButtonWithConfirmation = ({
   return (
     <>
       {getButton()}
-      {isModalOpen && (
-        <Modal
-          open={isModalOpen}
-          onClose={handleClose}
-          aria-labelledby="parent-modal-title"
-          aria-describedby="parent-modal-description"
-        >
+      <Modal
+        open={isModalOpen}
+        onClose={handleClose}
+        closeAfterTransition
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
+      >
+        <Fade in={isModalOpen}>
           <Card style={{ ...style }}>
             <CardContent>
               <Typography variant="h4" id="parent-modal-title" sx={{ mb: 1 }}>
@@ -110,8 +112,8 @@ const ButtonWithConfirmation = ({
               </Button>
             </CardActions>
           </Card>
-        </Modal>
-      )}
+        </Fade>
+      </Modal>
     </>
   );
 };

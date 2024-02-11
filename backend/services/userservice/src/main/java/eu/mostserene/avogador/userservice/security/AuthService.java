@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.userservice.security;
 
 import eu.mostserene.avogador.userservice.security.AuthServiceImpl.GoogleUser;
+import eu.mostserene.avogador.userservice.security.AuthServiceImpl.MicrosoftUser;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,7 @@ import java.util.function.Function;
 
 public interface AuthService {
     GoogleUser getGoogleUser(String googleToken) throws InvalidDomainException;
-
+    MicrosoftUser getMicrosoftUser(String microsoftToken) throws InvalidDomainException;
     String generateJWT(User user, long ttlMillis);
 
     /**
