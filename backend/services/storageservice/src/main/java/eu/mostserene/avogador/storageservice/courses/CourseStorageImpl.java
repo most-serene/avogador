@@ -7,8 +7,10 @@ import eu.mostserene.avogador.storageservice.utils.LoggerColors;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -49,9 +51,26 @@ public class CourseStorageImpl implements CourseStorage {
     public void archive() {
         try {
             File archive = CompressionUtils.createTarGzipFolder(get().toPath());
+            boolean renaming = archive.renameTo(
+                    new File(archive.getParentFile() + "/" + getCourseId().toString() + "-final.tar.gz")
+            );
+            if (!renaming) {
+                throw new RuntimeException("Course archive renaming failed");
+            }
+            FileUtils.deleteDirectory(get());
+            log.info(LoggerColors.success("Course " + this.getCourseId() + ": archive created and folder deleted"));
         } catch (Exception e) {
             log.error(LoggerColors.error(e.toString()));
         }
+    }
+
+    @Override
+    public Optional<File> getArchive() {
+        File archive = new File(getBaseDirectory() + "/" + getCourseId().toString() + "-final.tar.gz");
+        if (archive.exists()) {
+            return Optional.of(archive);
+        }
+        return Optional.empty();
     }
 
     @Override
