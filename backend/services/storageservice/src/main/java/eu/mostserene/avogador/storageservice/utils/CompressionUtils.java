@@ -29,6 +29,7 @@ public class CompressionUtils {
              BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
              GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(buffOut);
              TarArchiveOutputStream tOut = new TarArchiveOutputStream(gzOut)) {
+            tOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
 
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
 
