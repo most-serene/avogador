@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,6 +75,10 @@ public class PracticeController {
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
+        if (!practice.areTimestampsValid()){
+            throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
+        }
+
         return practiceService.createPractice(practice);
     }
 
@@ -100,6 +105,10 @@ public class PracticeController {
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
+        if (!practice.areTimestampsValid()){
+            throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
+        }
+
         return practiceService.updatePractice(practice);
     }
 
