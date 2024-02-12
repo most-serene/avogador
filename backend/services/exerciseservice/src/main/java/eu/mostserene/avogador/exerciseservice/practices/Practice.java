@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.practices;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialType;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -41,5 +42,9 @@ public class Practice extends Trial {
 
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
+    }
+
+    public boolean areTimestampsValid() {
+        return getStartTimestamp().compareTo(new Date()) >= 0 && getDeadline().compareTo(getStartTimestamp()) >= 0;
     }
 }

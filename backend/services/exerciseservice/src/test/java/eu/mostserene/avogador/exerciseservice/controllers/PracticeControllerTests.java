@@ -55,15 +55,20 @@ public class PracticeControllerTests {
     private @MockBean ExerciseService exerciseService;
     private @MockBean UserTrialService userTrialService;
 
-
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)), Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+
+    private final Practice practiceStartingPast = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(-1, ChronoUnit.MINUTES)), Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+
+    private final Practice practiceEndingBeforeStart = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)), Date.from(Instant.now().plus(1, ChronoUnit.HOURS)));
 
     private final Practice notVisibilePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)), Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
 
     private final Practice privateNotVisisblePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            false, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            false, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)), Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
 
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
@@ -183,6 +188,38 @@ public class PracticeControllerTests {
         }
 
         @Test
+        public void startsInThePast_get400() throws Exception{
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(post("/public/trials/practices")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practiceStartingPast))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        public void endsBeforeStart_get400() throws Exception{
+            ObjectMapper mapper = new ObjectMapper();
+
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(post("/public/trials/practices")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practiceEndingBeforeStart))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
         public void fromCollaborator_get200() throws Exception {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -259,6 +296,58 @@ public class PracticeControllerTests {
                     )
                     .andDo(print())
                     .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void startsInThePast_get400() throws Exception{
+            ObjectMapper mapper = new ObjectMapper();
+
+            Field id1 = practice.getClass().getSuperclass().getDeclaredField("id");
+            id1.setAccessible(true);
+            id1.set(practice, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            Field id2 = practiceStartingPast.getClass().getSuperclass().getDeclaredField("id");
+            id2.setAccessible(true);
+            id2.set(practiceStartingPast, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practiceStartingPast))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        public void endsBeforeStart_get400() throws Exception{
+            ObjectMapper mapper = new ObjectMapper();
+
+            Field id1 = practice.getClass().getSuperclass().getDeclaredField("id");
+            id1.setAccessible(true);
+            id1.set(practice, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            Field id2 = practiceEndingBeforeStart.getClass().getSuperclass().getDeclaredField("id");
+            id2.setAccessible(true);
+            id2.set(practiceEndingBeforeStart, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+
+            when(practiceService.getPractice(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRole(any(), any()))
+                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+
+            mvc.perform(put("/public/trials/practices/00000000-0000-0000-0000-000000000001")
+                            .header("User", studentHeader)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(practiceEndingBeforeStart))
+                    )
+                    .andDo(print())
+                    .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -355,7 +444,7 @@ public class PracticeControllerTests {
     }
 
     @Nested
-    class GetExercisesFromPractice{
+    class GetExercisesFromPractice {
         @Test
         public void wrongPracticeId_get404() throws Exception {
             when(practiceService.getPractice(any()))
