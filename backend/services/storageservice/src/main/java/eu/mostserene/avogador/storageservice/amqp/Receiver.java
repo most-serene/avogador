@@ -62,9 +62,9 @@ public class Receiver {
             value = @Queue(value = "courseArchivingHandler"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.course.archive"))
-    private void courseArchivingHandler(String courseStringId) {
+    private boolean courseArchivingHandler(String courseStringId) {
         UUID courseId = UUID.fromString(courseStringId);
-        CourseStorageImpl.of(courseId).archive();
+        return CourseStorageImpl.of(courseId).archive();
     }
 
     @RabbitListener(bindings = @QueueBinding(

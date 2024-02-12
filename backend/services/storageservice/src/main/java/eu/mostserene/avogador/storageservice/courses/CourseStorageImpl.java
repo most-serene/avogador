@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,19 +49,22 @@ public class CourseStorageImpl implements CourseStorage {
     }
 
     @Override
-    public void archive() {
+    public boolean archive() {
         try {
             File archive = CompressionUtils.createTarGzipFolder(get().toPath());
-            boolean renaming = archive.renameTo(
+            boolean isRenamed = archive.renameTo(
                     new File(archive.getParentFile() + "/" + getCourseId().toString() + "-final.tar.gz")
             );
-            if (!renaming) {
+            if (!isRenamed) {
+                FileUtils.deleteQuietly(archive);
                 throw new RuntimeException("Course archive renaming failed");
             }
             FileUtils.deleteDirectory(get());
             log.info(LoggerColors.success("Course " + this.getCourseId() + ": archive created and folder deleted"));
-        } catch (Exception e) {
-            log.error(LoggerColors.error(e.toString()));
+            return true;
+        } catch (Exception exception) {
+            log.error(LoggerColors.error(exception.toString()));
+            return false;
         }
     }
 
