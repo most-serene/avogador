@@ -3,6 +3,10 @@ import { Editor } from "@monaco-editor/react";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import { CircularProgress, useTheme } from "@mui/material";
+import {
+  getCellBorderColor,
+  getCellBorderStyle,
+} from "@components/editor/editorUtils.ts";
 
 interface SubmissionViewerProps {
   template: Strox;
@@ -10,12 +14,6 @@ interface SubmissionViewerProps {
   language: string;
   highlights?: [number, number][];
 }
-
-const highlightColorClasses = [
-  "redMonacoDecorator",
-  "cyanMonacoDecorator",
-  "yellowMonacoDecorator",
-];
 
 const SubmissionViewer = ({
   template,
@@ -26,6 +24,12 @@ const SubmissionViewer = ({
   const theme = useTheme();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [code, setCode] = useState<StroxCell[]>([]);
+
+  const highlightColorClasses = [
+    `redMonacoDecorator ${theme.palette.mode}`,
+    `cyanMonacoDecorator ${theme.palette.mode}`,
+    `yellowMonacoDecorator ${theme.palette.mode}`,
+  ];
 
   useEffect(() => {
     let i = 0;
@@ -56,14 +60,13 @@ const SubmissionViewer = ({
           key={i}
           sx={{
             borderLeft: 3,
-            borderLeftColor:
-              cell.type === "EDITABLE" ? "primary.main" : "rgba(0,0,0,0)",
-            borderLeftStyle: "solid",
+            borderLeftColor: getCellBorderColor(cell.type),
+            borderLeftStyle: getCellBorderStyle(cell.type),
           }}
         >
           <Editor
             height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)}px`}
-            theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+            theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
             language={language.toLowerCase()}
             value={cell.content}
             options={{
