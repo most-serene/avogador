@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.courseservice.controllers;
 
+import eu.mostserene.avogador.courseservice.amqp.Sender;
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.courses.CourseController;
 import eu.mostserene.avogador.courseservice.courses.CourseRepository;
@@ -24,27 +25,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @WebMvcTest(CourseController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class CourseControllerTests {
-    private @Autowired MockMvc mvc;
-    private @MockBean CourseRepository repository;
-    private @MockBean UserCourseService userCourseService;
-    private @MockBean CourseService courseService;
-    private @MockBean UserService userService;
-    private @MockBean StorageService storageService;
-    private @MockBean ProfileManager profileManager;
-
-    private @MockBean BuildProperties buildProperties;
-
     // COURSES
     private final Course course = new Course("course", "2023/2024", false);
     private final Course archivedCourse = new Course("archivedCourse", "2023/2024", true);
@@ -57,7 +47,9 @@ public class CourseControllerTests {
     private final UserDto studentUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), "student@stud.unive.it", "Andy", "Bernard", false, false);
     private final UserDto collaboratorUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000002"), "collaborator@stud.unive.it", "Dwight", "Schrute", false, false);
     private final UserDto professorUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000003"), "professor@unive.it", "Michael", "Scott", true, false);
+    private final UserDto superuser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000004"), "root@unive.it", "Andy", "Bernard", false, true);
     // COURSE-USERS
+    private final UserCourse superuserExternal = new UserCourse(superuser, course, CourseRole.EXTERNAL);
     private final UserCourse student = new UserCourse(studentUser, course, CourseRole.STUDENT);
     private final UserCourse collaborator = new UserCourse(studentUser, course, CourseRole.COLLABORATOR);
     private final UserCourse admin = new UserCourse(studentUser, course, CourseRole.ADMIN);
@@ -66,15 +58,23 @@ public class CourseControllerTests {
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String collaboratorHeader = "{\"id\":\"00000000-0000-0000-0000-000000000002\", \"email\":\"collaborator@stud.unive.it\", \"givenName\":\"Dwight\", \"familyName\":\"Schrute\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String professorHeader = "{\"id\":\"00000000-0000-0000-0000-000000000003\", \"email\":\"professor@stud.unive.it\", \"givenName\":\"Michael\", \"familyName\":\"Scott\", \"isProfessor\":true, \"isSuperuser\":false}";
-
-
+    private final String superuserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000004\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Michael\", \"familyName\":\"Scott\", \"isProfessor\":false, \"isSuperuser\":true}";
+    private @Autowired MockMvc mvc;
+    private @MockBean CourseRepository repository;
+    private @MockBean UserCourseService userCourseService;
+    private @MockBean CourseService courseService;
+    private @MockBean UserService userService;
+    private @MockBean StorageService storageService;
+    private @MockBean ProfileManager profileManager;
+    private @MockBean Sender sender;
+    private @MockBean BuildProperties buildProperties;
 
     @Nested
-    class CreateCourse{
+    class CreateCourse {
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(courseService.createCourse(any()))
-                .thenReturn(course);
+                    .thenReturn(course);
 
             mvc.perform(post("/public/courses")
                             .header("User", studentHeader)
@@ -86,9 +86,9 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromProfessor_get200() throws Exception{
+        public void fromProfessor_get200() throws Exception {
             when(courseService.createCourse(any()))
-                .thenReturn(course);
+                    .thenReturn(course);
 
             mvc.perform(post("/public/courses")
                             .header("User", professorHeader)
@@ -100,7 +100,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromProfessor_withArchivedTrue_get200() throws Exception{
+        public void fromProfessor_withArchivedTrue_get200() throws Exception {
             when(courseService.createCourse(any()))
                     .thenReturn(course);
 
@@ -116,11 +116,11 @@ public class CourseControllerTests {
     }
 
     @Nested
-    class UpdateCourse{
+    class UpdateCourse {
         @Test
-        public void wrongId_get400() throws Exception{
+        public void wrongId_get400() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000002")
                             .header("User", studentHeader)
@@ -132,9 +132,9 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromOutside_get403() throws Exception{
+        public void fromOutside_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
@@ -146,9 +146,9 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.of(student));
+                    .thenReturn(Optional.of(student));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
@@ -160,7 +160,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void withArchivedTrue_get403() throws Exception{
+        public void withArchivedTrue_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
 
@@ -174,11 +174,11 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromCollaborator_get200() throws Exception{
+        public void fromCollaborator_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.of(collaborator));
+                    .thenReturn(Optional.of(collaborator));
             when(courseService.updateCourse(any(), any()))
-                .thenReturn(updatedCourse);
+                    .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", collaboratorHeader)
@@ -190,11 +190,11 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromAdmin_get200() throws Exception{
+        public void fromAdmin_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.of(admin));
+                    .thenReturn(Optional.of(admin));
             when(courseService.updateCourse(any(), any()))
-                .thenReturn(updatedCourse);
+                    .thenReturn(updatedCourse);
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", professorHeader)
@@ -207,9 +207,9 @@ public class CourseControllerTests {
     }
 
     @Nested
-    class GetCourseById{
+    class GetCourseById {
         @Test
-        public void wrongCourseId_get404() throws Exception{
+        public void wrongCourseId_get404() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.empty());
 
@@ -219,11 +219,11 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void notMember_get200_externalRole() throws Exception{
+        public void notMember_get200_externalRole() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
@@ -232,7 +232,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromStudent_archivedCourse_get403() throws Exception{
+        public void fromStudent_archivedCourse_get403() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
@@ -244,13 +244,13 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromAdmin_archivedCourse_get200() throws Exception{
+        public void fromAdmin_archivedCourse_get200() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
             when(courseService.getJoinCode(any()))
-                        .thenReturn(Optional.of("joincode"));
+                    .thenReturn(Optional.of("joincode"));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
@@ -258,11 +258,11 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void isMember_get200() throws Exception{
+        public void isMember_get200() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
-                .thenReturn(Optional.of(student));
+                    .thenReturn(Optional.of(student));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
@@ -270,7 +270,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void isStudent_get200_nullJoinCode() throws Exception{
+        public void isStudent_get200_nullJoinCode() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
@@ -283,7 +283,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void isAdmin_get200_nullJoinCode() throws Exception{
+        public void isAdmin_get200_nullJoinCode() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
@@ -299,9 +299,9 @@ public class CourseControllerTests {
     }
 
     @Nested
-    class DeleteCourse{
+    class DeleteCourse {
         @Test
-        public void fromOutside_get403() throws Exception{
+        public void fromOutside_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
 
@@ -311,7 +311,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student));
 
@@ -321,7 +321,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromCollaborator_get403() throws Exception{
+        public void fromCollaborator_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(collaborator));
 
@@ -331,7 +331,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromAdmin_get200() throws Exception{
+        public void fromAdmin_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
 
@@ -344,7 +344,7 @@ public class CourseControllerTests {
     @Nested
     class ArchiveCourse {
         @Test
-        public void fromOutside_get403() throws Exception{
+        public void fromOutside_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
 
@@ -354,7 +354,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student));
 
@@ -364,7 +364,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromCollaborator_get403() throws Exception{
+        public void fromCollaborator_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(collaborator));
 
@@ -374,11 +374,28 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromAdmin_get200() throws Exception{
+        public void fromAdmin_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
 
+            when(courseService.archiveCourse(any()))
+                    .thenReturn(archivedCourse);
+
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/archive").header("User", professorHeader))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.isArchived").value(true));
+        }
+
+        @Test
+        public void fromSuperuser_get200() throws Exception {
+            when(userCourseService.getUserCourse(any(), any()))
+                    .thenReturn(Optional.of(superuserExternal));
+
+            when(courseService.archiveCourse(any()))
+                    .thenReturn(archivedCourse);
+
+            mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/archive").header("User", superuserHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isArchived").value(true));
