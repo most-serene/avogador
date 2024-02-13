@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import { Testcase } from "@exercises/types.ts";
 import { enqueueSnackbar } from "notistack";
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import { CircularProgress, Grid, Typography, useTheme } from "@mui/material";
 import { DiffEditor } from "@monaco-editor/react";
 
 interface SubmissionDetailIOTabProps {
@@ -17,6 +17,7 @@ const SubmissionDetailIOTab = ({
 }: SubmissionDetailIOTabProps) => {
   const { getSubmissionOutputs, getTestcasesFromExercise } =
     useExerciseService();
+  const theme = useTheme();
   const [outputs, setOutputs] = useState<Record<string, string | undefined>>();
   const [testcases, setTestcases] = useState<Testcase[]>();
 
@@ -71,7 +72,7 @@ const SubmissionDetailIOTab = ({
           <Grid item xs={7}>
             <Typography variant="body1">Output</Typography>
             <DiffEditor
-              theme="vs-dark"
+              theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
               original={testcase.output}
               modified={outputs[testcase.id]}
               options={{
