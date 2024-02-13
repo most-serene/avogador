@@ -59,8 +59,8 @@ public class CourseStorageImpl implements CourseStorage {
                 FileUtils.deleteQuietly(archive);
                 throw new RuntimeException("Course archive renaming failed");
             }
-            FileUtils.deleteDirectory(get());
-            log.info(LoggerColors.success("Course " + this.getCourseId() + ": archive created and folder deleted"));
+            // FileUtils.deleteDirectory(get());
+            log.info(LoggerColors.success("Course " + this.getCourseId() + ": archive created")); // and folder deleted
             return true;
         } catch (Exception exception) {
             log.error(LoggerColors.error(exception.toString()));
