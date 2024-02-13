@@ -3,6 +3,10 @@ import { Editor } from "@monaco-editor/react";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import { CircularProgress, useTheme } from "@mui/material";
+import {
+  getCellBorderColor,
+  getCellBorderStyle,
+} from "@components/editor/editorUtils.ts";
 
 interface SubmissionViewerProps {
   template: Strox;
@@ -45,17 +49,6 @@ const SubmissionViewer = ({
     };
   }, [submissionCode, template.cells]);
 
-  const getCellBorderColor = (cellType: "EDITABLE" | "VISIBLE" | "HIDDEN") => {
-    switch (cellType) {
-      case "EDITABLE":
-        return "primary.main";
-      case "VISIBLE":
-        return "secondary.main";
-      case "HIDDEN":
-        return "secondary.main";
-    }
-  };
-
   if (code.length === 0 || cellsSize.length === 0) {
     return <CircularProgress />;
   }
@@ -68,12 +61,12 @@ const SubmissionViewer = ({
           sx={{
             borderLeft: 3,
             borderLeftColor: getCellBorderColor(cell.type),
-            borderLeftStyle: cell.type === "HIDDEN" ? "dashed" : "solid",
+            borderLeftStyle: getCellBorderStyle(cell.type),
           }}
         >
           <Editor
             height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)}px`}
-            theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+            theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
             language={language.toLowerCase()}
             value={cell.content}
             options={{

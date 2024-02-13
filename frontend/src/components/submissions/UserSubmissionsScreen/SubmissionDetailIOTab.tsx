@@ -72,7 +72,7 @@ const SubmissionDetailIOTab = ({
           <Grid item xs={7}>
             <Typography variant="body1">Output</Typography>
             <DiffEditor
-              theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+              theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
               original={testcase.output}
               modified={outputs[testcase.id]}
               options={{

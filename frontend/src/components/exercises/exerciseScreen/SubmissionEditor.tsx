@@ -14,6 +14,10 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
 import { Trial } from "@trials/types.ts";
+import {
+  getCellBorderColor,
+  getCellBorderStyle,
+} from "@components/editor/editorUtils.ts";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -140,17 +144,6 @@ const SubmissionEditor = ({
     return <CircularProgress />;
   }
 
-  const getCellBorderColor = (cellType: "EDITABLE" | "VISIBLE" | "HIDDEN") => {
-    switch (cellType) {
-      case "EDITABLE":
-        return "primary.main";
-      case "VISIBLE":
-        return "secondary.main";
-      case "HIDDEN":
-        return "secondary.main";
-    }
-  };
-
   return (
     <Box position="relative" height="100%">
       <EditorToolbar
@@ -170,14 +163,14 @@ const SubmissionEditor = ({
             sx={{
               borderLeft: 3,
               borderLeftColor: getCellBorderColor(cell.type),
-              borderLeftStyle: cell.type === "HIDDEN" ? "dashed" : "solid",
+              borderLeftStyle: getCellBorderStyle(cell.type),
             }}
           >
             <Editor
               height={`${
                 24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)
               }px`}
-              theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+              theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
               language={trial?.language.toLowerCase()}
               value={cell.content}
               options={{
