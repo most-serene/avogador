@@ -122,6 +122,17 @@ const useCourseService = () => {
     [avogadorApi],
   );
 
+  const archiveCourse: (course: Course) => Promise<Course> = useCallback(
+    async (course: Course) => {
+      const { data: updatedCourse }: { data: Course } = await avogadorApi.put(
+        `/courses/${course.id}/archive`,
+        course,
+      );
+      return updatedCourse;
+    },
+    [avogadorApi],
+  );
+
   return {
     getCourseById,
     joinCourse,
@@ -132,6 +143,7 @@ const useCourseService = () => {
     createCourse,
     leaveCourse,
     updateCourse,
+    archiveCourse,
   };
 };
 
