@@ -13,12 +13,14 @@ import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { UserCourseDetail } from "@courses/types";
+import userAtom from "@authentication/userAtom.ts";
 
 const CourseSettingsTab = () => {
-  const { updateCourse } = useCourseService();
+  const { updateCourse, archiveCourse } = useCourseService();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [rename, setRename] = useState("");
   const [isError, setIsError] = useState(false);
+  const [user] = useAtom(userAtom);
 
   useEffect(() => {
     if (course) {
@@ -101,12 +103,28 @@ const CourseSettingsTab = () => {
           <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
             <ButtonWithConfirmation
               onConfirm={() => {
-                console.log("archived");
+                if (!course) return;
+                archiveCourse(course)
+                  .then((updatedCourse) => {
+                    enqueueSnackbar("archiving procedure has been dispatched", {
+                      variant: "info",
+                    });
+                    setCourse({
+                      ...course,
+                      isArchived: updatedCourse.isArchived,
+                    });
+                  })
+                  .catch((err: Error) => {
+                    enqueueSnackbar(err.message, { variant: "error" });
+                  });
               }}
               confirmText={"archive"}
               variant={"outlined"}
               color={"error"}
-              disabled={true}
+              disabled={
+                (course?.role !== "ADMIN" && (!user || !user.isSuperuser)) ||
+                course?.isArchived
+              }
               confirmColor={"error"}
             >
               Archive course
