@@ -11,12 +11,6 @@ interface SubmissionViewerProps {
   highlights?: [number, number][];
 }
 
-const highlightColorClasses = [
-  "redMonacoDecorator",
-  "cyanMonacoDecorator",
-  "yellowMonacoDecorator",
-];
-
 const SubmissionViewer = ({
   template,
   submissionCode,
@@ -26,6 +20,12 @@ const SubmissionViewer = ({
   const theme = useTheme();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [code, setCode] = useState<StroxCell[]>([]);
+
+  const highlightColorClasses = [
+    `redMonacoDecorator ${theme.palette.mode}`,
+    `cyanMonacoDecorator ${theme.palette.mode}`,
+    `yellowMonacoDecorator ${theme.palette.mode}`,
+  ];
 
   useEffect(() => {
     let i = 0;
