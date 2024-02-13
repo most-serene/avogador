@@ -28,18 +28,18 @@ public class CourseController {
 
 
     /**
-     * @param user the request user
+     * @param user      the request user
      * @param reqCourse the course from the body of the request
      * @return the freshly created course with status code 200
      * @throws ResponseStatusException(403) if the user is not professor
      */
     @PostMapping("")
     private Course createCourse(@RequestHeader(name = "User") UserDto user, @RequestBody Course reqCourse) {
-        if(!user.getIsProfessor()){
+        if (!user.getIsProfessor()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot create a course");
         }
 
-        if (courseService.getByNameAndYear(reqCourse.getName(), reqCourse.getYear()).isPresent()){
+        if (courseService.getByNameAndYear(reqCourse.getName(), reqCourse.getYear()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Already existing course");
         }
 
@@ -51,17 +51,17 @@ public class CourseController {
     }
 
     /**
-     * @param user the request user
-     * @param courseId the id of the course to update
+     * @param user      the request user
+     * @param courseId  the id of the course to update
      * @param reqCourse the updated course from the body of the request
      * @return the updated course
      * @throws ResponseStatusException(400) if courseId and reqCourse.id mismatch
      * @throws ResponseStatusException(403) if the user is not part of the course or has student role
      * @throws ResponseStatusException(403) if the course is archived
-     * */
+     */
     @PutMapping("/{courseId}")
-    private Course updateCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @RequestBody Course reqCourse){
-        if (!Objects.equals(reqCourse.getId(), courseId)){
+    private Course updateCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @RequestBody Course reqCourse) {
+        if (!Objects.equals(reqCourse.getId(), courseId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course Id mismatch");
         }
 
@@ -70,10 +70,10 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course"));
         var course = userCourse.getCourse();
 
-        if (userCourse.getRole() == CourseRole.STUDENT){
+        if (userCourse.getRole() == CourseRole.STUDENT) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot modify this course");
         }
-        if (course.getIsArchived()){
+        if (course.getIsArchived()) {
             throw new ArchivedCourseException();
         }
 
@@ -81,18 +81,18 @@ public class CourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course
      * @return the course corresponding to the id together with the joinCode
      * @throws ResponseStatusException(403) if the UserCourse relation does not exist
      * @throws ResponseStatusException(500) if the CourseService couldn't create a join code
-     * */
+     */
     @GetMapping("/{courseId}")
     private CourseDetailDto getCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) { // TODO: this will eventually return more data, such as list of trials
         var course = courseService.getCourse(courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This course doesn't exists"));
 
-        var userCourse =  userCourseService
+        var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId);
         if (userCourse.isEmpty() && !course.getIsArchived())
             return new CourseDetailDto(course, CourseRole.EXTERNAL);
@@ -103,7 +103,7 @@ public class CourseController {
         if (course.getIsArchived() && userRole != CourseRole.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
 
-        if (userRole == CourseRole.STUDENT){
+        if (userRole == CourseRole.STUDENT) {
             return new CourseDetailDto(course, userRole);
         }
         var joinCode = courseService.getJoinCode(courseId)
@@ -114,17 +114,17 @@ public class CourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course to delete
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
-     * */
+     */
     @DeleteMapping("/{courseId}")
-    private void deleteCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
+    private void deleteCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) {
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
 
-        if (userCourse.getRole() != CourseRole.ADMIN){
+        if (userCourse.getRole() != CourseRole.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
         }
 
@@ -133,26 +133,26 @@ public class CourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course to archive
      * @return the archived course
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
-     * */
+     */
     @PutMapping("/{courseId}/archive")
-    private Course archiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId){
+    private Course archiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) {
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course"));
-        var course = userCourse.getCourse();
 
-        if (userCourse.getRole() != CourseRole.ADMIN){
+        if (userCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course");
         }
 
-        course.setIsArchived(true);
-        storageService.archiveCourse(courseId);
-
-        return course;
+        try {
+            return courseService.archiveCourse(userCourse);
+        } catch (Exception exception) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+        }
     }
 
 
