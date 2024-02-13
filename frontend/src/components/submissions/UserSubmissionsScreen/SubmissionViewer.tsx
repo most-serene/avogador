@@ -45,6 +45,17 @@ const SubmissionViewer = ({
     };
   }, [submissionCode, template.cells]);
 
+  const getCellBorderColor = (cellType: "EDITABLE" | "VISIBLE" | "HIDDEN") => {
+    switch (cellType) {
+      case "EDITABLE":
+        return "primary.main";
+      case "VISIBLE":
+        return "secondary.main";
+      case "HIDDEN":
+        return "secondary.main";
+    }
+  };
+
   if (code.length === 0 || cellsSize.length === 0) {
     return <CircularProgress />;
   }
@@ -56,9 +67,8 @@ const SubmissionViewer = ({
           key={i}
           sx={{
             borderLeft: 3,
-            borderLeftColor:
-              cell.type === "EDITABLE" ? "primary.main" : "rgba(0,0,0,0)",
-            borderLeftStyle: "solid",
+            borderLeftColor: getCellBorderColor(cell.type),
+            borderLeftStyle: cell.type === "HIDDEN" ? "dashed" : "solid",
           }}
         >
           <Editor

@@ -30,10 +30,29 @@ const EditorCell = ({
     }
   };
 
+  const getCellBorderColor = (cellType: "EDITABLE" | "VISIBLE" | "HIDDEN") => {
+    switch (cellType) {
+      case "EDITABLE":
+        return "primary.main";
+      case "VISIBLE":
+        return "secondary.main";
+      case "HIDDEN":
+        return "secondary.main";
+    }
+  };
+
   return (
-    <Box position="relative" className="show-on-hover-source">
+    <Box
+      position="relative"
+      className="show-on-hover-source"
+      sx={{
+        borderLeft: 3,
+        borderLeftColor: getCellBorderColor(cell.type),
+        borderLeftStyle: cell.type === "HIDDEN" ? "dashed" : "solid",
+      }}
+    >
       <Editor
-        height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
+        height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 0.2)}px`}
         language={language?.toLowerCase()}
         theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
         options={{
