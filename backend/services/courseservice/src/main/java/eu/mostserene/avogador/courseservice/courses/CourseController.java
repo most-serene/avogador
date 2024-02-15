@@ -149,7 +149,7 @@ public class CourseController {
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot get the archive of this course"));
 
-        if (userCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
+        if (userCourse.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot get the archive of this course");
         }
 
