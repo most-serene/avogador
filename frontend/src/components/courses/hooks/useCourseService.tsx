@@ -6,9 +6,12 @@ import {
   UserCourseDetail,
   UserCourse,
 } from "@courses/types";
-import { AxiosError } from "axios";
+// eslint-disable-next-line import/named
+import { AxiosError, AxiosProgressEvent } from "axios";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom";
+import { enqueueSnackbar } from "notistack";
+import { saveResponseToFile } from "../../../utils/fileHandling.ts";
 
 const useCourseService = () => {
   const avogadorApi = useAvogadorApi();
@@ -122,6 +125,30 @@ const useCourseService = () => {
     [avogadorApi],
   );
 
+  const downloadCourseArchive: (
+    course: Course,
+    onDownloadProgress: (progressEvent: AxiosProgressEvent) => void,
+  ) => Promise<void> = useCallback(
+    async (
+      course: Course,
+      onDownloadProgress: (progressEvent: AxiosProgressEvent) => void,
+    ) => {
+      enqueueSnackbar("download started", { variant: "info" });
+      try {
+        const res = await avogadorApi.get(`/courses/${course.id}/archive`, {
+          responseType: "blob",
+          onDownloadProgress: onDownloadProgress,
+        });
+        saveResponseToFile(res, `${course.name}.tar.gz`);
+        return Promise.resolve();
+      } catch (err) {
+        enqueueSnackbar((err as Error).message, { variant: "error" });
+        return Promise.reject();
+      }
+    },
+    [avogadorApi],
+  );
+
   const archiveCourse: (course: Course) => Promise<Course> = useCallback(
     async (course: Course) => {
       const { data: updatedCourse }: { data: Course } = await avogadorApi.put(
@@ -144,6 +171,7 @@ const useCourseService = () => {
     leaveCourse,
     updateCourse,
     archiveCourse,
+    downloadCourseArchive,
   };
 };
 
