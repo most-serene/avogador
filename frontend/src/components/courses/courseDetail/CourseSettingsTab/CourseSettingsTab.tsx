@@ -1,6 +1,8 @@
 import {
+  Button,
   Card,
   CardContent,
+  CircularProgress,
   Divider,
   TextField,
   Typography,
@@ -16,11 +18,13 @@ import { UserCourseDetail } from "@courses/types";
 import userAtom from "@authentication/userAtom.ts";
 
 const CourseSettingsTab = () => {
-  const { updateCourse, archiveCourse } = useCourseService();
+  const { updateCourse, archiveCourse, downloadCourseArchive } =
+    useCourseService();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [rename, setRename] = useState("");
   const [isError, setIsError] = useState(false);
   const [user] = useAtom(userAtom);
+  const [downloading, setDownloading] = useState<boolean>(false);
 
   useEffect(() => {
     if (course) {
@@ -129,6 +133,31 @@ const CourseSettingsTab = () => {
             >
               Archive course
             </ButtonWithConfirmation>
+          </Box>
+          <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
+            {downloading ? (
+              <CircularProgress />
+            ) : (
+              <Button
+                variant={"outlined"}
+                disabled={course?.isArchived === false}
+                onClick={() => {
+                  if (!course) return;
+                  setDownloading(true);
+                  downloadCourseArchive(course, (progressEvent) => {
+                    console.log(progressEvent);
+                  })
+                    .then(() => {
+                      setDownloading(false);
+                    })
+                    .catch(() => {
+                      setDownloading(false);
+                    });
+                }}
+              >
+                download archive
+              </Button>
+            )}
           </Box>
         </CardContent>
       </Card>
