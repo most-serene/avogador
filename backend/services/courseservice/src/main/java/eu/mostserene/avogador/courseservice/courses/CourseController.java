@@ -6,8 +6,13 @@ import eu.mostserene.avogador.courseservice.usercourses.CourseRole;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
+import eu.mostserene.avogador.courseservice.utils.BadRequestException;
+import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -135,6 +140,35 @@ public class CourseController {
     /**
      * @param user     the request user
      * @param courseId the id of the course to archive
+     * @return the course archive
+     * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
+     */
+    @GetMapping("/{courseId}/archive")
+    private ResponseEntity<Resource> getArchiveCourseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) {
+        var userCourse = userCourseService
+                .getUserCourse(user.getId(), courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot get the archive of this course"));
+
+        if (userCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot get the archive of this course");
+        }
+
+        if (!userCourse.getCourse().getIsArchived()) {
+            throw new BadRequestException("The course is not archived");
+        }
+
+        Course course = userCourse.getCourse();
+        Resource courseArchive = storageService.getCourseArchive(course.getId())
+                .orElseThrow(() -> new NotFoundException("Course - " + course.getId() + ": archive not found"));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + course.getName() + ".tar.gz\"")
+                .body(courseArchive);
+    }
+
+    /**
+     * @param user     the request user
+     * @param courseId the id of the course to archive
      * @return the archived course
      * @throws ResponseStatusException(403) if the user is not part of the course or doesn't have admin role
      */
@@ -148,12 +182,13 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot archive this course");
         }
 
+        userCourse.getCourse().requireNotArchived();
+
         try {
             return courseService.archiveCourse(userCourse);
         } catch (Exception exception) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
         }
     }
-
 
 }
