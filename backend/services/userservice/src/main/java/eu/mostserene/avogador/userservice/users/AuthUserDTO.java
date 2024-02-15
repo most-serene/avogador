@@ -28,7 +28,7 @@ public class AuthUserDTO {
     }
 
     /**
-     * Ensures that the user has the give id
+     * Ensures that the user has the given id
      * @param requiredId the required id
      * @return this if granted, empty otherwise
      */
