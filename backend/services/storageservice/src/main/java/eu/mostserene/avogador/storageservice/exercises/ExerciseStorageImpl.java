@@ -101,17 +101,6 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         submission.setPath(submissionFolder + "/submission.strox");
         submission.setOutputs(new HashMap<>());
         stroxStorage.saveToFile(submission);
-        String sourceCode = Strox.merge(getTemplate()
-                        .orElseThrow(() -> new FileNotFoundException("Template of exercise " + submissionId + " not found")), submission)
-                .generateSourceCode();
-
-        File sourceFile = new File(submissionFolder + "/source/" + submission.getSourceFileName());
-
-        try {
-            Files.writeString(sourceFile.toPath(), sourceCode);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -123,12 +112,24 @@ public class ExerciseStorageImpl implements ExerciseStorage {
     @Override
     public Optional<File> getSubmissionCode(UUID submissionId) {
         File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionId);
-        if (!new File(submissionFolder + "/source").exists()) return Optional.empty();
+
+        Strox submission = (new StroxStorageImpl())
+                .loadFromFile(Path.of(submissionFolder + "/submission.strox"))
+                .orElseThrow(() -> new FileNotFoundException("Strox of submission " + submissionId + " not found"));
+
+        File sourceFile = new File(submissionFolder + "/source/" + submission.getSourceFileName());
+        (new File(submissionFolder + "/source")).mkdirs();
+        String sourceCode = Strox.merge(getTemplate()
+                        .orElseThrow(() -> new FileNotFoundException("Template of exercise " + getExerciseId() + " not found")), submission)
+                .generateSourceCode();
 
         try {
-            return Optional.of(CompressionUtils.createTarGzipFolder(Path.of(submissionFolder + "/source")));
+            Files.writeString(sourceFile.toPath(), sourceCode);
+            Optional<File> submissionCodeArchiveOptional = Optional.of(CompressionUtils.createTarGzipFolder(Path.of(submissionFolder + "/source")));
+            FileUtils.deleteDirectory(new File(submissionFolder + "/source"));
+            return submissionCodeArchiveOptional;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return Optional.empty();
         }
     }
 
@@ -240,6 +241,23 @@ public class ExerciseStorageImpl implements ExerciseStorage {
                         log.info(LoggerColors.cyan(getSubmissionsFolder() + "/" + submissionFolderName + "/source"));
                         log.info(LoggerColors.cyan(exportingSubmissionDirectory.getPath()));
 
+                        new File(getSubmissionsFolder() + "/" + submissionFolderName + "/source").mkdir();
+                        File submissionFolder = new File(getSubmissionsFolder() + "/" + submissionFolderName);
+
+                        Strox submission = (new StroxStorageImpl())
+                                .loadFromFile(Path.of(submissionFolder + "/submission.strox"))
+                                .orElseThrow(() -> new FileNotFoundException("Strox of submission " + submissionFolderName + " not found"));
+                        File sourceFile = new File(submissionFolder + "/source/" + submission.getSourceFileName());
+                        String sourceCode = Strox.merge(getTemplate()
+                                        .orElseThrow(() -> new FileNotFoundException("Template of exercise " + getExerciseId() + " not found")), submission)
+                                .generateSourceCode();
+
+                        try {
+                            Files.writeString(sourceFile.toPath(), sourceCode);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
                         Arrays.stream(Objects.requireNonNull(new File(getSubmissionsFolder() + "/" + submissionFolderName + "/source").list()))
                                 .forEach(s -> {
                                     try {
@@ -251,6 +269,11 @@ public class ExerciseStorageImpl implements ExerciseStorage {
                                     }
                                 });
 
+                        try {
+                            FileUtils.deleteDirectory(new File(submissionFolder + "/source"));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     });
 
             Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
