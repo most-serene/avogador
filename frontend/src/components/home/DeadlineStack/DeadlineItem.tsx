@@ -36,11 +36,7 @@ const DeadlineItem = ({ trial, course }: DeadlineItemProps) => {
       raised
       style={getStyle()}
       onClick={() => {
-        if (isPractice(trial)) {
-          navigate(`/practices/${trial.id}`);
-        } else {
-          navigate(`/exams/${trial.id}`);
-        }
+        navigate(`/trials/${trial.id}`);
       }}
     >
       <CardActionArea>

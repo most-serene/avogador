@@ -156,7 +156,7 @@ const ExerciseSettingsStepper = ({
                   .then(() => {
                     setTimeout(() => {
                       setCreationStatus("");
-                      navigate(`/practices/${exercise.trialId}`);
+                      navigate(`/trials/${exercise.trialId}`);
                     }, 2000); // TODO: remove this delay after fixing rabbit waiting
                   })
                   .catch((err: Error) => {
@@ -181,7 +181,7 @@ const ExerciseSettingsStepper = ({
                   .then(() => {
                     setCreationStatus("");
                     navigate(
-                      `/practices/${exercise.trialId}/exercises/${exerciseId}`,
+                      `/trials/${exercise.trialId}/exercises/${exerciseId}`,
                     );
                   })
                   .catch((err: Error) => {

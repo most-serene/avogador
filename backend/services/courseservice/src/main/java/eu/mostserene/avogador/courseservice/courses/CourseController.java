@@ -105,7 +105,7 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"))
                 .getRole();
 
-        if (course.getIsArchived() && userRole != CourseRole.ADMIN)
+        if (course.getIsArchived() && userRole.getClearance() < CourseRole.COLLABORATOR.getClearance())
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
 
         if (userRole == CourseRole.STUDENT) {

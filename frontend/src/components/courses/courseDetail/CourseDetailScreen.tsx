@@ -4,7 +4,10 @@ import { useEffect } from "react";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { AxiosError } from "axios";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
-import { ResourceNotFoundError } from "@components/error/types.ts";
+import {
+  ForbiddenError,
+  ResourceNotFoundError,
+} from "@components/error/types.ts";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
@@ -60,6 +63,15 @@ export default function CourseDetailScreen() {
       >
         <CircularProgress size={80} />
       </Box>
+    );
+  }
+
+  if (course.role === "EXTERNAL") {
+    globalErrorSetter(
+      new ForbiddenError(
+        location.pathname,
+        `${user.email} does not belong to the associated course`,
+      ),
     );
   }
 
