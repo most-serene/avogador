@@ -7,7 +7,6 @@ interface CourseOverviewTabProps {
 }
 
 const CourseOverviewStudentTab = ({ course }: CourseOverviewTabProps) => {
-  console.log(course);
   return (
     <Grid height={"100%"} container spacing={2}>
       <Grid item xs={12}>

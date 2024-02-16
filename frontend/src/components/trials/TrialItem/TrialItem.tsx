@@ -17,12 +17,12 @@ interface TrialItemProps {
   trial: Trial;
 }
 
-const TrialItem = ({ trial }: TrialItemProps) => {
+const TrialItem = ({ trial: originalTrial }: TrialItemProps) => {
   const { updatePractice } = useTrialService();
   const { getCourseById } = useCourseService();
   const [user] = useAtom(userAtom);
   const [course, setCourse] = useState<CourseDetail>();
-  const [trialState, setTrialState] = useState(trial);
+  const [trial, setTrial] = useState(originalTrial);
 
   useEffect(() => {
     getCourseById(trial.courseId)
@@ -35,7 +35,7 @@ const TrialItem = ({ trial }: TrialItemProps) => {
   }, [getCourseById, trial.courseId]);
 
   if (
-    isPractice(trialState) &&
+    isPractice(trial) &&
     (course?.role === "COLLABORATOR" ||
       course?.role === "ADMIN" ||
       (user && user.isSuperuser))
@@ -45,11 +45,11 @@ const TrialItem = ({ trial }: TrialItemProps) => {
         menu={
           <Box>
             <MenuItem
-              disabled={trialState.isVisible}
+              disabled={trial.isVisible}
               onClick={() => {
-                updatePractice({ ...trialState, isVisible: true })
+                updatePractice({ ...trial, isVisible: true })
                   .then((updatedTrial) => {
-                    setTrialState(updatedTrial);
+                    setTrial(updatedTrial);
                   })
                   .catch((err: Error) => {
                     enqueueSnackbar(err.message, { variant: "error" });
@@ -59,11 +59,11 @@ const TrialItem = ({ trial }: TrialItemProps) => {
               Set visible
             </MenuItem>
             <MenuItem
-              disabled={!trialState.isVisible}
+              disabled={!trial.isVisible}
               onClick={() => {
-                updatePractice({ ...trialState, isVisible: false })
+                updatePractice({ ...trial, isVisible: false })
                   .then((updatedTrial) => {
-                    setTrialState(updatedTrial);
+                    setTrial(updatedTrial);
                   })
                   .catch((err: Error) => {
                     enqueueSnackbar(err.message, { variant: "error" });
@@ -75,15 +75,19 @@ const TrialItem = ({ trial }: TrialItemProps) => {
           </Box>
         }
       >
-        <PracticeItem practice={trialState} />
+        {isPractice(trial) ? (
+          <PracticeItem practice={trial} />
+        ) : (
+          <ExamItem exam={trial} />
+        )}
       </ContextMenuWrapper>
     );
   }
-  if (isPractice(trialState)) {
-    return <PracticeItem practice={trialState} />;
+  if (isPractice(trial)) {
+    return <PracticeItem practice={trial} />;
   }
-  if (isExam(trialState)) {
-    return <ExamItem exam={trialState} />;
+  if (isExam(trial)) {
+    return <ExamItem exam={trial} />;
   }
 
   return (

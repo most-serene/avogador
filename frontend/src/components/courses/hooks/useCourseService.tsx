@@ -133,7 +133,7 @@ const useCourseService = () => {
       course: Course,
       onDownloadProgress: (progressEvent: AxiosProgressEvent) => void,
     ) => {
-      enqueueSnackbar("download started", { variant: "info" });
+      enqueueSnackbar("Download started", { variant: "info" });
       try {
         const res = await avogadorApi.get(`/courses/${course.id}/archive`, {
           responseType: "blob",

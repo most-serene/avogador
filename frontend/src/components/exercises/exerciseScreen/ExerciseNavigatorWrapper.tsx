@@ -105,11 +105,7 @@ const ExerciseNavigatorWrapper = () => {
       enqueueSnackbar("Keep calm!", { variant: "error" });
       return;
     }
-    navigate(
-      `/${
-        trial?.trialType === "PRACTICE" ? "practices" : "exams"
-      }/${trialId}/exercises/${exercises[newValue].id}`,
-    );
+    navigate(`/trials/${trialId}/exercises/${exercises[newValue].id}`);
   };
 
   const setTimeLeftHandler = (trial: Trial) => {
@@ -163,11 +159,7 @@ const ExerciseNavigatorWrapper = () => {
         <Button
           fullWidth
           onClick={() => {
-            navigate(
-              `/${
-                trial.trialType === "PRACTICE" ? "practices" : "exams"
-              }/${trialId}`,
-            );
+            navigate(`/trials/${trialId}`);
           }}
         >
           <ChevronLeft />

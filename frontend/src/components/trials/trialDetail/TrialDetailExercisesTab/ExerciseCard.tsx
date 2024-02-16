@@ -71,7 +71,7 @@ const ExerciseCard = ({
         <CardActionArea
           onClick={() => {
             if (isPractice(trial)) {
-              navigate(`/practices/${trial.id}/exercises/${exercise.id}`);
+              navigate(`/trials/${trial.id}/exercises/${exercise.id}`);
             }
           }}
         >
