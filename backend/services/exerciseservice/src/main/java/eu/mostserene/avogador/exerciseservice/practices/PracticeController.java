@@ -109,8 +109,10 @@ public class PracticeController {
             throw new ForbiddenException(user);
         }
 
-        if ((!storedPractice.getStartTimestamp().equals(practice.getStartTimestamp()) && !practice.areTimestampsValid())
-                || practice.getDeadline().compareTo(practice.getStartTimestamp()) < 0) {
+        boolean startNotValid = !storedPractice.getStartTimestamp().equals(practice.getStartTimestamp()) && !practice.areTimestampsValid();
+        boolean deadlineNotValid = practice.getDeadline().compareTo(practice.getStartTimestamp()) < 0;
+
+        if (startNotValid || deadlineNotValid) {
             throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
         }
 
