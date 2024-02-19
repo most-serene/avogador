@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +74,7 @@ public class PracticeController {
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
-        if (!practice.areTimestampsValid()){
+        if (!practice.areTimestampsValid()) {
             throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
         }
 
@@ -95,17 +94,25 @@ public class PracticeController {
         var storedPractice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
 
+        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
         if (!storedPractice.getId().equals(practice.getId())) {
             throw new BadRequestException("Id mismatch");
         }
+        if (!storedPractice.getCourseId().equals(practice.getCourseId())) {
+            throw new BadRequestException("CourseId mismatch");
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        }
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
-        if (!practice.areTimestampsValid()){
+
+        boolean startNotValid = !storedPractice.getStartTimestamp().equals(practice.getStartTimestamp()) && !practice.areTimestampsValid();
+        boolean deadlineNotValid = practice.getDeadline().compareTo(practice.getStartTimestamp()) < 0;
+
+        if (startNotValid || deadlineNotValid) {
             throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
         }
 
@@ -126,6 +133,10 @@ public class PracticeController {
         var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
+        if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
         Boolean canSeeHiddenExercises = user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance();
 
         return exerciseService.getExercisesFromTrial(practice, canSeeHiddenExercises);
@@ -145,7 +156,11 @@ public class PracticeController {
         var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()){
+        if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
+        if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
             return null;
         }
 
