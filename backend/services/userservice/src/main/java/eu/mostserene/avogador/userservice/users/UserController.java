@@ -2,13 +2,14 @@ package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.mail.EmailService;
+import eu.mostserene.avogador.userservice.profilemanager.Profile;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.ThirdPartyAuthUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
+import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -20,9 +21,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,9 +43,6 @@ public class UserController {
 
     @Autowired
     private ProfileManager profileManager;
-
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
 
     @GetMapping("")
     private List<AuthUserDTO> getUsers(@RequestHeader(name = "User") AuthUserDTO user) {
@@ -207,13 +202,8 @@ public class UserController {
             );
         });
 
-        ResponseCookie jwtCookie = profileManager.executeOnProfile(
-                this::buildDevelopJWT,
-                this::buildTestingJWT,
-                this::buildStagingJWT,
-                this::buildProductionJWT,
-                user
-        );
+        String jwtContent = authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1));
+        ResponseCookie jwtCookie = profileManager.getActiveProfile().buildJWT(user, jwtContent);
 
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
@@ -226,53 +216,6 @@ public class UserController {
 
     }
 
-    private ResponseCookie buildDevelopJWT(User user) {
-        return ResponseCookie.from("develop-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
-                .httpOnly(true)
-                .path("/")
-                .domain("localhost")
-                .secure(true)
-                .maxAge(Duration.ofDays(7))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie buildTestingJWT(User user) {
-        return ResponseCookie.from("testing-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
-                .httpOnly(true)
-                .path("/")
-                .secure(true)
-                .maxAge(Duration.ofDays(7))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie buildStagingJWT(User user) {
-        return ResponseCookie.from("staging-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
-                .httpOnly(true)
-                .path("/")
-                .domain("api.avogador.staging.mostserene.eu")
-                .secure(true)
-                .maxAge(Duration.ofDays(7))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie buildProductionJWT(User user) {
-        return ResponseCookie.from("__Secure-jwt")
-                .value(authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1)))
-                .httpOnly(true)
-                .path("/")
-                // .domain("api.avogador.mostserene.eu")
-                .secure(true)
-                .maxAge(Duration.ofDays(7))
-                .sameSite("Lax")
-                .build();
-    }
-
     /**
      * Logout from the application
      *
@@ -280,60 +223,7 @@ public class UserController {
      */
     @GetMapping("/logout")
     private void logoutUser(HttpServletResponse response) {
-        response.addHeader(HttpHeaders.SET_COOKIE,
-                profileManager.executeOnProfile(
-                        this::developLogout,
-                        this::testingLogout,
-                        this::stagingLogout,
-                        this::productionLogout
-                ).toString());
-    }
-
-    private ResponseCookie developLogout() {
-        return ResponseCookie.from("develop-jwt")
-                .value(null)
-                .httpOnly(true)
-                .path("/")
-                .domain("localhost")
-                .secure(true)
-                .maxAge(Duration.ofSeconds(1))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie testingLogout() {
-        return ResponseCookie.from("testing-jwt")
-                .value(null)
-                .httpOnly(true)
-                .path("/")
-                .secure(true)
-                .maxAge(Duration.ofSeconds(1))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie stagingLogout() {
-        return ResponseCookie.from("staging-jwt")
-                .value(null)
-                .httpOnly(true)
-                .path("/")
-                .domain("api.avogador.staging.mostserene.eu")
-                .secure(true)
-                .maxAge(Duration.ofSeconds(1))
-                .sameSite("None")
-                .build();
-    }
-
-    private ResponseCookie productionLogout() {
-        return ResponseCookie.from("__Secure-jwt")
-                .value(null)
-                .httpOnly(true)
-                .path("/")
-                // .domain("api.avogador.mostserene.eu")
-                .secure(true)
-                .maxAge(Duration.ofSeconds(1))
-                .sameSite("Lax")
-                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, profileManager.getActiveProfile().logout().toString());
     }
 
 

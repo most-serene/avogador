@@ -5,7 +5,7 @@ import eu.mostserene.avogador.userservice.apikey.ApiKeyController;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.users.*;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
+import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

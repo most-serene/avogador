@@ -3,12 +3,13 @@ package eu.mostserene.avogador.userservice.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
+import eu.mostserene.avogador.userservice.profilemanager.Profile;
 import eu.mostserene.avogador.userservice.users.AuthUserDTO;
 import eu.mostserene.avogador.userservice.users.User;
 import eu.mostserene.avogador.userservice.users.UserService;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
+import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import io.jsonwebtoken.*;
 import io.sentry.Sentry;
 import jakarta.servlet.http.Cookie;
@@ -202,12 +203,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String extractJwt(HttpServletRequest request) {
         return Stream.of(request.getCookies() != null ? request.getCookies() : new Cookie[]{})
-                .filter(cookie -> (profileManager.executeOnProfile(
-                        () -> "develop-jwt",
-                        () -> "testing-jwt",
-                        () -> "staging-jwt",
-                        () -> "__Secure-jwt"
-                )).equals(cookie.getName()))
+                .filter(cookie -> profileManager.getActiveProfile().getJWTKey().equals(cookie.getName()))
                 .findFirst().orElseThrow(MissingJwtException::new).getValue();
     }
 

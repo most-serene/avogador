@@ -2,7 +2,7 @@ package eu.mostserene.avogador.userservice;
 
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
+import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import io.sentry.Sentry;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -39,15 +39,15 @@ public class UserServiceApplication {
 
 	@PostConstruct
 	private void postConstruct() {
-		String profile = profileManager.getActiveProfiles();
+		String profileName = profileManager.getActiveProfileName();
 
-		if ("staging".equals(profile) || "production".equals(profile)) {
+		if ("staging".equals(profileName) || "production".equals(profileName)) {
 			Sentry.init(options -> {
 				options.setDsn(sentryDSN);
 				options.setServerName(buildProperties.getName());
 				options.setRelease(buildProperties.getVersion());
 				options.setAttachStacktrace(true);
-				options.setEnvironment(profileManager.getActiveProfiles());
+				options.setEnvironment(profileManager.getActiveProfileName());
 			});
 		} else {
 			log.info(LoggerColors.warn("Remote Logger not active on develop - testing modes"));
