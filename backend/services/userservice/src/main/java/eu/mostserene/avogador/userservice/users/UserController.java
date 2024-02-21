@@ -2,20 +2,19 @@ package eu.mostserene.avogador.userservice.users;
 
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.mail.EmailService;
-import eu.mostserene.avogador.userservice.profilemanager.Profile;
+import eu.mostserene.avogador.userservice.profilemanager.ExecutionProfile;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.security.ThirdPartyAuthUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
-import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +41,7 @@ public class UserController {
     private EmailService emailService;
 
     @Autowired
-    private ProfileManager profileManager;
+    private ExecutionProfile executionProfile;
 
     @GetMapping("")
     private List<AuthUserDTO> getUsers(@RequestHeader(name = "User") AuthUserDTO user) {
@@ -203,7 +202,7 @@ public class UserController {
         });
 
         String jwtContent = authService.generateJWT(user, TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1));
-        ResponseCookie jwtCookie = profileManager.getActiveProfile().buildJWT(user, jwtContent);
+        ResponseCookie jwtCookie = executionProfile.buildJWT(user, jwtContent);
 
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
@@ -223,7 +222,7 @@ public class UserController {
      */
     @GetMapping("/logout")
     private void logoutUser(HttpServletResponse response) {
-        response.addHeader(HttpHeaders.SET_COOKIE, profileManager.getActiveProfile().logout().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, executionProfile.logout().toString());
     }
 
 
@@ -255,6 +254,7 @@ public class UserController {
     }
 
 
+    @Setter
     @Getter
     private static class AuthUserDTOImageHash extends AuthUserDTO {
         private String picture;
@@ -276,12 +276,5 @@ public class UserController {
             this.setHash(hash);
         }
 
-        public void setPicture(String picture) {
-            this.picture = picture;
-        }
-
-        public void setHash(String hash) {
-            this.hash = hash;
-        }
     }
 }

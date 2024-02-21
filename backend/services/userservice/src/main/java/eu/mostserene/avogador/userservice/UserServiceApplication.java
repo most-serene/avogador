@@ -1,8 +1,8 @@
 package eu.mostserene.avogador.userservice;
 
+import eu.mostserene.avogador.userservice.profilemanager.ExecutionProfile;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.utils.LoggerColors;
-import eu.mostserene.avogador.userservice.profilemanager.ProfileManager;
 import io.sentry.Sentry;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -30,7 +30,11 @@ public class UserServiceApplication {
 	private BuildProperties buildProperties;
 
 	@Autowired
-	private ProfileManager profileManager;
+	private ExecutionProfile executionProfile;
+
+	@Value("${spring.profiles.active}")
+	private String activeProfileName;
+
 
 	@GetMapping("/public/users/status")
 	String getStatus() {
@@ -39,15 +43,13 @@ public class UserServiceApplication {
 
 	@PostConstruct
 	private void postConstruct() {
-		String profileName = profileManager.getActiveProfileName();
-
-		if ("staging".equals(profileName) || "production".equals(profileName)) {
+		if ("staging".equals(activeProfileName) || "production".equals(activeProfileName)) {
 			Sentry.init(options -> {
 				options.setDsn(sentryDSN);
 				options.setServerName(buildProperties.getName());
 				options.setRelease(buildProperties.getVersion());
 				options.setAttachStacktrace(true);
-				options.setEnvironment(profileManager.getActiveProfileName());
+				options.setEnvironment(activeProfileName);
 			});
 		} else {
 			log.info(LoggerColors.warn("Remote Logger not active on develop - testing modes"));
