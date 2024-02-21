@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/public/courses")
@@ -35,27 +36,27 @@ public class UserCourseController {
     private StorageService storageService;
 
     /**
-     * @param user the request user
-     * @param courseId the course to join
+     * @param user        the request user
+     * @param courseId    the course to join
      * @param reqJoinCode the provided join code string
      * @return the fresh user-course relation or the already existing one
      * @throws ResponseStatusException(404) if the course does not exist
      * @throws ResponseStatusException(403) if the course is archived or the join code is wrong
      * @throws ResponseStatusException(500) if problems occurred while generating the join code
-     * */
+     */
     @PutMapping("/{courseId}/join/{reqJoinCode}")
-    private UserCourse joinCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable String reqJoinCode){
+    private UserCourse joinCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable String reqJoinCode) {
         var course = courseService.getCourse(courseId)
                 .orElseThrow(NotFoundException::new);
 
-        if (course.getIsArchived()){
+        if (course.getIsArchived()) {
             throw new ArchivedCourseException();
         }
 
         var joinCode = courseService.getJoinCode(courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        if (!reqJoinCode.equals(joinCode)){
+        if (!reqJoinCode.equals(joinCode)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong join code");
         }
 
@@ -64,28 +65,28 @@ public class UserCourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course
-     * @param userId the id of the user to promote
+     * @param userId   the id of the user to promote
      * @return the updated user-course relation with role COLLABORATOR
      * @throws ResponseStatusException(403) if the user is not part of the course, is not ADMIN or the course is archived
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/collaborators/{userId}")
-    private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
+    private UserCourse promoteToCollaborator(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId) {
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseGet(UserCourse::new);
-        if (reqUserCourse.getCourse() == null){
+        if (reqUserCourse.getCourse() == null) {
             reqUserCourse.setCourse(
                     courseService.getCourse(courseId)
                             .orElseThrow(() -> new NotFoundException("Course with id " + courseId.toString()))
             );
         }
 
-        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()){
+        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot promote users in this course");
         }
-        if (reqUserCourse.getCourse().getIsArchived()){
+        if (reqUserCourse.getCourse().getIsArchived()) {
             throw new ArchivedCourseException();
         }
 
@@ -96,29 +97,29 @@ public class UserCourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course
-     * @param userId the id of the user to demote
+     * @param userId   the id of the user to demote
      * @return the updated user-course relation with role STUDENT
      * @throws ResponseStatusException(403) if the user is not part of the course, is not ADMIN or the course is archived
      * @throws ResponseStatusException(400) if the user to promote is not part of the course
      */
     @PutMapping("/{courseId}/students/{userId}")
-    private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
+    private UserCourse demoteToStudent(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId) {
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseGet(UserCourse::new);
-        if (reqUserCourse.getCourse() == null){
+        if (reqUserCourse.getCourse() == null) {
             reqUserCourse.setCourse(
                     courseService.getCourse(courseId)
                             .orElseThrow(() -> new NotFoundException("Course with id " + courseId.toString()))
             );
         }
 
-        if (reqUserCourse.getCourse().getIsArchived()){
+        if (reqUserCourse.getCourse().getIsArchived()) {
             throw new ArchivedCourseException();
         }
 
-        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()){
+        if (reqUserCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot demote users in this course");
         }
 
@@ -129,49 +130,53 @@ public class UserCourseController {
     }
 
     /**
-     * @param user the request user
+     * @param user   the request user
      * @param userId the id of the user
      * @return the courses to which the user belongs
      * @throws ResponseStatusException(400) if the userId doesn't match the requester id
-     * */
+     */
     @GetMapping("/users/{userId}")
-    private List<UserCourse> getCoursesByUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
-        if (!userId.equals(user.getId())){
+    private List<UserCourse> getCoursesByUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId) {
+        if (!userId.equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You can't spy on others!");
         }
 
-        if (!user.getIsSuperuser()) {
-            return userCourseService.getCoursesByUserId(userId, false);
+        if (user.getIsSuperuser()) {
+            return courseService.getAll().stream()
+                    .map(course -> userCourseService.getUserCourse(userId, course.getId())
+                            .orElseGet(() -> new UserCourse(userId, course, CourseRole.EXTERNAL)))
+                    .toList();
+        } else {
+            return Stream.concat(
+                    userCourseService.getCoursesByUserId(userId, false).stream(),
+                    userCourseService.getCoursesByUserId(userId, true).stream()
+                            .filter(userCourse -> userCourse.getRole().getClearance() >= CourseRole.COLLABORATOR.getClearance())
+            ).toList();
         }
-
-        return courseService.getAll().stream()
-                .map(course -> userCourseService.getUserCourse(userId, course.getId())
-                        .orElseGet(() -> new UserCourse(userId, course, CourseRole.EXTERNAL)))
-                .toList();
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the id of the course
      * @return the users subscribed to the course
      * @throws ResponseStatusException(403) if the user is not part of the course or is a student
-     * */
+     */
     @GetMapping("/{courseId}/users")
     private List<UserCourseDetailDto> getUsersByCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @RequestParam Optional<Integer> limit,
-                                                       @RequestParam Optional<Integer> offset, @RequestParam Optional<String> orderBy, @RequestParam Optional<String> direction){
+                                                       @RequestParam Optional<Integer> offset, @RequestParam Optional<String> orderBy, @RequestParam Optional<String> direction) {
 
         var userCourse = userCourseService.getUserCourse(user.getId(), courseId)
                 .orElseGet(UserCourse::new);
-        if (userCourse.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()){
+        if (userCourse.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot see the participants of this course");
         }
 
         int offsetVal = offset.orElse(0);
         var orderByVal = orderBy.orElse("joinDate");
 
-        if (orderByVal.equals("joinDate") || orderByVal.equals("role")){
+        if (orderByVal.equals("joinDate") || orderByVal.equals("role")) {
             String directionVal = direction.orElse("ASC");
-            if (!directionVal.equals("ASC") && !directionVal.equals("DESC")){
+            if (!directionVal.equals("ASC") && !directionVal.equals("DESC")) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong order direction");
             }
 
@@ -186,7 +191,7 @@ public class UserCourseController {
         return userDetails.stream().map(u -> userCoursesMap.get(u.getId()).generateDto(u)).toList();
     }
 
-    private List<UserCourseDetailDto> preOrderedGetUsersByCourse(UUID courseId, Integer limit, Integer offset, String orderBy, String direction){
+    private List<UserCourseDetailDto> preOrderedGetUsersByCourse(UUID courseId, Integer limit, Integer offset, String orderBy, String direction) {
 
         Sort sort = Sort.by(direction.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, orderBy);
 
@@ -196,29 +201,29 @@ public class UserCourseController {
         Map<UUID, UserDto> userDetailsMap = userDetails.stream().collect(Collectors.toMap(UserDto::getId, u -> u));
 
         return userCourses.stream()
-                .map(userCourse -> userCourse.generateDto(userDetailsMap.get(userCourse.getUser())) )
+                .map(userCourse -> userCourse.generateDto(userDetailsMap.get(userCourse.getUser())))
                 .toList();
     }
 
     /**
-     * @param user the request user
+     * @param user     the request user
      * @param courseId the course id
-     * @param userId the user to be removed from the course
+     * @param userId   the user to be removed from the course
      * @throws ResponseStatusException(403) if the course is archived, the removed user has greater or equal clearance than the requester
      */
     @DeleteMapping("/{courseId}/users/{userId}")
-    private void leaveCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId){
+    private void leaveCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId, @PathVariable UUID userId) {
         var reqUserCourse = userCourseService.getUserCourse(user.getId(), courseId).
                 orElseThrow(NotMemberException::new);
 
-        if (reqUserCourse.getCourse().getIsArchived()){
+        if (reqUserCourse.getCourse().getIsArchived()) {
             throw new ArchivedCourseException();
         }
 
-        if (userId.equals(user.getId()) && reqUserCourse.getRole() == CourseRole.ADMIN){
+        if (userId.equals(user.getId()) && reqUserCourse.getRole() == CourseRole.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "An admin cannot remove themselves");
         }
-        if (userId.equals(user.getId())){
+        if (userId.equals(user.getId())) {
             userCourseService.removeRelation(reqUserCourse);
             return;
         }
@@ -226,7 +231,7 @@ public class UserCourseController {
         var targetUserCourse = userCourseService.getUserCourse(userId, courseId)
                 .orElseThrow(NotFoundException::new);
 
-        if (targetUserCourse.getRole().getClearance() >= reqUserCourse.getRole().getClearance()){
+        if (targetUserCourse.getRole().getClearance() >= reqUserCourse.getRole().getClearance()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot remove this user");
         }
         userCourseService.removeRelation(targetUserCourse);
