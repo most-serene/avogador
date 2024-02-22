@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional
 @Service
 public class TrialServiceImpl implements TrialService {
     @Autowired
@@ -28,7 +30,7 @@ public class TrialServiceImpl implements TrialService {
 
     @Override
     public List<Trial> getTrialsByCourseId(UUID courseId, Boolean includeHidden) {
-        if (includeHidden){
+        if (includeHidden) {
             return repository.findByCourseId(courseId);
         }
         return repository.findByCourseIdAndIsVisibleTrue(courseId);

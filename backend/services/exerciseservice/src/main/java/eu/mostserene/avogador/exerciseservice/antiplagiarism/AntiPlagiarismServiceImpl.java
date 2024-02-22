@@ -8,7 +8,6 @@ import de.jplag.clustering.ClusteringOptions;
 import de.jplag.exceptions.BasecodeException;
 import de.jplag.exceptions.ExitException;
 import de.jplag.options.JPlagOptions;
-import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReport;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
@@ -21,6 +20,7 @@ import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.users.UserService;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import io.sentry.Sentry;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
@@ -42,11 +42,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @Slf4j
 public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
-    @Autowired
-    private Sender sender;
-
     @Autowired
     private StorageService storageService;
 
@@ -75,7 +73,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
                                 similarityReport.setTimestamp(Date.from(Instant.now()));
                                 return similarityReport;
                             })
-                    .orElseGet(() -> new SimilarityReport(exercise, Date.from(Instant.now())))
+                            .orElseGet(() -> new SimilarityReport(exercise, Date.from(Instant.now())))
             );
         } catch (Exception e) {
             log.error(LoggerColors.error("Similarity Job failed on exercise - " + exercise.getId()));
@@ -144,7 +142,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
             runTool(options, exercise, submissions, workingDirectory);
         } catch (BasecodeException basecodeException) {
             runTool(new JPlagOptions(options.language(), options.submissionDirectories(), Set.of())
-                    .withClusteringOptions(new ClusteringOptions().withEnabled(true)),
+                            .withClusteringOptions(new ClusteringOptions().withEnabled(true)),
                     exercise, submissions, workingDirectory);
         }
     }
@@ -205,11 +203,11 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
                                 Match match = new Match();
 
                                 String firstPath = firstTokenList.get(
-                                        jPlagMatch.startOfFirst())
+                                                jPlagMatch.startOfFirst())
                                         .getFile().toString();
 
                                 String secondPath = secondTokenList.get(
-                                        jPlagMatch.startOfSecond())
+                                                jPlagMatch.startOfSecond())
                                         .getFile().toString();
 
                                 int secondIndex = secondPath.indexOf(jPlagComparison.secondSubmission().getName());
@@ -263,16 +261,16 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         Metric averageMetric = new Metric();
         averageMetric.setDistribution(Arrays.stream(result.getSimilarityDistribution()).boxed().toList());
         averageMetric.setTopComparison(
-            result.getAllComparisons()
-                    .stream()
-                    .filter(jPlagComparison -> jPlagComparison.similarity() > 0)
-                    .sorted((a,b) -> Double.compare(b.similarity(), a.similarity()))
-                    .map(jPlagComparison -> new SubmissionComparison(
-                            UUID.fromString(jPlagComparison.firstSubmission().getName()),
-                            UUID.fromString(jPlagComparison.secondSubmission().getName()),
-                            jPlagComparison.similarity()))
-                    .limit(100)
-                    .toList()
+                result.getAllComparisons()
+                        .stream()
+                        .filter(jPlagComparison -> jPlagComparison.similarity() > 0)
+                        .sorted((a, b) -> Double.compare(b.similarity(), a.similarity()))
+                        .map(jPlagComparison -> new SubmissionComparison(
+                                UUID.fromString(jPlagComparison.firstSubmission().getName()),
+                                UUID.fromString(jPlagComparison.secondSubmission().getName()),
+                                jPlagComparison.similarity()))
+                        .limit(100)
+                        .toList()
         );
         return averageMetric;
     }
@@ -285,7 +283,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
                 result.getAllComparisons()
                         .stream()
                         .filter(jPlagComparison -> jPlagComparison.maximalSimilarity() > 0)
-                        .sorted((a,b) -> Double.compare(b.maximalSimilarity(), a.maximalSimilarity()))
+                        .sorted((a, b) -> Double.compare(b.maximalSimilarity(), a.maximalSimilarity()))
                         .map(jPlagComparison -> new SubmissionComparison(
                                 UUID.fromString(jPlagComparison.firstSubmission().getName()),
                                 UUID.fromString(jPlagComparison.secondSubmission().getName()),
