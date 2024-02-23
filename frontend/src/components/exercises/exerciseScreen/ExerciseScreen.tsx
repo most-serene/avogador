@@ -8,6 +8,9 @@ import { Exercise, SubmissionResultMap, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
+import { AxiosError } from "axios";
+import { ArchivedCourseError } from "@error/types.ts";
+import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 
 interface ExerciseScreenProps {
   exerciseId: string;
@@ -19,6 +22,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
     getTestcasesFromExercise,
     getUserLastSubmissionFromExercise,
   } = useExerciseService();
+  const globalErrorSetter = useGlobalErrorSetter();
   const { trialId } = useParams();
   const [exercise, setExercise] = useState<Exercise>();
   const [testcases, setTestcases] = useState<Testcase[]>([]);
@@ -31,7 +35,11 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
         setExercise(exercise);
       })
       .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
+        if (err instanceof AxiosError && err.response?.status === 410) {
+          globalErrorSetter(new ArchivedCourseError(err.message));
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
       });
 
     getTestcasesFromExercise(exerciseId)
@@ -54,6 +62,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
     getExerciseById,
     getTestcasesFromExercise,
     getUserLastSubmissionFromExercise,
+    globalErrorSetter,
   ]);
 
   if (trialId == null) {
