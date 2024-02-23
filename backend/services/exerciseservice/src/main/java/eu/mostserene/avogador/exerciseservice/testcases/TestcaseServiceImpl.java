@@ -13,8 +13,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class TestcaseServiceImpl implements TestcaseService {
     @Autowired
     private TestcaseRepository repository;
