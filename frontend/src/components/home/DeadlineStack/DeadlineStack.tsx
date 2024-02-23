@@ -33,6 +33,7 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
   useEffect(() => {
     setIsLoading(true);
     if (user == null) return;
+    if (userCourses == null) return;
 
     getUserTrials(user)
       .then((userTrials) => {
@@ -44,6 +45,18 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
                 ut.deadline &&
                 ut.deadline.getTime() > new Date().getTime(),
             )
+            .filter((ut) => {
+              const uc = userCourses.find(
+                (uc) => uc.course.id === ut.trial.courseId,
+              );
+              if (!uc || uc.course.isArchived) {
+                return (
+                  user.isSuperuser ||
+                  (uc && (uc.role === "COLLABORATOR" || uc.role === "ADMIN"))
+                );
+              }
+              return true;
+            })
             .sort(
               (a, b) =>
                 (a.deadline?.getTime() ?? new Date().getTime()) -
@@ -58,7 +71,7 @@ export default function DeadlineStack({ userCourses }: DeadlineStackProps) {
     return () => {
       setUserTrials(undefined);
     };
-  }, [getUserTrials, user]);
+  }, [getUserTrials, user, userCourses]);
 
   useEffect(() => {
     if (user == null) return;
