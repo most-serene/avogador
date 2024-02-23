@@ -69,35 +69,40 @@ const TrialDetailExercisesTab = ({
       <Stack spacing={2}>
         {((user != null && user.isSuperuser) ||
           course.role === "COLLABORATOR" ||
-          course.role === "ADMIN") && (
-          <Card
-            sx={{
-              mb: 2,
-              border: 2,
-              borderColor: theme.palette.primary.main,
-              borderStyle: "dashed",
-            }}
-            elevation={0}
-          >
-            <CardActionArea style={{ height: "100%" }}>
-              <CardContent
-                onClick={() => {
-                  navigate("/exercises/new", {
-                    state: {
-                      courseId: course.id,
-                      trialId: trial.id,
-                    },
-                  });
-                }}
-              >
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  <Add sx={{ mr: 2 }} />
-                  <Typography variant="h5"> Create new Exercise </Typography>
-                </Box>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        )}
+          course.role === "ADMIN") &&
+          !course.isArchived && (
+            <Card
+              sx={{
+                mb: 2,
+                border: 2,
+                borderColor: theme.palette.primary.main,
+                borderStyle: "dashed",
+              }}
+              elevation={0}
+            >
+              <CardActionArea style={{ height: "100%" }}>
+                <CardContent
+                  onClick={() => {
+                    navigate("/exercises/new", {
+                      state: {
+                        courseId: course.id,
+                        trialId: trial.id,
+                      },
+                    });
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Add sx={{ mr: 2 }} />
+                    <Typography variant="h5"> Create new Exercise </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          )}
         {exercises
           .filter((exercise) => exercise.isVisible)
           .map((exercise, i) => (
