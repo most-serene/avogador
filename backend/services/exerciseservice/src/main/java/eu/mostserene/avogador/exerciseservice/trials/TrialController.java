@@ -4,6 +4,7 @@ package eu.mostserene.avogador.exerciseservice.trials;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
+import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
@@ -12,7 +13,9 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +29,9 @@ public class TrialController {
     private TrialService trialService;
     @Autowired
     private UserCourseService userCourseService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private ExerciseService exerciseService;
@@ -87,6 +93,13 @@ public class TrialController {
             throw new ForbiddenException(user);
         }
 
+        if (courseService.getCourseById(trial.getCourseId())
+                .orElseThrow(NotFoundException::new)
+                .getIsArchived()
+        ) {
+            throw new ResponseStatusException(HttpStatus.GONE, "The course is archived");
+        }
+
         CompletableFuture.allOf(
                         exercises.stream()
                                 .map(exercise -> CompletableFuture.runAsync(() ->
@@ -96,7 +109,7 @@ public class TrialController {
                                 .toArray(new CompletableFuture[0]))
                 .thenAcceptAsync(v -> userCourseService.getCourseCollaborators(trial.getCourseId())
                         .forEach(userCourseDto -> sender.send("users", "users.notify.socket",
-                                new WebSocketMessage("/users/" + userCourseDto.getUserId() +"/trials/" + trial.getId() + "/similarity-report",
+                                new WebSocketMessage("/users/" + userCourseDto.getUserId() + "/trials/" + trial.getId() + "/similarity-report",
                                         "Similarity report for " + trial.getName() + " ready"))
                         ));
     }

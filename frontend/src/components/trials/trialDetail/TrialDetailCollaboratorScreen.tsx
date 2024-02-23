@@ -97,7 +97,7 @@ const TrialDetailCollaboratorScreen = ({
             <TrialDetailUsersTab trial={trial} />
           </TabPanel>
           <TabPanel value={openTab} index={2}>
-            <TrialDetailReportsTab trial={trial} />
+            <TrialDetailReportsTab trial={trial} course={course} />
           </TabPanel>
           <TabPanel value={openTab} index={3}>
             <TrialDetailSettingsTab trial={trial} />
