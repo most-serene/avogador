@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -10,8 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class UserCourseServiceImpl implements UserCourseService {
     @Override
     public List<UserCourseDto> getCourseCollaborators(UUID courseId) {

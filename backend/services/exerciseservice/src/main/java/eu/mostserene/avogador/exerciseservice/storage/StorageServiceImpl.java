@@ -9,6 +9,7 @@ import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseIODto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional
 @Service
 public class StorageServiceImpl implements StorageService {
     private final ObjectMapper mapper = new ObjectMapper();
@@ -354,7 +356,6 @@ public class StorageServiceImpl implements StorageService {
             this.trialId = trialId;
             this.exerciseId = exerciseId;
             this.similarityReport = FileUtils.readFileToByteArray(similarityReportFile);
-            ;
         }
     }
 }

@@ -9,15 +9,16 @@ import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Transactional
 @Service
 public class AnalyticsServiceImpl implements AnalyticsService {
 
@@ -78,8 +79,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return Stream.of(SubmissionStatus.values())
                 .filter(submissionStatus -> !submissionStatus.equals(SubmissionStatus.PENDING))
                 .collect(Collectors.toMap(
-                        Function.identity(),
-                        status -> results.stream().filter(result -> result.getStatus() == status).count()
+                                Function.identity(),
+                                status -> results.stream().filter(result -> result.getStatus() == status).count()
                         )
                 );
     }
