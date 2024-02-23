@@ -89,7 +89,9 @@ const CourseTrialsTab = ({ userCourse }: CourseTrialsTabProps) => {
           trials={scheduledTrials}
           isLoading={isLoading}
           hasCreateButton={
-            userCourse?.role === "COLLABORATOR" || userCourse?.role === "ADMIN"
+            (userCourse?.role === "COLLABORATOR" ||
+              userCourse?.role === "ADMIN") &&
+            !userCourse.isArchived
           }
         />
       </Grid>
