@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -158,6 +159,10 @@ public class PracticeController {
 
         if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
+        }
+
+        if (new Date().after(practice.getDeadline())) {
+            throw new BadRequestException("This trial is ended");
         }
 
         if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
