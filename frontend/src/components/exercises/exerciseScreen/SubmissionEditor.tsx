@@ -18,6 +18,8 @@ import {
   getCellBorderColor,
   getCellBorderStyle,
 } from "@components/editor/editorUtils.ts";
+import { Course } from "@courses/types.ts";
+import useCourseService from "@courses/hooks/useCourseService.tsx";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -42,6 +44,8 @@ const SubmissionEditor = ({
   const [trial, setTrial] = useState<Trial>();
   const [cellsSize, setCellsSize] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [course, setCourse] = useState<Course>();
+  const { getCourseById } = useCourseService();
   const theme = useTheme();
 
   const handleChange = (value: string | undefined, i: number) => {
@@ -140,6 +144,17 @@ const SubmissionEditor = ({
     };
   }, [trialId, exerciseId, getTemplateFromExercise, getTrialById]);
 
+  useEffect(() => {
+    if (!trial) return;
+    getCourseById(trial.courseId)
+      .then((responseCourse) => {
+        setCourse(responseCourse);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  }, [getCourseById, trial]);
+
   if (strox == null) {
     return <CircularProgress />;
   }
@@ -201,20 +216,22 @@ const SubmissionEditor = ({
         ))}
       </Box>
 
-      {trial != null && !isTrialEnded(trial) && (
-        <Button
-          variant="contained"
-          style={{
-            position: "absolute",
-            bottom: 16,
-            right: 16,
-          }}
-          onClick={handleSubmit}
-          disabled={isSubmitted || submissionDisabled}
-        >
-          SUBMIT
-        </Button>
-      )}
+      {trial != null &&
+        !isTrialEnded(trial) &&
+        course?.isArchived === false && (
+          <Button
+            variant="contained"
+            style={{
+              position: "absolute",
+              bottom: 16,
+              right: 16,
+            }}
+            onClick={handleSubmit}
+            disabled={isSubmitted || submissionDisabled}
+          >
+            SUBMIT
+          </Button>
+        )}
     </Box>
   );
 };
