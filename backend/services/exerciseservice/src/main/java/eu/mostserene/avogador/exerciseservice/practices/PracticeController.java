@@ -47,8 +47,8 @@ public class PracticeController {
         Practice practice = practiceService.getPractice(practiceId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (user.getIsSuperuser()) return practice;
 
@@ -69,8 +69,9 @@ public class PracticeController {
      */
     @PostMapping("")
     private Practice createPractice(@RequestHeader(name = "User") UserDto user, @RequestBody Practice practice) {
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user))
+                .getRole();
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -95,8 +96,9 @@ public class PracticeController {
         var storedPractice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user))
+                .getRole();
 
         if (!storedPractice.getId().equals(practice.getId())) {
             throw new BadRequestException("Id mismatch");
@@ -131,8 +133,9 @@ public class PracticeController {
     private List<Exercise> getExercisesFromPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
-        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user))
+                .getRole();
 
         if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -154,8 +157,8 @@ public class PracticeController {
     private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
-        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);

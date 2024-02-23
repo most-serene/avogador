@@ -3,14 +3,14 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
-import eu.mostserene.avogador.exerciseservice.courses.CourseDto;
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.StroxException;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
@@ -70,8 +70,8 @@ public class SubmissionController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         Submission submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
@@ -88,8 +88,8 @@ public class SubmissionController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         Submission submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
@@ -111,8 +111,8 @@ public class SubmissionController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
@@ -122,12 +122,12 @@ public class SubmissionController {
 
         return submissions.stream()
                 .map(submission -> new SubmissionDto(submission.getId(),
-                        submission.getExercise().getId(),
-                        userId,
-                        submission.getTimestamp(),
-                        storageService.getSubmissionStrox(submission)
-                                .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
-                                .getCells()
+                                submission.getExercise().getId(),
+                                userId,
+                                submission.getTimestamp(),
+                                storageService.getSubmissionStrox(submission)
+                                        .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
+                                        .getCells()
                         )
                 )
                 .toList();
@@ -138,16 +138,14 @@ public class SubmissionController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseService.getCourseById(exercise.getTrial().getCourseId())
-                .orElseThrow(NotFoundException::new)
-                .getIsArchived()
-        ) {
+        if (course.getIsArchived()) {
             throw new BadRequestException("The course has been archived");
         }
 
+        CourseRole courseRole = course.getRole();
 
         if (!exercise.getId().equals(submissionDto.getExerciseId())) {
             throw new BadRequestException("Exercise id not matching");

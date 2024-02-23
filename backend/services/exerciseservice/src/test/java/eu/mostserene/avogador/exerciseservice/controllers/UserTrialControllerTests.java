@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.controllers;
 
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
@@ -30,14 +31,58 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserTrialController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class UserTrialControllerTests {
+    private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+    private final Practice privatePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            true, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+    private final Practice notVisibilePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+    private final Practice privateNotVisisblePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
+            false, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+    private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
+    private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
+    private final UserTrial userTrial1 = new UserTrial(UUID.fromString("00000000-0000-0000-0000-000000000001"), practice, false);
+    private final UserDto studentUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), "student@stud.unive.it", "Andy", "Bernard", false, false);
+
+    private final CourseDetailDto courseDetailDtoExternal = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.EXTERNAL
+    );
+
+    private final CourseDetailDto courseDetailDtoStudent = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.STUDENT
+    );
+
+    private final CourseDetailDto courseDetailDtoCollaborator = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.COLLABORATOR
+    );
+
+    private final CourseDetailDto courseDetailDtoAdmin = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.ADMIN
+    );
+
     private @Autowired MockMvc mvc;
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
@@ -46,27 +91,8 @@ public class UserTrialControllerTests {
     private @MockBean UserCourseService userCourseService;
     private @MockBean TrialService trialService;
 
-
-    private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
-    private final Practice privatePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            true, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
-    private final Practice notVisibilePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            false, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
-    private final Practice privateNotVisisblePractice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
-            false, false, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-
-    private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
-    private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":true}";
-    private final UserTrial userTrial1 = new UserTrial(UUID.fromString("00000000-0000-0000-0000-000000000001"), practice, false);
-    private final UserDto studentUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), "student@stud.unive.it", "Andy", "Bernard", false, false);
-
-
     @Nested
-    class GetUsersFromTrial{
+    class GetUsersFromTrial {
         @Test
         public void wrongTrialId_get404() throws Exception {
             when(trialService.getTrialById(any()))
@@ -82,7 +108,7 @@ public class UserTrialControllerTests {
         public void emptyUserRole_get403() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.empty());
 
             mvc.perform(get("/public/trials/00000000-0000-0000-0000-000000000001/users")
@@ -95,8 +121,8 @@ public class UserTrialControllerTests {
         public void userIsStudent_get403() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoStudent));
 
             mvc.perform(get("/public/trials/00000000-0000-0000-0000-000000000001/users")
                             .header("User", studentHeader))
@@ -108,8 +134,8 @@ public class UserTrialControllerTests {
         public void userIsCollaborator_get200() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoCollaborator));
             when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
             when(userService.getUsersFromIdList(anyList()))
@@ -125,8 +151,8 @@ public class UserTrialControllerTests {
         public void userIsAdmin_get200() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.ADMIN));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoAdmin));
             when(userTrialService.getUsersFromTrial(any()))
                     .thenReturn(List.of(userTrial1));
             when(userService.getUsersFromIdList(anyList()))

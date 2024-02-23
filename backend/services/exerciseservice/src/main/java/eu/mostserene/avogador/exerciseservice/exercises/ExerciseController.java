@@ -64,8 +64,8 @@ public class ExerciseController {
         Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -95,8 +95,8 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
@@ -117,8 +117,8 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
@@ -140,8 +140,8 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
@@ -180,8 +180,8 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
@@ -205,8 +205,8 @@ public class ExerciseController {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -222,8 +222,8 @@ public class ExerciseController {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
@@ -258,8 +258,8 @@ public class ExerciseController {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
             throw new ForbiddenException(user);
@@ -273,8 +273,8 @@ public class ExerciseController {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
             throw new ForbiddenException(user);

@@ -14,7 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/public/analytics")
@@ -38,8 +41,9 @@ public class AnalyticsController {
                                                         @PathVariable UUID userId,
                                                         @PathVariable UUID courseId
     ) {
-        CourseRole courseRole = userCourseService.getUserCourseRole(courseId, user.getId())
-                .orElseThrow(NotFoundException::new);
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
+                .orElseThrow(NotFoundException::new)
+                .getRole();
 
         if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
@@ -56,15 +60,15 @@ public class AnalyticsController {
     ) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException("Trial with id: " + trialId));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new);
+        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(NotFoundException::new).getRole();
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Exercise with id: " + trialId));
 
-        if (exercise.getTrial().getId() != trialId){
+        if (exercise.getTrial().getId() != trialId) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Exercise does not belong to the specified Trial");
         }
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
             throw new ForbiddenException("You don't have the right authorization");
         }
 
@@ -73,11 +77,11 @@ public class AnalyticsController {
 
     @GetMapping("/courses/{courseId}/submissions-trend")
     private List<Date> getCourseSubmissionTrend(@RequestHeader(name = "User") UserDto user,
-                                          @PathVariable UUID courseId) {
-        var courseRole = userCourseService.getUserCourseRole(courseId, user.getId())
-                .orElseThrow(NotFoundException::new);
+                                                @PathVariable UUID courseId) {
+        var courseRole = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
+                .orElseThrow(NotFoundException::new).getRole();
 
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()){
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
             throw new ForbiddenException("You don't have the right authorization");
         }
 

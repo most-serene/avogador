@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.controllers;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository;
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
@@ -54,6 +55,39 @@ public class TrialControllerTests {
     private final ExerciseDto visibleExerciseDto = new ExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true);
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000002\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Michale\", \"familyName\":\"Scott\", \"isProfessor\":false, \"isSuperuser\":true}";
+
+    private final CourseDetailDto courseDetailDtoExternal = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.EXTERNAL
+    );
+
+    private final CourseDetailDto courseDetailDtoStudent = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.STUDENT
+    );
+
+    private final CourseDetailDto courseDetailDtoCollaborator = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.COLLABORATOR
+    );
+
+    private final CourseDetailDto courseDetailDtoAdmin = new CourseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.ADMIN
+    );
+
     private @Autowired MockMvc mvc;
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
@@ -71,7 +105,7 @@ public class TrialControllerTests {
     class GetTrialsFromCourse {
         @Test
         public void emptyRole_get403() throws Exception {
-            when(userCourseService.getUserCourseRole(any(), any()))
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.empty());
 
             mvc.perform(get("/public/trials/courses/00000000-0000-0000-0000-000000000001")
@@ -83,8 +117,8 @@ public class TrialControllerTests {
 
         @Test
         public void userIsExternal_get403() throws Exception {
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.EXTERNAL));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoExternal));
 
             mvc.perform(get("/public/trials/courses/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
@@ -95,8 +129,8 @@ public class TrialControllerTests {
 
         @Test
         public void userIsStudent_get200() throws Exception {
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoStudent));
             when(trialService.getTrialsByCourseId(any(), eq(true)))
                     .thenReturn(List.of(practice, hiddenPractice));
             when(trialService.getTrialsByCourseId(any(), eq(false)))
@@ -112,8 +146,8 @@ public class TrialControllerTests {
 
         @Test
         public void userIsCollaborator_get200() throws Exception {
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoCollaborator));
             when(trialService.getTrialsByCourseId(any(), eq(true)))
                     .thenReturn(List.of(practice, hiddenPractice));
             when(trialService.getTrialsByCourseId(any(), eq(false)))
@@ -147,7 +181,7 @@ public class TrialControllerTests {
         public void emptyRole_get403() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.empty());
 
             mvc.perform(delete("/public/trials/00000000-0000-0000-0000-000000000001")
@@ -161,8 +195,8 @@ public class TrialControllerTests {
         public void userIsStudent_get403() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.STUDENT));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoStudent));
 
             mvc.perform(delete("/public/trials/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
@@ -175,8 +209,8 @@ public class TrialControllerTests {
         public void userIsCollaborator_get200() throws Exception {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.of(practice));
-            when(userCourseService.getUserCourseRole(any(), any()))
-                    .thenReturn(Optional.of(CourseRole.COLLABORATOR));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoCollaborator));
 
             mvc.perform(delete("/public/trials/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)

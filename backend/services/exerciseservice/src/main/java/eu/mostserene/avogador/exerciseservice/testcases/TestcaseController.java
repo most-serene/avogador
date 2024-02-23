@@ -41,8 +41,8 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -65,8 +65,8 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -131,8 +131,8 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);

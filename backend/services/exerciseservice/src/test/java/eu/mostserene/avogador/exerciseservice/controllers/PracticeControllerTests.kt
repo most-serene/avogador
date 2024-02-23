@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
@@ -73,31 +72,31 @@ class PracticeControllerTests : AbstractControllerTests() {
     @BeforeEach
     fun setup() {
         `when`(practiceService.getPractice(any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(practiceService.getPractice(eq(practice.id)))
-            .thenReturn(Optional.of(practice))
+                .thenReturn(Optional.of(practice))
         `when`(practiceService.getPractice(eq(hiddenPractice.id)))
-            .thenReturn(Optional.of(hiddenPractice))
+                .thenReturn(Optional.of(hiddenPractice))
         `when`(practiceService.getPractice(eq(oldPractice.id)))
-            .thenReturn(Optional.of(oldPractice))
-        `when`(userCourseService.getUserCourseRole(any(), any()))
-            .thenReturn(Optional.empty())
-        `when`(userCourseService.getUserCourseRole(any(), eq(external.id)))
-            .thenReturn(Optional.of(CourseRole.EXTERNAL))
-        `when`(userCourseService.getUserCourseRole(any(), eq(superuser.id)))
-            .thenReturn(Optional.of(CourseRole.EXTERNAL))
-        `when`(userCourseService.getUserCourseRole(any(), eq(student.id)))
-            .thenReturn(Optional.of(CourseRole.STUDENT))
-        `when`(userCourseService.getUserCourseRole(any(), eq(collaborator.id)))
-            .thenReturn(Optional.of(CourseRole.COLLABORATOR))
-        `when`(userCourseService.getUserCourseRole(any(), eq(professor.id)))
-            .thenReturn(Optional.of(CourseRole.ADMIN))
+                .thenReturn(Optional.of(oldPractice))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
+                .thenReturn(Optional.empty())
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
+                .thenReturn(Optional.of(courseDetailDtoStudent))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
+                .thenReturn(Optional.of(courseDetailDtoCollaborator))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
+                .thenReturn(Optional.of(courseDetailDtoAdmin))
         `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(true)))
-            .thenReturn(listOf(visibleExercise, hiddenExercise))
+                .thenReturn(listOf(visibleExercise, hiddenExercise))
         `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(false)))
-            .thenReturn(listOf(visibleExercise))
+                .thenReturn(listOf(visibleExercise))
         `when`(userTrialService.joinTrial(eq(student), eq(practice)))
-            .thenReturn(studentPractice)
+                .thenReturn(studentPractice)
     }
 
     @Nested
@@ -287,13 +286,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(400) different courseId`() {
             val practiceWithDifferentCourseId = Practice(
-                UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                practice.name,
-                practice.isVisible,
-                practice.isPublic,
-                practice.language,
-                practice.startTimestamp,
-                practice.deadline
+                    UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                    practice.name,
+                    practice.isVisible,
+                    practice.isPublic,
+                    practice.language,
+                    practice.startTimestamp,
+                    practice.deadline
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true
@@ -327,13 +326,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(200) only change name`() {
             val practiceWithNewName = Practice(
-                oldPractice.courseId,
-                "Trial with new name",
-                oldPractice.isVisible,
-                oldPractice.isPublic,
-                oldPractice.language,
-                oldPractice.startTimestamp,
-                oldPractice.deadline
+                    oldPractice.courseId,
+                    "Trial with new name",
+                    oldPractice.isVisible,
+                    oldPractice.isPublic,
+                    oldPractice.language,
+                    oldPractice.startTimestamp,
+                    oldPractice.deadline
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true
@@ -353,13 +352,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(200) only change finishDate`() {
             val practiceWithNewFinishDate = Practice(
-                oldPractice.courseId,
-                oldPractice.name,
-                oldPractice.isVisible,
-                oldPractice.isPublic,
-                oldPractice.language,
-                oldPractice.startTimestamp,
-                Date.from(Instant.now().plus(13, ChronoUnit.DAYS))
+                    oldPractice.courseId,
+                    oldPractice.name,
+                    oldPractice.isVisible,
+                    oldPractice.isPublic,
+                    oldPractice.language,
+                    oldPractice.startTimestamp,
+                    Date.from(Instant.now().plus(13, ChronoUnit.DAYS))
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true
