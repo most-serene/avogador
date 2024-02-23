@@ -3,7 +3,9 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
+import eu.mostserene.avogador.exerciseservice.courses.CourseDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
+import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
@@ -56,6 +58,9 @@ public class SubmissionController {
 
     @Autowired
     private StorageService storageService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private Sender sender;
@@ -135,6 +140,13 @@ public class SubmissionController {
 
         CourseRole courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseService.getCourseById(exercise.getTrial().getCourseId())
+                .orElseThrow(NotFoundException::new)
+                .getIsArchived()
+        ) {
+            throw new BadRequestException("The course has been archived");
+        }
 
 
         if (!exercise.getId().equals(submissionDto.getExerciseId())) {
