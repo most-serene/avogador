@@ -124,11 +124,15 @@ public class TrialController {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
-        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (userRole.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "The course is archived");
         }
 
         trialService.deleteTrial(trial);

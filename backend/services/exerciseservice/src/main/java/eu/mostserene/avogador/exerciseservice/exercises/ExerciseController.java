@@ -121,11 +121,15 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
         }
 
         storageService.createExerciseTemplate(exercise, strox);
@@ -144,11 +148,15 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
         }
 
         Exercise existingExercise = exerciseService.getExercise(exerciseId)
@@ -184,11 +192,15 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
 
         //TODO: call file system

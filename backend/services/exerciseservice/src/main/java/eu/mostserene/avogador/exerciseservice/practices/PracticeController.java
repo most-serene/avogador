@@ -103,20 +103,20 @@ public class PracticeController {
         var storedPractice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user))
-                .getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
         if (!storedPractice.getId().equals(practice.getId())) {
             throw new BadRequestException("Id mismatch");
         }
         if (!storedPractice.getCourseId().equals(practice.getCourseId())) {
             throw new BadRequestException("CourseId mismatch");
-
         }
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
+        }
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
         }
 
         boolean startNotValid = !storedPractice.getStartTimestamp().equals(practice.getStartTimestamp()) && !practice.areTimestampsValid();
@@ -164,10 +164,10 @@ public class PracticeController {
     private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
-        var courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        var courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
+        if (courseDetail.getRole() == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -175,7 +175,11 @@ public class PracticeController {
             throw new BadRequestException("This trial is ended");
         }
 
-        if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
+        }
+
+        if (user.getIsSuperuser() || courseDetail.getRole().getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
             return null;
         }
 

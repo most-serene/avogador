@@ -106,6 +106,13 @@ public class TestcaseController {
             @PathVariable UUID exerciseId,
             @RequestBody TestcaseDetailDto testcase) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
+        var courseDetail = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
+        }
+
         testcase.setExerciseId(exerciseId);
 
         if (testcase.getIndex() == null) {
@@ -122,6 +129,13 @@ public class TestcaseController {
     @DeleteMapping("/{testcaseId}")
     private void deleteTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
+
+        var courseDetail = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
+        }
 
         testcaseService.deleteTestcase(exercise, testcaseId);
     }

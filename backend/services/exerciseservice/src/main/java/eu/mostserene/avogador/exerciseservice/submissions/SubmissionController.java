@@ -26,8 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -142,7 +144,7 @@ public class SubmissionController {
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (course.getIsArchived()) {
-            throw new BadRequestException("The course has been archived");
+            throw new ResponseStatusException(HttpStatus.GONE, "The course has been archived");
         }
 
         CourseRole courseRole = course.getRole();
