@@ -2,6 +2,7 @@ package eu.mostserene.avogador.exerciseservice.exercises;
 
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
@@ -95,12 +96,15 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
         }
 
         return exerciseService.createExercise(exercise, trial);

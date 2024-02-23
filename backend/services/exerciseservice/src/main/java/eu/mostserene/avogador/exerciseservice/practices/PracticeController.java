@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.practices;
 
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
@@ -12,7 +13,9 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 import java.util.List;
@@ -69,13 +72,17 @@ public class PracticeController {
      */
     @PostMapping("")
     private Practice createPractice(@RequestHeader(name = "User") UserDto user, @RequestBody Practice practice) {
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user))
-                .getRole();
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
+        }
+
         if (!practice.areTimestampsValid()) {
             throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
         }
