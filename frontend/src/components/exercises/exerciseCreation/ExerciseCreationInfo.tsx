@@ -70,9 +70,11 @@ const ExerciseCreationInfo = ({
     getUserCourses(user.id)
       .then((userCourses: UserCourse[]) => {
         setUserCourses(
-          userCourses.filter((userCourse) =>
-            ["COLLABORATOR", "ADMIN"].includes(userCourse.role),
-          ),
+          userCourses
+            .filter((userCourse) =>
+              ["COLLABORATOR", "ADMIN"].includes(userCourse.role),
+            )
+            .filter((userCourse) => !userCourse.course.isArchived),
         );
         setAreCoursesFetched(true);
       })
