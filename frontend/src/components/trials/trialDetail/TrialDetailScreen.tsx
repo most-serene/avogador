@@ -5,7 +5,7 @@ import { Exam, isPractice, Practice, UserTrial } from "@trials/types.ts";
 import { CourseDetail } from "@courses/types.ts";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
-import { ForbiddenError } from "@error/types.ts";
+import { ArchivedCourseError, ForbiddenError } from "@error/types.ts";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import TrialDetailCollaboratorScreen from "@trials/trialDetail/TrialDetailCollaboratorScreen.tsx";
@@ -66,7 +66,11 @@ const TrialDetailScreen = () => {
         setUserCourse(userCourseResponse);
       })
       .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
+        if (err instanceof AxiosError && err.response?.status === 410) {
+          globalErrorSetter(new ArchivedCourseError(err.message));
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
       });
 
     getUserTrial(user, trial)
