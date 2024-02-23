@@ -8,15 +8,15 @@ import { Exercise, SubmissionResultMap, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
-import { AxiosError } from "axios";
-import { ArchivedCourseError } from "@error/types.ts";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
+import { Course } from "@courses/types.ts";
 
 interface ExerciseScreenProps {
   exerciseId: string;
+  course: Course;
 }
 
-const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
+const ExerciseScreen = ({ exerciseId, course }: ExerciseScreenProps) => {
   const {
     getExerciseById,
     getTestcasesFromExercise,
@@ -35,11 +35,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
         setExercise(exercise);
       })
       .catch((err: Error) => {
-        if (err instanceof AxiosError && err.response?.status === 410) {
-          globalErrorSetter(new ArchivedCourseError(err.message));
-        } else {
-          enqueueSnackbar(err.message, { variant: "error" });
-        }
+        enqueueSnackbar(err.message, { variant: "error" });
       });
 
     getTestcasesFromExercise(exerciseId)
@@ -90,6 +86,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
           setSubmissionResult={setSubmissionResult}
           exerciseId={exerciseId}
           trialId={trialId}
+          course={course}
         />
       </Grid>
     </Grid>

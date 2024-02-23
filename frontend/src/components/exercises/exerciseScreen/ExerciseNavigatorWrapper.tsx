@@ -16,7 +16,7 @@ import { Exercise, SubmissionResult } from "@exercises/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { ChevronLeft } from "@mui/icons-material";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
-import { ResourceNotFoundError } from "@error/types.ts";
+import { ArchivedCourseError, ResourceNotFoundError } from "@error/types.ts";
 import { Exam, isExam, isPractice, Practice, Trial } from "@trials/types.ts";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import {
@@ -24,6 +24,9 @@ import {
   differenceInMinutes,
   intervalToDuration,
 } from "date-fns";
+import { AxiosError } from "axios";
+import { Course } from "@courses/types.ts";
+import useCourseService from "@courses/hooks/useCourseService.tsx";
 
 const ExerciseNavigatorWrapper = () => {
   const navigate = useNavigate();
@@ -39,6 +42,23 @@ const ExerciseNavigatorWrapper = () => {
   const [results, setResults] = useState<Record<string, SubmissionResult[]>>(
     {},
   );
+  const [course, setCourse] = useState<Course>();
+  const { getCourseById } = useCourseService();
+
+  useEffect(() => {
+    if (!trial) return;
+    getCourseById(trial.courseId)
+      .then((responseCourse) => {
+        setCourse(responseCourse);
+      })
+      .catch((err: Error) => {
+        if (err instanceof AxiosError && err.response?.status === 410) {
+          globalErrorSetter(new ArchivedCourseError(err.message));
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
+      });
+  }, [getCourseById, globalErrorSetter, trial]);
 
   useEffect(() => {
     if (trialId == null) return;
@@ -130,7 +150,7 @@ const ExerciseNavigatorWrapper = () => {
     }
   };
 
-  if (exercises == null || openTab == null || trial == null) {
+  if (exercises == null || openTab == null || trial == null || course == null) {
     return (
       <Box
         height="100%"
@@ -226,7 +246,7 @@ const ExerciseNavigatorWrapper = () => {
           ))}
         </Tabs>
       </Box>
-      <ExerciseScreen exerciseId={exercises[openTab].id} />
+      <ExerciseScreen exerciseId={exercises[openTab].id} course={course} />
     </Box>
   );
 };
