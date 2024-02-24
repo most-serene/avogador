@@ -5,6 +5,7 @@ import eu.mostserene.avogador.courseservice.amqp.Sender;
 import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
 import eu.mostserene.avogador.courseservice.utils.WebSocketMessage;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class CourseServiceImpl implements CourseService {
     @Autowired
     private CourseRepository repository;
