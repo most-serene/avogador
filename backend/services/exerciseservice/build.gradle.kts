@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "eu.mostserene.avogador"
-version = "0.7.1"
+version = "0.8.0"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-	implementation("org.rauschig:jarchivelib:0.7.1")
+	implementation("org.rauschig:jarchivelib:0.8.0")
 	implementation("commons-io:commons-io:2.15.0")
 	implementation("de.jplag:jplag:4.3.0")
 	implementation("de.jplag:java:4.3.0")
