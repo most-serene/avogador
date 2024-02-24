@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "eu.mostserene.avogador"
-version = "0.7.1"
+version = "0.8.0"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
 	implementation("commons-io:commons-io:2.15.0")
-	implementation("org.rauschig:jarchivelib:0.7.1")
+	implementation("org.rauschig:jarchivelib:0.8.0")
 	implementation("org.apache.commons:commons-compress:1.24.0")
 	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.springframework.boot:spring-boot-starter-amqp")
