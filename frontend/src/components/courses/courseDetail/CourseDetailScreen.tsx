@@ -55,6 +55,18 @@ export default function CourseDetailScreen() {
     };
   }, [getCourseById, courseId, globalErrorSetter, setCourse]);
 
+  useEffect(() => {
+    if (!course || !user) return;
+    if (course.role === "EXTERNAL" && !user.isSuperuser) {
+      globalErrorSetter(
+        new ForbiddenError(
+          location.pathname,
+          `${user.email} does not belong to the associated course`,
+        ),
+      );
+    }
+  }, [course, globalErrorSetter, user]);
+
   if (user == null || course == null) {
     return (
       <Box
@@ -67,15 +79,6 @@ export default function CourseDetailScreen() {
       >
         <CircularProgress size={80} />
       </Box>
-    );
-  }
-
-  if (course.role === "EXTERNAL") {
-    globalErrorSetter(
-      new ForbiddenError(
-        location.pathname,
-        `${user.email} does not belong to the associated course`,
-      ),
     );
   }
 
