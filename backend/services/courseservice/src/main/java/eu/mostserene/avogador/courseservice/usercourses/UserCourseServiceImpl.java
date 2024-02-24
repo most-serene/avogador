@@ -2,6 +2,7 @@ package eu.mostserene.avogador.courseservice.usercourses;
 
 import eu.mostserene.avogador.courseservice.courses.Course;
 import eu.mostserene.avogador.courseservice.users.UserDto;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional
 @Service
 public class UserCourseServiceImpl implements UserCourseService {
     @Autowired

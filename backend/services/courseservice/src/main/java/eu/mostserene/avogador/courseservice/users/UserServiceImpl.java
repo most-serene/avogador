@@ -2,6 +2,7 @@ package eu.mostserene.avogador.courseservice.users;
 
 import eu.mostserene.avogador.courseservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -12,8 +13,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class UserServiceImpl implements UserService {
     @Data
     private static class UserDtoList {
