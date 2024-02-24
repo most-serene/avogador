@@ -58,7 +58,6 @@ const ExerciseResultsChart = ({
           data: Object.entries(results)
             .filter(([, value]) => value !== 0)
             .map(([type, value]) => {
-              console.log(results);
               const { color, label } = getStatusMetadata(
                 type as SubmissionStatus,
               );

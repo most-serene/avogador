@@ -1,5 +1,8 @@
 package eu.mostserene.avogador.courseservice.usercourses;
 
+import lombok.Getter;
+
+@Getter
 public enum CourseRole {
     EXTERNAL(-1),
     STUDENT(0),
@@ -8,11 +11,8 @@ public enum CourseRole {
 
     private final Integer clearance;
 
-    CourseRole(Integer clearance){
+    CourseRole(Integer clearance) {
         this.clearance = clearance;
     }
 
-    public Integer getClearance(){
-        return this.clearance;
-    }
 }

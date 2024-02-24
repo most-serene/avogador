@@ -160,7 +160,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void withArchivedTrue_get403() throws Exception {
+        public void withArchivedTrue_get410() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
 
@@ -170,7 +170,7 @@ public class CourseControllerTests {
                             .content(updatedCourseJSON)
                     )
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isGone());
         }
 
         @Test
@@ -232,7 +232,7 @@ public class CourseControllerTests {
         }
 
         @Test
-        public void fromStudent_archivedCourse_get403() throws Exception {
+        public void fromStudent_archivedCourse_get410() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
@@ -240,7 +240,7 @@ public class CourseControllerTests {
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isGone());
         }
 
         @Test

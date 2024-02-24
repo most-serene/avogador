@@ -18,8 +18,17 @@ import { useNavigate } from "react-router-dom";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import userAtom from "@authentication/userAtom.ts";
 import { useAtom } from "jotai";
+import { Course } from "@courses/types.ts";
 
-const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
+interface AntiPlagiarismReportCardProps {
+  trial: Trial;
+  course: Course;
+}
+
+const AntiPlagiarismReportCard = ({
+  trial,
+  course,
+}: AntiPlagiarismReportCardProps) => {
   const [exercisesReports, setExercisesReports] =
     useState<Record<string, { exercise: Exercise; isPresent: boolean }>>();
   const { getExercisesByTrial } = useExerciseService();
@@ -90,7 +99,11 @@ const AntiPlagiarismReportCard = ({ trial }: { trial: Trial }) => {
           Code similarity report
         </Typography>
         <Box display={"flex"} justifyContent={"center"} marginBottom={2}>
-          <Button variant={"outlined"} onClick={runTool}>
+          <Button
+            variant={"outlined"}
+            onClick={runTool}
+            disabled={course.isArchived}
+          >
             Run tool
           </Button>
         </Box>

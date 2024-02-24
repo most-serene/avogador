@@ -31,23 +31,24 @@ public class UserTrialController {
 
     /**
      * gets all the users subscribed to a trial
-     * @param user the requesting user
+     *
+     * @param user    the requesting user
      * @param trialId the id of the trial to which the users belong
      * @return the list of users belonging to a trial
-     * */
+     */
     @GetMapping("/{trialId}/users")
-    private List<UserTrialDetailDto> getUsersFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId){
+    private List<UserTrialDetailDto> getUsersFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(NotFoundException::new);
-        var userRole = userCourseService.getUserCourseRole(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (userRole.getClearance() <= CourseRole.STUDENT.getClearance()) {
             throw new ForbiddenException(user);
         }
 
         var userTrials = userTrialService.getUsersFromTrial(trial);
-        if (userTrials.isEmpty()){
+        if (userTrials.isEmpty()) {
             return List.of();
         }
 
@@ -61,17 +62,18 @@ public class UserTrialController {
 
     /**
      * get the relation between a user and a trial
-     * @param user the requesting user
+     *
+     * @param user    the requesting user
      * @param trialId the id of the trial
-     * @param userId the id of the user
+     * @param userId  the id of the user
      * @return the userTrial
-     * */
+     */
     @GetMapping("/{trialId}/users/{userId}")
-    private UserTrialDetailDto getUserTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId, @PathVariable UUID userId){
+    private UserTrialDetailDto getUserTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId, @PathVariable UUID userId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(NotFoundException::new);
-        var userRole = userCourseService.getUserCourseRole(trial.getCourseId(), userId)
-                .orElseThrow(() -> new ForbiddenException(user));
+        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), userId)
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (!user.getId().equals(userId) || userRole.getClearance() <= CourseRole.EXTERNAL.getClearance()) {
             throw new ForbiddenException(user);
@@ -88,13 +90,14 @@ public class UserTrialController {
 
     /**
      * gets the trials where the users belong
-     * @param user the requesting user
+     *
+     * @param user   the requesting user
      * @param userId the id of the user belonging to the trials
      * @return the list of trials where the user is subscribed
-     * */
+     */
     @GetMapping("/users/{userId}")
-    private List<UserTrial> getTrialsFromUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId){
-        if (!user.getId().equals(userId) && !user.getIsSuperuser()){
+    private List<UserTrial> getTrialsFromUser(@RequestHeader(name = "User") UserDto user, @PathVariable UUID userId) {
+        if (!user.getId().equals(userId) && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 

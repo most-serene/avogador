@@ -3,8 +3,8 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
-import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
+import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
@@ -49,15 +49,15 @@ public class SubmissionResultController {
     ) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)){
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
         }
 
         List<Submission> submissions;
-        if (latest){
+        if (latest) {
             submissions = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, userId)
                     .stream()
                     .toList();
@@ -79,13 +79,13 @@ public class SubmissionResultController {
     private List<SubmissionResultSummary> getExerciseResultSummary(
             @RequestHeader(name = "User") UserDto user,
             @PathVariable UUID exerciseId
-    ){
+    ) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()){
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
             throw new ForbiddenException(user);
         }
 
@@ -93,7 +93,7 @@ public class SubmissionResultController {
         return userTrials.stream()
                 .map(userTrial -> {
                     var submission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, userTrial.getUserId());
-                    if (submission.isEmpty()){
+                    if (submission.isEmpty()) {
                         return new SubmissionResultSummary();
                     }
                     var results = submissionResultService.getResultsFromSubmission(submission.get());
@@ -106,15 +106,15 @@ public class SubmissionResultController {
             @RequestHeader(name = "User") UserDto user,
             @PathVariable UUID exerciseId,
             @PathVariable UUID submissionId
-    ){
+    ) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
         var submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())){
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user);
         }
 
@@ -129,12 +129,12 @@ public class SubmissionResultController {
     ) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRole(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
         var submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())){
+        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user);
         }
 
@@ -153,6 +153,13 @@ public class SubmissionResultController {
     }
 
 
+    private enum SubmissionStatusSummary {
+        CORRECT,
+        WRONG,
+        PENDING,
+        MISSING
+    }
+
     @Data
     private static class SubmissionResultSummary {
         private UUID submissionId;
@@ -160,16 +167,16 @@ public class SubmissionResultController {
         private UUID exerciseId;
         private SubmissionStatusSummary status;
 
-        public SubmissionResultSummary(){
+        public SubmissionResultSummary() {
             status = SubmissionStatusSummary.MISSING;
         }
 
         public SubmissionResultSummary(Submission submission, List<SubmissionResult> result) {
-            if (result.isEmpty()){
+            if (result.isEmpty()) {
                 this.status = SubmissionStatusSummary.MISSING;
-            } else if (result.stream().anyMatch(res -> res.getStatus().equals(SubmissionStatus.PENDING))){
+            } else if (result.stream().anyMatch(res -> res.getStatus().equals(SubmissionStatus.PENDING))) {
                 this.status = SubmissionStatusSummary.PENDING;
-            } else if (!result.stream().allMatch(res -> res.getStatus().equals(SubmissionStatus.CORRECT))){
+            } else if (!result.stream().allMatch(res -> res.getStatus().equals(SubmissionStatus.CORRECT))) {
                 this.status = SubmissionStatusSummary.WRONG;
             } else {
                 this.status = SubmissionStatusSummary.CORRECT;
@@ -178,13 +185,6 @@ public class SubmissionResultController {
             this.userId = submission.getUserId();
             this.exerciseId = submission.getExercise().getId();
         }
-    }
-
-    private enum SubmissionStatusSummary {
-        CORRECT,
-        WRONG,
-        PENDING,
-        MISSING
     }
 
 }

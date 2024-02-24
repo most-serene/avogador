@@ -21,9 +21,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,16 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserCourseController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class UserCourseControllerTests {
-    private @Autowired MockMvc mvc;
-    private @MockBean UserCourseRepository repository;
-    private @MockBean UserCourseService userCourseService;
-    private @MockBean CourseService courseService;
-    private @MockBean UserService userService;
-    private @MockBean StorageService storageService;
-    private @MockBean ProfileManager profileManager;
-
-    private @MockBean BuildProperties buildProperties;
-
     private final Course course = new Course("course", "2023/2024", false);
     private final Course archivedCourse = new Course("archivedCourse", "2023/2024", true);
     private final Course updatedCourse = new Course("course2", "2023/2024", false);
@@ -59,13 +50,19 @@ public class UserCourseControllerTests {
     private final String student2Header = "{\"id\":\"00000000-0000-0000-0000-000000000004\", \"email\":\"studen2@stud.unive.it\", \"givenName\":\"Angela\", \"familyName\":\"Martin\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String collaboratorHeader = "{\"id\":\"00000000-0000-0000-0000-000000000002\", \"email\":\"collaborator@stud.unive.it\", \"givenName\":\"Dwight\", \"familyName\":\"Schrute\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String professorHeader = "{\"id\":\"00000000-0000-0000-0000-000000000003\", \"email\":\"professor@stud.unive.it\", \"givenName\":\"Michael\", \"familyName\":\"Scott\", \"isProfessor\":true, \"isSuperuser\":false}";
-
-
+    private @Autowired MockMvc mvc;
+    private @MockBean UserCourseRepository repository;
+    private @MockBean UserCourseService userCourseService;
+    private @MockBean CourseService courseService;
+    private @MockBean UserService userService;
+    private @MockBean StorageService storageService;
+    private @MockBean ProfileManager profileManager;
+    private @MockBean BuildProperties buildProperties;
 
     @Nested
-    class JoinCourse{
+    class JoinCourse {
         @Test
-        public void wrongCourseId_get404() throws Exception{
+        public void wrongCourseId_get404() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.empty());
 
@@ -75,7 +72,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void wrongJoinCode_get403() throws Exception{
+        public void wrongJoinCode_get403() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(courseService.getJoinCode(any()))
@@ -88,18 +85,18 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void archivedCourse_get403() throws Exception{
+        public void archivedCourse_get410() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(archivedCourse));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/join/joinCode").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden())
+                    .andExpect(status().isGone())
                     .andExpect(status().reason("This course is archived"));
         }
 
         @Test
-        public void alreadyPresent_get200() throws Exception{
+        public void alreadyPresent_get200() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(courseService.getJoinCode(any()))
@@ -114,7 +111,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void everythingRight_get200() throws Exception{
+        public void everythingRight_get200() throws Exception {
             when(courseService.getCourse(any()))
                     .thenReturn(Optional.of(course));
             when(courseService.getJoinCode(any()))
@@ -131,7 +128,7 @@ public class UserCourseControllerTests {
     @Nested
     class PromoteToCollaborator {
         @Test
-        public void fromOutside_get403() throws Exception{
+        public void fromOutside_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
             when(courseService.getCourse(any()))
@@ -144,7 +141,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student1));
 
@@ -156,7 +153,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void promotedUserIsNotMember_get400() throws Exception{
+        public void promotedUserIsNotMember_get400() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id.toString(), "00000000-0000-0000-0000-000000000001")), any()))
@@ -170,18 +167,18 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void archivedCourse_get403() throws Exception{
+        public void archivedCourse_get410() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/collaborators/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden())
+                    .andExpect(status().isGone())
                     .andExpect(status().reason("This course is archived"));
         }
 
         @Test
-        public void everythingRight_get200() throws Exception{
+        public void everythingRight_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id.toString(), "00000000-0000-0000-0000-000000000001")), any()))
@@ -200,7 +197,7 @@ public class UserCourseControllerTests {
     @Nested
     class DemoteToCollaborator {
         @Test
-        public void fromOutside_get403() throws Exception{
+        public void fromOutside_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
             when(courseService.getCourse(any()))
@@ -213,7 +210,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student1));
 
@@ -225,7 +222,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void promotedUserIsNotMember_get400() throws Exception{
+        public void promotedUserIsNotMember_get400() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id.toString(), "00000000-0000-0000-0000-000000000001")), any()))
@@ -239,18 +236,18 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void archivedCourse_get403() throws Exception{
+        public void archivedCourse_get410() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
 
             mvc.perform(put("/public/courses/00000000-0000-0000-0000-000000000001/students/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden())
+                    .andExpect(status().isGone())
                     .andExpect(status().reason("This course is archived"));
         }
 
         @Test
-        public void everythingRight_get200() throws Exception{
+        public void everythingRight_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id.toString(), "00000000-0000-0000-0000-000000000001")), any()))
@@ -269,7 +266,7 @@ public class UserCourseControllerTests {
     @Nested
     class GetCoursesByUser {
         @Test
-        public void idMismatch_get400() throws Exception{
+        public void idMismatch_get400() throws Exception {
             mvc.perform(get("/public/courses/users/00000000-0000-0000-0000-000000000002").header("User", student1Header))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
@@ -277,7 +274,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void everythingRight_get200() throws Exception{
+        public void everythingRight_get200() throws Exception {
             when(userCourseService.getCoursesByUserId(any(), argThat(isArc -> Objects.equals(isArc, false))))
                     .thenReturn(List.of());
 
@@ -290,7 +287,7 @@ public class UserCourseControllerTests {
     @Nested
     class GetUsersByCourse {
         @Test
-        public void wrongCourseId_get403() throws Exception{
+        public void wrongCourseId_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
 
@@ -301,7 +298,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void fromStudent_get403() throws Exception{
+        public void fromStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student1));
 
@@ -312,7 +309,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void fromCollaborator_get200() throws Exception{
+        public void fromCollaborator_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(collaborator));
             when(userCourseService.getUsersByCourseId(any()))
@@ -324,7 +321,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void fromAdmin_get200() throws Exception{
+        public void fromAdmin_get200() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUsersByCourseId(any()))
@@ -339,7 +336,7 @@ public class UserCourseControllerTests {
     @Nested
     class LeaveCourse {
         @Test
-        public void notMember_get403() throws Exception{
+        public void notMember_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
 
@@ -350,18 +347,18 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void archivedCourse_get403() throws Exception{
+        public void archivedCourse_get410() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
 
             mvc.perform(delete("/public/courses/00000000-0000-0000-0000-000000000001/users/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isForbidden())
+                    .andExpect(status().isGone())
                     .andExpect(status().reason("This course is archived"));
         }
 
         @Test
-        public void adminSelfDelete_get403() throws Exception{
+        public void adminSelfDelete_get403() throws Exception {
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
 
@@ -372,7 +369,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void studentDeleteAdmin_get403() throws Exception{
+        public void studentDeleteAdmin_get403() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, student1User.getId())), any()))
                     .thenReturn(Optional.of(student1));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
@@ -385,7 +382,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void studentDeleteStudent_get403() throws Exception{
+        public void studentDeleteStudent_get403() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, student1User.getId())), any()))
                     .thenReturn(Optional.of(student1));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, student2User.getId())), any()))
@@ -398,7 +395,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void collaboratorDeleteStudent_get200() throws Exception{
+        public void collaboratorDeleteStudent_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), any()))
                     .thenReturn(Optional.of(collaborator));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, student1User.getId())), any()))
@@ -410,7 +407,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void adminDeleteCollaborator_get200() throws Exception{
+        public void adminDeleteCollaborator_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, professorUser.getId())), any()))
                     .thenReturn(Optional.of(admin));
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), any()))
@@ -422,7 +419,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void studentSelfDelete_get200() throws Exception{
+        public void studentSelfDelete_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, student1User.getId())), any()))
                     .thenReturn(Optional.of(student1));
 
@@ -432,7 +429,7 @@ public class UserCourseControllerTests {
         }
 
         @Test
-        public void collaboratorSelfDelete_get200() throws Exception{
+        public void collaboratorSelfDelete_get200() throws Exception {
             when(userCourseService.getUserCourse(argThat(id -> Objects.equals(id, collaboratorUser.getId())), any()))
                     .thenReturn(Optional.of(collaborator));
 

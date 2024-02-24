@@ -15,6 +15,9 @@ public class CourseDetailDto {
     private String joinCode;
     private CourseRole role;
 
+    public CourseDetailDto() {
+    }
+
     public CourseDetailDto(Course course, String code, CourseRole role) {
         this.id = course.getId();
         this.name = course.getName();

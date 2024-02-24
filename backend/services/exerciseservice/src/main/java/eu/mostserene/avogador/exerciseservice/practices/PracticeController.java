@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.practices;
 
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
@@ -12,8 +13,11 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +50,8 @@ public class PracticeController {
         Practice practice = practiceService.getPractice(practiceId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         if (user.getIsSuperuser()) return practice;
 
@@ -68,12 +72,17 @@ public class PracticeController {
      */
     @PostMapping("")
     private Practice createPractice(@RequestHeader(name = "User") UserDto user, @RequestBody Practice practice) {
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
+        }
+
         if (!practice.areTimestampsValid()) {
             throw new BadRequestException("Trials cannot start in the past and cannot end before they start");
         }
@@ -94,7 +103,7 @@ public class PracticeController {
         var storedPractice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
 
-        CourseRole courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (!storedPractice.getId().equals(practice.getId())) {
@@ -102,11 +111,12 @@ public class PracticeController {
         }
         if (!storedPractice.getCourseId().equals(practice.getCourseId())) {
             throw new BadRequestException("CourseId mismatch");
-
         }
-
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
+        }
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
         }
 
         boolean startNotValid = !storedPractice.getStartTimestamp().equals(practice.getStartTimestamp()) && !practice.areTimestampsValid();
@@ -130,8 +140,9 @@ public class PracticeController {
     private List<Exercise> getExercisesFromPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
-        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        var courseRole = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user))
+                .getRole();
 
         if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
@@ -153,14 +164,22 @@ public class PracticeController {
     private UserTrial joinPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
-        var courseRole = userCourseService.getUserCourseRole(practice.getCourseId(), user.getId())
+        var courseDetail = userCourseService.getUserCourseRoleDetail(practice.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
+        if (courseDetail.getRole() == CourseRole.EXTERNAL && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
-        if (user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+        if (new Date().after(practice.getDeadline())) {
+            throw new BadRequestException("This trial is ended");
+        }
+
+        if (courseDetail.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
+        }
+
+        if (user.getIsSuperuser() || courseDetail.getRole().getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
             return null;
         }
 

@@ -18,6 +18,7 @@ import {
   getCellBorderColor,
   getCellBorderStyle,
 } from "@components/editor/editorUtils.ts";
+import { Course } from "@courses/types.ts";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -26,6 +27,7 @@ interface SubmissionEditorProps {
   setSubmissionResult: React.Dispatch<
     React.SetStateAction<SubmissionResultMap | undefined>
   >;
+  course: Course;
 }
 
 const SubmissionEditor = ({
@@ -33,6 +35,7 @@ const SubmissionEditor = ({
   exerciseId,
   trialId,
   setSubmissionResult,
+  course,
 }: SubmissionEditorProps) => {
   const { getTemplateFromExercise, createSubmission } = useExerciseService();
   const { getTrialById, isTrialEnded } = useTrialService();
@@ -201,7 +204,7 @@ const SubmissionEditor = ({
         ))}
       </Box>
 
-      {trial != null && !isTrialEnded(trial) && (
+      {trial != null && !isTrialEnded(trial) && !course.isArchived && (
         <Button
           variant="contained"
           style={{

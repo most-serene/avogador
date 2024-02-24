@@ -41,3 +41,15 @@ export class ForbiddenError extends Error {
     return this._path;
   }
 }
+
+export class ArchivedCourseError extends Error {
+  constructor(message: string) {
+    super(message);
+
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = new Error(message).stack;
+    }
+  }
+}

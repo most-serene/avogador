@@ -25,12 +25,12 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public Optional<CourseRole> getUserCourseRole(UUID courseId, UUID userId) {
-        CourseRole courseRole = new RestTemplateBuilder()
+    public Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
+        CourseDetailDto courseDetailDto = new RestTemplateBuilder()
                 .build()
-                .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseRole.class);
+                .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseDetailDto.class);
 
-        return courseRole != null ? Optional.of(courseRole) : Optional.empty();
+        return courseDetailDto != null ? Optional.of(courseDetailDto) : Optional.empty();
     }
 
     @Data

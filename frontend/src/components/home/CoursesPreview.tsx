@@ -52,7 +52,7 @@ export default function CoursesPreview({ courses }: CoursePreviewProps) {
 
   return (
     <Grid container spacing={2} display={"flex"}>
-      <CoursesGridContent courses={courses} />
+      <CoursesGridContent courses={courses?.filter((c) => !c.isArchived)} />
     </Grid>
   );
 }

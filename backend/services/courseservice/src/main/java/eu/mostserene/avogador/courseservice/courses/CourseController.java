@@ -101,12 +101,14 @@ public class CourseController {
                 .getUserCourse(user.getId(), courseId);
         if (userCourse.isEmpty() && !course.getIsArchived())
             return new CourseDetailDto(course, CourseRole.EXTERNAL);
+
         var userRole = userCourse
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"))
                 .getRole();
 
-        if (course.getIsArchived() && userRole.getClearance() < CourseRole.COLLABORATOR.getClearance())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists");
+        if (course.getIsArchived() && userRole == CourseRole.STUDENT) {
+            throw new ArchivedCourseException();
+        }
 
         if (userRole == CourseRole.STUDENT) {
             return new CourseDetailDto(course, userRole);

@@ -45,7 +45,9 @@ const TrialDetailStudentScreen = ({
             </Button>
           </Box>
         </Box>
-        <TrialDetailExercisesTab trial={trial} course={course} />
+        <Box style={{ height: "calc(100% - 57px)", marginTop: "2rem" }}>
+          <TrialDetailExercisesTab trial={trial} course={course} />
+        </Box>
       </Container>
     </Box>
   );

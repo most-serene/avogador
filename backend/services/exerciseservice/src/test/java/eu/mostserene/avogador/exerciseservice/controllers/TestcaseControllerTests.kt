@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseController
@@ -56,35 +55,35 @@ class TestcaseControllerTests : AbstractControllerTests() {
     @BeforeEach
     fun setup() {
         `when`(exerciseService.getExercise(any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(exerciseService.getExercise(visibleExercise.id))
-            .thenReturn(Optional.of(visibleExercise))
+                .thenReturn(Optional.of(visibleExercise))
         `when`(trialService.getTrialById(any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(trialService.getTrialById(practice.id))
-            .thenReturn(Optional.of(practice))
-        `when`(userCourseService.getUserCourseRole(any(), any()))
-            .thenReturn(Optional.empty())
-        `when`(userCourseService.getUserCourseRole(any(), eq(external.id)))
-            .thenReturn(Optional.of(CourseRole.EXTERNAL))
-        `when`(userCourseService.getUserCourseRole(any(), eq(superuser.id)))
-            .thenReturn(Optional.of(CourseRole.EXTERNAL))
-        `when`(userCourseService.getUserCourseRole(any(), eq(student.id)))
-            .thenReturn(Optional.of(CourseRole.STUDENT))
-        `when`(userCourseService.getUserCourseRole(any(), eq(collaborator.id)))
-            .thenReturn(Optional.of(CourseRole.COLLABORATOR))
-        `when`(userCourseService.getUserCourseRole(any(), eq(professor.id)))
-            .thenReturn(Optional.of(CourseRole.ADMIN))
+                .thenReturn(Optional.of(practice))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
+                .thenReturn(Optional.empty())
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
+                .thenReturn(Optional.of(courseDetailDtoStudent))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
+                .thenReturn(Optional.of(courseDetailDtoCollaborator))
+        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
+                .thenReturn(Optional.of(courseDetailDtoAdmin))
         `when`(testcaseService.getTestcasesFromExercise(eq(visibleExercise)))
-            .thenReturn(listOf(visibleTestcase, hiddenTestcase))
+                .thenReturn(listOf(visibleTestcase, hiddenTestcase))
         `when`(testcaseService.getTestcase(any(), any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcase.id)))
-            .thenReturn(Optional.of(visibleTestcase))
+                .thenReturn(Optional.of(visibleTestcase))
         `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcase.id)))
-            .thenReturn(Optional.of(hiddenTestcase))
+                .thenReturn(Optional.of(hiddenTestcase))
         `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleExercise)))
-            .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
+                .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
     }
 
     @Nested
@@ -351,10 +350,10 @@ class TestcaseControllerTests : AbstractControllerTests() {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                    listOf(
-                        UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                        visibleTestcase.id
-                    )
+                        listOf(
+                                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                                visibleTestcase.id
+                        )
                 )
             }.andDo {
                 print()

@@ -6,7 +6,7 @@ import userAtom from "@authentication/userAtom.ts";
 import { Course, UserCourse } from "@courses/types.ts";
 import CourseItem from "@courses/CourseItem.tsx";
 import CourseItemSkeleton from "@courses/CourseItemSkeleton.tsx";
-import { Typography } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import CreateCourseButton from "@courses/coursesPage/CreateCourseButton.tsx";
 
@@ -71,9 +71,23 @@ export default function CoursesScreen() {
   }, [user, getUserCourses]);
 
   return (
-    <Grid container spacing={2} sx={{ pt: "2rem" }}>
-      {user && (user.isProfessor || user.isSuperuser) && <CreateCourseButton />}
-      <CoursesGridContent courses={courses} />
-    </Grid>
+    <>
+      <Grid container spacing={2} sx={{ pt: "2rem" }}>
+        {user && (user.isProfessor || user.isSuperuser) && (
+          <CreateCourseButton />
+        )}
+        <CoursesGridContent courses={courses} />
+      </Grid>
+      {courses && courses.filter((c) => c.isArchived).length > 0 && (
+        <>
+          <Divider style={{ marginTop: "2rem", marginBottom: "1rem" }}>
+            Archived courses
+          </Divider>
+          <Grid container spacing={2} display={"flex"}>
+            <CoursesGridContent courses={courses.filter((c) => c.isArchived)} />
+          </Grid>
+        </>
+      )}
+    </>
   );
 }
