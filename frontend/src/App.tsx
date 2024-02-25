@@ -162,15 +162,15 @@ function App() {
                         element={<TrialCreationScreen />}
                       />
                       <Route
-                        path={"/practices/:trialId"}
-                        element={<TrialDetailScreen trialType={"PRACTICE"} />}
+                        path={"/trials/:trialId"}
+                        element={<TrialDetailScreen />}
                       />
                       <Route
-                        path={"/practices/:trialId/exercises/:exerciseId"}
+                        path={"/trials/:trialId/exercises/:exerciseId"}
                         element={<ExerciseNavigatorWrapper />}
                       />
                       <Route
-                        path={"/practices/:trialId/users/:userId"}
+                        path={"/trials/:trialId/users/:userId"}
                         element={<UserSubmissionsScreen />}
                       />
                       <Route

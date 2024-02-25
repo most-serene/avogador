@@ -8,10 +8,20 @@ import java.util.UUID;
 
 public interface UserService {
     List<User> getUsers();
+
     Optional<User> getUserById(UUID userId);
+
     Optional<User> getUserByEmail(String email);
+
     User createUser(User user);
+
     User updateUser(User user);
+
     void deleteUser(User user);
+
     List<User> getUsersByIds(List<UUID> ids, Pageable sort);
+
+    User toProfessor(User user);
+
+    User toStudent(User user);
 }

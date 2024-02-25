@@ -4,7 +4,11 @@ import { useEffect } from "react";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { AxiosError } from "axios";
 import { useGlobalErrorSetter } from "@components/error/GlobalErrorState.tsx";
-import { ResourceNotFoundError } from "@components/error/types.ts";
+import {
+  ArchivedCourseError,
+  ForbiddenError,
+  ResourceNotFoundError,
+} from "@components/error/types.ts";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
@@ -39,14 +43,29 @@ export default function CourseDetailScreen() {
               `Course ${courseId} not found`,
             ),
           );
+        } else if (err instanceof AxiosError && err.response?.status === 410) {
+          globalErrorSetter(new ArchivedCourseError(err.message));
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
         }
-        enqueueSnackbar(err.message, { variant: "error" });
       });
 
     return () => {
       setCourse(undefined);
     };
   }, [getCourseById, courseId, globalErrorSetter, setCourse]);
+
+  useEffect(() => {
+    if (!course || !user) return;
+    if (course.role === "EXTERNAL" && !user.isSuperuser) {
+      globalErrorSetter(
+        new ForbiddenError(
+          location.pathname,
+          `${user.email} does not belong to the associated course`,
+        ),
+      );
+    }
+  }, [course, globalErrorSetter, user]);
 
   if (user == null || course == null) {
     return (

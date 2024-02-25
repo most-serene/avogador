@@ -186,7 +186,7 @@ const UserSubmissionsScreen = () => {
               sx={{ mr: 1 }}
               variant="outlined"
               onClick={() => {
-                navigate(`/practices/${trialId}?tab=1`);
+                navigate(`/trials/${trialId}?tab=1`);
               }}
             >
               <ChevronLeft />

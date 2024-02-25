@@ -13,6 +13,7 @@ import ColorModeProvider from "./components/theme/ColorModeProvider.tsx";
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { msalConfig } from "@authentication/LoginMicrosoft/msalConfig.ts";
+import { enGB } from "date-fns/locale";
 
 const root = document.getElementById("root");
 
@@ -21,7 +22,7 @@ const msalInstance = new PublicClientApplication(msalConfig);
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enGB}>
         <ColorModeProvider>
           <GoogleOAuthProvider
             clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID as string}

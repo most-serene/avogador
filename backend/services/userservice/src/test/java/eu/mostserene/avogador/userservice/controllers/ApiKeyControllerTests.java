@@ -3,9 +3,9 @@ package eu.mostserene.avogador.userservice.controllers;
 import eu.mostserene.avogador.userservice.apikey.ApiKey;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyController;
 import eu.mostserene.avogador.userservice.apikey.ApiKeyService;
+import eu.mostserene.avogador.userservice.profilemanager.ExecutionProfile;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.users.*;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class ApiKeyControllerTests {
     private @MockBean AuthService authService;
     private @MockBean UserService userService;
     private @MockBean ApiKeyService apiKeyService;
-    private @MockBean ProfileManager profileManager;
+    private @MockBean ExecutionProfile executionProfile;
 
     private @MockBean BuildProperties buildProperties;
 

@@ -2,13 +2,15 @@ package eu.mostserene.avogador.courseservice.courses;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(
         name = "Courses",
-        uniqueConstraints = @UniqueConstraint(columnNames={"name", "year"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "year"})
 )
 public class Course {
     @Id
@@ -33,31 +35,28 @@ public class Course {
         this.isArchived = isArchived;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getYear() {
-        return year;
     }
 
     public void setYear(String year) {
         this.year = year;
     }
 
-    public Boolean getIsArchived() {
-        return isArchived;
-    }
-
     public void setIsArchived(Boolean archived) {
         isArchived = archived;
+    }
+
+    /**
+     * Require the course to not be archived
+     *
+     * @return the course itself if it has not been archived
+     * @throws ArchivedCourseException if the course has been archived
+     */
+    public Course requireNotArchived() {
+        if (this.isArchived) {
+            throw new ArchivedCourseException();
+        }
+        return this;
     }
 }

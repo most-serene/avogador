@@ -1,6 +1,8 @@
 import {
+  Button,
   Card,
   CardContent,
+  CircularProgress,
   Divider,
   TextField,
   Typography,
@@ -13,12 +15,16 @@ import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { UserCourseDetail } from "@courses/types";
+import userAtom from "@authentication/userAtom.ts";
 
 const CourseSettingsTab = () => {
-  const { updateCourse } = useCourseService();
+  const { updateCourse, archiveCourse, downloadCourseArchive } =
+    useCourseService();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [rename, setRename] = useState("");
   const [isError, setIsError] = useState(false);
+  const [user] = useAtom(userAtom);
+  const [downloading, setDownloading] = useState<boolean>(false);
 
   useEffect(() => {
     if (course) {
@@ -90,7 +96,7 @@ const CourseSettingsTab = () => {
               color={"error"}
               disabled={true}
             >
-              delete course
+              Delete course
             </ButtonWithConfirmation>
           </Box>
           <Divider />
@@ -98,20 +104,66 @@ const CourseSettingsTab = () => {
             Only you will be able to access the course, that will be saved as a
             zip file. This action is irreversible.
           </Typography>
-          <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
-            <ButtonWithConfirmation
-              onConfirm={() => {
-                console.log("archived");
-              }}
-              confirmText={"archive"}
-              variant={"outlined"}
-              color={"error"}
-              disabled={true}
-              confirmColor={"error"}
-            >
-              Archive course
-            </ButtonWithConfirmation>
-          </Box>
+          {course != null && !course.isArchived && (
+            <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
+              <ButtonWithConfirmation
+                onConfirm={() => {
+                  archiveCourse(course)
+                    .then((updatedCourse) => {
+                      enqueueSnackbar(
+                        "archiving procedure has been dispatched",
+                        {
+                          variant: "info",
+                        },
+                      );
+                      setCourse({
+                        ...course,
+                        isArchived: updatedCourse.isArchived,
+                      });
+                    })
+                    .catch((err: Error) => {
+                      enqueueSnackbar(err.message, { variant: "error" });
+                    });
+                }}
+                title={`You are archiving the course ${course.name}`}
+                description={
+                  "An archived course is not accessible by students and cannot be modified in any way. This action is irreversible."
+                }
+                confirmText={"Archive"}
+                variant={"outlined"}
+                color={"error"}
+                disabled={
+                  (course.role !== "ADMIN" && (!user || !user.isSuperuser)) ||
+                  course.isArchived
+                }
+                confirmColor={"error"}
+              >
+                Archive course
+              </ButtonWithConfirmation>
+            </Box>
+          )}
+          {course != null && course.isArchived && (
+            <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
+              {downloading ? (
+                <CircularProgress />
+              ) : (
+                <Button
+                  variant={"outlined"}
+                  disabled={!course.isArchived}
+                  onClick={() => {
+                    setDownloading(true);
+                    void downloadCourseArchive(course, (progressEvent) => {
+                      console.log(progressEvent);
+                    }).finally(() => {
+                      setDownloading(false);
+                    });
+                  }}
+                >
+                  Download archive
+                </Button>
+              )}
+            </Box>
+          )}
         </CardContent>
       </Card>
     </Box>

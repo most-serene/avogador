@@ -14,6 +14,11 @@ import useTrialService from "@trials/hooks/useTrialService.tsx";
 import useWebSocket from "@hooks/useWebSocket.tsx";
 import EditorToolbar from "@exercises/exerciseScreen/EditorToolbar.tsx";
 import { Trial } from "@trials/types.ts";
+import {
+  getCellBorderColor,
+  getCellBorderStyle,
+} from "@components/editor/editorUtils.ts";
+import { Course } from "@courses/types.ts";
 
 interface SubmissionEditorProps {
   submissionDisabled: boolean;
@@ -22,6 +27,7 @@ interface SubmissionEditorProps {
   setSubmissionResult: React.Dispatch<
     React.SetStateAction<SubmissionResultMap | undefined>
   >;
+  course: Course;
 }
 
 const SubmissionEditor = ({
@@ -29,6 +35,7 @@ const SubmissionEditor = ({
   exerciseId,
   trialId,
   setSubmissionResult,
+  course,
 }: SubmissionEditorProps) => {
   const { getTemplateFromExercise, createSubmission } = useExerciseService();
   const { getTrialById, isTrialEnded } = useTrialService();
@@ -158,16 +165,15 @@ const SubmissionEditor = ({
             key={i}
             sx={{
               borderLeft: 3,
-              borderLeftColor:
-                cell.type === "EDITABLE" ? "primary.main" : "rgba(0,0,0,0)",
-              borderLeftStyle: "solid",
+              borderLeftColor: getCellBorderColor(cell.type),
+              borderLeftStyle: getCellBorderStyle(cell.type),
             }}
           >
             <Editor
               height={`${
                 24 * (cell.content.split(/\r\n|\r|\n/).length + 0.3)
               }px`}
-              theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+              theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
               language={trial?.language.toLowerCase()}
               value={cell.content}
               options={{
@@ -198,7 +204,7 @@ const SubmissionEditor = ({
         ))}
       </Box>
 
-      {trial != null && !isTrialEnded(trial) && (
+      {trial != null && !isTrialEnded(trial) && !course.isArchived && (
         <Button
           variant="contained"
           style={{

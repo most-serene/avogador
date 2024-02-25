@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.userservice.controllers;
 
 import eu.mostserene.avogador.userservice.mail.EmailService;
+import eu.mostserene.avogador.userservice.profilemanager.ExecutionProfile;
 import eu.mostserene.avogador.userservice.security.AuthService;
 import eu.mostserene.avogador.userservice.users.*;
-import eu.mostserene.avogador.userservice.utils.ProfileManager;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class UserControllerTests {
     private @MockBean AuthService authService;
     private @MockBean EmailService emailService;
     private @MockBean UserService userService;
-    private @MockBean ProfileManager profileManager;
+    private @MockBean ExecutionProfile executionProfile;
     private @MockBean BuildProperties buildProperties;
 
 
@@ -179,8 +179,7 @@ public class UserControllerTests {
 
     @Test
     public void logoutUser() throws Exception {
-        when(profileManager.executeOnProfile(any(), any(), any(), any()))
-                .thenReturn(cookie);
+        when(executionProfile.logout()).thenReturn(cookie);
 
         mvc.perform(get("/public/users/logout"))
                 .andDo(print())

@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.users;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -11,22 +12,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class UserServiceImpl implements UserService {
-    @Data
-    private static class UserDtoList {
-        private List<UserDto> users;
-
-        public UserDtoList() {
-            this.users = new ArrayList<>();
-        }
-
-        public UserDtoList(List<UserDto> users) {
-            this.users = users;
-        }
-    }
-
     /**
      * Get the ID of a request
      *
@@ -41,10 +30,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsersFromIdList(List<UUID> ids) {
         HttpClient client = HttpClients.createDefault();
-        RestTemplate template= new RestTemplate();
+        RestTemplate template = new RestTemplate();
         template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
-        if (ids.isEmpty()){
+        if (ids.isEmpty()) {
             return List.of();
         }
 
@@ -55,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsersFromIdList(List<UUID> ids, Optional<Integer> limit, Optional<Integer> offset, Optional<String> orderBy, Optional<String> direction) {
         HttpClient client = HttpClients.createDefault();
-        RestTemplate template= new RestTemplate();
+        RestTemplate template = new RestTemplate();
         template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
         String url = "http://users/users?" +
@@ -66,6 +55,19 @@ public class UserServiceImpl implements UserService {
 
         return Arrays.stream(Objects.requireNonNull(template.patchForObject(url, ids, UserDto[].class)))
                 .toList();
+    }
+
+    @Data
+    private static class UserDtoList {
+        private List<UserDto> users;
+
+        public UserDtoList() {
+            this.users = new ArrayList<>();
+        }
+
+        public UserDtoList(List<UserDto> users) {
+            this.users = users;
+        }
     }
 
 }

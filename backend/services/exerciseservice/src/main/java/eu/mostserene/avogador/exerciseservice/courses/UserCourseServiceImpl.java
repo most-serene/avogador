@@ -1,14 +1,19 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
-@Service
 @Slf4j
+@Transactional
+@Service
 public class UserCourseServiceImpl implements UserCourseService {
     @Override
     public List<UserCourseDto> getCourseCollaborators(UUID courseId) {
@@ -20,17 +25,18 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public Optional<CourseRole> getUserCourseRole(UUID courseId, UUID userId) {
-        CourseRole courseRole = new RestTemplateBuilder()
+    public Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
+        CourseDetailDto courseDetailDto = new RestTemplateBuilder()
                 .build()
-                .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseRole.class);
+                .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseDetailDto.class);
 
-        return courseRole != null ? Optional.of(courseRole) : Optional.empty();
+        return courseDetailDto != null ? Optional.of(courseDetailDto) : Optional.empty();
     }
 
     @Data
     private static class UserCourseDtoList {
         private List<UserCourseDto> userCourses;
+
         public UserCourseDtoList() {
         }
     }

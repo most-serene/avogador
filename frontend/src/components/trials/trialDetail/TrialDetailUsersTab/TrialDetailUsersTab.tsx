@@ -282,16 +282,10 @@ const TrialDetailUsersTab = ({ trial }: TrialDetailUsersTabProps) => {
           if (["startDate", "__check__"].includes(cell.field)) {
             return;
           } else if (["enroll", "fullName"].includes(cell.field)) {
-            navigate(
-              `/${trial.trialType === "PRACTICE" ? "practices" : "exams"}/${
-                trial.id
-              }/users/${cell.id}`,
-            );
+            navigate(`/trials/${trial.id}/users/${cell.id}`);
           } else {
             navigate(
-              `/${trial.trialType === "PRACTICE" ? "practices" : "exams"}/${
-                trial.id
-              }/users/${cell.id}?exerciseId=${cell.field}`,
+              `/trials/${trial.id}/users/${cell.id}?exerciseId=${cell.field}`,
             );
           }
         }}

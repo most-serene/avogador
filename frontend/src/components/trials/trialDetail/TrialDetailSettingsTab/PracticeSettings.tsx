@@ -26,6 +26,8 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
   const [startDate, setStartDate] = useState(practice.startTimestamp);
   const [deadline, setDeadline] = useState(practice.deadline);
   const [isUpdateDisabled, setIsUpdateDisabled] = useState(false);
+  const [isPastStartDateError, setIsPastStartDateError] = useState(false);
+  const [isPastDeadlineError, setIsPastDeadlineError] = useState(false);
 
   const handleUpdate = () => {
     setIsUpdateDisabled(true);
@@ -75,13 +77,26 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
               <DateTimePicker
                 sx={{ width: "100%" }}
                 ampm={false}
+                disablePast
                 minDateTime={min([new Date(), practice.startTimestamp])}
                 value={setSeconds(startDate, 0)}
+                slotProps={{
+                  textField: {
+                    helperText: isPastStartDateError
+                      ? "Trials can't start in the past"
+                      : undefined,
+                    error: isPastStartDateError,
+                  },
+                }}
                 onChange={(newVal) => {
-                  if (newVal) setStartDate(setSeconds(newVal, 0));
+                  if (newVal == null) return;
+                  setIsPastStartDateError(
+                    newVal.getTime() < new Date().getTime(),
+                  );
+                  setStartDate(setSeconds(newVal, 0));
                 }}
                 label="Start timestamp"
-                maxDate={deadline}
+                maxDateTime={deadline}
               />
             </Grid>
             <Grid item xs={6}>
@@ -89,12 +104,24 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
                 sx={{ width: "100%" }}
                 ampm={false}
                 value={setSeconds(deadline, 0)}
+                onError={() => {
+                  setIsPastDeadlineError(true);
+                }}
+                slotProps={{
+                  textField: {
+                    helperText: isPastDeadlineError
+                      ? "Trials cannot end in the past"
+                      : undefined,
+                  },
+                }}
                 onChange={(newVal) => {
-                  if (newVal) setDeadline(setSeconds(newVal, 0));
+                  if (newVal == null) return;
+                  setDeadline(setSeconds(newVal, 0));
+                  setIsPastDeadlineError(false);
                 }}
                 disablePast
                 label="Deadline"
-                minDate={startDate}
+                minDateTime={startDate}
               />
             </Grid>
           </Grid>
@@ -102,6 +129,8 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
           <Box display={"flex"} justifyContent={"center"} margin={"1rem"}>
             <ButtonWithConfirmation
               disabled={
+                isPastStartDateError ||
+                isPastDeadlineError ||
                 isUpdateDisabled ||
                 ((name === practice.name || name.trim() === "") &&
                   startDate === practice.startTimestamp &&

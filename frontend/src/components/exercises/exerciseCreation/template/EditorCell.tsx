@@ -3,6 +3,10 @@ import { StroxCell } from "@exercises/types.ts";
 import Box from "@mui/material/Box";
 import { Divider, IconButton, Paper, Tooltip, useTheme } from "@mui/material";
 import { Delete, Edit, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  getCellBorderColor,
+  getCellBorderStyle,
+} from "@components/editor/editorUtils.ts";
 
 interface EditorCellProps {
   cell: StroxCell;
@@ -31,11 +35,19 @@ const EditorCell = ({
   };
 
   return (
-    <Box position="relative" className="show-on-hover-source">
+    <Box
+      position="relative"
+      className="show-on-hover-source"
+      sx={{
+        borderLeft: 3,
+        borderLeftColor: getCellBorderColor(cell.type),
+        borderLeftStyle: getCellBorderStyle(cell.type),
+      }}
+    >
       <Editor
-        height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 1)}px`}
+        height={`${24 * (cell.content.split(/\r\n|\r|\n/).length + 0.2)}px`}
         language={language?.toLowerCase()}
-        theme={theme.palette.mode === "dark" ? "vs-dark" : "light"}
+        theme={theme.palette.mode === "dark" ? "vs-dark" : "vs"}
         options={{
           inlineSuggest: true,
           scrollBeyondLastLine: false,

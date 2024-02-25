@@ -8,17 +8,21 @@ import { Exercise, SubmissionResultMap, Testcase } from "@exercises/types.ts";
 import ExerciseStatement from "@exercises/exerciseScreen/ExerciseStatement.tsx";
 import SubmissionEditor from "@exercises/exerciseScreen/SubmissionEditor.tsx";
 import SubmissionResultsPopup from "@exercises/exerciseScreen/SubmissionResultsPopup.tsx";
+import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
+import { Course } from "@courses/types.ts";
 
 interface ExerciseScreenProps {
   exerciseId: string;
+  course: Course;
 }
 
-const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
+const ExerciseScreen = ({ exerciseId, course }: ExerciseScreenProps) => {
   const {
     getExerciseById,
     getTestcasesFromExercise,
     getUserLastSubmissionFromExercise,
   } = useExerciseService();
+  const globalErrorSetter = useGlobalErrorSetter();
   const { trialId } = useParams();
   const [exercise, setExercise] = useState<Exercise>();
   const [testcases, setTestcases] = useState<Testcase[]>([]);
@@ -54,6 +58,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
     getExerciseById,
     getTestcasesFromExercise,
     getUserLastSubmissionFromExercise,
+    globalErrorSetter,
   ]);
 
   if (trialId == null) {
@@ -81,6 +86,7 @@ const ExerciseScreen = ({ exerciseId }: ExerciseScreenProps) => {
           setSubmissionResult={setSubmissionResult}
           exerciseId={exerciseId}
           trialId={trialId}
+          course={course}
         />
       </Grid>
     </Grid>

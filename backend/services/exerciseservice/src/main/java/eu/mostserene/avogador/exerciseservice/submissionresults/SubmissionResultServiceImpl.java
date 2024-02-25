@@ -2,12 +2,14 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Transactional
 @Service
 public class SubmissionResultServiceImpl implements SubmissionResultService {
     @Autowired

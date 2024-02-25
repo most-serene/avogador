@@ -1,19 +1,15 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
-import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+@Transactional
 @Service
 public class UserTrialServiceImpl implements UserTrialService {
     @Autowired

@@ -42,4 +42,8 @@ public class Practice extends Trial {
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
+
+    public boolean areTimestampsValid() {
+        return getStartTimestamp().after(new Date()) && getDeadline().after(getStartTimestamp());
+    }
 }

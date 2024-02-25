@@ -67,11 +67,13 @@ const TrialCreationScreen = () => {
 
         if (preCourseId == null) {
           setCourses(
-            userCourses.filter(
-              (userCourse) =>
-                userCourse.role === "COLLABORATOR" ||
-                userCourse.role === "ADMIN",
-            ),
+            userCourses
+              .filter(
+                (userCourse) =>
+                  userCourse.role === "COLLABORATOR" ||
+                  userCourse.role === "ADMIN",
+              )
+              .filter((userCourse) => !userCourse.course.isArchived),
           );
           return;
         }
@@ -131,7 +133,7 @@ const TrialCreationScreen = () => {
           },
         );
 
-        navigate(`/practices/${createdPractice.id}`);
+        navigate(`/trials/${createdPractice.id}`);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });

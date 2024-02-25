@@ -155,7 +155,7 @@ const SimilarityReport = () => {
           <Button
             variant={"outlined"}
             onClick={() => {
-              navigate(`/practices/${exercise.trial.id}?tab=2`);
+              navigate(`/trials/${exercise.trial.id}?tab=2`);
             }}
           >
             <ArrowBackIosNewIcon />

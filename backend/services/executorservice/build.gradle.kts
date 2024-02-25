@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "eu.mostserene.avogador"
-version = "0.7.1"
+version = "0.8.1"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
@@ -32,7 +32,7 @@ repositories {
 dependencies {
 	implementation("org.reflections:reflections:0.10.2")
 	implementation("com.github.docker-java:docker-java:3.3.0")
-	implementation("org.rauschig:jarchivelib:0.7.1")
+	implementation("org.rauschig:jarchivelib:0.8.0")
 	implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.0")
 	implementation("io.sentry:sentry:6.16.0") // just compile should be required
 	implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")

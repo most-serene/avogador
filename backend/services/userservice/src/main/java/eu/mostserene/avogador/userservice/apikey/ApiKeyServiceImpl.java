@@ -2,6 +2,7 @@ package eu.mostserene.avogador.userservice.apikey;
 
 import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.users.User;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
+    @Transactional
     public String generateApiKey(User user, String name, Timestamp expiration) {
         if (apiKeyRepository.findByUserAndName(user, name).isPresent()) {
             throw new AlreadyExistingKeyException();
@@ -61,6 +63,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     }
 
     @Override
+    @Transactional
     public void deleteApiKey(ApiKey apiKey) {
         apiKeyRepository.delete(apiKey);
     }

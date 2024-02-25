@@ -1,11 +1,11 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { useEffect, useState } from "react";
-import { Exam, Practice, UserTrial } from "@trials/types.ts";
+import { Exam, isPractice, Practice, UserTrial } from "@trials/types.ts";
 import { CourseDetail } from "@courses/types.ts";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
-import { ForbiddenError } from "@error/types.ts";
+import { ArchivedCourseError, ForbiddenError } from "@error/types.ts";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import TrialDetailCollaboratorScreen from "@trials/trialDetail/TrialDetailCollaboratorScreen.tsx";
@@ -16,75 +16,75 @@ import { enqueueSnackbar } from "notistack";
 import Box from "@mui/material/Box";
 import { CircularProgress } from "@mui/material";
 
-interface TrialDetailScreenProps {
-  trialType: "PRACTICE" | "EXAM";
-}
-
-const TrialDetailScreen = ({ trialType }: TrialDetailScreenProps) => {
+const TrialDetailScreen = () => {
   const { trialId } = useParams();
-  const { getPracticeById, getUserTrial, joinPractice } = useTrialService();
+  const { getUserTrial, joinPractice, getTrialById } = useTrialService();
   const { getCourseById } = useCourseService();
   const [user] = useAtom(userAtom);
   const globalErrorSetter = useGlobalErrorSetter();
-  const { pathname } = useLocation();
   const [userCourse, setUserCourse] = useState<CourseDetail>();
   const [trial, setTrial] = useState<Practice | Exam>();
   const [userTrial, setUserTrial] = useState<UserTrial | undefined | null>();
 
   useEffect(() => {
-    if (trialId != null && user) {
-      if (trialType === "PRACTICE") {
-        getPracticeById(trialId)
-          .then((trialResponse) => {
-            setTrial(trialResponse);
-            getCourseById(trialResponse.courseId)
-              .then((userCourseResponse) => {
-                if (userCourseResponse.role === "EXTERNAL") {
-                  globalErrorSetter(
-                    new ForbiddenError(
-                      location.pathname,
-                      `${user.email} does not belong to the associated course`,
-                    ),
-                  );
-                }
-                setUserCourse(userCourseResponse);
-              })
-              .catch((err: Error) => {
-                enqueueSnackbar(err.message, { variant: "error" });
-                console.error(err);
-              });
+    if (trialId == null || !user) return;
 
-            getUserTrial(user, trialResponse)
-              .then((userTrialResponse) => {
-                setUserTrial(userTrialResponse);
-              })
-              .catch((err: Error) => {
-                if (err instanceof AxiosError && err.response?.status === 404) {
-                  setUserTrial(null);
-                } else {
-                  enqueueSnackbar(err.message, { variant: "error" });
-                  console.error(err);
-                }
-              });
-          })
-          .catch((err: Error) => {
-            enqueueSnackbar(err.message, { variant: "error" });
-            console.error(err);
-          });
-      } else {
-        console.error("Exam not implemented");
-      }
-    }
-  }, [
-    getCourseById,
-    getPracticeById,
-    getUserTrial,
-    globalErrorSetter,
-    pathname,
-    trialId,
-    trialType,
-    user,
-  ]);
+    getTrialById(trialId)
+      .then((trial) => {
+        setTrial(trial);
+      })
+      .catch((err: AxiosError) => {
+        if (err.response && err.response.status === 403) {
+          globalErrorSetter(
+            new ForbiddenError(
+              location.pathname,
+              `${user.email} does not belong to the associated course`,
+            ),
+          );
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
+      });
+
+    return () => {
+      setTrial(undefined);
+    };
+  }, [getTrialById, globalErrorSetter, trialId, user]);
+
+  useEffect(() => {
+    if (trial == null || !user) return;
+    getCourseById(trial.courseId)
+      .then((userCourseResponse) => {
+        if (userCourseResponse.role === "EXTERNAL") {
+          globalErrorSetter(
+            new ForbiddenError(
+              location.pathname,
+              `${user.email} does not belong to the associated course`,
+            ),
+          );
+        }
+        setUserCourse(userCourseResponse);
+      })
+      .catch((err: Error) => {
+        if (err instanceof AxiosError && err.response?.status === 410) {
+          globalErrorSetter(new ArchivedCourseError(err.message));
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
+      });
+
+    getUserTrial(user, trial)
+      .then((userTrialResponse) => {
+        setUserTrial(userTrialResponse);
+      })
+      .catch((err: Error) => {
+        if (err instanceof AxiosError && err.response?.status === 404) {
+          setUserTrial(null);
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
+      });
+  }, [getCourseById, getUserTrial, globalErrorSetter, trial, user]);
 
   if (
     !trial ||
@@ -115,7 +115,7 @@ const TrialDetailScreen = ({ trialType }: TrialDetailScreenProps) => {
       <JoinTrialScreen
         trial={trial}
         joinHandler={() => {
-          if (trial.trialType === "PRACTICE") {
+          if (isPractice(trial)) {
             joinPractice(trial.id)
               .then((ut) => {
                 setUserTrial(ut);
