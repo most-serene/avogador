@@ -3,7 +3,11 @@ from cmd import Cmd
 import os
 from aeosa import appscript
 from termcolor import colored
-
+import toml
+ 
+with open('devUtilsConfig.toml', 'r') as f:
+    config = toml.load(f)
+ 
 class DevUtilsCmd(Cmd):
     #{os.environ['USER']}-
     prompt = colored(f"{Repository('.').head.shorthand} > ", "light_green")
@@ -53,6 +57,9 @@ class DevUtilsCmd(Cmd):
     def do_list_services(self, inp):
         os.system(f'docker compose config --services')
 
+    def do_deployToProd(self, inp):
+        os.system(f"DOCKER_HOST={config['production']['docker_engine']} docker compose -f docker-compose-prod.yml --project-name avogador --env-file production.env up -d --build")
+
     def do_sandboxBuildPush(self, inp):
         os.system('docker buildx build --push --platform linux/amd64  --tag gotti27/runtime-env:stable ./sandboxImage')
 
@@ -87,6 +94,9 @@ class DevUtilsCmd(Cmd):
 
     def help_stop(self):
         print('stop the listed services')
+
+    def help_deployToProd(self):
+        print('deploys all the microservices to production')
 
     def help_sandboxBuildPush(self):
         print('build and push the sandbox docker image')
