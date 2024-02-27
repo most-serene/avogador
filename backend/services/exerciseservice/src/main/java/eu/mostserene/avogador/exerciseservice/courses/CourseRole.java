@@ -9,9 +9,9 @@ public enum CourseRole {
     COLLABORATOR(1),
     ADMIN(2);
 
-    private final Integer clearance;
+    private final int clearance;
 
-    CourseRole(Integer clearance){
+    CourseRole(int clearance) {
         this.clearance = clearance;
     }
 

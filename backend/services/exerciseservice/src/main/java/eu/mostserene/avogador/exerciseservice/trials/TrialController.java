@@ -49,7 +49,7 @@ public class TrialController {
         var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getRole().getClearance() < CourseRole.STUDENT.getClearance()) {
+        if (courseRole.getRole().getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -73,7 +73,7 @@ public class TrialController {
             throw new ForbiddenException(user);
         }
 
-        if (userRole.getRole().getClearance().equals(CourseRole.STUDENT.getClearance())) {
+        if (userRole.getRole().getClearance() == CourseRole.STUDENT.getClearance()) {
             return trialService.getTrialsByCourseId(courseId, false);
         }
 
@@ -127,7 +127,7 @@ public class TrialController {
         var courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance()) {
+        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 

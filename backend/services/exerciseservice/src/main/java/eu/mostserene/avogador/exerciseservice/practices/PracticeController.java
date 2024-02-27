@@ -56,7 +56,7 @@ public class PracticeController {
         if (user.getIsSuperuser()) return practice;
 
         if ((courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !practice.getIsVisible())
-                || courseRole.getClearance().equals(CourseRole.EXTERNAL.getClearance())) {
+                || courseRole.getClearance() == CourseRole.EXTERNAL.getClearance()) {
             throw new ForbiddenException(user);
         }
 
