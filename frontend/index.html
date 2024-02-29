@@ -1,6 +1,21 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <style>
+      body:has(> #root:empty){
+       background-color: #111111;
+      }
+      #root:empty{
+        position:absolute;
+        left: 50%;
+        top: 40%;
+        height: calc(48% - 68px);
+        transform: translate(-50%, -50%);
+        justify-content: center;
+        align-items: center;
+        content: url("./src/assets/images/logo.png");
+      }
+    </style>
     <title>Avogador</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#80FFFFF" />

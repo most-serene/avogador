@@ -16,8 +16,8 @@ const ArchivedCourseErrorCard = () => {
         </Typography>
 
         <Typography variant="body1" gutterBottom>
-          The course you are trying to open has been archived by its owner. So
-          you cannot access it anymore.
+          The course you are trying to open has been archived by its owner. You
+          cannot access it anymore.
         </Typography>
 
         <Box display="flex" justifyContent="center" marginTop=".5rem">
