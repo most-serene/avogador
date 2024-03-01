@@ -154,10 +154,10 @@ pipeline {
                     }
                 }
                 
-                // cp -r $JENKINS_HOME/.envvars/avogador/node_modules .
+                // cp -r /envvars/avogador/node_modules .
                 sh '''
                     cd frontend
-                    cp $JENKINS_HOME/.envvars/avogador/web.staging.env ./.env.staging
+                    cp /envvars/avogador/web.staging.env ./.env.staging
                     yarn
                     yarn build:staging
                     tar -czvf webapp.tar.gz dist
@@ -213,7 +213,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/apigateway/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
+                        cp /envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
                         cd backend/apigateway
 
                         ./gradlew test --no-daemon
@@ -223,7 +223,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/services/courseservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        cp /envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
                         cd backend/services/courseservice
 
                         ./gradlew test --no-daemon
@@ -233,7 +233,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/services/userservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
+                        cp /envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
                         cd backend/services/userservice
                         
                         ./gradlew test --no-daemon
@@ -243,7 +243,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/services/exerciseservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
+                        cp /envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
                         cd backend/services/exerciseservice
                         
                         ./gradlew test --no-daemon
@@ -253,7 +253,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/services/storageservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/storageTest backend/services/storageservice/src/test/resources/application.properties
+                        cp /envvars/avogador/storageTest backend/services/storageservice/src/test/resources/application.properties
                         cd backend/services/storageservice
                         
                         ./gradlew test --no-daemon
@@ -263,7 +263,7 @@ pipeline {
                 withGradle {
                     sh '''
                         mkdir -p backend/services/executorservice/src/test/resources
-                        cp $JENKINS_HOME/.envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties
+                        cp /envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties
                         cd backend/services/executorservice
                         
                         ./gradlew test --no-daemon
@@ -291,17 +291,17 @@ pipeline {
                 /*
                 sh '''
                     cd frontend
-                    cp -r node_modules $JENKINS_HOME/.envvars/avogador/node_modules
+                    cp -r node_modules /envvars/avogador/node_modules
                 '''
                 */
 
 
                 //ssh ${STAGING_HOST} 'bin/MaintenanceAvogador' || true
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
-                withEnv(readFile("$JENKINS_HOME/.envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
+                withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/staging.env build
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/staging.env up -d --force-recreate
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d --force-recreate
                     DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker container ls -a
                     """
                 }
@@ -315,11 +315,11 @@ pipeline {
             steps {
                 echo 'Production Deliver started - $TAG_NAME'
 
-                withEnv(readFile("$JENKINS_HOME/.envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
+                withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
-                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env build
+                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file /envvars/avogador/production.env build
                     ssh ${PRODUCTION_HOST} 'bin/MaintenanceJupyter' || true
-                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file $JENKINS_HOME/.envvars/avogador/production.env up -d
+                    DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file /envvars/avogador/production.env up -d
                     ssh ${PRODUCTION_HOST} 'bin/NotMaintenanceJupyter'
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} docker container ls -a
                     """
@@ -347,7 +347,7 @@ pipeline {
             setBuildStatus("Build succeeded", "SUCCESS");
             script {
                 if (env.BRANCH_NAME == 'master') {
-                    withEnv(readFile("$JENKINS_HOME/.envvars/buildStatusApi/jenkinsEnv.txt").split('\n') as List) {
+                    withEnv(readFile("/envvars/buildStatusApi/jenkinsEnv.txt").split('\n') as List) {
                         setBuildBadge(env.API_KEY, "5", "success");
                     }
                 }
@@ -358,7 +358,7 @@ pipeline {
             setBuildStatus("Build failed", "FAILURE");
             script {
                 if (env.BRANCH_NAME == 'master') {
-                    withEnv(readFile("$JENKINS_HOME/.envvars/buildStatusApi/jenkinsEnv.txt").split('\n') as List) {
+                    withEnv(readFile("/envvars/buildStatusApi/jenkinsEnv.txt").split('\n') as List) {
                         setBuildBadge(env.API_KEY, "5", "failed");
                     }
                 }
