@@ -75,9 +75,7 @@ const ExerciseSettingsStepper = ({
   const isTestcasesStepComplete = useMemo<boolean>(() => {
     return (
       testcases.length > 0 &&
-      testcases.every(
-        ({ input, output }) => input.trim() !== "" && output.trim() !== "",
-      )
+      testcases.every(({ output }) => output.trim() !== "")
     );
   }, [testcases]);
 
