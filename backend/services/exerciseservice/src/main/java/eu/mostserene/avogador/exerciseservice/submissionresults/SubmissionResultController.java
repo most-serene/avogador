@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/public/exercises/{exerciseId}")
@@ -65,14 +64,7 @@ public class SubmissionResultController {
             submissions = submissionService.getSubmissionsFromExerciseAndUserId(exercise, userId);
         }
 
-        return submissions.stream()
-                .collect(Collectors.toMap(
-                        Submission::getId,
-                        submission -> submissionResultService.getResultsFromSubmission(submission)
-                                .stream()
-                                .map(SubmissionResult::toDto)
-                                .toList()
-                ));
+        return submissionResultService.getResults(submissions);
     }
 
     @GetMapping("/results")

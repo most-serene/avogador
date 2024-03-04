@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,23 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId) {
         return submissionRepository.findByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
+    }
+
+    @Override
+    public List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(Exercise exercise, UUID userId) {
+        var submissions = getSubmissionsFromExerciseAndUserId(exercise, userId);
+
+        return submissions.stream()
+                .map(submission -> new SubmissionDto(submission.getId(),
+                                submission.getExercise().getId(),
+                                userId,
+                                submission.getTimestamp(),
+                                storageService.getSubmissionStrox(submission)
+                                        .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
+                                        .getCells()
+                        )
+                )
+                .toList();
     }
 
     @Override

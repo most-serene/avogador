@@ -26,10 +26,7 @@ public class SubmissionDto {
     }
 
     public SubmissionDto(UUID id, UUID exerciseId, UUID userId, Date timestamp, List<StroxCell> stroxCells) {
-        this.id = id;
-        this.exerciseId = exerciseId;
-        this.userId = userId;
-        this.timestamp = timestamp;
+        this(id, exerciseId, userId, timestamp);
         this.stroxCells = stroxCells;
     }
 }

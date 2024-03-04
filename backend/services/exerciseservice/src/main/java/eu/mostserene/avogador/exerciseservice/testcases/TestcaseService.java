@@ -8,12 +8,19 @@ import java.util.UUID;
 
 public interface TestcaseService {
     Optional<Testcase> getSimpleTestcase(UUID testcaseId);
+
     Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId);
+
     List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException;
+
     List<Testcase> getSimpleTestcasesFromExercise(Exercise exercise);
+
     TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise);
+
     Testcase updateTestcaseIndex(Testcase testcase, int index);
-    TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase);
+
+    TestcaseDetailDto updateTestcase(Testcase testcase, TestcaseDetailDto testcaseDto);
+
     void deleteTestcase(Exercise exercise, UUID testcase);
 
 }

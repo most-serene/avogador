@@ -55,35 +55,41 @@ class TestcaseControllerTests : AbstractControllerTests() {
     @BeforeEach
     fun setup() {
         `when`(exerciseService.getExercise(any()))
-                .thenReturn(Optional.empty())
+            .thenReturn(Optional.empty())
         `when`(exerciseService.getExercise(visibleExercise.id))
-                .thenReturn(Optional.of(visibleExercise))
+            .thenReturn(Optional.of(visibleExercise))
         `when`(trialService.getTrialById(any()))
-                .thenReturn(Optional.empty())
+            .thenReturn(Optional.empty())
         `when`(trialService.getTrialById(practice.id))
-                .thenReturn(Optional.of(practice))
+            .thenReturn(Optional.of(practice))
         `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
-                .thenReturn(Optional.empty())
+            .thenReturn(Optional.empty())
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
+            .thenReturn(Optional.of(courseDetailDtoExternal))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
+            .thenReturn(Optional.of(courseDetailDtoExternal))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
-                .thenReturn(Optional.of(courseDetailDtoStudent))
+            .thenReturn(Optional.of(courseDetailDtoStudent))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
-                .thenReturn(Optional.of(courseDetailDtoCollaborator))
+            .thenReturn(Optional.of(courseDetailDtoCollaborator))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
-                .thenReturn(Optional.of(courseDetailDtoAdmin))
+            .thenReturn(Optional.of(courseDetailDtoAdmin))
         `when`(testcaseService.getTestcasesFromExercise(eq(visibleExercise)))
-                .thenReturn(listOf(visibleTestcase, hiddenTestcase))
+            .thenReturn(listOf(visibleTestcaseDto, hiddenTestcaseDto))
         `when`(testcaseService.getTestcase(any(), any()))
-                .thenReturn(Optional.empty())
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcase.id)))
-                .thenReturn(Optional.of(visibleTestcase))
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcase.id)))
-                .thenReturn(Optional.of(hiddenTestcase))
+            .thenReturn(Optional.empty())
+        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcaseDto.id)))
+            .thenReturn(Optional.of(visibleTestcaseDto))
+        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcaseDto.id)))
+            .thenReturn(Optional.of(hiddenTestcaseDto))
+        `when`(testcaseService.getSimpleTestcasesFromExercise(any()))
+            .thenReturn(listOf())
         `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleExercise)))
-                .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
+            .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
+        `when`(testcaseService.getSimpleTestcase(any()))
+            .thenReturn(Optional.empty())
+        `when`(testcaseService.getSimpleTestcase(eq(visibleTestcaseDto.id)))
+            .thenReturn(Optional.of(visibleTestcase))
     }
 
     @Nested
@@ -93,7 +99,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.put("/public/exercises/00000000-0000-0000-0000-000000000000/testcases") {
                 header("User", studentHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(visibleTestcase)
+                content = mapper.writeValueAsString(visibleTestcaseDto)
             }.andDo {
                 print()
             }.andExpect {
@@ -107,7 +113,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.put("/public/exercises/${visibleExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(visibleTestcase)
+                content = mapper.writeValueAsString(visibleTestcaseDto)
             }.andDo {
                 print()
             }.andExpect {
@@ -121,7 +127,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.put("/public/exercises/${visibleExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(visibleTestcase)
+                content = mapper.writeValueAsString(visibleTestcaseDto)
             }.andDo {
                 print()
             }.andExpect {
@@ -163,7 +169,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             }.andExpect {
                 status { isOk() }
                 jsonPath<Collection<TestcaseDetailDto>>("$", hasSize(1))
-                jsonPath<String>("$[0].id", `is`(visibleTestcase.id.toString()))
+                jsonPath<String>("$[0].id", `is`(visibleTestcaseDto.id.toString()))
             }
         }
 
@@ -177,8 +183,8 @@ class TestcaseControllerTests : AbstractControllerTests() {
             }.andExpect {
                 status { isOk() }
                 jsonPath<Collection<TestcaseDetailDto>>("$", hasSize(2))
-                jsonPath<String>("$[0].id", `is`(visibleTestcase.id.toString()))
-                jsonPath<String>("$[1].id", `is`(hiddenTestcase.id.toString()))
+                jsonPath<String>("$[0].id", `is`(visibleTestcaseDto.id.toString()))
+                jsonPath<String>("$[1].id", `is`(hiddenTestcaseDto.id.toString()))
             }
         }
     }
@@ -187,7 +193,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class GetTestcaseById {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcase.id}") {
+            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -198,7 +204,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -209,7 +215,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user - hidden testcase`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -231,7 +237,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) student user - hidden testcase`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -242,7 +248,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -254,7 +260,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -266,7 +272,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user - hidden testcase`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcase.id}") {
+            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -283,7 +289,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/order") {
                 header("User", studentHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+                content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
             }.andDo {
                 print()
             }.andExpect {
@@ -297,7 +303,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+                content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
             }.andDo {
                 print()
             }.andExpect {
@@ -310,7 +316,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(visibleTestcase.id))
+                content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id))
             }.andDo {
                 print()
             }.andExpect {
@@ -323,7 +329,13 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id, visibleTestcase.id))
+                content = mapper.writeValueAsString(
+                    listOf(
+                        hiddenTestcaseDto.id,
+                        visibleTestcaseDto.id,
+                        visibleTestcaseDto.id
+                    )
+                )
             }.andDo {
                 print()
             }.andExpect {
@@ -336,7 +348,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(visibleTestcase.id, visibleTestcase.id))
+                content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id, visibleTestcaseDto.id))
             }.andDo {
                 print()
             }.andExpect {
@@ -350,10 +362,10 @@ class TestcaseControllerTests : AbstractControllerTests() {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                        listOf(
-                                UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                                visibleTestcase.id
-                        )
+                    listOf(
+                        UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                        visibleTestcaseDto.id
+                    )
                 )
             }.andDo {
                 print()
@@ -368,7 +380,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
             mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(listOf(hiddenTestcase.id, visibleTestcase.id))
+                content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
             }.andDo {
                 print()
             }.andExpect {
@@ -381,7 +393,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class DeleteTestcase {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.delete("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcase.id}") {
+            mvc.delete("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -393,7 +405,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcase.id}") {
+            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -405,7 +417,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcase.id}") {
+            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()

@@ -139,7 +139,9 @@ abstract class AbstractControllerTests {
     val visibleExercise = Exercise(practice, "Exercise1", "statement", 1, true)
     val hiddenExercise = Exercise(practice, "Exercise2", "statement", 1, false)
 
-    val visibleTestcase = TestcaseDetailDto(
+    val visibleTestcase = Testcase(visibleExercise, true, 1, 1.0, "Test")
+
+    val visibleTestcaseDto = TestcaseDetailDto(
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         true,
@@ -147,7 +149,7 @@ abstract class AbstractControllerTests {
         "in1",
         "out1"
     )
-    val hiddenTestcase = TestcaseDetailDto(
+    val hiddenTestcaseDto = TestcaseDetailDto(
         UUID.fromString("00000000-0000-0000-0000-000000000002"),
         UUID.fromString("00000000-0000-0000-0000-000000000001"),
         false,
