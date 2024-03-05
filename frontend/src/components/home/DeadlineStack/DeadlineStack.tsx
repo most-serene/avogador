@@ -7,16 +7,18 @@ import {
   Typography,
 } from "@mui/material";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
 import { enqueueSnackbar } from "notistack";
 import { isPractice, Trial, UserTrial } from "@trials/types.ts";
 import { UserCourse } from "@courses/types.ts";
-import TrialItemSkeleton from "@trials/TrialItem/TrialItemSkeleton.tsx";
 import Box from "@mui/material/Box";
 import { ExpandMore } from "@mui/icons-material";
-import DeadlineItem from "@home/DeadlineStack/DeadlineItem.tsx";
+const DeadlineItem = lazy(() => import("@home/DeadlineStack/DeadlineItem.tsx"));
+const TrialItemSkeleton = lazy(
+  () => import("@trials/TrialItem/TrialItemSkeleton.tsx"),
+);
 
 interface DeadlineStackProps {
   userCourses?: UserCourse[];
