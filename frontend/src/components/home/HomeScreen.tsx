@@ -1,7 +1,5 @@
-import CoursesPreview from "@home/CoursesPreview.tsx";
 import Grid from "@mui/material/Grid";
-import DeadlineStack from "@home/DeadlineStack/DeadlineStack.tsx";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
@@ -9,7 +7,11 @@ import { Skeleton, Typography } from "@mui/material";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import { UserCourse } from "@courses/types.ts";
 import { enqueueSnackbar } from "notistack";
-import QuickCreationHome from "@home/QuickCreationHome.tsx";
+const QuickCreationHome = lazy(() => import("@home/QuickCreationHome.tsx"));
+const CoursesPreview = lazy(() => import("@home/CoursesPreview.tsx"));
+const DeadlineStack = lazy(
+  () => import("@home/DeadlineStack/DeadlineStack.tsx"),
+);
 
 export default function HomeScreen() {
   const [user] = useAtom(userAtom);

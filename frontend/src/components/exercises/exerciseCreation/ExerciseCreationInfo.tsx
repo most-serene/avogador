@@ -12,20 +12,20 @@ import {
   TextField,
   useTheme,
 } from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
+import { lazy, useEffect, useState } from "react";
+const MenuItem = lazy(() => import("@mui/material/MenuItem"));
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
-import { useEffect, useState } from "react";
 import { UserCourse } from "@courses/types.ts";
 import { Trial } from "@trials/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { ForbiddenError } from "@error/types.ts";
-import Grid from "@mui/material/Grid";
+const Grid = lazy(() => import("@mui/material/Grid"));
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
-import Box from "@mui/material/Box";
+const Box = lazy(() => import("@mui/material/Box"));
 import { MDXEditor } from "@mdxeditor/editor/MDXEditor";
 import {
   headingsPlugin,
@@ -44,7 +44,10 @@ import {
 } from "@mdxeditor/editor";
 import { toolbarPlugin } from "@mdxeditor/editor/plugins/toolbar";
 import "@mdxeditor/editor/style.css";
-import OldMarkdownEditor from "@exercises/exerciseCreation/mardownEditors/OldMarkdownEditor.tsx";
+const OldMarkdownEditor = lazy(
+  () =>
+    import("@exercises/exerciseCreation/mardownEditors/OldMarkdownEditor.tsx"),
+);
 
 interface ExerciseCreationInfo {
   disableTrialSelection?: boolean;

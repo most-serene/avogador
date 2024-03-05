@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { lazy, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import {
   Backdrop,
@@ -15,10 +15,22 @@ import { useAtom } from "jotai";
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 import templateAtom from "@exercises/exerciseCreation/TemplateAtom.ts";
 import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
-import ExerciseCreationInfo from "@exercises/exerciseCreation/ExerciseCreationInfo.tsx";
-import ExerciseCreationTemplate from "@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx";
-import ExerciseCreationTestcases from "@exercises/exerciseCreation/testcases/ExerciseCreationTestcases.tsx";
-import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
+const ExerciseCreationInfo = lazy(
+  () => import("@exercises/exerciseCreation/ExerciseCreationInfo.tsx"),
+);
+const ExerciseCreationTemplate = lazy(
+  () =>
+    import("@exercises/exerciseCreation/template/ExerciseCreationTemplate.tsx"),
+);
+const ExerciseCreationTestcases = lazy(
+  () =>
+    import(
+      "@exercises/exerciseCreation/testcases/ExerciseCreationTestcases.tsx"
+    ),
+);
+const ButtonWithConfirmation = lazy(
+  () => import("@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx"),
+);
 
 interface ExerciseSettingsStepperProps {
   onComplete: (
