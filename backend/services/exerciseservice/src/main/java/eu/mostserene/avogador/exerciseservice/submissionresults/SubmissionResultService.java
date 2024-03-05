@@ -2,16 +2,19 @@ package eu.mostserene.avogador.exerciseservice.submissionresults;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
-import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
-import eu.mostserene.avogador.exerciseservice.users.UserDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface SubmissionResultService {
-    List<SubmissionResult> getResultsFromExerciseAndUser(Exercise exercise, UUID userId);
+    Map<UUID, List<SubmissionResultDto>> getResults(List<Submission> submissions);
+
     List<SubmissionResult> getResultsFromSubmission(Submission submission);
+
     SubmissionResult saveSubmissionResult(SubmissionResult submissionResult);
+
     List<SubmissionResult> getResultsFromExercise(Exercise exercise);
+
     void deleteSubmissionResultsByTestcaseId(UUID testcaseId);
 }

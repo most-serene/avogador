@@ -104,7 +104,7 @@ public class TestcaseController {
     private TestcaseDetailDto insertTestcase(
             @RequestHeader(name = "User") UserDto user,
             @PathVariable UUID exerciseId,
-            @RequestBody TestcaseDetailDto testcase) {
+            @RequestBody TestcaseDetailDto testcaseDto) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
         var courseDetail = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user));
@@ -113,16 +113,17 @@ public class TestcaseController {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
 
-        testcase.setExerciseId(exerciseId);
+        var testcase = testcaseService.getSimpleTestcase(testcaseDto.getId())
+                .orElseThrow(() -> new NotFoundException("Testcase with id " + testcaseDto.getId().toString() + " not found"));
 
-        if (testcase.getIndex() == null) {
-            testcase.setIndex((int) Short.MAX_VALUE);
+        if (testcaseDto.getIndex() == null) {
+            testcaseDto.setIndex((int) Short.MAX_VALUE);
         }
 
-        if (testcase.getId() == null) {
-            return testcaseService.createTestcase(testcase, exercise);
+        if (testcaseDto.getId() == null) {
+            return testcaseService.createTestcase(testcaseDto, exercise);
         } else {
-            return testcaseService.updateTestcase(exercise, testcase);
+            return testcaseService.updateTestcase(testcase, testcaseDto);
         }
     }
 

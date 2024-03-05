@@ -8,9 +8,16 @@ import java.util.UUID;
 
 public interface SubmissionService {
     Optional<Submission> getSubmission(UUID submissionId);
+
     List<Submission> getSubmissionsFromExercise(Exercise exercise);
+
     List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId);
+
+    List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(Exercise exercise, UUID userId);
+
     Optional<Submission> getLatestSubmissionFromExerciseAndUserId(Exercise exercise, UUID userId);
+
     Submission createSubmission(Exercise exercise, SubmissionDto submissionDto);
+
     SubmissionDto exportToDto(Submission submission);
 }

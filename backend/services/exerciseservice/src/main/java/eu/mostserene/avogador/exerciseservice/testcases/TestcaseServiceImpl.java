@@ -80,10 +80,15 @@ public class TestcaseServiceImpl implements TestcaseService {
     }
 
     @Override
-    public TestcaseDetailDto updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
-        repository.updateIsVisibleAndIndexById(testcase.getIsVisible(), testcase.getIndex(), testcase.getId());
-        storageService.updateTestcase(exercise, testcase);
-        return testcase;
+    public TestcaseDetailDto updateTestcase(Testcase testcase, TestcaseDetailDto testcaseDto) {
+        testcase.setName(testcaseDto.getName());
+        testcase.setPoints(testcaseDto.getPoints());
+        testcase.setIndex(testcaseDto.getIndex());
+        testcase.setIsVisible(testcaseDto.getIsVisible());
+
+        repository.save(testcase);
+        storageService.updateTestcase(testcase.getExercise(), testcaseDto);
+        return testcaseDto;
     }
 
     @Override

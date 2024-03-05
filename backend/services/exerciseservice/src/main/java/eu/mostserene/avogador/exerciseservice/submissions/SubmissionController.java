@@ -120,19 +120,7 @@ public class SubmissionController {
             throw new ForbiddenException(user);
         }
 
-        List<Submission> submissions = submissionService.getSubmissionsFromExerciseAndUserId(exercise, userId);
-
-        return submissions.stream()
-                .map(submission -> new SubmissionDto(submission.getId(),
-                                submission.getExercise().getId(),
-                                userId,
-                                submission.getTimestamp(),
-                                storageService.getSubmissionStrox(submission)
-                                        .orElseThrow(() -> new NotFoundException(submission.getId() + " Strox not saved"))
-                                        .getCells()
-                        )
-                )
-                .toList();
+        return submissionService.getSubmissionDtosFromExerciseAndUserId(exercise, userId);
     }
 
     @PostMapping("")
