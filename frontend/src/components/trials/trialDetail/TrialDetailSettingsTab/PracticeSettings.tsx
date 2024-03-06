@@ -15,19 +15,21 @@ import Box from "@mui/material/Box";
 import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 import useTrialService from "@trials/hooks/useTrialService.tsx";
 import { enqueueSnackbar } from "notistack";
+import { useNavigate } from "react-router-dom";
 
 interface PracticeSettingsProps {
   practice: Practice;
 }
 
 const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
-  const { updatePractice } = useTrialService();
+  const { updatePractice, deleteTrial } = useTrialService();
   const [name, setName] = useState(practice.name);
   const [startDate, setStartDate] = useState(practice.startTimestamp);
   const [deadline, setDeadline] = useState(practice.deadline);
   const [isUpdateDisabled, setIsUpdateDisabled] = useState(false);
   const [isPastStartDateError, setIsPastStartDateError] = useState(false);
   const [isPastDeadlineError, setIsPastDeadlineError] = useState(false);
+  const navigate = useNavigate();
 
   const handleUpdate = () => {
     setIsUpdateDisabled(true);
@@ -51,7 +53,16 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
   };
 
   const handleDelete = () => {
-    // TODO: implement delete
+    deleteTrial(practice)
+      .then(() => {
+        enqueueSnackbar(`Practice ${practice.name} deleted successfully`, {
+          variant: "success",
+        });
+        navigate(`/courses/${practice.courseId}`);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
   };
 
   return (
@@ -149,13 +160,15 @@ const PracticeSettings = ({ practice }: PracticeSettingsProps) => {
           <Typography variant="h6">Delete Practice</Typography>
           <Box display={"flex"} justifyContent={"center"}>
             <ButtonWithConfirmation
-              disabled
               onConfirm={handleDelete}
               color="error"
               variant="outlined"
               confirmText="Delete"
               confirmColor="error"
-              description="You are about to delete this practice"
+              disabled={practice.isVisible}
+              title={`You are deleting ${practice.name}`}
+              description={`Are you sure to delete the practice ${practice.name}?
+                       All the exercises, submissions, results and testcases in it will be lost.`}
             >
               Delete
             </ButtonWithConfirmation>

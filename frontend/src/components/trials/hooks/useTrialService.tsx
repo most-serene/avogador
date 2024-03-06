@@ -25,6 +25,13 @@ const useTrialService = () => {
       [avogadorApi],
     );
 
+  const deleteTrial: (trial: Trial) => Promise<void> = useCallback(
+    async (trial: Trial) => {
+      await avogadorApi.delete(`/trials/${trial.id}`);
+    },
+    [avogadorApi],
+  );
+
   const getPracticeById: (trialId: string) => Promise<Practice> = useCallback(
     async (trialId: string) => {
       const { data: trial }: { data: Practice } = await avogadorApi.get(
@@ -147,6 +154,7 @@ const useTrialService = () => {
 
   return {
     getTrialById,
+    deleteTrial,
     getPracticeById,
     getUserTrial,
     getTrialsByCourseId,
