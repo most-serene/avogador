@@ -24,8 +24,8 @@ public class TrialServiceImpl implements TrialService {
 
     @Override
     public void deleteTrial(Trial trial) {
-        storageService.deleteTrial(trial);
         repository.deleteById(trial.getId());
+        storageService.deleteTrial(trial);
     }
 
     @Override

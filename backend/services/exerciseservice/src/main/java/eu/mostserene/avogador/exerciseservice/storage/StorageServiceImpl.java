@@ -40,7 +40,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void deleteTrial(Trial trial) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+        sender.send("storage", "storage.trial.delete", new TrialStorageDTO(trial.getCourseId(), trial.getId()));
     }
 
     @Override
