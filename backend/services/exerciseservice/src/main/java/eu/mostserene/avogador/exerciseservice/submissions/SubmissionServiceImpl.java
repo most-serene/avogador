@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Autowired
     private StorageService storageService;
+
+    @Autowired
+    private SubmissionResultService submissionResultService;
 
     @Override
     public Optional<Submission> getSubmission(UUID submissionId) {
@@ -81,5 +85,14 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         return new SubmissionDto(submission.getId(), submission.getExercise().getId(),
                 submission.getUserId(), submission.getTimestamp(), strox.getCells());
+    }
+
+    @Override
+    public void deleteSubmissions(Exercise exercise) {
+        submissionRepository.findByExercise_IdOrderByTimestampAsc(exercise.getId())
+                .forEach(submission -> {
+                    submissionResultService.deleteSubmissionResultsBySubmission(submission);
+                    submissionRepository.delete(submission);
+                });
     }
 }
