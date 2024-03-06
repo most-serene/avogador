@@ -113,18 +113,17 @@ public class TestcaseController {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
 
-        var testcase = testcaseService.getSimpleTestcase(testcaseDto.getId())
-                .orElseThrow(() -> new NotFoundException("Testcase with id " + testcaseDto.getId().toString() + " not found"));
-
         if (testcaseDto.getIndex() == null) {
             testcaseDto.setIndex((int) Short.MAX_VALUE);
         }
 
         if (testcaseDto.getId() == null) {
             return testcaseService.createTestcase(testcaseDto, exercise);
-        } else {
-            return testcaseService.updateTestcase(testcase, testcaseDto);
         }
+        var testcase = testcaseService.getSimpleTestcase(testcaseDto.getId())
+                .orElseThrow(() -> new NotFoundException("Testcase with id " + testcaseDto.getId().toString() + " not found"));
+
+        return testcaseService.updateTestcase(testcase, testcaseDto);
     }
 
     @DeleteMapping("/{testcaseId}")

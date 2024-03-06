@@ -23,4 +23,5 @@ public interface TestcaseService {
 
     void deleteTestcase(Exercise exercise, UUID testcase);
 
+    void deleteTestcases(Exercise exercise);
 }

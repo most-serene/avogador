@@ -208,7 +208,11 @@ public class ExerciseStorageImpl implements ExerciseStorage {
 
     @Override
     public void delete() {
-        throw new UnsupportedOperationException();
+        try {
+            FileUtils.deleteDirectory(get());
+        } catch (IOException e) {
+            log.error(LoggerColors.error("Exercise " + getExerciseId() + ": exercise deletion failed"));
+        }
     }
 
     @Override

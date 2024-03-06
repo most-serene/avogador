@@ -48,4 +48,9 @@ public class SubmissionResultServiceImpl implements SubmissionResultService {
     public void deleteSubmissionResultsByTestcaseId(UUID testcaseId) {
         repository.deleteByTestcase_Id(testcaseId);
     }
+
+    @Override
+    public void deleteSubmissionResultsBySubmission(Submission submission) {
+        repository.deleteBySubmission(submission);
+    }
 }

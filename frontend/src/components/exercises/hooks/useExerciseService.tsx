@@ -236,6 +236,13 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const deleteExercise: (exercise: Exercise) => Promise<void> = useCallback(
+    async (exercise: Exercise) => {
+      await avogadorApi.delete(`/exercises/${exercise.id}`);
+    },
+    [avogadorApi],
+  );
+
   /**
    * @deprecated, since 0.4.1, use insertTestcase instead
    * */
@@ -324,6 +331,7 @@ const useExerciseService = () => {
     getExerciseResultSummary,
     getSubmissionOutputs,
     updateExercise,
+    deleteExercise,
     updateTestcase,
     updateTestcaseOrder,
     deleteTestcase,

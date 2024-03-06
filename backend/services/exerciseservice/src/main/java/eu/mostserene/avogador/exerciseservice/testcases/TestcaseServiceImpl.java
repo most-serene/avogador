@@ -95,7 +95,17 @@ public class TestcaseServiceImpl implements TestcaseService {
     @Transactional
     public void deleteTestcase(Exercise exercise, UUID testcaseId) {
         submissionResultService.deleteSubmissionResultsByTestcaseId(testcaseId);
-        storageService.deleteTestcase(exercise, testcaseId);
         repository.deleteById(testcaseId);
+        storageService.deleteTestcase(exercise, testcaseId);
+    }
+
+    @Override
+    public void deleteTestcases(Exercise exercise) {
+        repository.findByExercise_Id(exercise.getId())
+                .forEach(testcase -> {
+                    submissionResultService.deleteSubmissionResultsByTestcaseId(testcase.getId());
+                    repository.deleteById(testcase.getId());
+                    storageService.deleteTestcase(exercise, testcase.getId());
+                });
     }
 }

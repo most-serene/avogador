@@ -4,13 +4,15 @@ import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(
         name = "SubmissionResults",
-        uniqueConstraints = @UniqueConstraint(columnNames={"submission_id", "testcase_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"submission_id", "testcase_id"})
 )
 public class SubmissionResult {
     @Id
@@ -40,28 +42,12 @@ public class SubmissionResult {
         this.status = status;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Submission getSubmission() {
-        return submission;
-    }
-
     public void setSubmission(Submission submission) {
         this.submission = submission;
     }
 
-    public Testcase getTestcase() {
-        return testcase;
-    }
-
     public void setTestcase(Testcase testcase) {
         this.testcase = testcase;
-    }
-
-    public SubmissionStatus getStatus() {
-        return status;
     }
 
     public void setStatus(SubmissionStatus status) {

@@ -20,4 +20,12 @@ public interface SubmissionService {
     Submission createSubmission(Exercise exercise, SubmissionDto submissionDto);
 
     SubmissionDto exportToDto(Submission submission);
+
+    /**
+     * Warning: this method will not remove the submission storage files in order to prevent overhead while
+     * deleting an exercise
+     *
+     * @param exercise
+     */
+    void deleteSubmissions(Exercise exercise);
 }
