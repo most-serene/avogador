@@ -98,6 +98,14 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "exerciseDeletionHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.exercise.delete"))
+    private void exerciseDeletionHandler(ExerciseDTO exerciseDTO) {
+        ExerciseStorageImpl.of(exerciseDTO.getCourseId(), exerciseDTO.getTrialId(), exerciseDTO.getExerciseId()).delete();
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "exerciseSimilaritySavingHandler"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.exercise.similarity"))
