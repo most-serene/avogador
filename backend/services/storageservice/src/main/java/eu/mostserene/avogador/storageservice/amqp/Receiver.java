@@ -76,6 +76,14 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "trialDeletionHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.trial.delete"))
+    private void trialDeletionHandler(TrialDTO trialDTO) {
+        TrialStorageImpl.of(trialDTO.getCourseId(), trialDTO.getTrialId()).delete();
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "logTrialEventHandler"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.trial.log"))

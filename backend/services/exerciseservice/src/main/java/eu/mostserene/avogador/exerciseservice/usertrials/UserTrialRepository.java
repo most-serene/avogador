@@ -10,6 +10,10 @@ import java.util.UUID;
 
 public interface UserTrialRepository extends JpaRepository<UserTrial, UUID> {
     Optional<UserTrial> findByTrialAndUserId(@NonNull Trial trial, @NonNull UUID userId);
+
     List<UserTrial> findByUserId(UUID userId);
+
     List<UserTrial> findByTrial_Id(UUID id);
+
+    long deleteByTrial_Id(UUID id);
 }

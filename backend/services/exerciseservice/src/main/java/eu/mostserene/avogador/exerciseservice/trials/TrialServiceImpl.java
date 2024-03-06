@@ -1,6 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,10 @@ public class TrialServiceImpl implements TrialService {
     private TrialRepository repository;
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private ExerciseService exerciseService;
+    @Autowired
+    private UserTrialService userTrialService;
 
     @Override
     public Optional<Trial> getTrialById(UUID trialId) {
@@ -24,8 +30,11 @@ public class TrialServiceImpl implements TrialService {
 
     @Override
     public void deleteTrial(Trial trial) {
-        storageService.deleteTrial(trial);
+        userTrialService.deleteUserTrialsByTrial(trial);
+        exerciseService.deleteExercisesByTrial(trial);
+
         repository.deleteById(trial.getId());
+        storageService.deleteTrial(trial);
     }
 
     @Override

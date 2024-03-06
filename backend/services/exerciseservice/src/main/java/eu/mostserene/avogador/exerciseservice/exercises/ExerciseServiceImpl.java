@@ -5,7 +5,6 @@ import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
-import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,6 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
     private StorageService storageService;
-
-    @Autowired
-    private TrialService trialService;
 
     @Autowired
     private TestcaseService testcaseService;
@@ -63,6 +59,23 @@ public class ExerciseServiceImpl implements ExerciseService {
 
         exerciseRepository.delete(exercise);
         storageService.deleteExercise(exercise);
+    }
+
+    /**
+     * Warning: this method will not remove the exercise storage files in order to prevent overhead while
+     * deleting a trial
+     *
+     * @param trial
+     */
+    @Override
+    public void deleteExercisesByTrial(Trial trial) {
+        exerciseRepository.findByTrial_Id(trial.getId())
+                .forEach(exercise -> {
+                    testcaseService.deleteTestcases(exercise);
+                    submissionService.deleteSubmissions(exercise);
+
+                    exerciseRepository.delete(exercise);
+                });
     }
 
     @Override
