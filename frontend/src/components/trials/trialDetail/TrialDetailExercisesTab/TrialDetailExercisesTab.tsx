@@ -108,10 +108,14 @@ const TrialDetailExercisesTab = ({
           .map((exercise, i) => (
             <ExerciseCard
               key={exercise.id}
-              onChange={(e: Exercise) => {
+              onChange={(e: Exercise | null) => {
                 setExercises((prevState) => {
                   if (prevState == null) return undefined;
-                  prevState[i] = e;
+                  if (!e) {
+                    prevState.splice(i, 1);
+                  } else {
+                    prevState[i] = e;
+                  }
                   return [...prevState];
                 });
               }}
@@ -142,10 +146,14 @@ const TrialDetailExercisesTab = ({
               .map((exercise, i) => (
                 <ExerciseCard
                   key={exercise.id}
-                  onChange={(e: Exercise) => {
+                  onChange={(e: Exercise | null) => {
                     setExercises((prevState) => {
                       if (prevState == null) return undefined;
-                      prevState[i] = e;
+                      if (!e) {
+                        prevState.splice(i, 1);
+                      } else {
+                        prevState[i] = e;
+                      }
                       return [...prevState];
                     });
                   }}

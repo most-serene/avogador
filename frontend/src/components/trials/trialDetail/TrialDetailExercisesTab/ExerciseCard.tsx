@@ -7,10 +7,12 @@ import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
 import { enqueueSnackbar } from "notistack";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 
 interface ExerciseCardProps {
   exercise: Exercise;
-  onChange: (e: Exercise) => void;
+  onChange: (e: Exercise | null) => void;
   trial: Practice | Exam;
 }
 
@@ -20,7 +22,7 @@ const ExerciseCard = ({
   trial,
 }: ExerciseCardProps) => {
   const navigate = useNavigate();
-  const { updateExercise } = useExerciseService();
+  const { updateExercise, deleteExercise } = useExerciseService();
 
   return (
     <ContextMenuWrapper
@@ -83,6 +85,54 @@ const ExerciseCard = ({
             >
               {exercise.name}
             </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                position: "absolute",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                top: "50%",
+                right: 0,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <Box
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+                onMouseDown={(event) => {
+                  event.stopPropagation();
+                }}
+              >
+                <ButtonWithConfirmation
+                  as={"IconButton"}
+                  disabled={exercise.isVisible}
+                  color={"error"}
+                  title={`You are deleting ${exercise.name}`}
+                  confirmColor={"error"}
+                  description={`Are you sure to delete the exercise ${exercise.name}?
+                       All the submissions, results and testcases in it will be lost.`}
+                  confirmText={"Delete"}
+                  onConfirm={() => {
+                    deleteExercise(exercise)
+                      .then(() => {
+                        enqueueSnackbar(
+                          `${exercise.name} deleted successfully`,
+                          {
+                            variant: "success",
+                          },
+                        );
+                      })
+                      .catch((err: Error) => {
+                        enqueueSnackbar(err.message, { variant: "error" });
+                      });
+                    handleChange(null);
+                  }}
+                >
+                  <DeleteIcon />
+                </ButtonWithConfirmation>
+              </Box>
+            </Box>
           </CardContent>
         </CardActionArea>
       </Card>
