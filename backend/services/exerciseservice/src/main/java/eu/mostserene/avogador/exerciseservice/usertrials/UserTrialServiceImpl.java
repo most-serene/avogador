@@ -46,4 +46,9 @@ public class UserTrialServiceImpl implements UserTrialService {
     public UserTrial createUserTrial(UserTrial userTrial) {
         return repository.save(userTrial);
     }
+
+    @Override
+    public void deleteUserTrialsByTrial(Trial trial) {
+        repository.deleteByTrial_Id(trial.getId());
+    }
 }

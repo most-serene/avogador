@@ -8,8 +8,14 @@ import java.util.UUID;
 
 public interface ExerciseService {
     Optional<Exercise> getExercise(UUID exerciseId);
+
     Exercise createExercise(ExerciseDto exerciseDto, Trial trial);
+
     Exercise updateExercise(Exercise exercise);
+
     void deleteExercise(Exercise exercise);
+
+    void deleteExercisesByTrial(Trial trial);
+
     List<Exercise> getExercisesFromTrial(Trial trial, Boolean includeHidden);
 }
