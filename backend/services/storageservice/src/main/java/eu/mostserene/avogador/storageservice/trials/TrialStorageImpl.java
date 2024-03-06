@@ -74,6 +74,10 @@ public class TrialStorageImpl implements TrialStorage {
 
     @Override
     public void delete() {
-        throw new UnsupportedOperationException();
+        try {
+            FileUtils.deleteDirectory(get());
+        } catch (IOException e) {
+            log.error(LoggerColors.error("Trial " + getTrialId() + ": trial deletion failed"));
+        }
     }
 }
