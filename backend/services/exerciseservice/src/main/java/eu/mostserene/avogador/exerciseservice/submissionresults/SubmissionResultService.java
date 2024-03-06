@@ -17,4 +17,6 @@ public interface SubmissionResultService {
     List<SubmissionResult> getResultsFromExercise(Exercise exercise);
 
     void deleteSubmissionResultsByTestcaseId(UUID testcaseId);
+
+    void deleteSubmissionResultsBySubmission(Submission submission);
 }
