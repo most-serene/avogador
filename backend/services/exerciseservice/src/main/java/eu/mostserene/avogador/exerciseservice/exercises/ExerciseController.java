@@ -203,7 +203,6 @@ public class ExerciseController {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
 
-        //TODO: call file system
         exerciseService.deleteExercise(exercise);
     }
 

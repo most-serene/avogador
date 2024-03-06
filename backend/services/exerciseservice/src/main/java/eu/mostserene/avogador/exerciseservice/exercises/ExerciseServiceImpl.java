@@ -1,6 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
+import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import jakarta.transaction.Transactional;
@@ -24,6 +27,15 @@ public class ExerciseServiceImpl implements ExerciseService {
     @Autowired
     private TrialService trialService;
 
+    @Autowired
+    private TestcaseService testcaseService;
+
+    @Autowired
+    private SubmissionService submissionService;
+
+    @Autowired
+    private SubmissionResultService submissionResultService;
+
     @Override
     public Optional<Exercise> getExercise(UUID exerciseId) {
         return exerciseRepository.findById(exerciseId);
@@ -46,6 +58,9 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public void deleteExercise(Exercise exercise) {
+        testcaseService.deleteTestcases(exercise);
+        submissionService.deleteSubmissions(exercise);
+
         exerciseRepository.delete(exercise);
         storageService.deleteExercise(exercise);
     }

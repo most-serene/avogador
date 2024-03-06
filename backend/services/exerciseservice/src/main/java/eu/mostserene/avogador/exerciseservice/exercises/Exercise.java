@@ -3,10 +3,12 @@ package eu.mostserene.avogador.exerciseservice.exercises;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(name = "Exercises")
 public class Exercise {
@@ -50,51 +52,27 @@ public class Exercise {
         this.isVisible = isVisible;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Trial getTrial() {
-        return trial;
-    }
-
     public void setTrial(Trial trial) {
         this.trial = trial;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getStatement() {
-        return statement;
-    }
-
     public void setStatement(String statement) {
         this.statement = statement;
-    }
-
-    public Integer getTimeLimit() {
-        return timeLimit;
     }
 
     public void setTimeLimit(Integer timeLimit) {
         this.timeLimit = timeLimit;
     }
 
-    public Boolean getIsVisible() {
-        return isVisible;
-    }
-
     public void setIsVisible(Boolean visible) {
         isVisible = visible;
     }
 
-    public ExerciseDto toDto(){
+    public ExerciseDto toDto() {
         return new ExerciseDto(id, trial.getId(), name, statement, timeLimit, isVisible);
     }
 }
