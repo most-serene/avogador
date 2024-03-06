@@ -4,6 +4,7 @@ import eu.mostserene.avogador.storageservice.FileSystemRoot;
 import eu.mostserene.avogador.storageservice.logger.AvogadorLogMessage;
 import eu.mostserene.avogador.storageservice.utils.FileCreationFailed;
 import eu.mostserene.avogador.storageservice.utils.LoggerColors;
+import eu.mostserene.avogador.storageservice.utils.LoggerUtils;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,9 @@ public class TrialStorageImpl implements TrialStorage {
         try {
             FileUtils.deleteDirectory(get());
         } catch (IOException e) {
+            log.error(LoggerColors.error(e.getMessage()));
             log.error(LoggerColors.error("Trial " + getTrialId() + ": trial deletion failed"));
+            LoggerUtils.logErrorToSentry(e);
         }
     }
 }
