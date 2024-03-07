@@ -135,8 +135,8 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
         }
 
-        storageService.deleteCourse(courseId);
-        courseService.deleteCourse(courseId);
+        courseService.deleteCourse(userCourse.getCourse());
+        storageService.deleteCourse(userCourse.getCourse());
     }
 
     /**
