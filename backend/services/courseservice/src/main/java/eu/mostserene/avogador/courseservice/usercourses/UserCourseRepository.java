@@ -9,9 +9,14 @@ import java.util.UUID;
 
 public interface UserCourseRepository extends JpaRepository<UserCourse, UUID> {
     List<UserCourse> findByUserIdAndCourse_IsArchived(UUID userId, Boolean isArchived);
+
     List<UserCourse> findByCourse_Id(UUID id);
+
     List<UserCourse> findByCourse_Id(UUID id, Pageable pageable);
+
     Optional<UserCourse> findByUserIdAndCourse_Id(UUID userId, UUID id);
+
     List<UserCourse> findByUserId(UUID userId);
 
+    void deleteByCourse_Id(UUID courseId);
 }

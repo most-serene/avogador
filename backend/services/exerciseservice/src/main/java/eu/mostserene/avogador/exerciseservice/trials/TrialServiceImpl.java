@@ -37,6 +37,23 @@ public class TrialServiceImpl implements TrialService {
         storageService.deleteTrial(trial);
     }
 
+    /**
+     * Warning: this method will not remove the trial storage files in order to prevent overhead while
+     * deleting a course
+     *
+     * @param courseId
+     */
+    @Override
+    public void deleteTrialsByCourseId(UUID courseId) {
+        repository.findByCourseId(courseId)
+                .forEach(trial -> {
+                    userTrialService.deleteUserTrialsByTrial(trial);
+                    exerciseService.deleteExercisesByTrial(trial);
+
+                    repository.deleteById(trial.getId());
+                });
+    }
+
     @Override
     public List<Trial> getTrialsByCourseId(UUID courseId, Boolean includeHidden) {
         if (includeHidden) {

@@ -15,7 +15,7 @@ public interface CourseService {
 
     List<Course> getAll();
 
-    void deleteCourse(UUID courseId);
+    void deleteCourse(Course course);
 
     Course archiveCourse(UserCourse course);
 

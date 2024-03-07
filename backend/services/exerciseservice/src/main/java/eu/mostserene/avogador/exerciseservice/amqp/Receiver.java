@@ -10,7 +10,9 @@ import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
+import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
+import eu.mostserene.avogador.exerciseservice.utils.LoggerUtils;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
 import lombok.Data;
@@ -38,6 +40,9 @@ public class Receiver {
     private SubmissionService submissionService;
 
     @Autowired
+    private TrialService trialService;
+
+    @Autowired
     private SubmissionResultService submissionResultService;
 
     @Autowired
@@ -55,6 +60,16 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "trialsDeletionHandler"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "trials.delete"))
+    private void trialsDeletionHandler(String courseStringId) {
+        UUID courseId = UUID.fromString(courseStringId);
+        trialService.deleteTrialsByCourseId(courseId);
+    }
+
+
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "submissionSavedHandler"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "exercises.submission.save"))
@@ -63,7 +78,7 @@ public class Receiver {
             Submission submission = submissionService.getSubmission(submissionSavedDto.getSubmissionId())
                     .orElseThrow(RuntimeException::new);
 
-            TimeUnit.SECONDS.sleep(1 );
+            TimeUnit.SECONDS.sleep(1);
 
             log.info(LoggerColors.warn("hej"));
 
@@ -112,10 +127,11 @@ public class Receiver {
             submissionResultDto.setOutput(null);
 
             sender.send("users", "users.notify.socket", new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
-                            mapper.writeValueAsString(submissionResultDto)
-                    ));
+                    mapper.writeValueAsString(submissionResultDto)
+            ));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(LoggerColors.error(e.getMessage()));
+            LoggerUtils.logErrorToSentry(e);
         }
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.courseservice.amqp.Sender;
 import eu.mostserene.avogador.courseservice.storage.StorageService;
 import eu.mostserene.avogador.courseservice.usercourses.UserCourse;
+import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.utils.WebSocketMessage;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private StorageService storageService;
+
+    @Autowired
+    private UserCourseService userCourseService;
 
     @Autowired
     private Sender sender;
@@ -72,8 +76,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void deleteCourse(UUID courseId) {
-        repository.deleteById(courseId);
+    public void deleteCourse(Course course) {
+        userCourseService.deleteByCourse(course);
+        storageService.deleteCourse(course);
+        repository.deleteById(course.getId());
     }
 
     @Override
@@ -97,7 +103,7 @@ public class CourseServiceImpl implements CourseService {
                         ));
             }
         });
-        
+
         return course;
     }
 

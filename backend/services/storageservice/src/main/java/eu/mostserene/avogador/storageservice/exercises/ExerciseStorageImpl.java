@@ -211,7 +211,9 @@ public class ExerciseStorageImpl implements ExerciseStorage {
         try {
             FileUtils.deleteDirectory(get());
         } catch (IOException e) {
+            log.error(LoggerColors.error(e.getMessage()));
             log.error(LoggerColors.error("Exercise " + getExerciseId() + ": exercise deletion failed"));
+            LoggerUtils.logErrorToSentry(e);
         }
     }
 

@@ -63,4 +63,9 @@ public class UserCourseServiceImpl implements UserCourseService {
     public void removeRelation(UserCourse userCourse) {
         repository.delete(userCourse);
     }
+
+    @Override
+    public void deleteByCourse(Course course) {
+        repository.deleteByCourse_Id(course.getId());
+    }
 }

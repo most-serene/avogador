@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.courseservice.storage;
 
 import eu.mostserene.avogador.courseservice.amqp.Sender;
+import eu.mostserene.avogador.courseservice.courses.Course;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -25,8 +26,8 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Integer deleteCourse(UUID courseId) {
-        throw new UnsupportedOperationException("Method not yet implemented");
+    public void deleteCourse(Course course) {
+        sender.send("storage", "storage.course.delete", course.getId().toString());
     }
 
     @Override
