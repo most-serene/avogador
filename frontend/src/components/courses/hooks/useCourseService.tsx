@@ -160,6 +160,13 @@ const useCourseService = () => {
     [avogadorApi],
   );
 
+  const deleteCourse: (course: Course) => Promise<void> = useCallback(
+    async (course: Course) => {
+      await avogadorApi.delete(`/courses/${course.id}`);
+    },
+    [avogadorApi],
+  );
+
   return {
     getCourseById,
     joinCourse,
@@ -171,6 +178,7 @@ const useCourseService = () => {
     leaveCourse,
     updateCourse,
     archiveCourse,
+    deleteCourse,
     downloadCourseArchive,
   };
 };

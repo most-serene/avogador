@@ -16,15 +16,17 @@ import { useAtom } from "jotai";
 import { courseDetailAtom } from "@courses/courseDetail/courseDetailAtom";
 import { UserCourseDetail } from "@courses/types";
 import userAtom from "@authentication/userAtom.ts";
+import { useNavigate } from "react-router-dom";
 
 const CourseSettingsTab = () => {
-  const { updateCourse, archiveCourse, downloadCourseArchive } =
+  const { updateCourse, archiveCourse, downloadCourseArchive, deleteCourse } =
     useCourseService();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [rename, setRename] = useState("");
   const [isError, setIsError] = useState(false);
   const [user] = useAtom(userAtom);
   const [downloading, setDownloading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (course) {
@@ -87,14 +89,31 @@ const CourseSettingsTab = () => {
           </Typography>
           <Box display={"flex"} justifyContent={"center"} margin={"1rem"}>
             <ButtonWithConfirmation
+              title={`You are deleting the course ${course?.name}`}
+              description={`Are you sure to delete the course ${course?.name}?
+                       All the trials, exercises, submissions, results and testcases in it will be lost.`}
               onConfirm={() => {
-                console.log("deleted");
+                if (!course) return;
+                navigate("/");
+                deleteCourse(course)
+                  .then(() => {
+                    enqueueSnackbar(
+                      `Course ${course.name} deleted successfully`,
+                      { variant: "success" },
+                    );
+                  })
+                  .catch((err: Error) => {
+                    enqueueSnackbar(err.message, { variant: "error" });
+                  });
               }}
               variant={"outlined"}
               confirmColor={"error"}
-              confirmText={"delete"}
+              confirmText={"Delete"}
               color={"error"}
-              disabled={true}
+              disabled={
+                !course ||
+                (course.role !== "ADMIN" && (!user || !user.isSuperuser))
+              }
             >
               Delete course
             </ButtonWithConfirmation>
