@@ -59,6 +59,15 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "courseDeletionHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.course.delete"))
+    private void courseDeletionHandler(String courseStringId) {
+        UUID courseId = UUID.fromString(courseStringId);
+        CourseStorageImpl.of(courseId).delete();
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "courseArchivingHandler"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.course.archive"))
