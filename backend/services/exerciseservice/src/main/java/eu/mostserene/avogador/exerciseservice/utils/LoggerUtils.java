@@ -13,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoggerUtils {
 
-    private LoggerUtils() {}
+    private LoggerUtils() {
+    }
 
     public static void logErrorToSentry(Exception exception, HttpServletRequest request) {
         Sentry.captureException(exception,
@@ -25,6 +26,11 @@ public class LoggerUtils {
                     scope.setContexts("Query", request.getQueryString());
                     scope.setLevel(SentryLevel.ERROR);
                 });
+    }
+
+    public static void logErrorToSentry(Exception exception) {
+        Sentry.captureException(exception,
+                scope -> scope.setLevel(SentryLevel.ERROR));
     }
 
     public static void logErrorToSentry(HttpServletRequest request) {
