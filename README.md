@@ -14,3 +14,13 @@ From the repository root
 At the moment, there are two hooks:
 *  pre-commit executes unit tests on staged parts of the codebase
 *  pre-push prevents push on master
+
+## Setup dev-utils venv
+
+Inside the root of the project execute
+```shell
+python3.10 -m venv ./venv 
+source venv/bin/activate
+cd scripts
+python install -r requirements.txt
+```
