@@ -10,12 +10,22 @@ import java.util.UUID;
 
 public interface UserCourseService {
     Optional<UserCourse> getUserCourse(UUID userId, UUID courseId);
+
     UserCourse createAdmin(UserDto user, Course course);
+
     UserCourse createStudent(UserDto user, Course course);
+
     UserCourse promoteToCollaborator(UserCourse userCourse);
+
     UserCourse demoteToStudent(UserCourse userCourse);
+
     List<UserCourse> getCoursesByUserId(UUID userId, Boolean isArchived);
+
     List<UserCourse> getUsersByCourseId(UUID courseId);
+
     List<UserCourse> getUsersByCourseId(UUID courseId, Pageable pageable);
+
     void removeRelation(UserCourse userCourse);
+
+    void deleteByCourse(Course course);
 }
