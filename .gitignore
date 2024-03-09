@@ -87,3 +87,7 @@ sketch
 application.properties
 
 devUtilsConfig.toml
+*/.idea
+.idea
+venv
+backup/
