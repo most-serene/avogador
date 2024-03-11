@@ -28,10 +28,11 @@ pipeline {
         node {
             label 'core'
             }
-    }*/
+    }
     tools {
         dockerTool "docker-00"
     }
+    */
 
     /*triggers {
         pollSCM 'H/5 * * * *'
