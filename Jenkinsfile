@@ -45,12 +45,12 @@ pipeline {
                 setBuildPending()
                 echo "Build started"
 
+                /*
                 withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} repository.mostserene.eu
                     """
                 }
-                /*
                 sh """
                     cp /envvars/avogador/web.staging.env frontend/.env.staging
                     
