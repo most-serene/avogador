@@ -30,8 +30,7 @@ pipeline {
             }
     }*/
     tools {
-        nodejs "Node"
-        gradle "Gradle00"
+        docker "docker-00"
     }
 
     /*triggers {
@@ -46,124 +45,48 @@ pipeline {
                 setBuildPending()
                 echo "Build started"
 
-                withGradle {
-                    sh '''
-                        cd backend/apigateway
+                withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
+                    sh """
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} repository.mostserene.eu
+                    """
+                }
+                /*
+                sh """
+                    cp /envvars/avogador/web.staging.env frontend/.env.staging
+                    
+                    mkdir -p backend/apigateway/src/test/resources
+                    cp /envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
+                        
+                    mkdir -p backend/services/courseservice/src/test/resources
+                    cp /envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
+                        
+                    mkdir -p backend/services/userservice/src/test/resources
+                    cp /envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
+                    
+                    mkdir -p backend/services/exerciseservice/src/test/resources
+                    cp /envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
+                    
+                    mkdir -p backend/services/storageservice/src/test/resources
+                    cp /envvars/avogador/storageTest backend/services/storageservice/src/test/resources/application.properties
 
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/apigateway/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/apigateway
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
+                    mkdir -p backend/services/executorservice/src/test/resources
+                    cp /envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties         
+                """
+                */
+
+                sh """
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
+                """
+                
+                script {
+                    if (env.BRANCH_NAME == 'master') {
                     }
+                    //TODO: move inside if
+                    sh '''
+                        docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
+                    '''
                 }
                 
-                withGradle {
-                    sh '''
-                        cd backend/services/courseservice
-
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/services/courseservice/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/services/courseservice
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
-                    }
-                }
-
-                withGradle {
-                    sh '''
-                        cd backend/services/userservice
-                        
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/services/userservice/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/services/userservice
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
-                    }
-                }
-
-                withGradle {
-                    sh '''
-                        cd backend/services/exerciseservice
-                        
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/services/exerciseservice/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/services/exerciseservice
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
-                    }
-                }
-
-                withGradle {
-                    sh '''
-                        cd backend/services/storageservice
-                        
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/services/storageservice/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/services/storageservice
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
-                    }
-                }
-
-                withGradle {
-                    sh '''
-                        cd backend/services/executorservice
-                        
-                        ./gradlew clean assemble --no-daemon
-                    '''
-                    archiveArtifacts artifacts: 'backend/services/executorservice/build/libs/*.jar', fingerprint: true
-                    script {
-                        if (env.BRANCH_NAME == 'master') {
-                            echo "Generate javadoc"
-                            sh '''
-                                cd backend/services/executorservice
-                                ./gradlew javadoc --no-daemon
-                            '''
-                        }
-                    }
-                }
-                
-                // cp -r /envvars/avogador/node_modules .
-                sh '''
-                    cd frontend
-                    cp /envvars/avogador/web.staging.env ./.env.staging
-                    yarn
-                    yarn build:staging
-                    tar -czvf webapp.tar.gz dist
-                '''
-                archiveArtifacts artifacts: 'frontend/webapp.tar.gz', fingerprint: true
-
                 script {
                     if (env.BRANCH_NAME == 'master') {
                         /*
@@ -209,72 +132,11 @@ pipeline {
             }
             steps {
                 echo "Tests started"
-
-                withGradle {
-                    sh '''
-                        mkdir -p backend/apigateway/src/test/resources
-                        cp /envvars/avogador/apigatewayTest backend/apigateway/src/test/resources/application.properties
-                        cd backend/apigateway
-
-                        ./gradlew test --no-daemon
-                    '''
-                }
-                
-                withGradle {
-                    sh '''
-                        mkdir -p backend/services/courseservice/src/test/resources
-                        cp /envvars/avogador/courseServiceTest backend/services/courseservice/src/test/resources/application.properties
-                        cd backend/services/courseservice
-
-                        ./gradlew test --no-daemon
-                    '''
-                }
-
-                withGradle {
-                    sh '''
-                        mkdir -p backend/services/userservice/src/test/resources
-                        cp /envvars/avogador/userServiceTest backend/services/userservice/src/test/resources/application.properties
-                        cd backend/services/userservice
-                        
-                        ./gradlew test --no-daemon
-                    '''
-                }
-
-                withGradle {
-                    sh '''
-                        mkdir -p backend/services/exerciseservice/src/test/resources
-                        cp /envvars/avogador/exerciseServiceTest backend/services/exerciseservice/src/test/resources/application.properties
-                        cd backend/services/exerciseservice
-                        
-                        ./gradlew test --no-daemon
-                    '''
-                }
-
-                withGradle {
-                    sh '''
-                        mkdir -p backend/services/storageservice/src/test/resources
-                        cp /envvars/avogador/storageTest backend/services/storageservice/src/test/resources/application.properties
-                        cd backend/services/storageservice
-                        
-                        ./gradlew test --no-daemon
-                    '''
-                }
-
-                withGradle {
-                    sh '''
-                        mkdir -p backend/services/executorservice/src/test/resources
-                        cp /envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties
-                        cd backend/services/executorservice
-                        
-                        ./gradlew test --no-daemon
-                    '''
-                }
-                
                 /*
                 sh '''
-                    cd frontend
-                    yarn test run
-                    yarn lint
+                    cd backend/apigateway
+
+                    docker build . --target reporter -o 
                 '''
                 */
                 
@@ -300,9 +162,8 @@ pipeline {
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
                 withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE}  docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
                     DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d --force-recreate
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker container ls -a
                     """
                 }
                 echo 'Staging Deliver finished'
@@ -315,6 +176,7 @@ pipeline {
             steps {
                 echo 'Production Deliver started - $TAG_NAME'
 
+                /*
                 withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-prod.yml --project-name avogador --env-file /envvars/avogador/production.env build
@@ -324,6 +186,7 @@ pipeline {
                     DOCKER_HOST=${PRODUCTION_DOCKER_ENGINE} docker container ls -a
                     """
                 }
+                */
                 
                 echo 'Production Deliver finished'
             }
