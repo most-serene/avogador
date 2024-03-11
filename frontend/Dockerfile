@@ -1,6 +1,12 @@
-FROM node:alpine AS develop
+FROM node:alpine AS builder
 
 WORKDIR /app
+COPY . .
+RUN yarn
+
+###
+
+FROM builder as develop
 
 ARG VITE_AVOGADOR_BACKEND_API_ADDRESS
 ENV VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
@@ -8,18 +14,34 @@ ENV VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
 ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
 
-COPY . .
+ARG VITE_GLITCHTIP_DSN
+ENV VITE_GLITCHTIP_DSN: ${VITE_GLITCHTIP_DSN}
 
-RUN yarn
-RUN yarn global add serve
+ARG VITE_CUSTOMER_DOMAINS
+ENV VITE_CUSTOMER_DOMAINS: ${VITE_CUSTOMER_DOMAINS}
+
+ARG VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS
+ENV VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS: ${VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS}
+
+ARG VITE_REACT_BASE_URL
+ENV VITE_REACT_BASE_URL: ${VITE_REACT_BASE_URL}
+
 RUN yarn build
 
 ENV NODE_ENV production
 
-CMD ["serve", "-s", "dist"]
-
 ###
 
-FROM develop as production
+FROM nginx as staging
+COPY --from=develop /app/dist /usr/share/nginx/html
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+CMD ["nginx", "-g", "daemon off;"]
+
+FROM develop as obfuscated
 ARG OBFUSCATE_DIRECTIVE 
 RUN yarn run obfuscate -- $OBFUSCATE_DIRECTIVE
+
+FROM nginx as production
+COPY --from=obfuscated /app/dist /usr/share/nginx/html
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+CMD ["nginx", "-g", "daemon off;"]
