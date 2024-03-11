@@ -2,12 +2,12 @@ version: "3.8"
 
 services:
   apigateway:
-    image: "avogador-apigateway:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-apigateway:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/apigateway
       network: host
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${APIGATEWAY_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -41,7 +41,7 @@ services:
       - avogador-inner-network
 
   users:
-    image: "avogador-userservice:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-userservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/userservice
@@ -97,7 +97,7 @@ services:
       - avogador-inner-network
 
   courses:
-    image: "avogador-courseservice:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-courseservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/courseservice
@@ -141,7 +141,7 @@ services:
       - avogador-inner-network
 
   exercises:
-    image: "avogador-exerciseservice:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-exerciseservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/exerciseservice
@@ -182,7 +182,7 @@ services:
       - avogador-inner-network
 
   storage:
-    image: "avogador-storageservice:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-storageservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/storageservice
@@ -222,7 +222,7 @@ services:
       - avogador-inner-network
 
   executor:
-    image: "avogador-executorservice:${BRANCH:-latest}" 
+    image: "repository.mostserene.eu/mostserene/avogador-executorservice:${BRANCH:-latest}" 
     restart: always
     build:
       context: ./backend/services/executorservice
@@ -284,13 +284,13 @@ services:
       - "15671:15672"
 
   webapp:
-    image: avogador-webapp:${BRANCH:-latest}
+    image: repository.mostserene.eu/mostserene/avogador-webapp:${BRANCH:-latest}
     restart: always
     build:
       context: ./frontend
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${REACT_TARGET}
       network: host
     logging:
