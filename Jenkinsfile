@@ -30,7 +30,7 @@ pipeline {
             }
     }*/
     tools {
-        docker "docker-00"
+        dockerTool "docker-00"
     }
 
     /*triggers {
