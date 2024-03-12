@@ -76,7 +76,8 @@ pipeline {
                 */
 
                 sh """
-                    docker-compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
+                    docker version
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
                 """
                 
                 script {
@@ -84,7 +85,7 @@ pipeline {
                     }
                     //TODO: move inside if
                     sh '''
-                        docker-compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
+                        docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
                     '''
                 }
                 
