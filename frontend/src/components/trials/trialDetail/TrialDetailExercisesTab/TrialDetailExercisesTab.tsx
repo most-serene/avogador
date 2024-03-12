@@ -61,6 +61,27 @@ const TrialDetailExercisesTab = ({
     );
   }
 
+  const getExerciseCard = (exercise: Exercise, i: number) => {
+    return (
+      <ExerciseCard
+        key={exercise.id}
+        onChange={(e: Exercise | null) => {
+          setExercises((prevState) => {
+            if (prevState == null) return undefined;
+            if (e === null) {
+              prevState.splice(i, 1);
+            } else {
+              prevState[i] = e;
+            }
+            return [...prevState];
+          });
+        }}
+        exercise={exercise}
+        trial={trial}
+      />
+    );
+  };
+
   return (
     <Container
       style={{ height: "100%", overflow: "scroll" }}
@@ -104,25 +125,14 @@ const TrialDetailExercisesTab = ({
             </Card>
           )}
         {exercises
-          .filter((exercise) => exercise.isVisible)
-          .map((exercise, i) => (
-            <ExerciseCard
-              key={exercise.id}
-              onChange={(e: Exercise | null) => {
-                setExercises((prevState) => {
-                  if (prevState == null) return undefined;
-                  if (!e) {
-                    prevState.splice(i, 1);
-                  } else {
-                    prevState[i] = e;
-                  }
-                  return [...prevState];
-                });
-              }}
-              exercise={exercise}
-              trial={trial}
-            />
-          ))}
+          .map((exercise, i) => {
+            return {
+              exercise,
+              i,
+            };
+          })
+          .filter(({ exercise }) => exercise.isVisible)
+          .map(({ exercise, i }) => getExerciseCard(exercise, i))}
       </Stack>
       {((user != null && user.isSuperuser) ||
         course.role === "COLLABORATOR" ||
@@ -142,25 +152,14 @@ const TrialDetailExercisesTab = ({
           </Divider>
           <Stack spacing={2}>
             {exercises
-              .filter((exercise) => !exercise.isVisible)
-              .map((exercise, i) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  onChange={(e: Exercise | null) => {
-                    setExercises((prevState) => {
-                      if (prevState == null) return undefined;
-                      if (!e) {
-                        prevState.splice(i, 1);
-                      } else {
-                        prevState[i] = e;
-                      }
-                      return [...prevState];
-                    });
-                  }}
-                  exercise={exercise}
-                  trial={trial}
-                />
-              ))}
+              .map((exercise, i) => {
+                return {
+                  exercise,
+                  i,
+                };
+              })
+              .filter(({ exercise }) => !exercise.isVisible)
+              .map(({ exercise, i }) => getExerciseCard(exercise, i))}
           </Stack>
         </>
       )}
