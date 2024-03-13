@@ -1,4 +1,4 @@
-FROM gradle:7.5-jdk17-focal as base
+FROM gradle:jdk17 as base
 WORKDIR /app
 # Copy the application source code
 COPY . .
