@@ -55,7 +55,7 @@ const TrialDetailScreen = () => {
     if (trial == null || !user) return;
     getCourseById(trial.courseId)
       .then((userCourseResponse) => {
-        if (userCourseResponse.role === "EXTERNAL") {
+        if (userCourseResponse.role === "EXTERNAL" && !user.isSuperuser) {
           globalErrorSetter(
             new ForbiddenError(
               location.pathname,
@@ -91,7 +91,7 @@ const TrialDetailScreen = () => {
     !user ||
     !userCourse ||
     userTrial === undefined ||
-    userCourse.role === "EXTERNAL"
+    (userCourse.role === "EXTERNAL" && !user.isSuperuser)
   ) {
     return (
       <Box
