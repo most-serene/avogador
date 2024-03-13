@@ -45,7 +45,7 @@ services:
     restart: always
     build:
       context: ./backend/services/userservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${USERSERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -101,7 +101,7 @@ services:
     restart: always
     build:
       context: ./backend/services/courseservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${COURSESERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -145,7 +145,7 @@ services:
     restart: always
     build:
       context: ./backend/services/exerciseservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${EXERCISESERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -186,7 +186,7 @@ services:
     restart: always
     build:
       context: ./backend/services/storageservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${STORAGESERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
@@ -226,7 +226,7 @@ services:
     restart: always
     build:
       context: ./backend/services/executorservice
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile
       target: ${EXECUTORSERVICE_TARGET}
       args:
         - REPOSITORY_CREDENTIALS=${REPOSITORY_CREDENTIALS}
