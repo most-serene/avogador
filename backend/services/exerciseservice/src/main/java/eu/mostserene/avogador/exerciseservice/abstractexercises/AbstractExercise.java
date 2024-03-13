@@ -26,6 +26,7 @@ public abstract class AbstractExercise {
 
     @Setter
     @NotNull
+    @Length(max = 100)
     private String name;
 
     @Setter
