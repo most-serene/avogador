@@ -1,0 +1,53 @@
+package eu.mostserene.avogador.exerciseservice.abstractexercises;
+
+
+import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+
+import java.util.UUID;
+
+@Getter
+@Entity
+@Table(name = "AbstractExercises")
+public abstract class AbstractExercise {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Setter
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "trial_id", referencedColumnName = "id")
+    private Trial trial;
+
+    @Setter
+    @NotNull
+    @Length(max = 100)
+    private String name;
+
+    @Setter
+    @NotNull
+    @Length(max = 10000)
+    private String statement;
+
+    @Setter
+    @NotNull
+    private Boolean isVisible = false;
+
+    public AbstractExercise() {
+
+    }
+
+    public AbstractExercise(Trial trial, String name, String statement, Boolean isVisible) {
+        this.trial = trial;
+        this.name = name;
+        this.statement = statement;
+        this.isVisible = isVisible;
+    }
+
+    public abstract ExerciseType getExerciseType();
+}
