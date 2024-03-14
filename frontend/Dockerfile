@@ -2,7 +2,7 @@ FROM node:lts AS builder
 
 WORKDIR /app
 COPY . .
-RUN yarn
+RUN yarn --network-timeout 100000
 
 ###
 
