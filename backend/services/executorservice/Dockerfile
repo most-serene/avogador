@@ -3,7 +3,7 @@ WORKDIR /app
 # Copy the application source code
 COPY . .
 # Build the application and execute unit tests (build task depends on test task)
-RUN gradle build javadoc --no-daemon
+RUN ./gradlew build javadoc --no-daemon
 
 
 FROM scratch AS reporter
