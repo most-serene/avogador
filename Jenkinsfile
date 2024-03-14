@@ -95,16 +95,14 @@ pipeline {
                anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
             }
             steps {
-                echo "Tests started"
-                /*
+                echo "Exporting test reports"
+    
                 sh '''
                     cd backend/apigateway
 
-                    docker build . --target reporter -o 
+                    docker build . --target reporter -o /test-reports/apigateway
                 '''
-                */
-                
-                echo "Tests finished"
+            
             }
         }
         stage('Deliver-staging') {
@@ -164,7 +162,7 @@ pipeline {
                 if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME.startsWith('PR') || 
                     sh(returnStdout: true, script: "git tag --contains").trim()) {
                     
-                    junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
+                    junit allowEmptyResults: true, testResults: '/test-reports/**/*.xml'
                 }
             }
 
