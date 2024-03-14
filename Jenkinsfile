@@ -77,6 +77,7 @@ pipeline {
 
                 sh """
                     docker version
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build apigateway
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
