@@ -1,6 +1,12 @@
 import { Exercise } from "@exercises/types.ts";
 import { useNavigate } from "react-router-dom";
-import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { Exam, isPractice, Practice } from "@trials/types.ts";
 import ContextMenuWrapper from "@structure/ContextMenuWrapper/ContextMenuWrapper.tsx";
 import Box from "@mui/material/Box";
@@ -104,33 +110,38 @@ const ExerciseCard = ({
                   event.stopPropagation();
                 }}
               >
-                <ButtonWithConfirmation
-                  as={"IconButton"}
-                  disabled={exercise.isVisible}
-                  color={"error"}
-                  title={`You are deleting ${exercise.name}`}
-                  confirmColor={"error"}
-                  description={`Are you sure to delete the exercise ${exercise.name}?
-                       All the submissions, results and testcases in it will be lost.`}
-                  confirmText={"Delete"}
-                  onConfirm={() => {
-                    deleteExercise(exercise)
-                      .then(() => {
-                        enqueueSnackbar(
-                          `${exercise.name} deleted successfully`,
-                          {
-                            variant: "success",
-                          },
-                        );
-                      })
-                      .catch((err: Error) => {
-                        enqueueSnackbar(err.message, { variant: "error" });
-                      });
-                    handleChange(null);
-                  }}
+                <Tooltip
+                  title={exercise.isVisible ? "Hide to delete" : undefined}
                 >
-                  <DeleteIcon />
-                </ButtonWithConfirmation>
+                  <span>
+                    <ButtonWithConfirmation
+                      as={"IconButton"}
+                      disabled={exercise.isVisible}
+                      color={"error"}
+                      title={`You are deleting ${exercise.name}`}
+                      confirmColor={"error"}
+                      description={`All the submissions, results and testcases in it will be lost.`}
+                      confirmText={"Delete"}
+                      onConfirm={() => {
+                        deleteExercise(exercise)
+                          .then(() => {
+                            enqueueSnackbar(
+                              `${exercise.name} deleted successfully`,
+                              {
+                                variant: "success",
+                              },
+                            );
+                          })
+                          .catch((err: Error) => {
+                            enqueueSnackbar(err.message, { variant: "error" });
+                          });
+                        handleChange(null);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </ButtonWithConfirmation>
+                  </span>
+                </Tooltip>
               </Box>
             </Box>
           </CardContent>
