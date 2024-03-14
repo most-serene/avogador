@@ -52,6 +52,7 @@ pipeline {
                     docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} repository.mostserene.eu
                     """
                 }
+                */
                 sh """
                     cp /envvars/avogador/web.staging.env frontend/.env.staging
                     
@@ -73,7 +74,6 @@ pipeline {
                     mkdir -p backend/services/executorservice/src/test/resources
                     cp /envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties         
                 """
-                */
 
                 sh """
                     docker version
