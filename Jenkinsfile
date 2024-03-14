@@ -77,7 +77,12 @@ pipeline {
 
                 sh """
                     docker version
-                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build apigateway
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build exercises
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build storage
+                    docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build executor
                 """
                 
                 script {
