@@ -2,8 +2,6 @@ FROM gradle:jdk17 as base
 WORKDIR /app
 # Copy the application source code
 COPY . .
-RUN mkdir src/test/resources
-RUN touch src/test/resources/application.properties
 # Build the application and execute unit tests (build task depends on test task)
 RUN gradle build javadoc --no-daemon
 
