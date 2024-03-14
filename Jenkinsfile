@@ -44,15 +44,8 @@ pipeline {
             }
             steps {
                 setBuildPending()
-                echo "Build started"
+                echo "Importing application.properties"
 
-                /*
-                withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
-                    sh """
-                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} repository.mostserene.eu
-                    """
-                }
-                */
                 sh """
                     cp /envvars/avogador/web.staging.env frontend/.env.staging
                     
@@ -75,8 +68,9 @@ pipeline {
                     cp /envvars/avogador/executorTest backend/services/executorservice/src/test/resources/application.properties         
                 """
 
+                echo "Building docker images"
+
                 sh """
-                    docker version
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build apigateway
                     docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
@@ -88,50 +82,12 @@ pipeline {
                 
                 script {
                     if (env.BRANCH_NAME == 'master') {
-                    }
-                    //TODO: move inside if
-                    sh '''
-                        docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
-                    '''
-                }
-                
-                script {
-                    if (env.BRANCH_NAME == 'master') {
-                        /*
-                        echo "Building Storybook"
                         sh """
-                            cd frontend
-                            yarn build-storybook
-                            tar -czvf storybook.tar.gz storybook-static
+                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
                         """
-                        */
-
-                        echo "Publish artifacts"
-                        sh """
-                            cp backend/apigateway/build/libs/* /share/avogador/artifacts/apigateway.jar
-                            cp backend/services/courseservice/build/libs/* /share/avogador/artifacts/courseservice.jar
-                            cp backend/services/userservice/build/libs/* /share/avogador/artifacts/userservice.jar
-                            cp backend/services/exerciseservice/build/libs/* /share/avogador/artifacts/exerciseservice.jar
-                            cp backend/services/storageservice/build/libs/* /share/avogador/artifacts/storageservice.jar
-                            cp backend/services/executorservice/build/libs/* /share/avogador/artifacts/executorservice.jar
-							
-                            cp frontend/webapp.tar.gz /share/avogador/artifacts/webapp.tar.gz
-                        """
-                            // cp frontend/storybook.tar.gz /share/avogador/storybook/storybook.tar.gz
-                        
-                        echo "Publish javadoc"
-                        sh '''
-                            cp -r backend/apigateway/build/docs/javadoc/* /share/avogador/javadoc/apigateway/
-                            cp -r backend/services/courseservice/build/docs/javadoc/* /share/avogador/javadoc/courseService/
-                            cp -r backend/services/userservice/build/docs/javadoc/* /share/avogador/javadoc/userService/
-                            cp -r backend/services/exerciseservice/build/docs/javadoc/* /share/avogador/javadoc/exerciseService/
-                            cp -r backend/services/storageservice/build/docs/javadoc/* /share/avogador/javadoc/storageservice/
-                            cp -r backend/services/executorservice/build/docs/javadoc/* /share/avogador/javadoc/executorservice/
-                        '''
                     }
-
                 }
-                echo "Build finished"
+
             }
         }
         stage('Test') {
@@ -170,8 +126,8 @@ pipeline {
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
                 withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
                     sh """
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE}  docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d --force-recreate
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env pull
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d 
                     """
                 }
                 echo 'Staging Deliver finished'
