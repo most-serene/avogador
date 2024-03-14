@@ -1,7 +1,8 @@
 FROM node:lts AS builder
 
 WORKDIR /app
-COPY . .
+COPY package.json .
+COPY yarn.lock .
 RUN yarn --network-timeout 100000
 
 ###
@@ -26,6 +27,7 @@ ENV VITE_AVOGADOR_BACKEND_WEBSOCKET_ADDRESS: ${VITE_AVOGADOR_BACKEND_WEBSOCKET_A
 ARG VITE_REACT_BASE_URL
 ENV VITE_REACT_BASE_URL: ${VITE_REACT_BASE_URL}
 
+COPY . .
 RUN yarn build
 
 ENV NODE_ENV production
