@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "AbstractExercises")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class AbstractExercise {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
