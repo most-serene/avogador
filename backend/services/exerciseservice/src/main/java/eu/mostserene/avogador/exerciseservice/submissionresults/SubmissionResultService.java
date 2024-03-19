@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 
 import java.util.List;

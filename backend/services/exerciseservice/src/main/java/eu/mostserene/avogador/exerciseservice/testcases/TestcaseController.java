@@ -2,7 +2,6 @@ package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
