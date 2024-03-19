@@ -1,6 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
@@ -99,6 +101,8 @@ public class TrialController {
 
         CompletableFuture.allOf(
                         exercises.stream()
+                                .filter(exercise -> exercise.getExerciseType().equals(ExerciseType.CODING))
+                                .map(exercise -> (CodingExercise) exercise)
                                 .map(exercise -> CompletableFuture.runAsync(() ->
                                         antiPlagiarismService.executeSimilarityTool(exercise)
                                 ))
