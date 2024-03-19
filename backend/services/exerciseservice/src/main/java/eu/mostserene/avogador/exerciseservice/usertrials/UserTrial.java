@@ -1,22 +1,19 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
 @Table(
         name = "UserTrials",
-        uniqueConstraints = @UniqueConstraint(columnNames={"userId", "trial_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "trial_id"})
 )
 public class UserTrial {
     @Id
@@ -101,13 +98,13 @@ public class UserTrial {
         this.hasExtraTime = hasExtraTime;
     }
 
-    public UserTrialDetailDto getUserTrialDetail(UserDto userDto){
+    public UserTrialDetailDto getUserTrialDetail(UserDto userDto) {
         return new UserTrialDetailDto(this, userDto);
     }
 
-    public void init(){
+    public void init() {
         this.startTime = Date.from(Instant.now());
-        if (trial instanceof Practice){
+        if (trial instanceof Practice) {
             this.deadline = ((Practice) trial).getDeadline();
         }
         // TODO: add Exam
