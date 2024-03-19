@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +22,7 @@ public class Testcase {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "exercise_id", referencedColumnName = "id", updatable = false, nullable = false)
-    private Exercise exercise;
+    private CodingExercise exercise;
 
     @Setter
     @NotNull
@@ -45,13 +45,13 @@ public class Testcase {
     public Testcase() {
     }
 
-    public Testcase(Exercise exercise, Boolean isVisible, Integer index) {
+    public Testcase(CodingExercise exercise, Boolean isVisible, Integer index) {
         this.exercise = exercise;
         this.isVisible = isVisible;
         this.index = index;
     }
 
-    public Testcase(Exercise exercise, Boolean isVisible, Integer index, Double points, String name) {
+    public Testcase(CodingExercise exercise, Boolean isVisible, Integer index, Double points, String name) {
         this(exercise, isVisible, index);
         this.points = points;
         this.name = name;
