@@ -2,10 +2,12 @@ package eu.mostserene.avogador.exerciseservice.trials;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(name = "Trials")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -50,52 +52,24 @@ public abstract class Trial {
 
     public abstract TrialType getTrialType();
 
-    public UUID getId() {
-        return id;
-    }
-
-    public UUID getCourseId() {
-        return courseId;
-    }
-
     public void setCourseId(UUID courseId) {
         this.courseId = courseId;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public Boolean getIsVisible() {
-        return isVisible;
-    }
-
     public void setIsVisible(Boolean visible) {
         isVisible = visible;
-    }
-
-    public Boolean getIsPublic() {
-        return isPublic;
     }
 
     public void setIsPublic(Boolean aPublic) {
         isPublic = aPublic;
     }
 
-    public ProgrammingLanguage getLanguage() {
-        return language;
-    }
-
     public void setLanguage(ProgrammingLanguage language) {
         this.language = language;
-    }
-
-    public Date getStartTimestamp() {
-        return startTimestamp;
     }
 
     public void setStartTimestamp(Date startTimestamp) {
