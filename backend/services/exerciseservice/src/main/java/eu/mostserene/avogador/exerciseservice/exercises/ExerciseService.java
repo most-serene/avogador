@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExercise;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 
 import java.util.List;
@@ -7,15 +8,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ExerciseService {
-    Optional<Exercise> getExercise(UUID exerciseId);
+    Optional<AbstractExercise> getExercise(UUID exerciseId);
 
-    Exercise createExercise(ExerciseDto exerciseDto, Trial trial);
+    List<AbstractExercise> getExercisesFromTrial(Trial trial, Boolean includeHidden);
 
-    Exercise updateExercise(Exercise exercise);
-
-    void deleteExercise(Exercise exercise);
+    void deleteExercise(AbstractExercise exercise);
 
     void deleteExercisesByTrial(Trial trial);
 
-    List<Exercise> getExercisesFromTrial(Trial trial, Boolean includeHidden);
 }
