@@ -1,7 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.practices.Practice
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController
@@ -409,7 +409,7 @@ class PracticeControllerTests : AbstractControllerTests() {
                 print()
             }.andExpect {
                 status { isOk() }
-                jsonPath<Collection<Exercise>>("$", hasSize(1))
+                jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(1))
             }
         }
 
@@ -422,7 +422,7 @@ class PracticeControllerTests : AbstractControllerTests() {
                 print()
             }.andExpect {
                 status { isOk() }
-                jsonPath<Collection<Exercise>>("$", hasSize(2))
+                jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(2))
             }
         }
     }

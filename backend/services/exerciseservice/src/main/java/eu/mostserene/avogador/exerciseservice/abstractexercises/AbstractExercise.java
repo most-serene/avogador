@@ -1,6 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.abstractexercises;
 
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseDto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -51,4 +53,11 @@ public abstract class AbstractExercise {
     }
 
     public abstract ExerciseType getExerciseType();
+
+    public AbstractExerciseDto toDto() {
+        if (getExerciseType().equals(ExerciseType.CODING)) {
+            return new CodingExerciseDto((CodingExercise) this);
+        }
+        return new AbstractExerciseDto(id, trial.getId(), name, statement, isVisible);
+    }
 }

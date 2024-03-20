@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseController
@@ -47,6 +48,9 @@ class TestcaseControllerTests : AbstractControllerTests() {
     private lateinit var exerciseService: ExerciseService
 
     @MockBean
+    private lateinit var codingExerciseService: CodingExerciseService
+
+    @MockBean
     private lateinit var testcaseService: TestcaseService
 
     @MockBean
@@ -54,49 +58,49 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
     @BeforeEach
     fun setup() {
-        `when`(exerciseService.getExercise(any()))
-            .thenReturn(Optional.empty())
-        `when`(exerciseService.getExercise(visibleExercise.id))
-            .thenReturn(Optional.of(visibleExercise))
+        `when`(codingExerciseService.getCodingExercise(any()))
+                .thenReturn(Optional.empty())
+        `when`(codingExerciseService.getCodingExercise(visibleExercise.id))
+                .thenReturn(Optional.of(visibleExercise))
         `when`(trialService.getTrialById(any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(trialService.getTrialById(practice.id))
-            .thenReturn(Optional.of(practice))
+                .thenReturn(Optional.of(practice))
         `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
-            .thenReturn(Optional.of(courseDetailDtoExternal))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
-            .thenReturn(Optional.of(courseDetailDtoExternal))
+                .thenReturn(Optional.of(courseDetailDtoExternal))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
-            .thenReturn(Optional.of(courseDetailDtoStudent))
+                .thenReturn(Optional.of(courseDetailDtoStudent))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
-            .thenReturn(Optional.of(courseDetailDtoCollaborator))
+                .thenReturn(Optional.of(courseDetailDtoCollaborator))
         `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
-            .thenReturn(Optional.of(courseDetailDtoAdmin))
+                .thenReturn(Optional.of(courseDetailDtoAdmin))
         `when`(testcaseService.getTestcasesFromExercise(eq(visibleExercise)))
-            .thenReturn(listOf(visibleTestcaseDto, hiddenTestcaseDto))
+                .thenReturn(listOf(visibleTestcaseDto, hiddenTestcaseDto))
         `when`(testcaseService.getTestcase(any(), any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcaseDto.id)))
-            .thenReturn(Optional.of(visibleTestcaseDto))
+                .thenReturn(Optional.of(visibleTestcaseDto))
         `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcaseDto.id)))
-            .thenReturn(Optional.of(hiddenTestcaseDto))
+                .thenReturn(Optional.of(hiddenTestcaseDto))
         `when`(testcaseService.getSimpleTestcasesFromExercise(any()))
-            .thenReturn(listOf())
+                .thenReturn(listOf())
         `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleExercise)))
-            .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
+                .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
         `when`(testcaseService.getSimpleTestcase(any()))
-            .thenReturn(Optional.empty())
+                .thenReturn(Optional.empty())
         `when`(testcaseService.getSimpleTestcase(eq(visibleTestcaseDto.id)))
-            .thenReturn(Optional.of(visibleTestcase))
+                .thenReturn(Optional.of(visibleTestcase))
     }
 
     @Nested
     inner class InsertTestcase {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.put("/public/exercises/00000000-0000-0000-0000-000000000000/testcases") {
+            mvc.put("/public/exercises/coding/00000000-0000-0000-0000-000000000000/testcases") {
                 header("User", studentHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(visibleTestcaseDto)
@@ -110,7 +114,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.put("/public/exercises/${visibleExercise.id}/testcases") {
+            mvc.put("/public/exercises/coding/${visibleExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(visibleTestcaseDto)
@@ -124,7 +128,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.put("/public/exercises/${visibleExercise.id}/testcases") {
+            mvc.put("/public/exercises/coding/${visibleExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(visibleTestcaseDto)
@@ -140,7 +144,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class GetTestcasesFromExercise {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases") {
+            mvc.get("/public/exercises/coding/00000000-0000-0000-0000-000000000000/testcases") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -151,7 +155,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -162,7 +166,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -176,7 +180,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
                 header("User", header)
             }.andDo {
                 print()
@@ -193,7 +197,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class GetTestcaseById {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.get("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -204,7 +208,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -215,7 +219,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user - hidden testcase`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -226,7 +230,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(404) wrong testcase id`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/00000000-0000-0000-0000-000000000000") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/00000000-0000-0000-0000-000000000000") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -237,7 +241,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) student user - hidden testcase`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -248,7 +252,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -260,7 +264,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -272,7 +276,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user - hidden testcase`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -286,7 +290,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class UpdateTestcaseOrder {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.patch("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/order") {
+            mvc.patch("/public/exercises/coding/00000000-0000-0000-0000-000000000000/testcases/order") {
                 header("User", studentHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
@@ -300,7 +304,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
@@ -313,7 +317,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list size mismatch - smaller`() {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id))
@@ -326,15 +330,15 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list size mismatch - bigger`() {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                    listOf(
-                        hiddenTestcaseDto.id,
-                        visibleTestcaseDto.id,
-                        visibleTestcaseDto.id
-                    )
+                        listOf(
+                                hiddenTestcaseDto.id,
+                                visibleTestcaseDto.id,
+                                visibleTestcaseDto.id
+                        )
                 )
             }.andDo {
                 print()
@@ -345,7 +349,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list with repetitions`() {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id, visibleTestcaseDto.id))
@@ -358,14 +362,14 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list with wrong ids`() {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                    listOf(
-                        UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                        visibleTestcaseDto.id
-                    )
+                        listOf(
+                                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                                visibleTestcaseDto.id
+                        )
                 )
             }.andDo {
                 print()
@@ -377,7 +381,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.patch("/public/exercises/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
@@ -393,7 +397,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
     inner class DeleteTestcase {
         @Test
         fun `(404) wrong exercise id`() {
-            mvc.delete("/public/exercises/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
+            mvc.delete("/public/exercises/coding/00000000-0000-0000-0000-000000000000/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -405,7 +409,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.delete("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -417,7 +421,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.delete("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()

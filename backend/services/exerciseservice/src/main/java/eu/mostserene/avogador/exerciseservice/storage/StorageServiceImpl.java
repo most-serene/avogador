@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
@@ -44,7 +44,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void createExercise(Exercise exercise) {
+    public void createExercise(CodingExercise exercise) {
         sender.send("storage", "storage.exercise.create",
                 new ExerciseStorageDTO(
                         exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId()));
@@ -52,9 +52,9 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void createExerciseTemplate(Exercise exercise, Strox template) {
+    public void createExerciseTemplate(CodingExercise exercise, Strox template) {
         // FIXME: one day the professor will set the filename from the webapp
-        String filename = switch (exercise.getTrial().getLanguage()) {
+        String filename = switch (exercise.getLanguage()) {
             case C -> "main.c";
             case CPP -> "main.cpp";
             case JAVA -> "Main.java";
@@ -68,7 +68,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteExercise(Exercise exercise) {
+    public void deleteExercise(CodingExercise exercise) {
         sender.send("storage", "storage.exercise.delete",
                 new ExerciseStorageDTO(
                         exercise.getTrial().getCourseId(), exercise.getTrial().getId(), exercise.getId()));
@@ -76,7 +76,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void createTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+    public void createTestcase(CodingExercise exercise, TestcaseDetailDto testcase) {
         sender.send("storage", "storage.testcase.create",
                 new TestcaseStorageDto(
                         exercise.getTrial().getCourseId(),
@@ -89,7 +89,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteTestcase(Exercise exercise, UUID testcaseId) {
+    public void deleteTestcase(CodingExercise exercise, UUID testcaseId) {
         sender.send("storage", "storage.testcase.delete",
                 new TestcaseStorageDto(
                         exercise.getTrial().getCourseId(),
@@ -102,7 +102,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Optional<TestcaseIODto> getTestcase(Exercise exercise, UUID testcaseId) {
+    public Optional<TestcaseIODto> getTestcase(CodingExercise exercise, UUID testcaseId) {
         TestcaseIODto testcaseIO = new RestTemplateBuilder()
                 .build()
                 .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
@@ -115,7 +115,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void updateTestcase(Exercise exercise, TestcaseDetailDto testcase) {
+    public void updateTestcase(CodingExercise exercise, TestcaseDetailDto testcase) {
         sender.send("storage", "storage.testcase.create",
                 new TestcaseStorageDto(
                         exercise.getTrial().getCourseId(),
@@ -130,7 +130,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public void createSubmission(Submission submission, Strox strox) {
         // FIXME: one day the professor will set the filename from the webapp
-        String filename = switch (submission.getExercise().getTrial().getLanguage()) {
+        String filename = switch (submission.getExercise().getLanguage()) {
             case C -> "main.c";
             case CPP -> "main.cpp";
             case JAVA -> "Main.java";
@@ -180,7 +180,7 @@ public class StorageServiceImpl implements StorageService {
         return Optional.of(submissionSourceCode);
     }
 
-    public Optional<Strox> getExerciseTemplate(Exercise exercise) {
+    public Optional<Strox> getExerciseTemplate(CodingExercise exercise) {
         Strox stroxTemplate = new RestTemplateBuilder()
                 .build()
                 .getForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
@@ -216,7 +216,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Resource getExerciseLatestSubmissionsSources(Exercise exercise, List<UUID> submissionIds) {
+    public Resource getExerciseLatestSubmissionsSources(CodingExercise exercise, List<UUID> submissionIds) {
         return new RestTemplateBuilder()
                 .build()
                 .patchForObject("http://storage/courses/" + exercise.getTrial().getCourseId() +
@@ -227,7 +227,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void uploadSimilarityReport(Exercise exercise, File reportZip) {
+    public void uploadSimilarityReport(CodingExercise exercise, File reportZip) {
         try {
             sender.send("storage", "storage.exercise.similarity",
                     new SimilarityReportStorageDto(
@@ -242,7 +242,7 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Optional<PlagiarismReport> getSimilarityReport(Exercise exercise) {
+    public Optional<PlagiarismReport> getSimilarityReport(CodingExercise exercise) {
         try {
             PlagiarismReport similarityReport = new RestTemplateBuilder()
                     .build()

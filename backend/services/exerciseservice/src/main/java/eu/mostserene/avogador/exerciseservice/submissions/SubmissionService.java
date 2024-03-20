@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,15 +9,15 @@ import java.util.UUID;
 public interface SubmissionService {
     Optional<Submission> getSubmission(UUID submissionId);
 
-    List<Submission> getSubmissionsFromExercise(Exercise exercise);
+    List<Submission> getSubmissionsFromExercise(CodingExercise exercise);
 
-    List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId);
+    List<Submission> getSubmissionsFromExerciseAndUserId(CodingExercise exercise, UUID userId);
 
-    List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(Exercise exercise, UUID userId);
+    List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(CodingExercise exercise, UUID userId);
 
-    Optional<Submission> getLatestSubmissionFromExerciseAndUserId(Exercise exercise, UUID userId);
+    Optional<Submission> getLatestSubmissionFromExerciseAndUserId(CodingExercise exercise, UUID userId);
 
-    Submission createSubmission(Exercise exercise, SubmissionDto submissionDto);
+    Submission createSubmission(CodingExercise exercise, SubmissionDto submissionDto);
 
     SubmissionDto exportToDto(Submission submission);
 
@@ -27,5 +27,5 @@ public interface SubmissionService {
      *
      * @param exercise
      */
-    void deleteSubmissions(Exercise exercise);
+    void deleteSubmissions(CodingExercise exercise);
 }

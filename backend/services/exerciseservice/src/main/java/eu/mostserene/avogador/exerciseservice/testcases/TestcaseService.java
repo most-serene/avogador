@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,19 +9,19 @@ import java.util.UUID;
 public interface TestcaseService {
     Optional<Testcase> getSimpleTestcase(UUID testcaseId);
 
-    Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId);
+    Optional<TestcaseDetailDto> getTestcase(CodingExercise exercise, UUID testcaseId);
 
-    List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException;
+    List<TestcaseDetailDto> getTestcasesFromExercise(CodingExercise exercise) throws IllegalStateException;
 
-    List<Testcase> getSimpleTestcasesFromExercise(Exercise exercise);
+    List<Testcase> getSimpleTestcasesFromExercise(CodingExercise exercise);
 
-    TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise);
+    TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, CodingExercise exercise);
 
     Testcase updateTestcaseIndex(Testcase testcase, int index);
 
     TestcaseDetailDto updateTestcase(Testcase testcase, TestcaseDetailDto testcaseDto);
 
-    void deleteTestcase(Exercise exercise, UUID testcase);
+    void deleteTestcase(CodingExercise exercise, UUID testcase);
 
-    void deleteTestcases(Exercise exercise);
+    void deleteTestcases(CodingExercise exercise);
 }

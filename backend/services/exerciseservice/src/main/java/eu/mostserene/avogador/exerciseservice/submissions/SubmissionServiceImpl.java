@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
@@ -34,17 +34,17 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public List<Submission> getSubmissionsFromExercise(Exercise exercise) {
+    public List<Submission> getSubmissionsFromExercise(CodingExercise exercise) {
         return submissionRepository.findByExercise_IdOrderByTimestampAsc(exercise.getId());
     }
 
     @Override
-    public List<Submission> getSubmissionsFromExerciseAndUserId(Exercise exercise, UUID userId) {
+    public List<Submission> getSubmissionsFromExerciseAndUserId(CodingExercise exercise, UUID userId) {
         return submissionRepository.findByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
     }
 
     @Override
-    public List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(Exercise exercise, UUID userId) {
+    public List<SubmissionDto> getSubmissionDtosFromExerciseAndUserId(CodingExercise exercise, UUID userId) {
         var submissions = getSubmissionsFromExerciseAndUserId(exercise, userId);
 
         return submissions.stream()
@@ -61,12 +61,12 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public Optional<Submission> getLatestSubmissionFromExerciseAndUserId(Exercise exercise, UUID userId) {
+    public Optional<Submission> getLatestSubmissionFromExerciseAndUserId(CodingExercise exercise, UUID userId) {
         return submissionRepository.findFirstByExercise_IdAndUserIdOrderByTimestampDesc(exercise.getId(), userId);
     }
 
     @Override
-    public Submission createSubmission(Exercise exercise, SubmissionDto submissionDto) {
+    public Submission createSubmission(CodingExercise exercise, SubmissionDto submissionDto) {
         Submission submission = submissionRepository.save(new Submission(
                 exercise, submissionDto.getUserId(), Date.from(Instant.now())
         ));
@@ -88,7 +88,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public void deleteSubmissions(Exercise exercise) {
+    public void deleteSubmissions(CodingExercise exercise) {
         submissionRepository.findByExercise_IdOrderByTimestampAsc(exercise.getId())
                 .forEach(submission -> {
                     submissionResultService.deleteSubmissionResultsBySubmission(submission);

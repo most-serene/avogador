@@ -2,12 +2,13 @@ package eu.mostserene.avogador.exerciseservice.submissions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
@@ -36,12 +37,15 @@ import java.time.Instant;
 import java.util.*;
 
 @RestController
-@RequestMapping("/public/exercises/{exerciseId}/submissions")
+@RequestMapping("/public/exercises/coding/{exerciseId}/submissions")
 @Slf4j
 public class SubmissionController {
 
     @Autowired
     private ExerciseService exerciseService;
+
+    @Autowired
+    private CodingExerciseService codingExerciseService;
 
     @Autowired
     private UserCourseService userCourseService;
@@ -69,7 +73,7 @@ public class SubmissionController {
 
     @GetMapping("/{submissionId}")
     private SubmissionDto getSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
-        Exercise exercise = exerciseService.getExercise(exerciseId)
+        CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
@@ -87,7 +91,7 @@ public class SubmissionController {
 
     @GetMapping("/{submissionId}/download")
     private ResponseEntity<Resource> downloadSubmissionById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID submissionId) {
-        Exercise exercise = exerciseService.getExercise(exerciseId)
+        CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
@@ -110,7 +114,7 @@ public class SubmissionController {
 
     @GetMapping("/users/{userId}")
     private List<SubmissionDto> getUserSubmissions(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID userId) {
-        Exercise exercise = exerciseService.getExercise(exerciseId)
+        CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
@@ -125,7 +129,7 @@ public class SubmissionController {
 
     @PostMapping("")
     private SubmissionDto createSubmission(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody SubmissionDto submissionDto) {
-        Exercise exercise = exerciseService.getExercise(exerciseId)
+        CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())

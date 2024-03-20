@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import jakarta.transaction.Transactional;
@@ -30,7 +30,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     }
 
     @Override
-    public Optional<TestcaseDetailDto> getTestcase(Exercise exercise, UUID testcaseId) {
+    public Optional<TestcaseDetailDto> getTestcase(CodingExercise exercise, UUID testcaseId) {
         Optional<Testcase> testcase = repository.findById(testcaseId);
 
         return testcase.map(tc -> {
@@ -41,7 +41,7 @@ public class TestcaseServiceImpl implements TestcaseService {
     }
 
     @Override
-    public List<TestcaseDetailDto> getTestcasesFromExercise(Exercise exercise) throws IllegalStateException {
+    public List<TestcaseDetailDto> getTestcasesFromExercise(CodingExercise exercise) throws IllegalStateException {
         List<Testcase> testcases = repository.findByExercise_Id(exercise.getId());
         List<TestcaseDetailDto> testcaseDetails = testcases.stream()
                 .map(tc -> {
@@ -59,12 +59,12 @@ public class TestcaseServiceImpl implements TestcaseService {
     }
 
     @Override
-    public List<Testcase> getSimpleTestcasesFromExercise(Exercise exercise) {
+    public List<Testcase> getSimpleTestcasesFromExercise(CodingExercise exercise) {
         return repository.findByExercise_Id(exercise.getId());
     }
 
     @Override
-    public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, Exercise exercise) {
+    public TestcaseDetailDto createTestcase(TestcaseDetailDto testcase, CodingExercise exercise) {
         var savedTestcase = repository.save(new Testcase(exercise, testcase.getIsVisible(), testcase.getIndex()));
 
         storageService.createTestcase(exercise,
@@ -93,14 +93,14 @@ public class TestcaseServiceImpl implements TestcaseService {
 
     @Override
     @Transactional
-    public void deleteTestcase(Exercise exercise, UUID testcaseId) {
+    public void deleteTestcase(CodingExercise exercise, UUID testcaseId) {
         submissionResultService.deleteSubmissionResultsByTestcaseId(testcaseId);
         repository.deleteById(testcaseId);
         storageService.deleteTestcase(exercise, testcaseId);
     }
 
     @Override
-    public void deleteTestcases(Exercise exercise) {
+    public void deleteTestcases(CodingExercise exercise) {
         repository.findByExercise_Id(exercise.getId())
                 .forEach(testcase -> {
                     submissionResultService.deleteSubmissionResultsByTestcaseId(testcase.getId());

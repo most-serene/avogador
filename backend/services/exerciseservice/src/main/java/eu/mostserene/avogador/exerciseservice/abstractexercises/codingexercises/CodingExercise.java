@@ -26,11 +26,6 @@ public class CodingExercise extends AbstractExercise {
     private ProgrammingLanguage language;
 
 
-    @Override
-    public ExerciseType getExerciseType() {
-        return ExerciseType.CODING;
-    }
-
     public CodingExercise() {
     }
 
@@ -39,4 +34,10 @@ public class CodingExercise extends AbstractExercise {
         this.timeLimit = timeLimit;
         this.language = language;
     }
+
+    @Override
+    public ExerciseType getExerciseType() {
+        return ExerciseType.CODING;
+    }
+    
 }

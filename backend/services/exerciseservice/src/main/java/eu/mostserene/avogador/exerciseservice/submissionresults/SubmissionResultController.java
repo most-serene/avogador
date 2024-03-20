@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
@@ -21,12 +22,14 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/public/exercises/{exerciseId}")
+@RequestMapping("/public/exercises/coding/{exerciseId}")
 public class SubmissionResultController {
     @Autowired
     private SubmissionResultService submissionResultService;
     @Autowired
     private ExerciseService exerciseService;
+    @Autowired
+    private CodingExerciseService codingExerciseService;
     @Autowired
     private UserCourseService userCourseService;
     @Autowired
@@ -46,7 +49,7 @@ public class SubmissionResultController {
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "false") boolean latest
     ) {
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
         var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
@@ -72,7 +75,7 @@ public class SubmissionResultController {
             @RequestHeader(name = "User") UserDto user,
             @PathVariable UUID exerciseId
     ) {
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
         var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
@@ -119,7 +122,7 @@ public class SubmissionResultController {
             @PathVariable UUID exerciseId,
             @PathVariable UUID submissionId
     ) {
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
         var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();

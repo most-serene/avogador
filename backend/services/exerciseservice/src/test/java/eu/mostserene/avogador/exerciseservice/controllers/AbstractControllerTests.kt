@@ -2,10 +2,10 @@ package eu.mostserene.avogador.exerciseservice.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectWriter
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise
 import eu.mostserene.avogador.exerciseservice.practices.Practice
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto
@@ -27,52 +27,52 @@ abstract class AbstractControllerTests {
     val emptyId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
 
     val empty = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000000"),
-        "ryan.howard@avogador.com",
-        "Ryan",
-        "Howard",
-        false,
-        false
+            UUID.fromString("00000000-0000-0000-0000-000000000000"),
+            "ryan.howard@avogador.com",
+            "Ryan",
+            "Howard",
+            false,
+            false
     )
     val external = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "creed.bratton@avogador.com",
-        "Creed",
-        "Bratton",
-        false,
-        false
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "creed.bratton@avogador.com",
+            "Creed",
+            "Bratton",
+            false,
+            false
     )
     val student = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000002"),
-        "andy.bernard@avogador.com",
-        "Andy",
-        "Bernard",
-        false,
-        false
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            "andy.bernard@avogador.com",
+            "Andy",
+            "Bernard",
+            false,
+            false
     )
     val collaborator = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000003"),
-        "dwigth.schrute@avogador.com",
-        "Dwight",
-        "Schrute",
-        false,
-        false
+            UUID.fromString("00000000-0000-0000-0000-000000000003"),
+            "dwigth.schrute@avogador.com",
+            "Dwight",
+            "Schrute",
+            false,
+            false
     )
     val professor = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000004"),
-        "jim.halpert@avogador.com",
-        "Jim",
-        "Halpert",
-        true,
-        false
+            UUID.fromString("00000000-0000-0000-0000-000000000004"),
+            "jim.halpert@avogador.com",
+            "Jim",
+            "Halpert",
+            true,
+            false
     )
     val superuser = UserDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000005"),
-        "michael.scott@avogador.com",
-        "Michael",
-        "Scott",
-        false,
-        true
+            UUID.fromString("00000000-0000-0000-0000-000000000005"),
+            "michael.scott@avogador.com",
+            "Michael",
+            "Scott",
+            false,
+            true
     )
     val emptyHeader: String = mapper.writeValueAsString(empty)
     val externalHeader: String = mapper.writeValueAsString(external)
@@ -82,80 +82,80 @@ abstract class AbstractControllerTests {
     val superuserHeader: String = mapper.writeValueAsString(superuser)
 
     val practice = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Trial",
-        true,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
-        Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Trial",
+            true,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
+            Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
     )
     val hiddenPractice = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Trial",
-        false,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
-        Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Trial",
+            false,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
+            Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
     )
     val practiceStartingPast = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Trial",
-        true,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(-1, ChronoUnit.MINUTES)),
-        Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Trial",
+            true,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(-1, ChronoUnit.MINUTES)),
+            Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
     )
     val practiceEndingBeforeStart = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Trial",
-        true,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(12, ChronoUnit.DAYS)),
-        Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Trial",
+            true,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(12, ChronoUnit.DAYS)),
+            Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
     )
     val oldPractice = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Trial",
-        true,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(-8, ChronoUnit.DAYS)),
-        Date.from(Instant.now().plus(6, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Trial",
+            true,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(-8, ChronoUnit.DAYS)),
+            Date.from(Instant.now().plus(6, ChronoUnit.DAYS))
     )
     val practiceInArchivedCourse = Practice(
-        UUID.fromString("00000000-0000-0000-0000-000000000002"),
-        "Trial",
-        true,
-        true,
-        ProgrammingLanguage.JAVA,
-        Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
-        Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            "Trial",
+            true,
+            true,
+            ProgrammingLanguage.JAVA,
+            Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)),
+            Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
     )
 
-    val visibleExercise = Exercise(practice, "Exercise1", "statement", 1, true)
-    val hiddenExercise = Exercise(practice, "Exercise2", "statement", 1, false)
+    val visibleExercise = CodingExercise(practice, "Exercise1", "statement", true, 1, ProgrammingLanguage.JAVA)
+    val hiddenExercise = CodingExercise(practice, "Exercise2", "statement", false, 1, ProgrammingLanguage.JAVA)
 
     val visibleTestcase = Testcase(visibleExercise, true, 1, 1.0, "Test")
 
     val visibleTestcaseDto = TestcaseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        true,
-        1,
-        "in1",
-        "out1"
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            true,
+            1,
+            "in1",
+            "out1"
     )
     val hiddenTestcaseDto = TestcaseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000002"),
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        false,
-        2,
-        "in2",
-        "out2"
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            false,
+            2,
+            "in2",
+            "out2"
     )
     val simpleVisibleTestcase = Testcase(visibleExercise, true, 1)
     val simpleHiddenTestcase = Testcase(visibleExercise, false, 2)
@@ -163,43 +163,43 @@ abstract class AbstractControllerTests {
     val studentPractice = UserTrial(student.id, practice, false)
 
     val courseDetailDtoExternal = CourseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Course Name",
-        "2023/2024",
-        false,
-        CourseRole.EXTERNAL
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.EXTERNAL
     )
 
     val courseDetailDtoStudent = CourseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Course Name",
-        "2023/2024",
-        false,
-        CourseRole.STUDENT
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.STUDENT
     )
 
     val courseDetailDtoCollaborator = CourseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Course Name",
-        "2023/2024",
-        false,
-        CourseRole.COLLABORATOR
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.COLLABORATOR
     )
 
     val courseDetailDtoAdmin = CourseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000001"),
-        "Course Name",
-        "2023/2024",
-        false,
-        CourseRole.ADMIN
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            "Course Name",
+            "2023/2024",
+            false,
+            CourseRole.ADMIN
     )
 
     val archivedCourseDetailDtoAdmin = CourseDetailDto(
-        UUID.fromString("00000000-0000-0000-0000-000000000002"),
-        "Archived Course Name",
-        "2023/2024",
-        true,
-        CourseRole.ADMIN
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            "Archived Course Name",
+            "2023/2024",
+            true,
+            CourseRole.ADMIN
     )
 
     val course = CourseDto()
@@ -207,7 +207,7 @@ abstract class AbstractControllerTests {
 
 
     init {
-        val exerciseId = Exercise::class.java.getDeclaredField("id")
+        val exerciseId = CodingExercise::class.java.superclass.getDeclaredField("id")
         exerciseId.isAccessible = true
         exerciseId.set(visibleExercise, UUID.fromString("00000000-0000-0000-0000-000000000001"))
         exerciseId.set(hiddenExercise, UUID.fromString("00000000-0000-0000-0000-000000000002"))
@@ -216,8 +216,8 @@ abstract class AbstractControllerTests {
         practiceId.isAccessible = true
         practiceId.set(practice, UUID.fromString("00000000-0000-0000-0000-000000000001"))
         practiceId.set(
-            practiceStartingPast,
-            UUID.fromString("00000000-0000-0000-0000-000000000001")
+                practiceStartingPast,
+                UUID.fromString("00000000-0000-0000-0000-000000000001")
         ) // same id as practice for update queries
         practiceId.set(practiceEndingBeforeStart, UUID.fromString("00000000-0000-0000-0000-000000000001"))
         practiceId.set(hiddenPractice, UUID.fromString("00000000-0000-0000-0000-000000000002"))
@@ -235,34 +235,34 @@ abstract class AbstractControllerTests {
 
     class CourseMemberHeadersProvider : ArgumentsProvider, AbstractControllerTests() {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> = Stream.of(
-            Arguments.of(studentHeader),
-            Arguments.of(collaboratorHeader),
-            Arguments.of(professorHeader),
-            Arguments.of(superuserHeader)
+                Arguments.of(studentHeader),
+                Arguments.of(collaboratorHeader),
+                Arguments.of(professorHeader),
+                Arguments.of(superuserHeader)
         )
     }
 
     class CourseExternalHeadersProvider : ArgumentsProvider, AbstractControllerTests() {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> = Stream.of(
-            Arguments.of(emptyHeader),
-            Arguments.of(externalHeader),
+                Arguments.of(emptyHeader),
+                Arguments.of(externalHeader),
         )
     }
 
     class PrivilegedUserHeadersProvider : ArgumentsProvider, AbstractControllerTests() {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> = Stream.of(
-            Arguments.of(collaboratorHeader),
-            Arguments.of(professorHeader),
-            Arguments.of(superuserHeader)
+                Arguments.of(collaboratorHeader),
+                Arguments.of(professorHeader),
+                Arguments.of(superuserHeader)
         )
 
     }
 
     class UnprivilegedUserHeadersProvider : ArgumentsProvider, AbstractControllerTests() {
         override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> = Stream.of(
-            Arguments.of(emptyHeader),
-            Arguments.of(externalHeader),
-            Arguments.of(studentHeader),
+                Arguments.of(emptyHeader),
+                Arguments.of(externalHeader),
+                Arguments.of(studentHeader),
         )
 
     }

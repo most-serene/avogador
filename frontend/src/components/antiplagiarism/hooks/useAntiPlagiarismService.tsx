@@ -11,7 +11,9 @@ const useAntiPlagiarismService = () => {
     useCallback(
       async (exerciseId: string) => {
         const { data: report }: { data: PlagiarismReport } =
-          await avogadorApi.get(`/exercises/${exerciseId}/similarity-report`);
+          await avogadorApi.get(
+            `/exercises/coding/${exerciseId}/similarity-report`,
+          );
         return report;
       },
       [avogadorApi],
@@ -25,7 +27,7 @@ const useAntiPlagiarismService = () => {
         }: {
           data: boolean;
         } = await avogadorApi.get(
-          `/exercises/${exerciseId}/similarity-report-presence`,
+          `/exercises/coding/${exerciseId}/similarity-report-presence`,
         );
 
         return response;

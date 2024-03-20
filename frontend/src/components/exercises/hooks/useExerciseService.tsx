@@ -25,7 +25,7 @@ const useExerciseService = () => {
   ) => Promise<Exercise> = useCallback(
     async (exercise: Omit<PartialExercise, "courseId">) => {
       const { data: createdExercise }: { data: Exercise } =
-        await avogadorApi.post("/exercises", exercise);
+        await avogadorApi.post("/exercises/coding", exercise);
       return createdExercise;
     },
     [avogadorApi],
@@ -36,7 +36,7 @@ const useExerciseService = () => {
     template: StroxCell[],
   ) => Promise<void> = useCallback(
     async (exercise: Exercise, template: StroxCell[]) => {
-      await avogadorApi.post(`/exercises/${exercise.id}/template`, {
+      await avogadorApi.post(`/exercises/coding/${exercise.id}/template`, {
         cells: template,
       });
     },
@@ -52,7 +52,10 @@ const useExerciseService = () => {
   ) => Promise<Testcase> = useCallback(
     async (exerciseId: string, testcase: PartialTestcase) => {
       const { data: createdTestcase }: { data: Testcase } =
-        await avogadorApi.post(`/exercises/${exerciseId}/testcases`, testcase);
+        await avogadorApi.post(
+          `/exercises/coding/${exerciseId}/testcases`,
+          testcase,
+        );
       return createdTestcase;
     },
     [avogadorApi],
@@ -67,7 +70,7 @@ const useExerciseService = () => {
         throw new Error("User is null or undefined");
       }
       const { data: createdSubmission }: { data: Submission } =
-        await avogadorApi.post(`/exercises/${exerciseId}/submissions`, {
+        await avogadorApi.post(`/exercises/coding/${exerciseId}/submissions`, {
           exerciseId: exerciseId,
           userId: user.id,
           stroxCells: submission.filter((cell) => cell.type === "EDITABLE"),
@@ -82,7 +85,7 @@ const useExerciseService = () => {
       enqueueSnackbar("download started", { variant: "info" });
       avogadorApi
         .get(
-          `/exercises/${submission.exerciseId}/submissions/${submission.id}/download`,
+          `/exercises/coding/${submission.exerciseId}/submissions/${submission.id}/download`,
           {
             responseType: "blob",
             onDownloadProgress: (progressEvent) => {
@@ -134,7 +137,7 @@ const useExerciseService = () => {
     useCallback(
       async (exerciseId: string) => {
         const { data: testcases }: { data: Testcase[] } = await avogadorApi.get(
-          `/exercises/${exerciseId}/testcases`,
+          `/exercises/coding/${exerciseId}/testcases`,
         );
         return testcases;
       },
@@ -147,7 +150,7 @@ const useExerciseService = () => {
   ) => Promise<Strox> = useCallback(
     async (exerciseId: string, merged?: boolean) => {
       const { data: template }: { data: Strox } = await avogadorApi.get(
-        `/exercises/${exerciseId}/template?merged=${merged ?? false}`,
+        `/exercises/coding/${exerciseId}/template?merged=${merged ?? false}`,
       );
       return template;
     },
@@ -164,7 +167,7 @@ const useExerciseService = () => {
 
       const { data: submission }: { data: SubmissionResultMap } =
         await avogadorApi.get(
-          `/exercises/${exerciseId}/users/${user.id}/results?latest=true`,
+          `/exercises/coding/${exerciseId}/users/${user.id}/results?latest=true`,
         );
       return submission;
     },
@@ -178,7 +181,7 @@ const useExerciseService = () => {
     async (exerciseId: string, userId: string) => {
       const { data: submissions }: { data: SubmissionResultMap } =
         await avogadorApi.get(
-          `/exercises/${exerciseId}/users/${userId}/results`,
+          `/exercises/coding/${exerciseId}/users/${userId}/results`,
         );
       return submissions;
     },
@@ -192,7 +195,7 @@ const useExerciseService = () => {
     async (exerciseId: string, userId: string) => {
       const { data: submissions }: { data: Submission[] } =
         await avogadorApi.get(
-          `/exercises/${exerciseId}/submissions/users/${userId}`,
+          `/exercises/coding/${exerciseId}/submissions/users/${userId}`,
         );
       return submissions;
     },
@@ -204,7 +207,7 @@ const useExerciseService = () => {
   ) => Promise<UserExerciseSummary[]> = useCallback(
     async (exerciseId: string) => {
       const { data: summary }: { data: UserExerciseSummary[] } =
-        await avogadorApi.get(`/exercises/${exerciseId}/results`);
+        await avogadorApi.get(`/exercises/coding/${exerciseId}/results`);
       return summary;
     },
     [avogadorApi],
@@ -217,7 +220,7 @@ const useExerciseService = () => {
     async (exerciseId: string, submissionId: string) => {
       const { data: submission }: { data: Record<string, string> } =
         await avogadorApi.get(
-          `/exercises/${exerciseId}/submissions/${submissionId}/outputs`,
+          `/exercises/coding/${exerciseId}/submissions/${submissionId}/outputs`,
         );
       return submission;
     },
@@ -227,7 +230,7 @@ const useExerciseService = () => {
   const updateExercise: (exercise: Exercise) => Promise<Exercise> = useCallback(
     async (exercise: Exercise) => {
       const { data: updatedExercise }: { data: Exercise } =
-        await avogadorApi.put(`/exercises/${exercise.id}`, {
+        await avogadorApi.put(`/exercises/coding/${exercise.id}`, {
           ...exercise,
           trialId: exercise.trialId ?? exercise.trial.id,
         });
@@ -253,7 +256,7 @@ const useExerciseService = () => {
     async (exerciseId: string, testcase: PartialTestcase) => {
       const { data: updatedTestcase }: { data: Testcase } =
         await avogadorApi.put(
-          `/exercises/${exerciseId}/testcases/${testcase.id}`,
+          `/exercises/coding/${exerciseId}/testcases/${testcase.id}`,
           testcase,
         );
       return updatedTestcase;
@@ -267,7 +270,7 @@ const useExerciseService = () => {
   ) => Promise<void> = useCallback(
     async (exerciseId: string, testcaseIds: string[]) => {
       await avogadorApi.patch(
-        `/exercises/${exerciseId}/testcases/order`,
+        `/exercises/coding/${exerciseId}/testcases/order`,
         testcaseIds,
       );
     },
@@ -280,7 +283,7 @@ const useExerciseService = () => {
   ) => Promise<void> = useCallback(
     async (exerciseId: string, testcase: Testcase) => {
       await avogadorApi.delete(
-        `/exercises/${exerciseId}/testcases/${testcase.id}`,
+        `/exercises/coding/${exerciseId}/testcases/${testcase.id}`,
       );
     },
     [avogadorApi],
@@ -295,7 +298,10 @@ const useExerciseService = () => {
       testcase: PartialTestcase & { index: number },
     ) => {
       const { data: createdTestcase }: { data: Testcase } =
-        await avogadorApi.put(`/exercises/${exerciseId}/testcases`, testcase);
+        await avogadorApi.put(
+          `/exercises/coding/${exerciseId}/testcases`,
+          testcase,
+        );
       return createdTestcase;
     },
     [avogadorApi],
@@ -307,7 +313,7 @@ const useExerciseService = () => {
   ) => Promise<Submission> = useCallback(
     async (exerciseId: string, submissionId: string) => {
       const { data: submission }: { data: Submission } = await avogadorApi.get(
-        `/exercises/${exerciseId}/submissions/${submissionId}`,
+        `/exercises/coding/${exerciseId}/submissions/${submissionId}`,
       );
       return submission;
     },

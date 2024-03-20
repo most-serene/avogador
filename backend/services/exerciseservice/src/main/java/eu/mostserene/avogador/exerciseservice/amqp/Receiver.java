@@ -88,7 +88,7 @@ public class Receiver {
                             submission.getExercise().getTrial().getCourseId(),
                             submission.getExercise().getTrial().getId(),
                             submission.getExercise().getId(),
-                            submission.getExercise().getTrial().getLanguage().name(),
+                            submission.getExercise().getLanguage().name(),
                             submissionSavedDto.getStrox().getSourceFileName(),
                             submission.getExercise().getTimeLimit(),
                             testcaseService.getTestcasesFromExercise(submission.getExercise())

@@ -7,7 +7,7 @@ services:
     build:
       context: ./backend/apigateway
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${APIGATEWAY_TARGET}
     logging:
       driver: json-file
@@ -46,7 +46,7 @@ services:
     build:
       context: ./backend/services/userservice
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${USERSERVICE_TARGET}
     logging:
       driver: json-file
@@ -105,7 +105,7 @@ services:
     build:
       context: ./backend/services/courseservice
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${COURSESERVICE_TARGET}
     logging:
       driver: json-file
@@ -152,7 +152,7 @@ services:
     build:
       context: ./backend/services/exerciseservice
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${EXERCISESERVICE_TARGET}
     logging:
       driver: json-file
@@ -196,7 +196,7 @@ services:
     build:
       context: ./backend/services/storageservice
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${STORAGESERVICE_TARGET}
     logging:
       driver: json-file
@@ -238,7 +238,7 @@ services:
     build:
       context: ./backend/services/executorservice
       network: host
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: ${EXECUTORSERVICE_TARGET}
     logging:
       driver: json-file

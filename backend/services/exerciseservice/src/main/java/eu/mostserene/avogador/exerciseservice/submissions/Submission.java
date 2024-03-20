@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class Submission {
     @ManyToOne
     @NotNull
     @Setter
-    private Exercise exercise;
+    private CodingExercise exercise;
 
     @NotNull
     @Setter
@@ -34,7 +34,7 @@ public class Submission {
     public Submission() {
     }
 
-    public Submission(Exercise exercise, UUID userId, Date timestamp) {
+    public Submission(CodingExercise exercise, UUID userId, Date timestamp) {
         this.exercise = exercise;
         this.userId = userId;
         this.timestamp = timestamp;

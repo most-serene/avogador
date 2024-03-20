@@ -8,9 +8,9 @@ import de.jplag.clustering.ClusteringOptions;
 import de.jplag.exceptions.BasecodeException;
 import de.jplag.exceptions.ExitException;
 import de.jplag.options.JPlagOptions;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReport;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
@@ -61,7 +61,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
     private SimilarityReportRepository similarityReportRepository;
 
     @Override
-    public void executeSimilarityTool(Exercise exercise) {
+    public void executeSimilarityTool(CodingExercise exercise) {
         log.debug(LoggerColors.cyan("Similarity Job started on exercise - " + exercise.getId()));
         try {
             similarityCheckJob(exercise);
@@ -83,16 +83,16 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
     }
 
     @Override
-    public Optional<SimilarityReport> getSimilarityReport(Exercise exercise) {
+    public Optional<SimilarityReport> getSimilarityReport(CodingExercise exercise) {
         return similarityReportRepository.findFirstByExercise_Id(exercise.getId());
     }
 
     @Override
-    public Optional<PlagiarismReport> retrieveSimilarityReportFile(Exercise exercise) {
+    public Optional<PlagiarismReport> retrieveSimilarityReportFile(CodingExercise exercise) {
         return storageService.getSimilarityReport(exercise);
     }
 
-    private void similarityCheckJob(Exercise exercise) throws IOException {
+    private void similarityCheckJob(CodingExercise exercise) throws IOException {
         File workingDirectory = Files.createTempDirectory("avogador").toFile();
         try {
             File baseCode = getAndUnpackTemplate(exercise, workingDirectory);
@@ -116,7 +116,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         }
     }
 
-    private File getAndUnpackTemplate(Exercise exercise, File workingDirectory) throws Exception {
+    private File getAndUnpackTemplate(CodingExercise exercise, File workingDirectory) throws Exception {
         if (!(new File(workingDirectory.getPath() + "/template")).mkdirs()) {
             log.warn(LoggerColors.warn(workingDirectory.getPath() + "/template not created"));
         }
@@ -129,15 +129,15 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         return baseCode;
     }
 
-    private Language getLanguage(Exercise exercise) {
-        return switch (exercise.getTrial().getLanguage()) {
+    private Language getLanguage(CodingExercise exercise) {
+        return switch (exercise.getLanguage()) {
             case C, CPP -> new de.jplag.cpp2.CPPLanguage();
             case PYTHON -> new de.jplag.python3.Language();
             case JAVA -> new de.jplag.java.Language();
         };
     }
 
-    private void handleToolRun(JPlagOptions options, Exercise exercise, Map<UUID, PlagiarismUser> submissions, File workingDirectory) throws ExitException {
+    private void handleToolRun(JPlagOptions options, CodingExercise exercise, Map<UUID, PlagiarismUser> submissions, File workingDirectory) throws ExitException {
         try {
             runTool(options, exercise, submissions, workingDirectory);
         } catch (BasecodeException basecodeException) {
@@ -147,7 +147,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         }
     }
 
-    private File getAndUnpackSubmissions(Exercise exercise, List<UUID> submissionIds, File workingDirectory) throws IOException {
+    private File getAndUnpackSubmissions(CodingExercise exercise, List<UUID> submissionIds, File workingDirectory) throws IOException {
         Resource submissions = storageService.getExerciseLatestSubmissionsSources(exercise, submissionIds);
         File submissionsArchive = new File(workingDirectory + "/submissions.tar.gz");
         FileUtils.copyInputStreamToFile(submissions.getInputStream(), submissionsArchive);
@@ -157,7 +157,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         return submissionsDirectory;
     }
 
-    private void runTool(JPlagOptions options, Exercise exercise, Map<UUID, PlagiarismUser> submissions, File workingDirectory) throws ExitException {
+    private void runTool(JPlagOptions options, CodingExercise exercise, Map<UUID, PlagiarismUser> submissions, File workingDirectory) throws ExitException {
         JPlagResult result = (new JPlag(options)).run();
         PlagiarismReport report = generateReport(result, exercise, submissions);
         ObjectMapper mapper = new ObjectMapper();
@@ -170,7 +170,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         }
     }
 
-    private PlagiarismReport generateReport(JPlagResult result, Exercise exercise, Map<UUID, PlagiarismUser> submissions) {
+    private PlagiarismReport generateReport(JPlagResult result, CodingExercise exercise, Map<UUID, PlagiarismUser> submissions) {
         PlagiarismReport report = new PlagiarismReport();
 
         report.setExerciseId(exercise.getId());
@@ -314,7 +314,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
                 .toList();
     }
 
-    private Map<UUID, PlagiarismUser> getSubmissionsForCheck(Exercise exercise) {
+    private Map<UUID, PlagiarismUser> getSubmissionsForCheck(CodingExercise exercise) {
         Map<UUID, UUID> userIdSubmissionMap = new HashMap<>();
         Map<UUID, PlagiarismUser> submissionUserMap = new HashMap<>();
 

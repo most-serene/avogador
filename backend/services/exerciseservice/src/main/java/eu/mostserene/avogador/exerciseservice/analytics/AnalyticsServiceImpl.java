@@ -1,7 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
@@ -45,6 +46,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .stream()
                 .peek(trial -> statusMap.put(trial.getId(), new StudentTrialStatus(trial.getId(), trial.getName())))
                 .flatMap(trial -> exerciseService.getExercisesFromTrial(trial, false).stream())
+                .filter(exercise -> exercise.getExerciseType().equals(ExerciseType.CODING))
+                .map(exercise -> (CodingExercise) exercise)
                 .forEach(exercise -> {
                     Optional<Submission> lastSubmission = submissionService.getLatestSubmissionFromExerciseAndUserId(exercise, userId);
                     if (lastSubmission.isEmpty()) {
@@ -74,7 +77,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public Map<SubmissionStatus, Long> getExerciseResults(Exercise exercise) {
+    public Map<SubmissionStatus, Long> getExerciseResults(CodingExercise exercise) {
         var results = submissionResultService.getResultsFromExercise(exercise);
         return Stream.of(SubmissionStatus.values())
                 .filter(submissionStatus -> !submissionStatus.equals(SubmissionStatus.PENDING))
@@ -90,6 +93,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return trialService.getTrialsByCourseId(courseId, true)
                 .stream()
                 .flatMap(trial -> exerciseService.getExercisesFromTrial(trial, true).stream())
+                .filter(exercise -> exercise.getExerciseType().equals(ExerciseType.CODING))
+                .map(exercise -> (CodingExercise) exercise)
                 .flatMap(exercise -> submissionService.getSubmissionsFromExercise(exercise).stream())
                 .map(Submission::getTimestamp)
                 .toList();
