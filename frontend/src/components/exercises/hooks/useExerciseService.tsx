@@ -25,7 +25,7 @@ const useExerciseService = () => {
   ) => Promise<Exercise> = useCallback(
     async (exercise: Omit<PartialExercise, "courseId">) => {
       const { data: createdExercise }: { data: Exercise } =
-        await avogadorApi.post("/exercises", exercise);
+        await avogadorApi.post("/exercises/coding", exercise);
       return createdExercise;
     },
     [avogadorApi],
@@ -36,7 +36,7 @@ const useExerciseService = () => {
     template: StroxCell[],
   ) => Promise<void> = useCallback(
     async (exercise: Exercise, template: StroxCell[]) => {
-      await avogadorApi.post(`/exercises/${exercise.id}/template`, {
+      await avogadorApi.post(`/exercises/coding/${exercise.id}/template`, {
         cells: template,
       });
     },
@@ -147,7 +147,7 @@ const useExerciseService = () => {
   ) => Promise<Strox> = useCallback(
     async (exerciseId: string, merged?: boolean) => {
       const { data: template }: { data: Strox } = await avogadorApi.get(
-        `/exercises/${exerciseId}/template?merged=${merged ?? false}`,
+        `/exercises/coding/${exerciseId}/template?merged=${merged ?? false}`,
       );
       return template;
     },
@@ -227,7 +227,7 @@ const useExerciseService = () => {
   const updateExercise: (exercise: Exercise) => Promise<Exercise> = useCallback(
     async (exercise: Exercise) => {
       const { data: updatedExercise }: { data: Exercise } =
-        await avogadorApi.put(`/exercises/${exercise.id}`, {
+        await avogadorApi.put(`/exercises/coding/${exercise.id}`, {
           ...exercise,
           trialId: exercise.trialId ?? exercise.trial.id,
         });
