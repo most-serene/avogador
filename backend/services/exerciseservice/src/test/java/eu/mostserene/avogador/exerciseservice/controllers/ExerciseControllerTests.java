@@ -52,7 +52,7 @@ public class ExerciseControllerTests {
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
     private final CodingExercise visibleExercise = new CodingExercise(practice, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
     private final CodingExercise hiddenExercise = new CodingExercise(practice, "Exercise2", "Given b print a", false, 1, ProgrammingLanguage.JAVA);
-    private final CodingExerciseDto visibleExerciseDto = new CodingExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true);
+    private final CodingExerciseDto visibleExerciseDto = new CodingExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true, ProgrammingLanguage.JAVA);
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000002\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Michale\", \"familyName\":\"Scott\", \"isProfessor\":false, \"isSuperuser\":true}";
 
