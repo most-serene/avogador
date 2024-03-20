@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class SubmissionResultServiceImpl implements SubmissionResultService {
     }
 
     @Override
-    public List<SubmissionResult> getResultsFromExercise(Exercise exercise) {
+    public List<SubmissionResult> getResultsFromExercise(CodingExercise exercise) {
         return repository.findBySubmission_Exercise_Id(exercise.getId());
     }
 

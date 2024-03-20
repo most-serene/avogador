@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
@@ -116,7 +117,7 @@ public class CodingExerciseController {
      * @return the saved updated exercise
      */
     @PutMapping("/{exerciseId}")
-    private CodingExerciseDto updateExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody CodingExerciseDto exercise) {
+    private AbstractExerciseDto updateExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody CodingExerciseDto exercise) {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 

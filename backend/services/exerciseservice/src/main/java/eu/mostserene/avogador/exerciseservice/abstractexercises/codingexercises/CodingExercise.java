@@ -39,8 +39,5 @@ public class CodingExercise extends AbstractExercise {
     public ExerciseType getExerciseType() {
         return ExerciseType.CODING;
     }
-
-    public CodingExerciseDto toDto() {
-        return new CodingExerciseDto();
-    }
+    
 }

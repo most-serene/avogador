@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
@@ -36,6 +37,9 @@ public class AnalyticsController {
     @Autowired
     private ExerciseService exerciseService;
 
+    @Autowired
+    private CodingExerciseService codingExerciseService;
+
     @GetMapping("/users/{userId}/courses/{courseId}/progress")
     private List<StudentTrialStatus> getStudentProgress(@RequestHeader(name = "User") UserDto user,
                                                         @PathVariable UUID userId,
@@ -62,7 +66,7 @@ public class AnalyticsController {
                 .orElseThrow(() -> new NotFoundException("Trial with id: " + trialId));
         var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(NotFoundException::new).getRole();
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Exercise with id: " + trialId));
 
         if (exercise.getTrial().getId() != trialId) {

@@ -1,5 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
@@ -29,6 +31,9 @@ public class TestcaseController {
     private ExerciseService exerciseService;
 
     @Autowired
+    private CodingExerciseService codingExerciseService;
+
+    @Autowired
     private TrialService trialService;
 
     @Autowired
@@ -36,7 +41,7 @@ public class TestcaseController {
 
     @GetMapping()
     private List<TestcaseDetailDto> getTestcasesFromExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
@@ -60,7 +65,7 @@ public class TestcaseController {
 
     @GetMapping("/{testcaseId}")
     private TestcaseDetailDto getTestcaseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
-        var exercise = exerciseService.getExercise(exerciseId)
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
@@ -135,12 +140,12 @@ public class TestcaseController {
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
-
+        
         testcaseService.deleteTestcase(exercise, testcaseId);
     }
 
-    private Exercise getExerciseIfCollaboratorClearance(UUID exerciseId, UserDto user) {
-        var exercise = exerciseService.getExercise(exerciseId)
+    private CodingExercise getExerciseIfCollaboratorClearance(UUID exerciseId, UserDto user) {
+        var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));

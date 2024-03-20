@@ -4,11 +4,15 @@ import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional
+@Service
 public class CodingExerciseServiceImpl implements CodingExerciseService {
 
     @Autowired
@@ -25,7 +29,7 @@ public class CodingExerciseServiceImpl implements CodingExerciseService {
 
     @Override
     public Optional<CodingExercise> getCodingExercise(UUID exerciseId) {
-        return Optional.empty();
+        return repository.findById(exerciseId);
     }
 
     @Override

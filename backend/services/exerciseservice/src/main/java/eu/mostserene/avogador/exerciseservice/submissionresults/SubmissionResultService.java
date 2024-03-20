@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface SubmissionResultService {
 
     SubmissionResult saveSubmissionResult(SubmissionResult submissionResult);
 
-    List<SubmissionResult> getResultsFromExercise(Exercise exercise);
+    List<SubmissionResult> getResultsFromExercise(CodingExercise exercise);
 
     void deleteSubmissionResultsByTestcaseId(UUID testcaseId);
 
