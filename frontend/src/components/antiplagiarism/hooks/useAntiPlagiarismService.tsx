@@ -12,7 +12,7 @@ const useAntiPlagiarismService = () => {
       async (exerciseId: string) => {
         const { data: report }: { data: PlagiarismReport } =
           await avogadorApi.get(
-            `/exercises/codings/${exerciseId}/similarity-report`,
+            `/exercises/coding/${exerciseId}/similarity-report`,
           );
         return report;
       },
