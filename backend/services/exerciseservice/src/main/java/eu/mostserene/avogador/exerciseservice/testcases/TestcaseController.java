@@ -21,7 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/public/exercises/{exerciseId}/testcases")
+@RequestMapping("/public/exercises/coding/{exerciseId}/testcases")
 @Slf4j
 public class TestcaseController {
     @Autowired
@@ -140,7 +140,7 @@ public class TestcaseController {
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
         }
-        
+
         testcaseService.deleteTestcase(exercise, testcaseId);
     }
 

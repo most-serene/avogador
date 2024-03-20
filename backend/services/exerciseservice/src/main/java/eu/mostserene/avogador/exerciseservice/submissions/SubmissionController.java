@@ -37,7 +37,7 @@ import java.time.Instant;
 import java.util.*;
 
 @RestController
-@RequestMapping("/public/exercises/{exerciseId}/submissions")
+@RequestMapping("/public/exercises/coding/{exerciseId}/submissions")
 @Slf4j
 public class SubmissionController {
 

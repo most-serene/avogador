@@ -193,7 +193,7 @@ public class ExerciseControllerTests {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(post("/public/exercises")
+            mvc.perform(post("/public/exercises/coding")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/public/exercises/{exerciseId}")
+@RequestMapping("/public/exercises/coding/{exerciseId}")
 public class SubmissionResultController {
     @Autowired
     private SubmissionResultService submissionResultService;
