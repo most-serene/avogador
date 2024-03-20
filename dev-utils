@@ -31,9 +31,12 @@ class DevUtilsCmd(Cmd):
         os.system('docker compose down')
 
     def do_executeTests(self, inp):
-        os.system('cd backend/apigateway; gradle test')
-        os.system('cd backend/services/userservice; gradle test')
-        os.system('cd backend/services/courseservice; gradle test')
+        os.system('cd backend/apigateway; ./gradlew test')
+        os.system('cd backend/services/userservice; ./gradlew test')
+        os.system('cd backend/services/courseservice; ./gradlew test')
+        os.system('cd backend/services/exerciseservice; ./gradlew test')
+        os.system('cd backend/services/storageservice; ./gradlew test')
+        os.system('cd backend/services/executorservice; ./gradlew test')
 
     def do_exit(self, inp):
         return True
