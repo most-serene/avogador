@@ -148,7 +148,7 @@ const ExerciseCreationInfo = ({
               <InputLabel id="courseId">Course</InputLabel>
               <Select
                 disabled={disableTrialSelection}
-                value={exercise.courseId}
+                value={userCourses.length === 0 ? "" : exercise.courseId}
                 label="Course"
                 onChange={(event) => {
                   setExercise({
@@ -173,7 +173,7 @@ const ExerciseCreationInfo = ({
                   <InputLabel id="trialId">Test</InputLabel>
                   <Select
                     disabled={disableTrialSelection}
-                    value={exercise.trialId}
+                    value={trials.length === 0 ? "" : exercise.trialId}
                     label="Test"
                     onChange={(event) => {
                       setExercise({ ...exercise, trialId: event.target.value });
@@ -280,7 +280,6 @@ const ExerciseCreationInfo = ({
                   }
                   markdown={exercise.statement}
                   onChange={(markdown) => {
-                    console.log(markdown);
                     setExercise({ ...exercise, statement: markdown });
                   }}
                   plugins={[
