@@ -1,13 +1,15 @@
 package eu.mostserene.avogador.exerciseservice.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseController;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseDto;
+import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
-import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseController;
-import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
@@ -43,14 +45,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ExerciseController.class)
+@WebMvcTest({CodingExerciseController.class, ExerciseController.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class ExerciseControllerTests {
     private final Practice practice = new Practice(UUID.fromString("00000000-0000-0000-0000-000000000001"), "Practice One",
             true, true, ProgrammingLanguage.JAVA, Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-    private final Exercise visibleExercise = new Exercise(practice, "Exercise1", "Given a print b", 1, true);
-    private final Exercise hiddenExercise = new Exercise(practice, "Exercise2", "Given b print a", 1, false);
-    private final ExerciseDto visibleExerciseDto = new ExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true);
+    private final CodingExercise visibleExercise = new CodingExercise(practice, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
+    private final CodingExercise hiddenExercise = new CodingExercise(practice, "Exercise2", "Given b print a", false, 1, ProgrammingLanguage.JAVA);
+    private final CodingExerciseDto visibleExerciseDto = new CodingExerciseDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), UUID.fromString("00000000-0000-0000-0000-000000000001"), "Exercise1", "Given a print b", 1, true);
     private final String studentHeader = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"email\":\"student@stud.unive.it\", \"givenName\":\"Andy\", \"familyName\":\"Bernard\", \"isProfessor\":false, \"isSuperuser\":false}";
     private final String superUserHeader = "{\"id\":\"00000000-0000-0000-0000-000000000002\", \"email\":\"superuser@stud.unive.it\", \"givenName\":\"Michale\", \"familyName\":\"Scott\", \"isProfessor\":false, \"isSuperuser\":true}";
 
@@ -91,6 +93,7 @@ public class ExerciseControllerTests {
     private @MockBean BuildProperties buildProperties;
     private @MockBean ProfileManager profileManager;
     private @MockBean ExerciseService exerciseService;
+    private @MockBean CodingExerciseService codingExerciseService;
     private @MockBean UserTrialService userTrialService;
     private @MockBean UserCourseService userCourseService;
     private @MockBean TrialService trialService;
@@ -206,7 +209,7 @@ public class ExerciseControllerTests {
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(post("/public/exercises")
+            mvc.perform(post("/public/exercises/coding")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -222,7 +225,7 @@ public class ExerciseControllerTests {
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoStudent));
 
-            mvc.perform(post("/public/exercises")
+            mvc.perform(post("/public/exercises/coding")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -237,10 +240,10 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoCollaborator));
-            when(exerciseService.createExercise(any(), any()))
+            when(codingExerciseService.createCodingExercise(any(), any()))
                     .thenReturn(visibleExercise);
 
-            mvc.perform(post("/public/exercises")
+            mvc.perform(post("/public/exercises/coding")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -257,7 +260,7 @@ public class ExerciseControllerTests {
             when(trialService.getTrialById(any()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -273,7 +276,7 @@ public class ExerciseControllerTests {
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -288,8 +291,10 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoStudent));
+            when(codingExerciseService.getCodingExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto))
@@ -307,7 +312,7 @@ public class ExerciseControllerTests {
             when(exerciseService.getExercise(any()))
                     .thenReturn(Optional.empty());
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
@@ -318,8 +323,8 @@ public class ExerciseControllerTests {
 
         @Test
         public void fromCollaboratorAndExerciseIdMismatch_get403() throws Exception {
-            var exerciseWithId = new Exercise(practice, "Exercise1", "Given a print b", 1, true);
-            Field id = exerciseWithId.getClass().getDeclaredField("id");
+            var exerciseWithId = new CodingExercise(practice, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
+            Field id = exerciseWithId.getClass().getSuperclass().getDeclaredField("id");
             id.setAccessible(true);
             id.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000002"));
 
@@ -327,10 +332,10 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(practice));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoCollaborator));
-            when(exerciseService.getExercise(any()))
+            when(codingExerciseService.getCodingExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
@@ -347,8 +352,8 @@ public class ExerciseControllerTests {
             tId.setAccessible(true);
             tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000002"));
 
-            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
-            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            var exerciseWithId = new CodingExercise(trialWithId, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
+            Field eId = exerciseWithId.getClass().getSuperclass().getDeclaredField("id");
             eId.setAccessible(true);
             eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
@@ -356,10 +361,10 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(trialWithId));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoCollaborator));
-            when(exerciseService.getExercise(any()))
+            when(codingExerciseService.getCodingExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
@@ -376,8 +381,8 @@ public class ExerciseControllerTests {
             tId.setAccessible(true);
             tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
-            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
-            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            var exerciseWithId = new CodingExercise(trialWithId, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
+            Field eId = exerciseWithId.getClass().getSuperclass().getDeclaredField("id");
             eId.setAccessible(true);
             eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
@@ -385,12 +390,12 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(trialWithId));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoCollaborator));
-            when(exerciseService.getExercise(any()))
+            when(codingExerciseService.getCodingExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
-            when(exerciseService.updateExercise(any()))
+            when(codingExerciseService.updateCodingExercise(any()))
                     .thenReturn(visibleExercise);
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
@@ -407,8 +412,8 @@ public class ExerciseControllerTests {
             tId.setAccessible(true);
             tId.set(trialWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
-            var exerciseWithId = new Exercise(trialWithId, "Exercise1", "Given a print b", 1, true);
-            Field eId = exerciseWithId.getClass().getDeclaredField("id");
+            var exerciseWithId = new CodingExercise(trialWithId, "Exercise1", "Given a print b", true, 1, ProgrammingLanguage.JAVA);
+            Field eId = exerciseWithId.getClass().getSuperclass().getDeclaredField("id");
             eId.setAccessible(true);
             eId.set(exerciseWithId, UUID.fromString("00000000-0000-0000-0000-000000000001"));
 
@@ -416,12 +421,12 @@ public class ExerciseControllerTests {
                     .thenReturn(Optional.of(trialWithId));
             when(userCourseService.getUserCourseRoleDetail(any(), any()))
                     .thenReturn(Optional.of(courseDetailDtoAdmin));
-            when(exerciseService.getExercise(any()))
+            when(codingExerciseService.getCodingExercise(any()))
                     .thenReturn(Optional.of(exerciseWithId));
-            when(exerciseService.updateExercise(any()))
+            when(codingExerciseService.updateCodingExercise(any()))
                     .thenReturn(visibleExercise);
 
-            mvc.perform(put("/public/exercises/00000000-0000-0000-0000-000000000001")
+            mvc.perform(put("/public/exercises/coding/00000000-0000-0000-0000-000000000001")
                             .header("User", studentHeader)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(visibleExerciseDto)) // id ends with 01
