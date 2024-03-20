@@ -171,7 +171,7 @@ const TrialCreationScreen = () => {
                         id="courseId"
                         label="Course"
                         disabled={courses.length === 1}
-                        value={courseId}
+                        value={courses.length === 0 ? "" : courseId}
                         onChange={(event) => {
                           setCourseId(event.target.value);
                         }}
@@ -214,7 +214,7 @@ const TrialCreationScreen = () => {
                       <InputLabel id="language">Language</InputLabel>
                       <Select
                         labelId="language"
-                        value={language}
+                        value={language ?? ""}
                         onChange={(event) => {
                           setLanguage(
                             event.target.value as

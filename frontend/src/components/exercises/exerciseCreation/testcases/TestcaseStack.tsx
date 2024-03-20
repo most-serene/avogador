@@ -38,6 +38,7 @@ const TestcasePreviewCard = ({
       }}
     >
       <CardActionArea
+        component="span"
         onClick={() => {
           handleClick();
         }}

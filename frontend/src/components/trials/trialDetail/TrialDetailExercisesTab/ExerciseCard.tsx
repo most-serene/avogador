@@ -77,6 +77,7 @@ const ExerciseCard = ({
     >
       <Card>
         <CardActionArea
+          component="span"
           onClick={() => {
             if (isPractice(trial)) {
               navigate(`/trials/${trial.id}/exercises/${exercise.id}`);
