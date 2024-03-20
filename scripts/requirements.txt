@@ -1,3 +1,9 @@
+appscript==1.2.5
+cffi==1.16.0
+lxml==5.1.0
 psycopg2==2.9.9
+pycparser==2.21
+pygit2==1.14.1
 python-dotenv==1.0.1
+termcolor==2.4.0
 toml==0.10.2
