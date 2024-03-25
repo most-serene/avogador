@@ -62,7 +62,6 @@ hostname = parsed_url.hostname
 port = parsed_url.port
 
 connection, cursor = connect(hostname, port, path, user, password)
-connection.autocommit = True
 
 columns, data = parse_csv(options.input)
 if (options.replace):
@@ -73,3 +72,7 @@ if (options.replace):
     delete_all_data(cursor, options.table)
 
 append_data(cursor, options.table, columns, data)
+connection.commit()
+
+cursor.close()
+connection.close()
