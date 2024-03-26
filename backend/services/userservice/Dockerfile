@@ -1,16 +1,24 @@
 FROM gradle:jdk17 as base
 WORKDIR /app
-# Copy the application source code
 COPY . .
-# Build the application and execute unit tests (build task depends on test task)
+
+FROM base as dev-builder
 RUN gradle build --no-daemon
 
+FROM base as prod-builder
+RUN gradle assemble --no-daemon
 
 FROM scratch AS reporter
 COPY --from=base build/reports/tests /reports
 
+###
 
 FROM openjdk AS run
 ARG JAR_FILE=/app/build/libs/*.jar
-COPY --from=base ${JAR_FILE} app.jar
+COPY --from=dev-builder ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+FROM openjdk AS prod-run
+ARG JAR_FILE=/app/build/libs/*.jar
+COPY --from=prod-builder ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
