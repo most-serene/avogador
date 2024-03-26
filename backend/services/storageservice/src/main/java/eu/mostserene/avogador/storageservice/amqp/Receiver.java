@@ -7,6 +7,8 @@ import eu.mostserene.avogador.storageservice.exercises.ExerciseDTO;
 import eu.mostserene.avogador.storageservice.exercises.ExerciseStorageImpl;
 import eu.mostserene.avogador.storageservice.exercises.ExerciseTemplateDTO;
 import eu.mostserene.avogador.storageservice.exercises.SimilarityReportStorageDto;
+import eu.mostserene.avogador.storageservice.projects.ProjectDTO;
+import eu.mostserene.avogador.storageservice.projects.ProjectStorageImpl;
 import eu.mostserene.avogador.storageservice.strox.Strox;
 import eu.mostserene.avogador.storageservice.strox.StroxStorage;
 import eu.mostserene.avogador.storageservice.submission.SubmissionDTO;
@@ -181,6 +183,15 @@ public class Receiver {
     private void testcaseDeleteHandler(TestcaseDTO testcaseDTO) {
         ExerciseStorageImpl.of(testcaseDTO.getCourseId(), testcaseDTO.getTrialId(), testcaseDTO.getExerciseId())
                 .deleteTestcase(testcaseDTO.getTestcaseId());
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "projectCreationHandler"),
+            exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
+            key = "storage.project.create"))
+    private void projectCreationHandler(ProjectDTO projectDTO) {
+        ProjectStorageImpl.of(projectDTO.getCourseId(), projectDTO.getProjectId())
+                .create();
     }
 
 }
