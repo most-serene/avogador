@@ -145,7 +145,7 @@ public class CodeExecutor {
     public void checkSubmission(CodingSubmission codingSubmission) {
         log.info(LoggerColors.warn("Submission " + codingSubmission.getId() + ": Execution started"));
 
-        File submissionFolder = createFolder(codingSubmission.getId());
+        File submissionFolder = createFolder(codingSubmission);
         String compileOutput = null;
         try {
             File code = storageService.fetchAndSaveSubmissionCode(codingSubmission);
@@ -223,14 +223,14 @@ public class CodeExecutor {
         Files.setPosixFilePermissions(executable.toPath(), perms);
     }
 
-    private File createFolder(UUID submissionId) {
-        File submissionFolder = new File("/avogador/" + submissionId);
+    private File createFolder(Submission submission) {
+        File submissionFolder = new File("/avogador/" + submission.getId());
         if (submissionFolder.exists()) {
-            log.info(LoggerColors.error("Submission " + submissionId + ": Already in execution - terminating"));
-            throw new RuntimeException("Submission" + submissionId + " Already in execution");
+            log.info(LoggerColors.error("Submission " + submission.getId() + ": Already in execution - terminating"));
+            throw new RuntimeException("Submission" + submission.getId() + " Already in execution");
         }
         if (submissionFolder.mkdirs()) {
-            log.info(LoggerColors.success("Submission " + submissionId + ": folder created"));
+            log.info(LoggerColors.success("Submission " + submission.getId() + ": folder created"));
         }
         return submissionFolder;
     }
