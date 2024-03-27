@@ -13,8 +13,8 @@ public class SubmissionResult {
     public SubmissionResult() {
     }
 
-    public SubmissionResult(Submission submission, UUID testcaseId) {
-        this.submissionId = submission.getId();
+    public SubmissionResult(CodingSubmission codingSubmission, UUID testcaseId) {
+        this.submissionId = codingSubmission.getId();
         this.status = SubmissionStatus.PENDING;
         this.testcaseId = testcaseId;
     }

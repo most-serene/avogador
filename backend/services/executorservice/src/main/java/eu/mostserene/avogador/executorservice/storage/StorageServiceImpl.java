@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.executorservice.storage;
 
-import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,16 +16,16 @@ import java.util.Objects;
 public class StorageServiceImpl implements StorageService {
 
     @Override
-    public File fetchAndSaveSubmissionCode(Submission submission) {
+    public File fetchAndSaveSubmissionCode(CodingSubmission codingSubmission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://storage/courses/" + submission.getCourseId() +
-                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
-                submission.getId() + "/source";
+        String endpoint = "http://storage/courses/" + codingSubmission.getCourseId() +
+                "/trials/" + codingSubmission.getTrialId() + "/exercises/" + codingSubmission.getExerciseId() + "/submissions/" +
+                codingSubmission.getId() + "/source";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
                 .getBody();
 
         try {
-            return Files.write(Paths.get("/avogador/" + submission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
+            return Files.write(Paths.get("/avogador/" + codingSubmission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
                     .toFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -33,15 +33,15 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public File fetchAndSaveTestcases(Submission submission) {
+    public File fetchAndSaveTestcases(CodingSubmission codingSubmission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://storage/courses/" + submission.getCourseId() +
-                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/testcases";
+        String endpoint = "http://storage/courses/" + codingSubmission.getCourseId() +
+                "/trials/" + codingSubmission.getTrialId() + "/exercises/" + codingSubmission.getExerciseId() + "/testcases";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
                 .getBody();
 
         try {
-            return Files.write(Paths.get("/avogador/" + submission.getId() + "/testcases.tar.gz"), Objects.requireNonNull(archive))
+            return Files.write(Paths.get("/avogador/" + codingSubmission.getId() + "/testcases.tar.gz"), Objects.requireNonNull(archive))
                     .toFile();
         } catch (IOException e) {
             throw new RuntimeException(e);

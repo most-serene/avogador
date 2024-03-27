@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class Submission {
+public class CodingSubmission {
     private UUID id;
     private UUID courseId;
     private UUID trialId;
@@ -17,6 +17,6 @@ public class Submission {
     private Integer timeLimit;
     private List<UUID> testcases;
 
-    public Submission() {
+    public CodingSubmission() {
     }
 }

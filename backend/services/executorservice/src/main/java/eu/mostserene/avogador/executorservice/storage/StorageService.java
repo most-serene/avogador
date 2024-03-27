@@ -1,12 +1,12 @@
 package eu.mostserene.avogador.executorservice.storage;
 
-import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 
 import java.io.File;
 
 public interface StorageService {
 
-    File fetchAndSaveSubmissionCode(Submission submission);
+    File fetchAndSaveSubmissionCode(CodingSubmission codingSubmission);
 
-    File fetchAndSaveTestcases(Submission submission);
+    File fetchAndSaveTestcases(CodingSubmission codingSubmission);
 }

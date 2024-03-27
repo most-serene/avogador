@@ -10,8 +10,9 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
+import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmission;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
-import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
 import eu.mostserene.avogador.executorservice.submission.SubmissionResult;
 import eu.mostserene.avogador.executorservice.submission.SubmissionStatus;
@@ -43,13 +44,11 @@ import java.util.UUID;
 
 @Slf4j
 public class CodeExecutor {
-    private DockerClient dockerClient;
-    private final Set<Language> languages = new HashSet<>();
-    private StorageService storageService;
-
     @Getter
     private static CodeExecutor executor;
-
+    private final Set<Language> languages = new HashSet<>();
+    private DockerClient dockerClient;
+    private StorageService storageService;
     private CommunicationUtils communicationUtils;
 
     private CodeExecutor() {
@@ -111,17 +110,6 @@ public class CodeExecutor {
         }
     }
 
-    private void loadLanguage(Class<? extends Language> languageType) {
-        try {
-            Language language = languageType.getDeclaredConstructor().newInstance();
-            languages.add(language);
-            log.info(LoggerColors.success("> " + language.getName() + " added"));
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
-            log.error(LoggerColors.error("> failed to load a language"));
-        }
-    }
-
     private static void pullImages() throws InterruptedException {
         log.info(LoggerColors.warn("pulling images required by executor"));
         executor.dockerClient.pullImageCmd("gotti27/runtime-env")
@@ -143,64 +131,75 @@ public class CodeExecutor {
         log.info(LoggerColors.success("> image pulled"));
     }
 
-    public void checkSubmission(Submission submission) {
-        log.info(LoggerColors.warn("Submission " + submission.getId() + ": Execution started"));
+    private void loadLanguage(Class<? extends Language> languageType) {
+        try {
+            Language language = languageType.getDeclaredConstructor().newInstance();
+            languages.add(language);
+            log.info(LoggerColors.success("> " + language.getName() + " added"));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            log.error(LoggerColors.error("> failed to load a language"));
+        }
+    }
 
-        File submissionFolder = createFolder(submission);
+    public void checkSubmission(CodingSubmission codingSubmission) {
+        log.info(LoggerColors.warn("Submission " + codingSubmission.getId() + ": Execution started"));
+
+        File submissionFolder = createFolder(codingSubmission.getId());
         String compileOutput = null;
         try {
-            File code = storageService.fetchAndSaveSubmissionCode(submission);
-            File testcases = storageService.fetchAndSaveTestcases(submission);
+            File code = storageService.fetchAndSaveSubmissionCode(codingSubmission);
+            File testcases = storageService.fetchAndSaveTestcases(codingSubmission);
 
             Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
             archiver.extract(code, new File(code.getParentFile() + "/code"));
             archiver.extract(testcases, new File(testcases.getParentFile() + "/testcases"));
 
-            Pair<File, String> compiled = compile(new File(code.getParentFile() + "/code/" + submission.getFilename()));
+            Pair<File, String> compiled = compile(new File(code.getParentFile() + "/code/" + codingSubmission.getFilename()));
 
             File executable = compiled.getLeft();
             compileOutput = compiled.getRight();
 
             if (isCompilationFailed(executable)) {
-                handleCompilationFailure(submission, compileOutput);
+                handleCompilationFailure(codingSubmission, compileOutput);
             } else {
-                handleCompilationSuccess(executable, submission, compileOutput);
+                handleCompilationSuccess(executable, codingSubmission, compileOutput);
             }
         } catch (NotFoundException e) {
-            handleCompilationFailure(submission, compileOutput);
+            handleCompilationFailure(codingSubmission, compileOutput);
         } catch (Exception e) {
-            handleGeneralException(submission, e);
+            handleGeneralException(codingSubmission, e);
         } finally {
             FileSystemUtils.deleteRecursively(submissionFolder);
-            log.info(LoggerColors.success("Submission " + submission.getId() + ": Cleanup completed"));
+            log.info(LoggerColors.success("Submission " + codingSubmission.getId() + ": Cleanup completed"));
         }
     }
 
-    private void handleCompilationSuccess(File executable, Submission submission, String compileOutput) throws IOException {
+    private void handleCompilationSuccess(File executable, CodingSubmission codingSubmission, String compileOutput) throws IOException {
         setupExecutablePermissions(executable);
-        log.info(LoggerColors.success("Submission " + submission.getId() + ": Compiled successfully"));
-        communicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+        log.info(LoggerColors.success("Submission " + codingSubmission.getId() + ": Compiled successfully"));
+        communicationUtils.postOutput(new SubmissionOutput(codingSubmission, "compile", compileOutput));
 
-        submission.getTestcases()
-                .forEach(testcase -> testCaseExecutionWrapper(testcase, submission, executable));
+        codingSubmission.getTestcases()
+                .forEach(testcase -> testCaseExecutionWrapper(testcase, codingSubmission, executable));
 
-        log.info(LoggerColors.success("Submission " + submission.getId() + ": Execution done"));
+        log.info(LoggerColors.success("Submission " + codingSubmission.getId() + ": Execution done"));
     }
 
-    private void handleGeneralException(Submission submission, Exception e) {
-        log.info(LoggerColors.error("Submission " + submission.getId() + ": Execution failed \n" + e));
+    private void handleGeneralException(CodingSubmission codingSubmission, Exception e) {
+        log.info(LoggerColors.error("Submission " + codingSubmission.getId() + ": Execution failed \n" + e));
         LoggerUtils.logErrorToSentry(e);
-        submission.getTestcases()
-                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(submission.getId(),
+        codingSubmission.getTestcases()
+                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(codingSubmission.getId(),
                         testcase, SubmissionStatus.RUNTIME_ERROR)));
     }
 
-    private void handleCompilationFailure(Submission submission, String compileOutput) {
-        log.info(LoggerColors.error("Submission " + submission.getId() + ": Compilation failed"));
-        submission.getTestcases()
-                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(submission.getId(),
+    private void handleCompilationFailure(CodingSubmission codingSubmission, String compileOutput) {
+        log.info(LoggerColors.error("Submission " + codingSubmission.getId() + ": Compilation failed"));
+        codingSubmission.getTestcases()
+                .forEach(testcase -> communicationUtils.postResult(new SubmissionResult(codingSubmission.getId(),
                         testcase, SubmissionStatus.COMPILE_ERROR)));
-        communicationUtils.postOutput(new SubmissionOutput(submission, "compile", compileOutput));
+        communicationUtils.postOutput(new SubmissionOutput(codingSubmission, "compile", compileOutput));
     }
 
     private boolean isCompilationFailed(File executable) {
@@ -224,14 +223,14 @@ public class CodeExecutor {
         Files.setPosixFilePermissions(executable.toPath(), perms);
     }
 
-    private File createFolder(Submission submission) {
-        File submissionFolder = new File("/avogador/" + submission.getId());
+    private File createFolder(UUID submissionId) {
+        File submissionFolder = new File("/avogador/" + submissionId);
         if (submissionFolder.exists()) {
-            log.info(LoggerColors.error("Submission " + submission.getId() + ": Already in execution - terminating"));
-            throw new RuntimeException("Submission" + submission.getId() + " Already in execution");
+            log.info(LoggerColors.error("Submission " + submissionId + ": Already in execution - terminating"));
+            throw new RuntimeException("Submission" + submissionId + " Already in execution");
         }
         if (submissionFolder.mkdirs()) {
-            log.info(LoggerColors.success("Submission " + submission.getId() + ": folder created"));
+            log.info(LoggerColors.success("Submission " + submissionId + ": folder created"));
         }
         return submissionFolder;
     }
@@ -245,10 +244,10 @@ public class CodeExecutor {
                 .compile(dockerClient, sourceCode);
     }
 
-    void testCaseExecutionWrapper(UUID testcase, Submission submission, File executable) {
-        SubmissionResult result = new SubmissionResult(submission, testcase);
+    void testCaseExecutionWrapper(UUID testcase, CodingSubmission codingSubmission, File executable) {
+        SubmissionResult result = new SubmissionResult(codingSubmission, testcase);
         try {
-            executeTestCase(executable, testcase, submission, result);
+            executeTestCase(executable, testcase, codingSubmission, result);
         } catch (Exception e) {
             log.error(e.toString());
             result.setStatus(SubmissionStatus.RUNTIME_ERROR);
@@ -257,52 +256,52 @@ public class CodeExecutor {
         }
     }
 
-    private void executeTestCase(File executable, UUID testcaseId, Submission submission, SubmissionResult submissionResult) throws IOException {
-        File input = new File("/avogador/" + submission.getId() + "/testcases/" + testcaseId + ".in");
-        File output = new File("/avogador/" + submission.getId() + "/testcases/" + testcaseId + ".out");
+    private void executeTestCase(File executable, UUID testcaseId, CodingSubmission codingSubmission, SubmissionResult submissionResult) throws IOException {
+        File input = new File("/avogador/" + codingSubmission.getId() + "/testcases/" + testcaseId + ".in");
+        File output = new File("/avogador/" + codingSubmission.getId() + "/testcases/" + testcaseId + ".out");
 
-        String executionOutput = execute(executable, input, submission, submissionResult).trim();
+        String executionOutput = execute(executable, input, codingSubmission, submissionResult).trim();
 
         if (submissionResult.getStatus() != SubmissionStatus.PENDING) {
-            log.info(LoggerColors.purple("Submission " + submission.getId() +
+            log.info(LoggerColors.purple("Submission " + codingSubmission.getId() +
                     " Testcase " + testcaseId + ": Skipping output check - " + submissionResult.getStatus()));
             communicationUtils.postResult(submissionResult);
             return;
         }
 
-        String expectedOutput = Files.readString(output.toPath(), StandardCharsets.UTF_8).trim();;
+        String expectedOutput = Files.readString(output.toPath(), StandardCharsets.UTF_8).trim();
 
-        log.info(LoggerColors.purple("Submission " + submission.getId() +
+        log.info(LoggerColors.purple("Submission " + codingSubmission.getId() +
                 " Testcase " + testcaseId + " User output:\n" + executionOutput));
 
-        log.info(LoggerColors.cyan("Submission " + submission.getId() +
+        log.info(LoggerColors.cyan("Submission " + codingSubmission.getId() +
                 " Testcase " + testcaseId + " Expected output:\n" + expectedOutput));
 
-        communicationUtils.postOutput(new SubmissionOutput(submission, testcaseId.toString(), executionOutput));
+        communicationUtils.postOutput(new SubmissionOutput(codingSubmission, testcaseId.toString(), executionOutput));
         boolean result = executionOutput.equals(expectedOutput);
 
         log.info(result ?
-                LoggerColors.success("Submission " + submission.getId() +
+                LoggerColors.success("Submission " + codingSubmission.getId() +
                         " Testcase " + testcaseId + ": passed") :
-                LoggerColors.error("Submission " + submission.getId() +
+                LoggerColors.error("Submission " + codingSubmission.getId() +
                         " Testcase " + testcaseId + ": reject")
         );
 
         submissionResult.setStatus(result ? SubmissionStatus.CORRECT : SubmissionStatus.WRONG_ANSWER);
     }
 
-    private String execute(File executable, File inputFile, Submission submission, SubmissionResult submissionResult) {
+    private String execute(File executable, File inputFile, CodingSubmission codingSubmission, SubmissionResult submissionResult) {
         CreateContainerResponse cExec = languages.stream()
-                .filter(l -> l.getName().equals(submission.getLanguage()))
+                .filter(l -> l.getName().equals(codingSubmission.getLanguage()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("extension not supported"))
-                .configureExecutor(dockerClient, executable, inputFile, submission);
+                .configureExecutor(dockerClient, executable, inputFile, codingSubmission);
 
         dockerClient.startContainerCmd(cExec.getId()).exec();
 
         try {
             return handleContainerExecution(dockerClient.inspectContainerCmd(cExec.getId())
-                    .exec().getId(), submission, submissionResult);
+                    .exec().getId(), codingSubmission, submissionResult);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
@@ -310,11 +309,11 @@ public class CodeExecutor {
         }
     }
 
-    private String handleContainerExecution(String containerId, Submission submission, SubmissionResult submissionResult) throws InterruptedException {
+    private String handleContainerExecution(String containerId, CodingSubmission codingSubmission, SubmissionResult submissionResult) throws InterruptedException {
         TLEDetector tleDetector = new TLEDetector();
 
         dockerClient.statsCmd(containerId)
-                .exec(tleDetector.getTleChecker(dockerClient, containerId, submission, submissionResult))
+                .exec(tleDetector.getTleChecker(dockerClient, containerId, codingSubmission, submissionResult))
                 .awaitCompletion();
 
         SandboxesUtils.waitContainer(dockerClient, containerId);
@@ -330,10 +329,10 @@ public class CodeExecutor {
             log.info(LoggerColors.error(errorStream));
             if (errorStream.contains("timeout: ")) {
                 submissionResult.setStatus(SubmissionStatus.TIME_LIMIT_EXCEEDED);
-                communicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(), ""));
+                communicationUtils.postOutput(new SubmissionOutput(codingSubmission, submissionResult.getTestcaseId().toString(), ""));
             } else {
                 submissionResult.setStatus(SubmissionStatus.RUNTIME_ERROR);
-                communicationUtils.postOutput(new SubmissionOutput(submission, submissionResult.getTestcaseId().toString(),
+                communicationUtils.postOutput(new SubmissionOutput(codingSubmission, submissionResult.getTestcaseId().toString(),
                         errorStream));
             }
         }
