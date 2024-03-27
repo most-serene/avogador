@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.trials;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.UUID;
@@ -16,22 +17,28 @@ public abstract class Trial {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Setter
     @NotNull
     private UUID courseId;
 
+    @Setter
     @NotNull
     private String name;
 
+    @Setter
     @NotNull
     private Boolean isVisible;
 
+    @Setter
     @NotNull
     private Boolean isPublic;
 
+    @Setter
     @NotNull
     @Enumerated(EnumType.STRING)
     private ProgrammingLanguage language;
 
+    @Setter
     private Date startTimestamp;
 
     public Trial() {
@@ -52,27 +59,4 @@ public abstract class Trial {
 
     public abstract TrialType getTrialType();
 
-    public void setCourseId(UUID courseId) {
-        this.courseId = courseId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setIsVisible(Boolean visible) {
-        isVisible = visible;
-    }
-
-    public void setIsPublic(Boolean aPublic) {
-        isPublic = aPublic;
-    }
-
-    public void setLanguage(ProgrammingLanguage language) {
-        this.language = language;
-    }
-
-    public void setStartTimestamp(Date startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
 }
