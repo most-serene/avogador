@@ -128,6 +128,14 @@ public class CodeExecutor {
                         super.onNext(item);
                     }
                 }).awaitCompletion();
+        executor.dockerClient.pullImageCmd("gotti27/j-check-env")
+                .withTag("latest")
+                .exec(new ResultCallback.Adapter<>() {
+                    @Override
+                    public void onNext(PullResponseItem item) {
+                        super.onNext(item);
+                    }
+                }).awaitCompletion();
         log.info(LoggerColors.success("> image pulled"));
     }
 
