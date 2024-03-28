@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 
 @Transactional
 @Service
-public class ProjectServiceImpl {
+public class ProjectServiceImpl implements ProjectService {
 }
