@@ -69,7 +69,7 @@ public class CodeExecutor {
                 .sslConfig(config.getSSLConfig())
                 .maxConnections(100)
                 .connectionTimeout(Duration.ofSeconds(30))
-                .responseTimeout(Duration.ofSeconds(45))
+                .responseTimeout(Duration.ofMinutes(10))
                 .build();
 
         executor.dockerClient = DockerClientImpl.getInstance(config, httpClient);
