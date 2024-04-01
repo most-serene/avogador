@@ -3,7 +3,13 @@ package eu.mostserene.avogador.executorservice.storage;
 import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmission;
 import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -68,31 +74,32 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void uploadNotebookExecutionLog(ProjectSubmission projectSubmission, File executionLog) {
-        RestTemplate restTemplate = new RestTemplate();
         String endpoint = "http://storage/courses/" + projectSubmission.getCourseId() +
                 "/projects/" + projectSubmission.getProjectId() +
                 "/submissions/" + projectSubmission.getId() + "?filename=exec.out";
-        try {
-            // FIXME: this might not work, has to be tested
-            restTemplate.put(endpoint, Files.readAllBytes(executionLog.toPath()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        uploadMultipartFileToStorage(endpoint, executionLog);
     }
 
     @Override
     public void uploadNotebookReport(ProjectSubmission projectSubmission, File report) {
-        RestTemplate restTemplate = new RestTemplate();
         String endpoint = "http://storage/courses/" + projectSubmission.getCourseId() +
                 "/projects/" + projectSubmission.getProjectId() +
                 "/submissions/" + projectSubmission.getId() + "?filename=report.html";
-        try {
-            // FIXME: this might not work, has to be tested
-            restTemplate.put(endpoint, Files.readAllBytes(report.toPath()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        uploadMultipartFileToStorage(endpoint, report);
     }
+
+    private void uploadMultipartFileToStorage(String endpoint, File file) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new FileSystemResource(file));
+
+        restTemplate.put(endpoint, new HttpEntity<>(body, headers));
+    }
+
 }
 
 
