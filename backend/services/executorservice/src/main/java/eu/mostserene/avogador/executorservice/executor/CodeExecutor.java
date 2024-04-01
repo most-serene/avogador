@@ -21,6 +21,7 @@ import eu.mostserene.avogador.executorservice.utils.LoggerUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.rauschig.jarchivelib.Archiver;
@@ -93,7 +94,17 @@ public class CodeExecutor {
                 .forEach(container -> executor.dockerClient.removeContainerCmd(container.getId()).exec());
          */
 
-        if ((new File("/avogador")).mkdirs()) {
+        File executorFolder = new File("/avogador");
+
+        try {
+            FileUtils.deleteDirectory(executorFolder);
+            log.info(LoggerColors.success("Executor local folder cleaned up"));
+        } catch (IOException e) {
+            log.error(LoggerColors.error("Executor local folder clean up failed"));
+            throw new RuntimeException(e);
+        }
+
+        if (executorFolder.mkdirs()) {
             log.info(LoggerColors.success("Executor local folder created"));
         }
 
