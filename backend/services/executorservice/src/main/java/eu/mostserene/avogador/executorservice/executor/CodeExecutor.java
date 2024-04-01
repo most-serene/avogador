@@ -48,6 +48,7 @@ public class CodeExecutor {
     @Getter
     private static CodeExecutor executor;
     private final Set<Language> languages = new HashSet<>();
+    private final Set<NotebookKernel> notebookKernels = new HashSet<>();
     private DockerClient dockerClient;
     private StorageService storageService;
     private CommunicationUtils communicationUtils;
@@ -112,6 +113,11 @@ public class CodeExecutor {
                 .forPackages("eu.mostserene.avogador.executorservice.executor.languages"))
                 .getSubTypesOf(Language.class)
                 .forEach(executor::loadLanguage);
+
+        new Reflections(new ConfigurationBuilder()
+                .forPackages("eu.mostserene.avogador.executorservice.executor.notebooks"))
+                .getSubTypesOf(NotebookKernel.class)
+                .forEach(executor::loadNotebookKernel);
 
         try {
             pullImages();
