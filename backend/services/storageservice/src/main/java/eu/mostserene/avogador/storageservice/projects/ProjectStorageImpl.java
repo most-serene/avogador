@@ -92,8 +92,8 @@ public class ProjectStorageImpl implements ProjectStorage {
     }
 
     private void checkFilenameValidity(String filename) {
-        if (!filename.matches("^[\\w,\\s-]+\\.[A-Za-z]$")) {
-            throw new RuntimeException("Invalid filename");
+        if (!filename.matches("^[\\w,\\s-]+\\.[A-Za-z]+$")) {
+            throw new RuntimeException("Invalid filename: " + filename);
         }
     }
 
