@@ -6,7 +6,7 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Statistics;
 import eu.mostserene.avogador.executorservice.executor.SandboxesUtils;
 import eu.mostserene.avogador.executorservice.executor.TLEDetector;
-import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import eu.mostserene.avogador.executorservice.utils.LoggerColors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -57,10 +57,10 @@ public class CLang implements Language {
 
 
     @Override
-    public CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, Submission submission) {
-        log.info(LoggerColors.cyan("Executing " + submission.getId()));
+    public CreateContainerResponse configureExecutor(DockerClient dockerClient, File executable, File inputFile, CodingSubmission codingSubmission) {
+        log.info(LoggerColors.cyan("Executing " + codingSubmission.getId()));
         var container = dockerClient.createContainerCmd("gotti27/runtime-env:stable").withImage("gotti27/runtime-env:stable")//.withUser("student")
-                .withCmd("/bin/bash", "-c", "chmod 777 /execution/program; timeout --foreground -k 0 -v " + submission.getTimeLimit() + " ./execution/program" + " < /" + inputFile.getName())
+                .withCmd("/bin/bash", "-c", "chmod 777 /execution/program; timeout --foreground -k 0 -v " + codingSubmission.getTimeLimit() + " ./execution/program" + " < /" + inputFile.getName())
                 .withNetworkDisabled(true)
                 .exec();
 

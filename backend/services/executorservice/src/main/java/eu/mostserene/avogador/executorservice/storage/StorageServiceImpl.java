@@ -1,8 +1,15 @@
 package eu.mostserene.avogador.executorservice.storage;
 
-import eu.mostserene.avogador.executorservice.submission.Submission;
+import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmission;
+import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -16,16 +23,16 @@ import java.util.Objects;
 public class StorageServiceImpl implements StorageService {
 
     @Override
-    public File fetchAndSaveSubmissionCode(Submission submission) {
+    public File fetchAndSaveSubmissionCode(CodingSubmission codingSubmission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://storage/courses/" + submission.getCourseId() +
-                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/submissions/" +
-                submission.getId() + "/source";
+        String endpoint = "http://storage/courses/" + codingSubmission.getCourseId() +
+                "/trials/" + codingSubmission.getTrialId() + "/exercises/" + codingSubmission.getExerciseId() + "/submissions/" +
+                codingSubmission.getId() + "/source";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
                 .getBody();
 
         try {
-            return Files.write(Paths.get("/avogador/" + submission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
+            return Files.write(Paths.get("/avogador/" + codingSubmission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
                     .toFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -33,20 +40,66 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public File fetchAndSaveTestcases(Submission submission) {
+    public File fetchAndSaveTestcases(CodingSubmission codingSubmission) {
         RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "http://storage/courses/" + submission.getCourseId() +
-                "/trials/" + submission.getTrialId() + "/exercises/" + submission.getExerciseId() + "/testcases";
+        String endpoint = "http://storage/courses/" + codingSubmission.getCourseId() +
+                "/trials/" + codingSubmission.getTrialId() + "/exercises/" + codingSubmission.getExerciseId() + "/testcases";
         byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
                 .getBody();
 
         try {
-            return Files.write(Paths.get("/avogador/" + submission.getId() + "/testcases.tar.gz"), Objects.requireNonNull(archive))
+            return Files.write(Paths.get("/avogador/" + codingSubmission.getId() + "/testcases.tar.gz"), Objects.requireNonNull(archive))
                     .toFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public File fetchAndSaveProject(ProjectSubmission projectSubmission) {
+        RestTemplate restTemplate = new RestTemplate();
+        String endpoint = "http://storage/courses/" + projectSubmission.getCourseId() +
+                "/projects/" + projectSubmission.getProjectId() +
+                "/submissions/" + projectSubmission.getId();
+        byte[] archive = restTemplate.getForEntity(endpoint, byte[].class)
+                .getBody();
+
+        try {
+            return Files.write(Paths.get("/avogador/" + projectSubmission.getId() + "/submission.tar.gz"), Objects.requireNonNull(archive))
+                    .toFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void uploadNotebookExecutionLog(ProjectSubmission projectSubmission, File executionLog) {
+        String endpoint = "http://storage/courses/" + projectSubmission.getCourseId() +
+                "/projects/" + projectSubmission.getProjectId() +
+                "/submissions/" + projectSubmission.getId() + "?filename=exec.out";
+
+        uploadMultipartFileToStorage(endpoint, executionLog);
+    }
+
+    @Override
+    public void uploadNotebookReport(ProjectSubmission projectSubmission, File report) {
+        String endpoint = "http://storage/courses/" + projectSubmission.getCourseId() +
+                "/projects/" + projectSubmission.getProjectId() +
+                "/submissions/" + projectSubmission.getId() + "?filename=report.html";
+
+        uploadMultipartFileToStorage(endpoint, report);
+    }
+
+    private void uploadMultipartFileToStorage(String endpoint, File file) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new FileSystemResource(file));
+
+        restTemplate.put(endpoint, new HttpEntity<>(body, headers));
+    }
+
 }
 
 

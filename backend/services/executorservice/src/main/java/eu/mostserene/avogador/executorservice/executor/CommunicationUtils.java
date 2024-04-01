@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.executorservice.executor;
 
 import eu.mostserene.avogador.executorservice.amqp.Sender;
+import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmissionResult;
 import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
 import eu.mostserene.avogador.executorservice.submission.SubmissionResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,11 @@ public class CommunicationUtils {
     public void postResult(SubmissionResult submissionResult) {
         sender.send("exercises", "exercises.submission.result",
                 submissionResult);
+    }
+
+    public void postResult(ProjectSubmissionResult projectSubmissionResult) {
+        sender.send("exercises", "projects.submission.result",
+                projectSubmissionResult);
     }
 
     public void postOutput(SubmissionOutput submissionOutput) {

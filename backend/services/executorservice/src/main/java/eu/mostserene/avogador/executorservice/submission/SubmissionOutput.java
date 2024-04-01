@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.executorservice.submission;
 
 import lombok.Data;
+
 import java.util.UUID;
 
 @Data
@@ -15,11 +16,11 @@ public class SubmissionOutput {
     public SubmissionOutput() {
     }
 
-    public SubmissionOutput(Submission submission, String testcaseId, String executionOutput) {
-        this.courseId = submission.getCourseId();
-        this.trialId = submission.getTrialId();
-        this.exerciseId = submission.getExerciseId();
-        this.submissionId = submission.getId();
+    public SubmissionOutput(CodingSubmission codingSubmission, String testcaseId, String executionOutput) {
+        this.courseId = codingSubmission.getCourseId();
+        this.trialId = codingSubmission.getTrialId();
+        this.exerciseId = codingSubmission.getExerciseId();
+        this.submissionId = codingSubmission.getId();
         this.testcaseId = testcaseId;
         this.executionOutput = executionOutput;
     }

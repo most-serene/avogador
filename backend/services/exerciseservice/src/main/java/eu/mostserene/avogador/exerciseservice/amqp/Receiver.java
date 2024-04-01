@@ -1,6 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionResultDto;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultDto;
@@ -47,6 +50,9 @@ public class Receiver {
 
     @Autowired
     private TestcaseService testcaseService;
+
+    @Autowired
+    private ProjectSubmissionService projectSubmissionService;
 
     @Autowired
     private Sender sender;
@@ -130,6 +136,26 @@ public class Receiver {
                     mapper.writeValueAsString(submissionResultDto)
             ));
         } catch (IOException e) {
+            log.error(LoggerColors.error(e.getMessage()));
+            LoggerUtils.logErrorToSentry(e);
+        }
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "projectSubmissionResultHandler"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "projects.submission.result"))
+    private void projectSubmissionResultHandler(ProjectSubmissionResultDto projectSubmissionResultDto) {
+        try {
+            ProjectSubmission projectSubmission = projectSubmissionService
+                    .setProjectSubmissionStatus(projectSubmissionResultDto.getId(), projectSubmissionResultDto.getStatus());
+            /*
+            TODO: send socket notification to user and collaborator
+            sender.send("users", "users.notify.socket", new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
+                    mapper.writeValueAsString(submissionResultDto)
+            ));
+             */
+        } catch (Exception e) {
             log.error(LoggerColors.error(e.getMessage()));
             LoggerUtils.logErrorToSentry(e);
         }
