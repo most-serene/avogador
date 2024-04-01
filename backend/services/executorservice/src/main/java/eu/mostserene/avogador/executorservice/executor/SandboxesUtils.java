@@ -10,7 +10,8 @@ import java.io.IOException;
 
 public class SandboxesUtils {
 
-    private SandboxesUtils() {}
+    private SandboxesUtils() {
+    }
 
     public static void waitContainer(DockerClient dockerClient, String containerId) throws InterruptedException {
         dockerClient.waitContainerCmd(containerId).exec(new ResultCallback.Adapter<>() {

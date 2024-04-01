@@ -15,5 +15,5 @@ public interface NotebookKernel {
 
     Pair<ProjectSubmissionStatus, File> runNotebook(DockerClient dockerClient, ProjectSubmission projectSubmission, File notebook);
 
-    File generateHtmlReport(DockerClient dockerClient, ProjectSubmission projectSubmission, File notebook);
+    File generateHtmlReport(DockerClient dockerClient, ProjectSubmission projectSubmission, File notebook, File submissionFolder);
 }
