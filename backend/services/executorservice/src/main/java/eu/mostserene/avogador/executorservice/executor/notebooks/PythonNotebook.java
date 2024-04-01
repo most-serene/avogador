@@ -33,7 +33,6 @@ public class PythonNotebook implements NotebookKernel {
         log.info(LoggerColors.cyan("Executing " + projectSubmission.getId()));
 
         File notebook = findNotebook(notebookFolder);
-
         var container = dockerClient.createContainerCmd("gotti27/j-check-env")
                 .withImage("gotti27/j-check-env")
                 .withCmd("/bin/bash", "-c",
@@ -43,7 +42,6 @@ public class PythonNotebook implements NotebookKernel {
 
         Arrays.stream(Objects.requireNonNull(notebook.getParentFile().listFiles()))
                 .forEach(file -> dockerClient.copyArchiveToContainerCmd(container.getId())
-                        //.withHostResource((new File(sourceCode.getParentFile() + "/code")).toPath().toString())
                         .withHostResource(file.toPath().toString())
                         .withCopyUIDGID(true)
                         .withRemotePath("/execution/")
@@ -54,7 +52,6 @@ public class PythonNotebook implements NotebookKernel {
         File executionReport = new File(notebookFolder.getParentFile() + "/exec.out");
 
         try (OutputStream fileOut = new FileOutputStream(executionReport)) {
-            // Thread.sleep(60000);
             SandboxesUtils.waitContainer(dockerClient, container.getId());
             String containerStdout = SandboxesUtils.writeContainerLog(dockerClient, container.getId(), true, false);
             String containerStderr = SandboxesUtils.writeContainerLog(dockerClient, container.getId(), false, true);
@@ -68,22 +65,19 @@ public class PythonNotebook implements NotebookKernel {
                     executionReport
             );
         } catch (Exception e) {
-            log.error(e.toString());
             throw new RuntimeException(e);
         } finally {
-
-            // dockerClient.stopContainerCmd(container.getId()).exec();
             dockerClient.removeContainerCmd(container.getId()).exec();
         }
     }
 
     private File findNotebook(File notebookFolder) {
         List<File> notebooks = FileUtils.listFiles(notebookFolder, new String[]{"ipynb"}, true).stream()
-                .filter(file -> file.getName().charAt(1) != '_').toList();
+                .filter(file -> file.getName().charAt(0) != '.')
+                .toList();
         if (notebooks.size() != 1) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("No notebook or more than one");
         }
-        // log.info(LoggerColors.purple(notebooks.get(0).getAbsolutePath()));
         File notebook = notebooks.get(0);
         File renamed = new File(notebook.getParent() + "/notebook.ipynb");
         if (!notebook.renameTo(renamed)) {
@@ -101,7 +95,6 @@ public class PythonNotebook implements NotebookKernel {
                 .withCmd("/bin/bash", "-c",
                         "PATH=$PATH:/home/student/.local/bin/ jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --execute --to notebook --inplace /execution/" + notebook.getName() + "; " +
                                 "PATH=$PATH:/home/student/.local/bin/ jupyter nbconvert --ExecutePreprocessor.kernel_name=python3 --to html /execution/" + notebook.getName())
-                // .withUser("student")
                 // .withNetworkDisabled(true)
                 .exec();
 
@@ -116,7 +109,6 @@ public class PythonNotebook implements NotebookKernel {
         dockerClient.startContainerCmd(container.getId()).exec();
 
         try {
-            // Thread.sleep(60000);
             SandboxesUtils.waitContainer(dockerClient, container.getId());
             String containerStdErr = SandboxesUtils.writeContainerLog(dockerClient, container.getId(), false, true);
             log.info(containerStdErr);
@@ -130,12 +122,7 @@ public class PythonNotebook implements NotebookKernel {
             }
 
             return reportFile;
-
-            /*
-            return FileUtils.listFiles(submissionFolder, new String[]{"html"}, true)
-                    .stream().toList().get(0);
-             */
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             dockerClient.removeContainerCmd(container.getId()).exec();

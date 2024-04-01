@@ -12,6 +12,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
 import eu.mostserene.avogador.executorservice.executor.notebooks.NotebookKernel;
 import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmission;
+import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmissionResult;
 import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmissionStatus;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
 import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
@@ -405,11 +406,11 @@ public class CodeExecutor {
                 case SUCCESS -> {
                     File report = generateHtmlReport(projectSubmission, projectFolder, submissionFolder);
                     storageService.uploadNotebookReport(projectSubmission, report);
-                    // TODO: post SUCCESS result
+                    communicationUtils.postResult(new ProjectSubmissionResult(projectSubmission.getId(), ProjectSubmissionStatus.SUCCESS));
                 }
                 case ERROR -> {
                     log.info(LoggerColors.error("Notebook Project Submission " + projectSubmission.getId() + ": Execution failed \n"));
-                    // TODO: post ERROR result
+                    communicationUtils.postResult(new ProjectSubmissionResult(projectSubmission.getId(), ProjectSubmissionStatus.ERROR));
                 }
                 default ->
                         throw new IllegalAccessException("The project is in pending or confirmed status, which is illegal");
@@ -418,7 +419,7 @@ public class CodeExecutor {
         } catch (Exception e) {
             log.info(LoggerColors.error("Notebook Project Submission " + projectSubmission.getId() + ": Execution failed \n" + e));
             LoggerUtils.logErrorToSentry(e);
-            // TODO: post ERROR result
+            communicationUtils.postResult(new ProjectSubmissionResult(projectSubmission.getId(), ProjectSubmissionStatus.ERROR));
         } finally {
             FileSystemUtils.deleteRecursively(submissionFolder);
             log.info(LoggerColors.success("Notebook Project Submission " + projectSubmission.getId() + ": Cleanup completed"));
