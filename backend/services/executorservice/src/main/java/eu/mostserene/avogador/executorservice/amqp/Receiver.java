@@ -33,4 +33,18 @@ public class Receiver {
         CodeExecutor.getExecutor().checkSubmission(codingSubmission);
         return "done";
     }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "executeProjectHandler"),
+            exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
+            key = "exec.project.execute")
+    )
+    private void executeProjectHandler(ProjectSubmission projectSubmission) {
+        try {
+            CodeExecutor.getExecutor().executeProject(projectSubmission);
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        // return "done";
+    }
 }
