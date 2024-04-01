@@ -10,7 +10,9 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import eu.mostserene.avogador.executorservice.executor.languages.Language;
+import eu.mostserene.avogador.executorservice.executor.notebooks.NotebookKernel;
 import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmission;
+import eu.mostserene.avogador.executorservice.projectsubmission.ProjectSubmissionStatus;
 import eu.mostserene.avogador.executorservice.storage.StorageService;
 import eu.mostserene.avogador.executorservice.submission.CodingSubmission;
 import eu.mostserene.avogador.executorservice.submission.SubmissionOutput;
@@ -164,6 +166,17 @@ public class CodeExecutor {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
             log.error(LoggerColors.error("> failed to load a language"));
+        }
+    }
+
+    private void loadNotebookKernel(Class<? extends NotebookKernel> notebookKernel) {
+        try {
+            NotebookKernel kernel = notebookKernel.getDeclaredConstructor().newInstance();
+            notebookKernels.add(kernel);
+            log.info(LoggerColors.success("> " + kernel.getName() + " NOTEBOOK added"));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            log.error(LoggerColors.error("> failed to load a notebook kernel"));
         }
     }
 
@@ -363,5 +376,68 @@ public class CodeExecutor {
         }
 
         return outputStream;
+    }
+
+    public void executeProject(ProjectSubmission projectSubmission) {
+        switch (projectSubmission.getProjectType()) {
+            case NOTEBOOK_PYTHON3 -> executeNotebook(projectSubmission);
+            case JUST_A_PLACEHOLDER_SO_THAT_LINTING_DOES_NOT_COMPLAIN ->
+                    log.info(LoggerColors.warn("This project should be just a placeholder"));
+            default -> log.info(LoggerColors.warn("Unknown project type"));
+        }
+    }
+
+    private void executeNotebook(ProjectSubmission projectSubmission) {
+        log.info(LoggerColors.warn("Notebook project Submission " + projectSubmission.getId() + ": Execution started"));
+
+        File submissionFolder = createFolder(projectSubmission);
+        try {
+            File archive = storageService.fetchAndSaveProject(projectSubmission);
+            File projectFolder = new File(archive.getParentFile() + "/project");
+
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.extract(archive, projectFolder);
+
+            Pair<ProjectSubmissionStatus, File> runOutput = runNotebook(projectSubmission, projectFolder);
+            storageService.uploadNotebookExecutionLog(projectSubmission, new File(submissionFolder + "/exec.out"));
+
+            switch (runOutput.getLeft()) {
+                case SUCCESS -> {
+                    File report = generateHtmlReport(projectSubmission, projectFolder, submissionFolder);
+                    storageService.uploadNotebookReport(projectSubmission, report);
+                    // TODO: post SUCCESS result
+                }
+                case ERROR -> {
+                    log.info(LoggerColors.error("Notebook Project Submission " + projectSubmission.getId() + ": Execution failed \n"));
+                    // TODO: post ERROR result
+                }
+                default ->
+                        throw new IllegalAccessException("The project is in pending or confirmed status, which is illegal");
+            }
+
+        } catch (Exception e) {
+            log.info(LoggerColors.error("Notebook Project Submission " + projectSubmission.getId() + ": Execution failed \n" + e));
+            LoggerUtils.logErrorToSentry(e);
+            // TODO: post ERROR result
+        } finally {
+            FileSystemUtils.deleteRecursively(submissionFolder);
+            log.info(LoggerColors.success("Notebook Project Submission " + projectSubmission.getId() + ": Cleanup completed"));
+        }
+    }
+
+    private Pair<ProjectSubmissionStatus, File> runNotebook(ProjectSubmission submission, File notebook) {
+        return notebookKernels.stream()
+                .filter(notebookKernel -> notebookKernel.getProjectType().equals(submission.getProjectType()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Language not supported"))
+                .runNotebook(dockerClient, submission, notebook);
+    }
+
+    private File generateHtmlReport(ProjectSubmission submission, File notebook, File submissionFolder) {
+        return notebookKernels.stream()
+                .filter(notebookKernel -> notebookKernel.getProjectType().equals(submission.getProjectType()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Language not supported"))
+                .generateHtmlReport(dockerClient, submission, notebook, submissionFolder);
     }
 }
