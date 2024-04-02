@@ -43,7 +43,7 @@ public class UserTrialController {
         var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance()) {
+        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 

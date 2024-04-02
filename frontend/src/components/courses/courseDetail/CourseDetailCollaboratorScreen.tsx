@@ -4,6 +4,7 @@ import {
   SyntheticEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -18,10 +19,11 @@ import CourseMembersTab from "@courses/courseDetail/CourseMemebersTab/CourseMemb
 import CourseSettingsTab from "@courses/courseDetail/CourseSettingsTab/CourseSettingsTab.tsx";
 import { useAtom } from "jotai";
 import CourseOverviewCollaboratorTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewCollaboratorTab.tsx";
-
-const tabs = ["Overview", "Tests", "Members", "Settings"];
+import userAtom from "@authentication/userAtom.ts";
+import CourseProjectsTab from "@courses/courseDetail/CourseProjectsTab/CourseProjectsTab.tsx";
 
 const CourseDetailCollaboratorScreen = () => {
+  const [user] = useAtom(userAtom);
   const { getCourseById } = useCourseService();
   const { courseId } = useParams();
   const courseTitleRef = useRef<HTMLElement>(null);
@@ -30,6 +32,15 @@ const CourseDetailCollaboratorScreen = () => {
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [openTab, setOpenTab] = useState(0);
   const [courseName, setCourseName] = useState<string>();
+  const tabs = useMemo(() => {
+    return {
+      Overview: <CourseOverviewCollaboratorTab course={course} />,
+      Tests: <CourseTrialsTab userCourse={course} />,
+      Projects: <CourseProjectsTab />,
+      Members: <CourseMembersTab userCourse={course} />,
+      Settings: <CourseSettingsTab />,
+    };
+  }, [course]);
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
@@ -57,59 +68,45 @@ const CourseDetailCollaboratorScreen = () => {
 
   return (
     <Box
+      width={"100%"}
       height="100%"
       sx={{
-        flexGrow: 1,
         display: "flex",
+        flexGrow: 1,
       }}
     >
       <Tabs orientation="vertical" value={openTab} onChange={handleTabChange}>
-        {tabs.map((tab, i) => (
+        {Object.keys(tabs).map((tab, i) => (
           <Tab key={i} label={tab} />
         ))}
       </Tabs>
-      <Container maxWidth={false}>
+      <Container maxWidth={false} sx={{ minWidth: 0 }}>
         <Box display={"flex"} justifyContent={"center"}>
-          <Box>
+          <Box width={"85%"}>
             <Typography
               ref={courseTitleRef}
               id="courseTitle"
               variant="h3"
               align="center"
+              sx={{ typography: { md: "h3", xs: "h5" } }}
             >
               {courseName ?? <Skeleton width={"50rem"} />}
             </Typography>
           </Box>
-          {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
+          {user && course && course.role !== "ADMIN" && !user.isSuperuser && (
+            <LeaveCourse course={course} />
+          )}
         </Box>
-        <TabPanel
-          value={openTab}
-          index={0}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseOverviewCollaboratorTab course={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={1}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseTrialsTab userCourse={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={2}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseMembersTab userCourse={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={3}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseSettingsTab />
-        </TabPanel>
+        {Object.values(tabs).map((panel, i) => (
+          <TabPanel
+            key={i}
+            value={openTab}
+            index={i}
+            occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+          >
+            {panel}
+          </TabPanel>
+        ))}
       </Container>
     </Box>
   );
