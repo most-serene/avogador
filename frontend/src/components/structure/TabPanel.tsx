@@ -19,6 +19,8 @@ export default function TabPanel(props: TabPanelProps) {
       aria-labelledby={`vertical-tab-${index}`}
       {...other}
       height={`calc(100% - ${occupiedHeight}px)`}
+      sx={{ overflowY: "scroll" }}
+      className={"hidden-scrollbar"}
     >
       {value === index && (
         <Box padding={3} height="100%">

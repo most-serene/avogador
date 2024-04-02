@@ -164,6 +164,23 @@ public class UserTrialControllerTests {
                     .andExpect(status().isOk());
         }
 
+        @Test
+        public void userIsSuperuser_get200() throws Exception {
+            when(trialService.getTrialById(any()))
+                    .thenReturn(Optional.of(practice));
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoExternal));
+            when(userTrialService.getUsersFromTrial(any()))
+                    .thenReturn(List.of(userTrial1));
+            when(userService.getUsersFromIdList(anyList()))
+                    .thenReturn(List.of(studentUser));
+
+            mvc.perform(get("/public/trials/00000000-0000-0000-0000-000000000001/users")
+                            .header("User", superUserHeader))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
     }
 
     @Nested
