@@ -1,6 +1,10 @@
 package eu.mostserene.avogador.exerciseservice.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.mostserene.avogador.exerciseservice.projectservice.notebookprojects.NotebookProject;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectType;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionResultDto;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionService;
@@ -30,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -53,6 +58,9 @@ public class Receiver {
 
     @Autowired
     private ProjectSubmissionService projectSubmissionService;
+
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private Sender sender;
@@ -85,8 +93,6 @@ public class Receiver {
                     .orElseThrow(RuntimeException::new);
 
             TimeUnit.SECONDS.sleep(1);
-
-            log.info(LoggerColors.warn("hej"));
 
             sender.send("executor", "exec.submission.execute",
                     new SubmissionExecutionDto(
@@ -138,6 +144,36 @@ public class Receiver {
         } catch (IOException e) {
             log.error(LoggerColors.error(e.getMessage()));
             LoggerUtils.logErrorToSentry(e);
+        }
+    }
+
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(value = "ProjectSubmissionSavedHandler"),
+            exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
+            key = "projects.submission.save"))
+    private void ProjectSubmissionSavedHandler(ProjectSubmissionSavedDto projectSubmissionSavedDto) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Project project = projectService.getProjectById(projectSubmissionSavedDto.getProjectId())
+                .orElseThrow(NotFoundException::new);
+        
+        sender.send("executor", "exec.project.execute", new ProjectSubmissionExecutionDto(
+                projectSubmissionSavedDto.getSubmissionId(),
+                projectSubmissionSavedDto.getCourseId(),
+                projectSubmissionSavedDto.getProjectId(),
+                getFullProjectTypeForExecutor(project)
+        ));
+    }
+
+    private String getFullProjectTypeForExecutor(Project project) {
+        if (Objects.requireNonNull(project.getProjectType()) == ProjectType.NOTEBOOK) {
+            return project.getProjectType() + "_" + ((NotebookProject) project).getKernel().name();
+        } else {
+            throw new RuntimeException("project type not found");
         }
     }
 
@@ -198,6 +234,32 @@ public class Receiver {
             this.filename = filename;
             this.timeLimit = timeLimit;
             this.testcases = testcases;
+        }
+    }
+
+
+    @Data
+    private static class ProjectSubmissionSavedDto {
+        private UUID courseId;
+        private UUID projectId;
+        private UUID submissionId;
+
+        public ProjectSubmissionSavedDto() {
+        }
+    }
+
+    @Data
+    private static class ProjectSubmissionExecutionDto {
+        private UUID id;
+        private UUID courseId;
+        private UUID projectId;
+        private String projectType;
+
+        public ProjectSubmissionExecutionDto(UUID id, UUID courseId, UUID projectId, String projectType) {
+            this.id = id;
+            this.courseId = courseId;
+            this.projectId = projectId;
+            this.projectType = projectType;
         }
     }
 }
