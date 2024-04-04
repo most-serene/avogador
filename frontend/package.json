@@ -47,7 +47,8 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "semver": "^7.5.4",
-    "serve": "^14.2.0"
+    "serve": "^14.2.0",
+    "tar": "^6.2.1"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.3.1",
