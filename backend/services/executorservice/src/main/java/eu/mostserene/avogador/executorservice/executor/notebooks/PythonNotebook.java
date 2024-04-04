@@ -25,7 +25,7 @@ public class PythonNotebook implements NotebookKernel {
 
     @Override
     public ProjectType getProjectType() {
-        return ProjectType.NOTEBOOK_PYTHON3;
+        return ProjectType.NOTEBOOK_IPYKERNEL;
     }
 
     @Override

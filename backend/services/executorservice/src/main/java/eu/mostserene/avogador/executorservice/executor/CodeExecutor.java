@@ -381,7 +381,7 @@ public class CodeExecutor {
 
     public void executeProject(ProjectSubmission projectSubmission) {
         switch (projectSubmission.getProjectType()) {
-            case NOTEBOOK_PYTHON3 -> executeNotebook(projectSubmission);
+            case NOTEBOOK_IPYKERNEL -> executeNotebook(projectSubmission);
             case JUST_A_PLACEHOLDER_SO_THAT_LINTING_DOES_NOT_COMPLAIN ->
                     log.info(LoggerColors.warn("This project should be just a placeholder"));
             default -> log.info(LoggerColors.warn("Unknown project type"));
