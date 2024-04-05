@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -79,5 +80,10 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
         submission.setStatus(status);
 
         return repository.save(submission);
+    }
+
+    @Override
+    public List<ProjectSubmission> getUserSubmissions(Project project, UserDto user) {
+        return repository.findByProject_IdAndUserId(project.getId(), user.getId());
     }
 }

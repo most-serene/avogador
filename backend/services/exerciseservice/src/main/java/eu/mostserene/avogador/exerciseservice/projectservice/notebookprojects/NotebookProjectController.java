@@ -4,6 +4,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectStatus;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionService;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -62,6 +64,16 @@ public class NotebookProjectController {
 
         if (!notebookProject.getCanSubmit()) {
             throw new ForbiddenException("Submission are currently forbidden");
+        }
+
+        List<ProjectSubmission> submissionsList = projectSubmissionService.getUserSubmissions(notebookProject, user);
+
+        if (submissionsList.stream().anyMatch(submission -> submission.getStatus().equals(ProjectStatus.PENDING))) {
+            throw new ForbiddenException("You have another submission pending for judgment");
+        }
+
+        if (submissionsList.stream().anyMatch(submission -> submission.getStatus().equals(ProjectStatus.CONFIRMED))) {
+            throw new ForbiddenException("You have another confirmed a submission");
         }
 
         return projectSubmissionService.createSubmission(notebookProject, user, project);
