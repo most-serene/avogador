@@ -23,6 +23,7 @@ const useProjectService = () => {
     const generateFilesStream = (files: FileList) => {
       const arr: File[] = [];
       for (const file of files) {
+        console.log(file);
         arr.push(file);
       }
       return arr;
@@ -44,7 +45,7 @@ const useProjectService = () => {
 
   const uploadProject = useCallback(
     (
-      project: Project,
+      projectId: string,
       files: FileList,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
     ) => {
@@ -52,7 +53,7 @@ const useProjectService = () => {
         .then(mapZipBlobToFormData)
         .then((form) => {
           avogadorApi
-            .post(`/projects/notebook/${project.id}/submissions`, form, {
+            .post(`/projects/notebook/${projectId}/submissions`, form, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
