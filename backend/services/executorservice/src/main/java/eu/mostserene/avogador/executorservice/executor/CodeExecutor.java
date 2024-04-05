@@ -140,6 +140,8 @@ public class CodeExecutor {
                         super.onNext(item);
                     }
                 }).awaitCompletion();
+        log.info(LoggerColors.success("> gotti27/runtime-env image pulled"));
+
         executor.dockerClient.pullImageCmd("ubuntu")
                 .withTag("latest")
                 .exec(new ResultCallback.Adapter<>() {
@@ -148,6 +150,8 @@ public class CodeExecutor {
                         super.onNext(item);
                     }
                 }).awaitCompletion();
+        log.info(LoggerColors.success("> ubuntu image pulled"));
+
         executor.dockerClient.pullImageCmd("gotti27/j-check-env")
                 .withTag("latest")
                 .exec(new ResultCallback.Adapter<>() {
@@ -156,7 +160,7 @@ public class CodeExecutor {
                         super.onNext(item);
                     }
                 }).awaitCompletion();
-        log.info(LoggerColors.success("> image pulled"));
+        log.info(LoggerColors.success("> gotti27/j-check-env image pulled"));
     }
 
     private void loadLanguage(Class<? extends Language> languageType) {
@@ -174,7 +178,7 @@ public class CodeExecutor {
         try {
             NotebookKernel kernel = notebookKernel.getDeclaredConstructor().newInstance();
             notebookKernels.add(kernel);
-            log.info(LoggerColors.success("> " + kernel.getName() + " NOTEBOOK added"));
+            log.info(LoggerColors.success("> " + kernel.getProjectType() + " added"));
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
             log.error(LoggerColors.error("> failed to load a notebook kernel"));
