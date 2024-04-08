@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
@@ -15,9 +16,15 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
@@ -255,6 +262,27 @@ public class StorageServiceImpl implements StorageService {
         } catch (HttpClientErrorException.NotFound notFoundException) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void createProjectSubmission(ProjectSubmission submission, File file) {
+        String endpoint = "http://storage/courses/" + submission.getProject().getCourseId() +
+                "/projects/ " + submission.getProject().getId() +
+                "/submissions/" + submission.getId();
+        new Thread(() -> {
+            uploadMultipartFileToStorage(endpoint, file);
+            FileUtils.deleteQuietly(file.getParentFile());
+        }).start();
+    }
+
+    private void uploadMultipartFileToStorage(String endpoint, File file) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new FileSystemResource(file));
+
+        restTemplate.postForObject(endpoint, body, MultiValueMap.class, headers);
     }
 
     @Data

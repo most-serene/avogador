@@ -1,5 +1,7 @@
 package eu.mostserene.avogador.storageservice.projects;
 
+import eu.mostserene.avogador.storageservice.amqp.Sender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +20,18 @@ import java.util.UUID;
 @RequestMapping("/courses/{courseId}/projects/{projectId}")
 public class ProjectController {
 
+    @Autowired
+    private Sender sender;
+
     @PostMapping("/submissions/{submissionId}")
     private void createProjectSubmission(@PathVariable UUID courseId, @PathVariable UUID projectId,
-                                         @PathVariable UUID submissionId, @RequestBody MultipartFile projectSubmission) {
+                                         @PathVariable UUID submissionId, @RequestBody MultipartFile file) {
         ProjectStorageImpl.of(courseId, projectId)
-                .saveSubmission(submissionId, projectSubmission);
+                .saveSubmission(submissionId, file);
+
+        sender.send("exercises", "projects.submission.save", new ProjectSubmissionDTO(
+                courseId, projectId, submissionId
+        ));
     }
 
     @PutMapping("/submissions/{submissionId}")

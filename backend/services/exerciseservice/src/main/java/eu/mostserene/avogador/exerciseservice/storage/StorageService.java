@@ -2,6 +2,7 @@ package eu.mostserene.avogador.exerciseservice.storage;
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
+import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
@@ -49,4 +50,8 @@ public interface StorageService {
     void uploadSimilarityReport(CodingExercise exercise, File reportZip);
 
     Optional<PlagiarismReport> getSimilarityReport(CodingExercise exercise);
+
+    // void deleteProjectSubmission(ProjectSubmission submission);
+
+    void createProjectSubmission(ProjectSubmission submission, File file);
 }
