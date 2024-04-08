@@ -29,8 +29,8 @@ public class ProjectController {
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && course.getRole().getClearance() > CourseRole.EXTERNAL.getClearance()) {
-            throw new ForbiddenException("You cannot see this project");
+        if (course.getRole().getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You cannot see this project");
         }
 
         return project;

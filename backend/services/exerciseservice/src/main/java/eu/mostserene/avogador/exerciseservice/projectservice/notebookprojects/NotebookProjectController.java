@@ -59,21 +59,21 @@ public class NotebookProjectController {
                 !user.getIsSuperuser() &&
                 !courseDetail.getRole().hasCollaboratorClearance()
         ) {
-            throw new ForbiddenException("You have not joined the project");
+            throw new ForbiddenException(user, "You have not joined the project");
         }
 
         if (!notebookProject.getCanSubmit()) {
-            throw new ForbiddenException("Submission are currently forbidden");
+            throw new ForbiddenException(user, "Submission are currently forbidden");
         }
 
         List<ProjectSubmission> submissionsList = projectSubmissionService.getUserSubmissions(notebookProject, user);
 
         if (submissionsList.stream().anyMatch(submission -> submission.getStatus().equals(ProjectStatus.PENDING))) {
-            throw new ForbiddenException("You have another submission pending for judgment");
+            throw new ForbiddenException(user, "You have another submission pending for judgment");
         }
 
         if (submissionsList.stream().anyMatch(submission -> submission.getStatus().equals(ProjectStatus.CONFIRMED))) {
-            throw new ForbiddenException("You have another confirmed a submission");
+            throw new ForbiddenException(user, "You have another confirmed a submission");
         }
 
         return projectSubmissionService.createSubmission(notebookProject, user, project);
