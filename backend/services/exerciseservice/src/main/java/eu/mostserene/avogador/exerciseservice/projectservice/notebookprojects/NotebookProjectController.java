@@ -15,10 +15,8 @@ import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +45,8 @@ public class NotebookProjectController {
     @PostMapping("")
     private Project createNotebookProject(@RequestHeader(name = "User") UserDto user, @RequestBody NotebookProject project) {
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(NotFoundException::new)
+                .requireNotArchived();
 
         if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user, "You cannot create a project in this course");
@@ -70,7 +69,8 @@ public class NotebookProjectController {
         }
 
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(storedProject.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(NotFoundException::new)
+                .requireNotArchived();
 
         if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user, "You cannot create a project in this course");
@@ -92,11 +92,8 @@ public class NotebookProjectController {
                 .orElseThrow(NotFoundException::new);
 
         CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(notebookProject.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new);
-
-        if (courseDetail.getIsArchived()) {
-            throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
-        }
+                .orElseThrow(NotFoundException::new)
+                .requireNotArchived();
 
         if (userProjectService.getUserProject(projectId, user.getId()).isEmpty() &&
                 !user.getIsSuperuser() &&
