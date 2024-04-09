@@ -3,10 +3,13 @@ package eu.mostserene.avogador.exerciseservice.projectservice.userproject;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
+@Getter
 @Table(
         name = "UserProjects",
         uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "project_id"})
@@ -24,5 +27,20 @@ public class UserProject {
     @NotNull
     private Project project;
 
+    @Setter
     private Integer mark;
+
+    public UserProject() {
+    }
+
+    public UserProject(UUID userId, Project project) {
+        this.userId = userId;
+        this.project = project;
+    }
+
+    public UserProject(UUID userId, Project project, Integer mark) {
+        this.userId = userId;
+        this.project = project;
+        this.mark = mark;
+    }
 }
