@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
@@ -275,6 +276,12 @@ public class StorageServiceImpl implements StorageService {
         }).start();
     }
 
+    @Override
+    public void createProject(Project project) {
+        sender.send("storage", "storage.project.create",
+                new ProjectStorageDto(project.getCourseId(), project.getId()));
+    }
+
     private void uploadMultipartFileToStorage(String endpoint, File file) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -387,6 +394,20 @@ public class StorageServiceImpl implements StorageService {
             this.trialId = trialId;
             this.exerciseId = exerciseId;
             this.similarityReport = FileUtils.readFileToByteArray(similarityReportFile);
+        }
+    }
+
+    @Data
+    private static class ProjectStorageDto {
+        private UUID courseId;
+        private UUID projectId;
+
+        public ProjectStorageDto() {
+        }
+
+        public ProjectStorageDto(UUID courseId, UUID projectId) {
+            this.courseId = courseId;
+            this.projectId = projectId;
         }
     }
 }
