@@ -57,4 +57,6 @@ public interface StorageService {
     void createProjectSubmission(ProjectSubmission submission, File file);
 
     void createProject(Project project);
+
+    Resource getProjectSubmissionArchive(ProjectSubmission submission);
 }

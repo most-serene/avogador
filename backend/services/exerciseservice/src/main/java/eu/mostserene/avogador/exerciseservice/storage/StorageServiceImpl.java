@@ -282,6 +282,16 @@ public class StorageServiceImpl implements StorageService {
                 new ProjectStorageDto(project.getCourseId(), project.getId()));
     }
 
+    @Override
+    public Resource getProjectSubmissionArchive(ProjectSubmission submission) {
+        return new RestTemplateBuilder()
+                .build()
+                .getForObject("http://storage/courses/" + submission.getProject().getCourseId() +
+                                "/projects/ " + submission.getProject().getId() +
+                                "/submissions/" + submission.getId(),
+                        Resource.class);
+    }
+
     private void uploadMultipartFileToStorage(String endpoint, File file) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
