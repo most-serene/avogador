@@ -3,13 +3,16 @@ package eu.mostserene.avogador.exerciseservice.projectservice.notebookprojects;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
+import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectType;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectStatus;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmissionService;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/public/projects/notebook/{projectId}")
+@RequestMapping("/public/projects/notebook")
 public class NotebookProjectController {
     @Autowired
     private ProjectService projectService;
@@ -41,7 +44,19 @@ public class NotebookProjectController {
     @Autowired
     private ProjectSubmissionService projectSubmissionService;
 
-    @PostMapping("/submissions")
+    @PostMapping("")
+    private Project createNotebookProject(@RequestHeader(name = "User") UserDto user, @RequestBody NotebookProject project) {
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(NotFoundException::new);
+
+        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You cannot create a project in this course");
+        }
+
+        return notebookProjectService.createProject(project);
+    }
+
+    @PostMapping("/{projectId}/submissions")
     private ProjectSubmission createNotebookProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                               @PathVariable UUID projectId,
                                                               @RequestBody MultipartFile project) {
