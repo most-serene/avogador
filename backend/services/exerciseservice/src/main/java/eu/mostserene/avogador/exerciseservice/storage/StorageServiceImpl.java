@@ -292,6 +292,16 @@ public class StorageServiceImpl implements StorageService {
                         Resource.class);
     }
 
+    @Override
+    public Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename) {
+        return new RestTemplateBuilder()
+                .build()
+                .getForObject("http://storage/courses/" + submission.getProject().getCourseId() +
+                                "/projects/ " + submission.getProject().getId() +
+                                "/submissions/" + submission.getId() + "?filename=" + filename,
+                        Resource.class);
+    }
+
     private void uploadMultipartFileToStorage(String endpoint, File file) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

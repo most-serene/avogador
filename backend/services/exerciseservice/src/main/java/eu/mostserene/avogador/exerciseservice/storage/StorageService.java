@@ -59,4 +59,6 @@ public interface StorageService {
     void createProject(Project project);
 
     Resource getProjectSubmissionArchive(ProjectSubmission submission);
+
+    Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename);
 }

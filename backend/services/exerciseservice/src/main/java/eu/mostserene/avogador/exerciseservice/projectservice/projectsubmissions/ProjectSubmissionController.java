@@ -73,4 +73,27 @@ public class ProjectSubmissionController {
 
         return storageService.getProjectSubmissionArchive(submission);
     }
+
+    @GetMapping("/{submissionId}/download/extra")
+    private Resource downloadProjectSubmissionExtra(@RequestHeader(name = "User") UserDto user,
+                                                    @PathVariable UUID projectId,
+                                                    @PathVariable UUID submissionId,
+                                                    @RequestParam String filename) {
+        Project project = projectService.getProjectById(projectId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(NotFoundException::new);
+
+        ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
+                .orElseThrow(NotFoundException::new);
+
+        if (!user.getId().equals(submission.getUserId()) &&
+                !course.getRole().hasCollaboratorClearance() &&
+                !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You cannot download this submission");
+        }
+
+        return storageService.getProjectSubmissionExtraFile(submission, filename);
+    }
 }
