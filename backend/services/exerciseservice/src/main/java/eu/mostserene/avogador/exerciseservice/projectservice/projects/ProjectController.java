@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/public/projects/{projectId}")
+@RequestMapping("/public/projects")
 public class ProjectController {
     @Autowired
     private UserCourseService userCourseService;
@@ -20,7 +20,7 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @GetMapping("")
+    @GetMapping("/{projectId}")
     private Project getProjectById(@RequestHeader(name = "User") UserDto user,
                                    @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)

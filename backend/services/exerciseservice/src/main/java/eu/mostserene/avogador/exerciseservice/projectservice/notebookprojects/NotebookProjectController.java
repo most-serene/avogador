@@ -56,6 +56,34 @@ public class NotebookProjectController {
         return notebookProjectService.createProject(project);
     }
 
+    @PutMapping("/{projectId}")
+    private Project updateNotebookProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId, @RequestBody NotebookProject project) {
+        Project storedProject = projectService.getProjectById(projectId)
+                .orElseThrow(NotFoundException::new);
+
+        if (!storedProject.getProjectType().equals(ProjectType.NOTEBOOK)) {
+            throw new BadRequestException("Project is not a notebook project");
+        }
+
+        if (!storedProject.getId().equals(project.getId())) {
+            throw new BadRequestException("Project ID mismatch");
+        }
+
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(storedProject.getCourseId(), user.getId())
+                .orElseThrow(NotFoundException::new);
+
+        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You cannot create a project in this course");
+        }
+
+        storedProject.setName(project.getName());
+        storedProject.setDescription(project.getDescription());
+        storedProject.setCanSubmit(project.getCanSubmit());
+        storedProject.setDeadline(project.getDeadline());
+
+        return notebookProjectService.updateProject(project);
+    }
+
     @PostMapping("/{projectId}/submissions")
     private ProjectSubmission createNotebookProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                               @PathVariable UUID projectId,
