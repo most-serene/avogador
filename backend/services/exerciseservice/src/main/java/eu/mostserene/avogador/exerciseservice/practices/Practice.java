@@ -6,10 +6,12 @@ import eu.mostserene.avogador.exerciseservice.trials.TrialType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(name = "Practices")
 public class Practice extends Trial {
@@ -33,10 +35,6 @@ public class Practice extends Trial {
     @Override
     public TrialType getTrialType() {
         return TrialType.PRACTICE;
-    }
-
-    public Date getDeadline() {
-        return deadline;
     }
 
     public void setDeadline(Date deadline) {
