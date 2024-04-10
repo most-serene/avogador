@@ -106,7 +106,7 @@ public class NotebookProjectController {
             throw new ForbiddenException(user, "Submission are currently forbidden");
         }
 
-        List<ProjectSubmission> submissionsList = projectSubmissionService.getUserSubmissions(notebookProject, user);
+        List<ProjectSubmission> submissionsList = projectSubmissionService.getUserSubmissions(notebookProject, user.getId());
 
         if (submissionsList.stream().anyMatch(submission -> submission.getStatus().equals(ProjectStatus.PENDING))) {
             throw new ForbiddenException(user, "You have another submission pending for judgment");

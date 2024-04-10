@@ -41,7 +41,7 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
         }
         // storageService.deleteProjectSubmission(submission);
         /* TODO: to optimize storage, we could delete the previous submission files
-                however we'd loose all the extra files linked to that submission, like evalutations,
+                however we'd loose all the extra files linked to that submission, like evaluations,
                 reports and stuff like that
          */
 
@@ -83,7 +83,16 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
     }
 
     @Override
-    public List<ProjectSubmission> getUserSubmissions(Project project, UserDto user) {
-        return repository.findByProject_IdAndUserId(project.getId(), user.getId());
+    public List<ProjectSubmission> getUserSubmissions(Project project, UUID userId) {
+        return repository.findByProject_IdAndUserId(project.getId(), userId);
+    }
+
+    @Override
+    public List<ProjectSubmission> getUsersLastProjectSubmissions(Project project, List<UUID> users) {
+        return users.stream()
+                .map(userId -> repository.findFirstByProject_IdAndUserIdOrderByTimestampDesc(project.getId(), userId))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 }

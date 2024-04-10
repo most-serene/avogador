@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,11 @@ public class UserProjectServiceImpl implements UserProjectService {
     @Override
     public Optional<UserProject> getUserProject(UUID projectId, UUID userId) {
         return repository.findByProject_IdAndUserId(projectId, userId);
+    }
+
+    @Override
+    public List<UserProject> getUserProjectsByProject(UUID projectId) {
+        return repository.findByProject_Id(projectId);
     }
 
     @Override

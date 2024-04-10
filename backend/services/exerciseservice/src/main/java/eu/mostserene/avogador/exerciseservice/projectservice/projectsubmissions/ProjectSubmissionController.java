@@ -4,6 +4,8 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
+import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProject;
+import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,6 +26,9 @@ public class ProjectSubmissionController {
 
     @Autowired
     private ProjectSubmissionService projectSubmissionService;
+
+    @Autowired
+    private UserProjectService userProjectService;
 
     @Autowired
     private UserCourseService userCourseService;
@@ -95,5 +101,24 @@ public class ProjectSubmissionController {
         }
 
         return storageService.getProjectSubmissionExtraFile(submission, filename);
+    }
+
+    @GetMapping("/users")
+    private List<ProjectSubmission> getUsersLastProjectSubmission(@RequestHeader(name = "User") UserDto user,
+                                                                  @PathVariable UUID projectId) {
+        Project project = projectService.getProjectById(projectId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(NotFoundException::new);
+
+        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
+        List<UUID> projectUsers = userProjectService.getUserProjectsByProject(projectId)
+                .stream().map(UserProject::getUserId).toList();
+
+        return projectSubmissionService.getUsersLastProjectSubmissions(project, projectUsers);
     }
 }
