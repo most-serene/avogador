@@ -62,22 +62,9 @@ public class ProjectSubmissionController {
     private Resource downloadProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                @PathVariable UUID projectId,
                                                @PathVariable UUID submissionId) {
-        Project project = projectService.getProjectById(projectId)
-                .orElseThrow(NotFoundException::new);
-
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new);
-
-        ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
-                .orElseThrow(NotFoundException::new);
-
-        if (!user.getId().equals(submission.getUserId()) &&
-                !course.getRole().hasCollaboratorClearance() &&
-                !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You cannot download this submission");
-        }
-
-        return storageService.getProjectSubmissionArchive(submission);
+        return storageService.getProjectSubmissionArchive(
+                getProjectSubmissionIfPermitted(user, projectId, submissionId)
+        );
     }
 
     @GetMapping("/{submissionId}/download/extra")
@@ -85,6 +72,12 @@ public class ProjectSubmissionController {
                                                     @PathVariable UUID projectId,
                                                     @PathVariable UUID submissionId,
                                                     @RequestParam String filename) {
+        return storageService.getProjectSubmissionExtraFile(
+                getProjectSubmissionIfPermitted(user, projectId, submissionId),
+                filename);
+    }
+
+    private ProjectSubmission getProjectSubmissionIfPermitted(UserDto user, UUID projectId, UUID submissionId) {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
@@ -100,7 +93,7 @@ public class ProjectSubmissionController {
             throw new ForbiddenException(user, "You cannot download this submission");
         }
 
-        return storageService.getProjectSubmissionExtraFile(submission, filename);
+        return submission;
     }
 
     @GetMapping("/users")
