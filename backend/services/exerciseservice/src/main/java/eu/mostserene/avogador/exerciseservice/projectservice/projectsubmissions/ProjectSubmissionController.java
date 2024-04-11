@@ -117,15 +117,17 @@ public class ProjectSubmissionController {
 
     @GetMapping("/users/{userId}")
     private List<ProjectSubmission> getUserProjectSubmissions(@RequestHeader(name = "User") UserDto user,
-                                                              @PathVariable UUID projectId,
-                                                              @PathVariable UUID userId) {
+                                                              @PathVariable UUID projectId, @PathVariable UUID userId,
+                                                              @RequestParam(defaultValue = "false") boolean latest) {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
                 .orElseThrow(NotFoundException::new);
 
-        List<ProjectSubmission> submissions = projectSubmissionService.getUserSubmissions(project, userId);
+        List<ProjectSubmission> submissions = latest ?
+                projectSubmissionService.getLatestUserSubmissions(project, userId) :
+                projectSubmissionService.getUserSubmissions(project, userId);
 
         if (submissions.isEmpty()) {
             return List.of();

@@ -55,7 +55,7 @@ public class ProjectController {
             throw new ForbiddenException(user, "You are not a course member");
         }
 
-        if (user.getIsSuperuser() || course.getRole().getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+        if (user.getIsSuperuser() || course.getRole().hasCollaboratorClearance()) {
             return null;
         }
         return userProjectService.joinProject(user, project);

@@ -19,4 +19,5 @@ public interface ProjectSubmissionService {
 
     List<ProjectSubmission> getUsersLastProjectSubmissions(Project project, List<UUID> users);
 
+    List<ProjectSubmission> getLatestUserSubmissions(Project project, UUID userId);
 }

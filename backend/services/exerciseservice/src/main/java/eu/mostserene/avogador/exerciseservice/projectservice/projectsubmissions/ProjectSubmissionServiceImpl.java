@@ -95,4 +95,10 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
                 .map(Optional::get)
                 .toList();
     }
+
+    @Override
+    public List<ProjectSubmission> getLatestUserSubmissions(Project project, UUID userId) {
+        return repository.findFirstByProject_IdAndUserIdOrderByTimestampDesc(project.getId(), userId)
+                .stream().toList();
+    }
 }
