@@ -6,4 +6,8 @@ import java.util.UUID;
 
 public interface NotebookProjectService {
     Optional<NotebookProject> getNotebookProject(UUID projectId);
+
+    NotebookProject createProject(NotebookProject project);
+
+    NotebookProject updateProject(NotebookProject project);
 }

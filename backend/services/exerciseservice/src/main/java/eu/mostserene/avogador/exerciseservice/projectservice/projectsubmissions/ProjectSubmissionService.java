@@ -15,6 +15,9 @@ public interface ProjectSubmissionService {
 
     ProjectSubmission setProjectSubmissionStatus(UUID submissionStatus, ProjectStatus status);
 
-    List<ProjectSubmission> getUserSubmissions(Project project, UserDto user);
+    List<ProjectSubmission> getUserSubmissions(Project project, UUID userId);
 
+    List<ProjectSubmission> getUsersLastProjectSubmissions(Project project, List<UUID> users);
+
+    List<ProjectSubmission> getLatestUserSubmissions(Project project, UUID userId);
 }

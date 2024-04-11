@@ -37,6 +37,7 @@ abstract public class Project {
     @ColumnDefault("false")
     private Boolean canSubmit = false;
 
+    @Setter
     @NotNull
     private Date deadline;
 

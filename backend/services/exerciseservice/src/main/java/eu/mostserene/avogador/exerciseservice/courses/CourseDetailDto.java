@@ -1,6 +1,8 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
 import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -21,5 +23,12 @@ public class CourseDetailDto {
         this.year = year;
         this.isArchived = isArchived;
         this.role = role;
+    }
+
+    public CourseDetailDto requireNotArchived() {
+        if (this.getIsArchived()) {
+            throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
+        }
+        return this;
     }
 }
