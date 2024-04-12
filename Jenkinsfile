@@ -74,12 +74,12 @@ pipeline {
                     if (env.BRANCH_NAME == 'master') {
                         sh """
                         BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build apigateway
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build exercises
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build storage
-                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build executor
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache apigateway
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache users
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache courses
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache exercises
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache storage
+                        BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache executor
 
                         BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
                         """
