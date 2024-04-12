@@ -11,6 +11,7 @@ import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -59,5 +60,19 @@ public class ProjectController {
             return null;
         }
         return userProjectService.joinProject(user, project);
+    }
+
+    @GetMapping("/courses/{courseId}")
+    private List<Project> getProjectsByCourse(@RequestHeader(name = "User") UserDto user,
+                                              @PathVariable UUID courseId) {
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
+                .orElseThrow(NotFoundException::new)
+                .requireNotArchived();
+
+        if (course.getRole().equals(CourseRole.EXTERNAL) && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You are not a course member");
+        }
+
+        return projectService.getProjectsByCourseId(courseId);
     }
 }
