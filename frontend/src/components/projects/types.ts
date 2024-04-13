@@ -7,4 +7,14 @@ interface Project {
   deadline: Date;
 }
 
-export type { Project };
+type ProjectStatus = "PENDING" | "ERROR" | "SUCCESS" | "CONFIRMED";
+
+interface ProjectSubmission {
+  id: string;
+  project: Project;
+  userId: string;
+  timestamp: Date;
+  status: ProjectStatus;
+}
+
+export type { Project, ProjectStatus, ProjectSubmission };

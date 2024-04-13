@@ -36,7 +36,7 @@ const CourseDetailCollaboratorScreen = () => {
     return {
       Overview: <CourseOverviewCollaboratorTab course={course} />,
       Tests: <CourseTrialsTab userCourse={course} />,
-      Projects: <CourseProjectsTab />,
+      Projects: <CourseProjectsTab userCourse={course} />,
       Members: <CourseMembersTab userCourse={course} />,
       Settings: <CourseSettingsTab />,
     };

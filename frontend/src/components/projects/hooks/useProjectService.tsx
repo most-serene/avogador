@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import JSZip from "jszip";
-import { Project } from "@components/projects/types.ts";
+import { Project, ProjectSubmission } from "@components/projects/types.ts";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
+import { User } from "@authentication/types.ts";
 
 const useProjectService = () => {
   const avogadorApi = useAvogadorApi();
@@ -81,9 +82,36 @@ const useProjectService = () => {
     [avogadorApi, createArchive, mapZipBlobToFormData],
   );
 
+  const getProjectsByCourse: (courseId: string) => Promise<Project[]> =
+    useCallback(
+      async (courseId: string) => {
+        const { data: projects }: { data: Project[] } = await avogadorApi.get(
+          `/projects/courses/${courseId}`,
+        );
+        return projects;
+      },
+      [avogadorApi],
+    );
+
+  const getUserLatestProjectSubmission: (
+    userId: User,
+    projectId: Project,
+  ) => Promise<ProjectSubmission | null> = useCallback(
+    async (user: User, project: Project) => {
+      const { data: projectSubmission }: { data: ProjectSubmission[] } =
+        await avogadorApi.get(
+          `/projects/${project.id}/submissions/users/${user.id}?latest=true`,
+        );
+      return projectSubmission.length > 0 ? projectSubmission[0] : null;
+    },
+    [avogadorApi],
+  );
+
   return {
     uploadProject,
     getProject,
+    getProjectsByCourse,
+    getUserLatestProjectSubmission,
   };
 };
 
