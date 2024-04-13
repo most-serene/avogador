@@ -66,8 +66,7 @@ public class ProjectController {
     private List<Project> getProjectsByCourse(@RequestHeader(name = "User") UserDto user,
                                               @PathVariable UUID courseId) {
         CourseDetailDto course = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
-                .orElseThrow(NotFoundException::new)
-                .requireNotArchived();
+                .orElseThrow(NotFoundException::new);
 
         if (course.getRole().equals(CourseRole.EXTERNAL) && !user.getIsSuperuser()) {
             throw new ForbiddenException(user, "You are not a course member");
