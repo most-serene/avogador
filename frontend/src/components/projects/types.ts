@@ -7,6 +7,10 @@ interface Project {
   deadline: Date;
 }
 
+interface NotebookProject extends Project {
+  kernel: NotebookKernel;
+}
+
 type ProjectStatus = "PENDING" | "ERROR" | "SUCCESS" | "CONFIRMED";
 
 type ProjectType = "NOTEBOOK" | "OTHER";
@@ -31,6 +35,7 @@ interface NotebookData extends ProjectData {
 
 export type {
   Project,
+  NotebookProject,
   ProjectStatus,
   ProjectType,
   ProjectSubmission,

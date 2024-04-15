@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
@@ -24,16 +24,23 @@ import userAtom from "@authentication/userAtom.ts";
 import { ForbiddenError } from "@error/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
-import { ProjectData, ProjectType } from "@components/projects/types.ts";
+import {
+  Project,
+  ProjectData,
+  ProjectType,
+} from "@components/projects/types.ts";
 import MarkdownEditor from "@structure/editors/MarkdownEditor.tsx";
 import NotebookCreationInfo from "@components/projects/projectCreationScreen/NotebookCreationInfo.tsx";
+import useProjectService from "@components/projects/hooks/useProjectService.tsx";
 
 const ProjectCreationScreen = () => {
   const [user] = useAtom(userAtom);
+  const navigate = useNavigate();
   const { state }: { state: null | { courseId: string } } = useLocation() as {
     state: null | { courseId: string };
   };
   const { getUserCourses } = useCourseService();
+  const { createProject } = useProjectService();
   const globalErrorSetter = useGlobalErrorSetter();
 
   const [courses, setCourses] = useState<UserCourse[]>([]);
@@ -45,9 +52,9 @@ const ProjectCreationScreen = () => {
   const [projectData, setProjectData] = useState<ProjectData>({
     isValid: false,
   });
+  const [canSubmit, setCanSubmit] = useState(true);
 
   const isFormValid = useMemo<boolean>(() => {
-    console.log(projectData);
     return (
       courseId !== "" &&
       projectName.trim() !== "" &&
@@ -111,7 +118,26 @@ const ProjectCreationScreen = () => {
   }, [getUserCourses, globalErrorSetter, state, user]);
 
   const handleProjectCreation = () => {
-    // TODO
+    const { isValid, ...data } = projectData;
+    const project: Omit<Project, "id"> = {
+      courseId: courseId,
+      name: projectName,
+      description: description,
+      canSubmit: true,
+      deadline: deadline,
+      ...data,
+    };
+    setCanSubmit(false);
+    createProject(project, projectType)
+      .then((project) => {
+        navigate(`/projects/${project.id}`);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      })
+      .finally(() => {
+        setCanSubmit(true);
+      });
   };
 
   const getProjectDataCreationComponent = (projectType: ProjectType) => {
@@ -223,7 +249,7 @@ const ProjectCreationScreen = () => {
             <Box display="flex" justifyContent="center">
               <Button
                 variant="outlined"
-                disabled={!isFormValid}
+                disabled={!isFormValid || !canSubmit}
                 onClick={handleProjectCreation}
               >
                 Create

@@ -15,6 +15,8 @@ import ProjectItem from "@components/projects/ProjectItem.tsx";
 import ProjectItemSkeleton from "@components/projects/ProjectItemSkeleton.tsx";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
 
 interface CourseProjectsTabProps {
   userCourse: UserCourseDetail | undefined;
@@ -30,6 +32,8 @@ const CreateProjectButton = ({ courseId }: CreateProjectButtonProps) => {
   return (
     <Card
       sx={{
+        minWidth: { xs: "14rem" },
+        flexBasis: "auto",
         height: "100%",
         border: 2,
         borderColor: "primary.main",
@@ -40,6 +44,7 @@ const CreateProjectButton = ({ courseId }: CreateProjectButtonProps) => {
     >
       <CardActionArea
         sx={{ height: "100%" }}
+        component="a"
         onClick={() => {
           navigate("/projects/new", {
             state: {
@@ -54,6 +59,9 @@ const CreateProjectButton = ({ courseId }: CreateProjectButtonProps) => {
           alignItems="center"
           height="100%"
           padding={2}
+          sx={{
+            whiteSpace: "nowrap",
+          }}
         >
           <Add fontSize={"large"} sx={{ mr: 2 }} />
           <Typography variant="h5"> New project </Typography>
@@ -64,8 +72,9 @@ const CreateProjectButton = ({ courseId }: CreateProjectButtonProps) => {
 };
 
 const CourseProjectsTab = ({ userCourse }: CourseProjectsTabProps) => {
-  const [projects, setProjects] = useState<Project[]>();
+  const [user] = useAtom(userAtom);
   const { getProjectsByCourse } = useProjectService();
+  const [projects, setProjects] = useState<Project[]>();
 
   useEffect(() => {
     if (userCourse == null) return;
@@ -103,9 +112,12 @@ const CourseProjectsTab = ({ userCourse }: CourseProjectsTabProps) => {
             }}
             className={"hidden-scrollbar"}
           >
-            {userCourse != null && (
-              <CreateProjectButton courseId={userCourse.id} />
-            )}
+            {userCourse != null &&
+              (userCourse.role === "COLLABORATOR" ||
+                userCourse.role === "ADMIN" ||
+                (user != null && user.isSuperuser)) && (
+                <CreateProjectButton courseId={userCourse.id} />
+              )}
             {projects
               ?.filter((project) => project.deadline > new Date())
               .map((project) => (
