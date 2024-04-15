@@ -3,6 +3,7 @@ version: "3.8"
 services:
   apigateway:
     image: "repository.mostserene.eu/mostserene/avogador-apigateway:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/apigateway
@@ -42,6 +43,7 @@ services:
 
   users:
     image: "repository.mostserene.eu/mostserene/avogador-userservice:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/services/userservice
@@ -98,6 +100,7 @@ services:
 
   courses:
     image: "repository.mostserene.eu/mostserene/avogador-courseservice:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/services/courseservice
@@ -142,6 +145,7 @@ services:
 
   exercises:
     image: "repository.mostserene.eu/mostserene/avogador-exerciseservice:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/services/exerciseservice
@@ -183,6 +187,7 @@ services:
 
   storage:
     image: "repository.mostserene.eu/mostserene/avogador-storageservice:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/services/storageservice
@@ -223,6 +228,7 @@ services:
 
   executor:
     image: "repository.mostserene.eu/mostserene/avogador-executorservice:${BRANCH:-latest}" 
+    pull_policy: always
     restart: always
     build:
       context: ./backend/services/executorservice
@@ -262,6 +268,7 @@ services:
   rabbitmq:
     hostname: avogador-rabbitmq
     image: rabbitmq:3-management
+    pull_policy: always
     logging:
       driver: json-file
       options:
@@ -285,6 +292,7 @@ services:
 
   webapp:
     image: repository.mostserene.eu/mostserene/avogador-webapp:${BRANCH:-latest}
+    pull_policy: always
     restart: always
     build:
       context: ./frontend
@@ -308,6 +316,7 @@ services:
   kuma:
     hostname: uptime-kuma
     image: louislam/uptime-kuma:1
+    pull_policy: always
     restart: always
     logging:
       driver: json-file
