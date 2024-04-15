@@ -45,6 +45,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh', 'prettier'],
   rules: {
+    "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },

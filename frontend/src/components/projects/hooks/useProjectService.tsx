@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import JSZip from "jszip";
-import { Project, ProjectSubmission } from "@components/projects/types.ts";
+import {
+  Project,
+  ProjectSubmission,
+  ProjectType,
+} from "@components/projects/types.ts";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
@@ -107,11 +111,24 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const createProject: (
+    project: Omit<Project, "id">,
+    type: ProjectType,
+  ) => Promise<Project> = useCallback(
+    async (project: Omit<Project, "id">, type: ProjectType) => {
+      const { data: createdProject }: { data: Project } =
+        await avogadorApi.post(`projects/${type.toLowerCase()}`, project);
+      return createdProject;
+    },
+    [avogadorApi],
+  );
+
   return {
     uploadProject,
     getProject,
     getProjectsByCourse,
     getUserLatestProjectSubmission,
+    createProject,
   };
 };
 

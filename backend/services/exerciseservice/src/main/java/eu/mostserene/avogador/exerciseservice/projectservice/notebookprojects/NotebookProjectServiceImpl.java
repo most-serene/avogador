@@ -33,7 +33,7 @@ public class NotebookProjectServiceImpl implements NotebookProjectService {
                 project.getDeadline(),
                 project.getKernel()
         ));
-        storageService.createProject(project);
+        storageService.createProject(savedProject);
         return savedProject;
     }
 
