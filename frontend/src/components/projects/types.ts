@@ -9,6 +9,8 @@ interface Project {
 
 type ProjectStatus = "PENDING" | "ERROR" | "SUCCESS" | "CONFIRMED";
 
+type ProjectType = "NOTEBOOK" | "OTHER";
+
 interface ProjectSubmission {
   id: string;
   project: Project;
@@ -17,4 +19,22 @@ interface ProjectSubmission {
   status: ProjectStatus;
 }
 
-export type { Project, ProjectStatus, ProjectSubmission };
+type NotebookKernel = "IPYKERNEL";
+
+interface ProjectData {
+  isValid: boolean;
+}
+
+interface NotebookData extends ProjectData {
+  kernel: NotebookKernel | undefined;
+}
+
+export type {
+  Project,
+  ProjectStatus,
+  ProjectType,
+  ProjectSubmission,
+  NotebookKernel,
+  ProjectData,
+  NotebookData,
+};

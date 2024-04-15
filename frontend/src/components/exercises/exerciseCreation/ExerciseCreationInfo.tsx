@@ -10,7 +10,6 @@ import {
   InputLabel,
   Select,
   TextField,
-  useTheme,
 } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
 const MenuItem = lazy(() => import("@mui/material/MenuItem"));
@@ -26,24 +25,7 @@ import { ForbiddenError } from "@error/types.ts";
 const Grid = lazy(() => import("@mui/material/Grid"));
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 const Box = lazy(() => import("@mui/material/Box"));
-import { MDXEditor } from "@mdxeditor/editor/MDXEditor";
-import {
-  headingsPlugin,
-  listsPlugin,
-  quotePlugin,
-  thematicBreakPlugin,
-  markdownShortcutPlugin,
-  UndoRedo,
-  BoldItalicUnderlineToggles,
-  Separator,
-  CodeToggle,
-  ListsToggle,
-  InsertThematicBreak,
-  InsertTable,
-  tablePlugin,
-} from "@mdxeditor/editor";
-import { toolbarPlugin } from "@mdxeditor/editor/plugins/toolbar";
-import "@mdxeditor/editor/style.css";
+import MarkdownEditor from "@structure/editors/MarkdownEditor.tsx";
 const OldMarkdownEditor = lazy(
   () =>
     import("@exercises/exerciseCreation/mardownEditors/OldMarkdownEditor.tsx"),
@@ -59,7 +41,6 @@ const ExerciseCreationInfo = ({
   const globalErrorSetter = useGlobalErrorSetter();
   const { getUserCourses } = useCourseService();
   const { getTrialsByCourseId, isTrialEnded } = useTrialService();
-  const theme = useTheme();
   const [user] = useAtom(userAtom);
   const [areCoursesFetched, setAreCoursesFetched] = useState(false);
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
@@ -265,56 +246,12 @@ const ExerciseCreationInfo = ({
             <OldMarkdownEditor />
           ) : (
             <Grid item xs={12}>
-              <Box
-                sx={{
-                  border: 1,
-                  borderColor: "rgba(122, 122, 122, 0.5)",
-                  borderRadius: 0.5,
+              <MarkdownEditor
+                value={exercise.statement}
+                onChange={(markdown) => {
+                  setExercise({ ...exercise, statement: markdown });
                 }}
-              >
-                <MDXEditor
-                  className={
-                    theme.palette.mode === "light"
-                      ? "light-theme"
-                      : "dark-theme"
-                  }
-                  markdown={exercise.statement}
-                  onChange={(markdown) => {
-                    setExercise({ ...exercise, statement: markdown });
-                  }}
-                  plugins={[
-                    headingsPlugin(),
-                    listsPlugin(),
-                    quotePlugin(),
-                    thematicBreakPlugin(),
-                    markdownShortcutPlugin(),
-                    tablePlugin(),
-                    toolbarPlugin({
-                      toolbarContents: () => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            width: "100%",
-                            borderBottom: 1,
-                            borderColor: "rgba(122, 122, 122, 0.5)",
-                            borderRadius: 0.5,
-                          }}
-                        >
-                          <UndoRedo />
-                          <Separator />
-                          <BoldItalicUnderlineToggles />
-                          <CodeToggle />
-                          <Separator />
-                          <ListsToggle />
-                          <Separator />
-                          <InsertTable />
-                          <InsertThematicBreak />
-                        </Box>
-                      ),
-                    }),
-                  ]}
-                />
-              </Box>
+              />
             </Grid>
           )}
         </Grid>
