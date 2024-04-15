@@ -83,13 +83,7 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'master') {
                         sh """
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push webapp
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push apigateway
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push users
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push courses
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push exercises
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push storage
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push executor
+                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
                         """
                     }
                 }
