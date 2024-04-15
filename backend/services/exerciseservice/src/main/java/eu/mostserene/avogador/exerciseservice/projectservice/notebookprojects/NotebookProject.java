@@ -22,15 +22,16 @@ public class NotebookProject extends Project {
     @Enumerated(EnumType.STRING)
     private NotebookKernel kernel;
 
-    @Override
-    public ProjectType getProjectType() {
-        return ProjectType.NOTEBOOK;
-    }
-
     public NotebookProject() {
     }
 
-    public NotebookProject(UUID courseId, String name, String description, Boolean canSubmit, Date deadline) {
+    public NotebookProject(UUID courseId, String name, String description, Boolean canSubmit, Date deadline, NotebookKernel kernel) {
         super(courseId, name, description, canSubmit, deadline);
+        this.kernel = kernel;
+    }
+
+    @Override
+    public ProjectType getProjectType() {
+        return ProjectType.NOTEBOOK;
     }
 }

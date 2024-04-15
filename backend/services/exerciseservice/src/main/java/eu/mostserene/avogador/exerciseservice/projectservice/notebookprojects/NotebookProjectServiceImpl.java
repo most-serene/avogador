@@ -30,7 +30,8 @@ public class NotebookProjectServiceImpl implements NotebookProjectService {
                 project.getName(),
                 project.getDescription(),
                 project.getCanSubmit(),
-                project.getDeadline()
+                project.getDeadline(),
+                project.getKernel()
         ));
         storageService.createProject(project);
         return savedProject;
