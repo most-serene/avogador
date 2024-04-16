@@ -47,6 +47,10 @@ pipeline {
                 echo "Importing application.properties"
 
                 sh """
+                    cat backend/apigateway/build.gradle.kts
+                """
+
+                sh """
                     cp /envvars/avogador/web.staging.env frontend/.env.staging
                     
                     mkdir -p backend/apigateway/src/test/resources
@@ -74,7 +78,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'master') {
                         sh """
                             docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build apigateway
+                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache apigateway
                             docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
                             docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
                             docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build exercises
