@@ -1,6 +1,7 @@
 FROM gradle:jdk17 as dev-builder
 WORKDIR /app
 COPY . .
+RUN cat build.gradle.kts
 RUN gradle build --no-daemon
 
 FROM gradle:jdk17 as prod-builder
