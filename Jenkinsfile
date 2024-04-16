@@ -77,16 +77,15 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'master') {
                         sh """
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache apigateway
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build exercises
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build storage
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build executor
-
-                            docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build --no-cache apigateway
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build users
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build courses
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build exercises
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build storage
+                            DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build executor
                         """
+                        // BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env push
                     } else {
                         sh """
                             docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env build webapp
@@ -127,9 +126,9 @@ pipeline {
                 //ssh ${STAGING_HOST} 'bin/MaintenanceAvogador' || true
                 //ssh ${STAGING_HOST} 'bin/NotMaintenanceAvogador'
                 withEnv(readFile("/envvars/avogador/jenkinsEnv.txt").split('\n') as List) {
+                    // DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env pull
                     sh """
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env pull
-                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d
+                    DOCKER_HOST=${STAGING_DOCKER_ENGINE} BRANCH=${env.BRANCH_NAME} docker compose -f docker-compose-staging.yml --project-name avogador --env-file /envvars/avogador/staging.env up -d --build
                     """
                 }
                 echo 'Staging Deliver finished'

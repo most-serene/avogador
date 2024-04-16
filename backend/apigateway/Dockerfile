@@ -1,4 +1,4 @@
-FROM gradle:jdk17 as dev-builder2
+FROM gradle:jdk17 as dev-builder
 WORKDIR /app
 COPY . .
 RUN cat build.gradle.kts
@@ -16,7 +16,7 @@ COPY --from=base build/reports/tests /reports
 
 FROM openjdk AS run
 ARG JAR_FILE=/app/build/libs/*.jar
-COPY --from=dev-builder2 ${JAR_FILE} app.jar
+COPY --from=dev-builder ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
 
 FROM openjdk AS prod-run
