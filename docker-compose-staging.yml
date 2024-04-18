@@ -29,8 +29,8 @@ services:
       server.error.include-message: always
       # jwt.secret: ${JWT_SECRET}
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
-      # spring.servlet.multipart.max-file-size: 2GB
-      # spring.servlet.multipart.max-request-size: 2GB
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       spring.profiles.active: ${APIGATEWAY_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
@@ -176,8 +176,8 @@ services:
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
       server.error.include-message: always
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
-      # spring.servlet.multipart.max-file-size: 2GB
-      # spring.servlet.multipart.max-request-size: 2GB
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       spring.profiles.active: ${EXERCISESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
@@ -213,8 +213,8 @@ services:
       spring.output.ansi.enabled: ${SPRING_OUTPUT_ANSI_ENABLED}
       server.error.include-message: always
       # rabbit.hostname: ${RABBITMQ_BROKER_HOST}
-      # spring.servlet.multipart.max-file-size: 2GB
-      # spring.servlet.multipart.max-request-size: 2GB
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       spring.profiles.active: ${STORAGESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
       server.shutdown: graceful
