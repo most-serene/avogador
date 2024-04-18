@@ -2,11 +2,13 @@ package eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions
 
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import eu.mostserene.avogador.exerciseservice.storage.TreeNode;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +48,17 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
          */
 
         try {
-            storageService.createProjectSubmission(submission, convertZipToTarGz(submission, file));
+            Pair<File, String> pair = convertZipToTarGz(submission, file);
+            File submissionFile = pair.getLeft();
+            String submissionFileTree = pair.getRight();
+            storageService.createProjectSubmission(submission, submissionFile, submissionFileTree);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return submission;
     }
 
-    private File convertZipToTarGz(ProjectSubmission submission, MultipartFile file) throws IOException {
+    private Pair<File, String> convertZipToTarGz(ProjectSubmission submission, MultipartFile file) throws IOException {
         File tempDir = Files.createTempDirectory(submission.getId().toString()).toFile();
         File zipArchive = new File(tempDir + "/archive.zip");
         file.transferTo(zipArchive);
@@ -64,7 +69,9 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
         Archiver tarGzArchiver = ArchiverFactory.createArchiver("tar", "gz");
         tarGzArchiver.create("project", tempDir, new File(tempDir + "/project"));
 
-        return new File(tempDir + "/project.tar.gz");
+        return Pair.of(new File(tempDir + "/project.tar.gz"),
+                TreeNode.renderDirectoryTree(TreeNode.createDirTree(new File(tempDir + "/project")))
+        );
     }
 
     @Override

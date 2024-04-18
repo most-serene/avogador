@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 
 public interface StorageService {
@@ -54,11 +55,13 @@ public interface StorageService {
 
     // void deleteProjectSubmission(ProjectSubmission submission);
 
-    void createProjectSubmission(ProjectSubmission submission, File file);
+    void createProjectSubmission(ProjectSubmission submission, File file, String fileTree);
 
     void createProject(Project project);
 
     Resource getProjectSubmissionArchive(ProjectSubmission submission);
+
+    void addProjectSubmissionExtraFile(ProjectSubmission submission, String filename, File file, Consumer<File> cleanup);
 
     Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename);
 }
