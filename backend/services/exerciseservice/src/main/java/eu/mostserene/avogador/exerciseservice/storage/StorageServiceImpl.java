@@ -29,9 +29,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @Transactional
 @Service
@@ -266,14 +269,28 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void createProjectSubmission(ProjectSubmission submission, File file) {
+    public void createProjectSubmission(ProjectSubmission submission, File file, String fileTree) {
         String endpoint = "http://storage/courses/" + submission.getProject().getCourseId() +
                 "/projects/ " + submission.getProject().getId() +
                 "/submissions/" + submission.getId();
         new Thread(() -> {
-            uploadMultipartFileToStorage(endpoint, file);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.postForObject(endpoint, getBodyToUploadMultipartFile(file), MultiValueMap.class,
+                    getHeadersToUploadMultipartFile());
             FileUtils.deleteQuietly(file.getParentFile());
+
+            uploadProjectSubmissionFileTree(submission, fileTree);
         }).start();
+    }
+
+    private void uploadProjectSubmissionFileTree(ProjectSubmission submission, String fileTree) {
+        try {
+            File tempTreeFile = Files.createTempFile(submission.getId() + "-tree", ".txt").toFile();
+            FileUtils.writeStringToFile(tempTreeFile, fileTree, StandardCharsets.UTF_8);
+            addProjectSubmissionExtraFile(submission, "tree.txt", tempTreeFile, FileUtils::deleteQuietly);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -293,23 +310,39 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
+    public void addProjectSubmissionExtraFile(ProjectSubmission submission, String filename, File file, Consumer<File> cleanup) {
+        String endpoint = "http://storage/courses/" + submission.getProject().getCourseId() +
+                "/projects/ " + submission.getProject().getId() +
+                "/submissions/" + submission.getId() + "?filename=" + filename;
+        new Thread(() -> {
+            RestTemplate restTemplate = new RestTemplate();
+
+            restTemplate.put(endpoint, getBodyToUploadMultipartFile(file), MultiValueMap.class,
+                    getHeadersToUploadMultipartFile());
+            cleanup.accept(file);
+        }).start();
+    }
+
+    @Override
     public Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename) {
         return new RestTemplateBuilder()
                 .build()
                 .getForObject("http://storage/courses/" + submission.getProject().getCourseId() +
                                 "/projects/ " + submission.getProject().getId() +
-                                "/submissions/" + submission.getId() + "?filename=" + filename,
+                                "/submissions/" + submission.getId() + "/extra?filename=" + filename,
                         Resource.class);
     }
 
-    private void uploadMultipartFileToStorage(String endpoint, File file) {
-        RestTemplate restTemplate = new RestTemplate();
+    private HttpHeaders getHeadersToUploadMultipartFile() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        return headers;
+    }
+
+    private MultiValueMap<String, Object> getBodyToUploadMultipartFile(File file) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new FileSystemResource(file));
-
-        restTemplate.postForObject(endpoint, body, MultiValueMap.class, headers);
+        return body;
     }
 
     @Data
