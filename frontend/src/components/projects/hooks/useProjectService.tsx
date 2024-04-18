@@ -53,6 +53,7 @@ const useProjectService = () => {
       projectId: string,
       files: FileList,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
+      onFinish: () => void,
     ) => {
       createArchive(files)
         .then(mapZipBlobToFormData)
@@ -66,7 +67,7 @@ const useProjectService = () => {
             })
             .then(() => {
               enqueueSnackbar("Project submitted, waiting for execution", {
-                variant: "info",
+                variant: "success",
               });
             })
             .catch((err: Error) => {
@@ -74,6 +75,9 @@ const useProjectService = () => {
               enqueueSnackbar(err.message, {
                 variant: "error",
               });
+            })
+            .finally(() => {
+              onFinish();
             });
         })
         .catch((err: Error) => {
