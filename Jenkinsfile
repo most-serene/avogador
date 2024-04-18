@@ -40,7 +40,7 @@ pipeline {
     stages {
         stage('Build & Testing') {
             when {
-               anyOf { branch 'PR-*'; branch 'master'; tag "release-*" }
+               anyOf { branch 'PR-*'; branch 'master'; branch 'pipeline-fixes'; tag "release-*" }
             }
             steps {
                 setBuildPending()
