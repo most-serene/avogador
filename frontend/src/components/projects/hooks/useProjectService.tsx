@@ -98,8 +98,8 @@ const useProjectService = () => {
     );
 
   const getUserLatestProjectSubmission: (
-    userId: User,
-    projectId: Project,
+    user: User,
+    project: Project,
   ) => Promise<ProjectSubmission | null> = useCallback(
     async (user: User, project: Project) => {
       const { data: projectSubmission }: { data: ProjectSubmission[] } =

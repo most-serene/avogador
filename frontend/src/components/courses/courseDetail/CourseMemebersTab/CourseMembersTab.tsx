@@ -51,23 +51,27 @@ const columns: GridColDef<CourseMemberDetail>[] = [
     headerName: "Given Name",
     valueGetter: (params) => params.row.user.givenName,
     flex: 1,
+    minWidth: 100,
   },
   {
     field: "familyName",
     headerName: "Family Name",
     valueGetter: (params) => params.row.user.familyName,
     flex: 1,
+    minWidth: 150,
   },
   {
     field: "role",
     headerName: "Role",
     flex: 0.5,
+    minWidth: 100,
   },
   {
     field: "joinDate",
     headerName: "Joined on",
     valueGetter: (params) => format(params.row.joinDate, "yyyy/MM/dd HH:mm"),
     flex: 1,
+    minWidth: 150,
   },
 ];
 
