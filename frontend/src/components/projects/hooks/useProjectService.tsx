@@ -10,7 +10,6 @@ import {
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
 import { User } from "@authentication/types.ts";
-import * as string_decoder from "string_decoder";
 
 const useProjectService = () => {
   const avogadorApi = useAvogadorApi();
