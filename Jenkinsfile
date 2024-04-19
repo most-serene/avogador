@@ -169,6 +169,7 @@ pipeline {
                     junit allowEmptyResults: true, testResults: '**/test-results/**/*.xml'
                 }
             }
+            deleteDir() /* clean up our workspace */
 
             // junit allowEmptyResults: true, testResults: 'frontend/reports/*.xml'    
         }
