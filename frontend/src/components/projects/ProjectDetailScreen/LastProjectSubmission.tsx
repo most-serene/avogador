@@ -6,6 +6,9 @@ import {
   ProjectStatus,
   ProjectSubmission,
 } from "@components/projects/types.ts";
+import useProjectService from "@components/projects/hooks/useProjectService.tsx";
+import { useEffect, useState } from "react";
+import { enqueueSnackbar } from "notistack";
 
 const getSubmissionStatusBadge = (status: ProjectStatus) => {
   const getProps = (
@@ -35,6 +38,19 @@ interface LastProjectSubmissionProps {
 }
 
 const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
+  const { getSubmissionTree } = useProjectService();
+  const [tree, setTree] = useState<string>();
+
+  useEffect(() => {
+    getSubmissionTree(submission)
+      .then((result) => {
+        setTree(result.toString());
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  }, [submission, getSubmissionTree]);
+
   return (
     <>
       <Typography variant={"h4"}>Your last submission</Typography>
@@ -101,7 +117,17 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
       </Box>
       <Divider sx={{ mb: 2 }} />
       <Typography variant={"h5"}>Structure</Typography>
-      <Typography fontFamily={"monospace"}>Tree view</Typography>
+      <Box overflow={"auto"}>
+        <Typography
+          fontFamily={"monospace"}
+          sx={{
+            whiteSpace: "pre",
+            display: "inline",
+          }}
+        >
+          {tree}
+        </Typography>
+      </Box>
     </>
   );
 };

@@ -9,14 +9,15 @@ import {
   Typography,
 } from "@mui/material";
 import useProjectService from "../hooks/useProjectService.tsx";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Project } from "@components/projects/types.ts";
 
 interface ProjectUpladForm {
   project: Project;
+  children: ReactNode;
 }
 
-const ProjectUploadForm = ({ project }: ProjectUpladForm) => {
+const ProjectUploadForm = ({ project, children }: ProjectUpladForm) => {
   const { uploadProject } = useProjectService();
   const [showFileInput, setShowFileInput] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
@@ -48,7 +49,9 @@ const ProjectUploadForm = ({ project }: ProjectUpladForm) => {
           <CircularProgress
             color="primary"
             size={"5rem"}
-            variant={"determinate"}
+            variant={
+              Math.floor(progress ?? 0) == 100 ? "indeterminate" : "determinate"
+            }
             value={progress}
           />
           <Box
@@ -63,12 +66,14 @@ const ProjectUploadForm = ({ project }: ProjectUpladForm) => {
               justifyContent: "center",
             }}
           >
-            <Typography variant="h6">{Math.round(progress ?? 0)}%</Typography>
+            <Typography variant="h6">{Math.floor(progress ?? 0)}%</Typography>
           </Box>
         </Box>
-        <Typography textAlign={"center"}>
-          Remaining: {Math.round(eta ?? 0)}s
-        </Typography>
+        {Math.floor(progress ?? 0) !== 100 && (
+          <Typography textAlign={"center"}>
+            Remaining: {Math.round(eta ?? 0)}s
+          </Typography>
+        )}
       </Backdrop>
 
       <Card
@@ -132,6 +137,7 @@ const ProjectUploadForm = ({ project }: ProjectUpladForm) => {
             ></input>
           </Box>
         )}
+
         <CardContent
           className={"hidden-scrollbar"}
           sx={{
@@ -142,18 +148,7 @@ const ProjectUploadForm = ({ project }: ProjectUpladForm) => {
             overflowY: "scroll",
           }}
         >
-          <Box
-            sx={{
-              minHeight: "7rem",
-              maxHeight: "45%",
-              overflowY: "scroll",
-            }}
-          >
-            <Typography variant={"h4"} sx={{ mb: 1 }}>
-              Description
-            </Typography>
-            <Typography variant={"body1"}>{project.description}</Typography>
-          </Box>
+          {children}
           <Divider sx={{ my: 2 }} />
           <Typography variant={"h4"} sx={{ mb: 1 }}>
             Submit

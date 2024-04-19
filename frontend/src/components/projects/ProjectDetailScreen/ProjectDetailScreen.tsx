@@ -138,13 +138,28 @@ const ProjectDetailScreen = () => {
         style={{ height: "100%", overflowY: "hidden" }}
       >
         <Grid item md={8} xs={12} sx={{ height: "100%" }}>
-          <ProjectUploadForm project={project} />
+          <ProjectUploadForm project={project}>
+            <Box
+              sx={{
+                minHeight: "7rem",
+                maxHeight: "45%",
+                overflowY: "auto",
+              }}
+            >
+              <Typography variant={"h4"} sx={{ mb: 1 }}>
+                Description
+              </Typography>
+              <Typography variant={"body1"}>{project.description}</Typography>
+            </Box>
+          </ProjectUploadForm>
         </Grid>
         <Grid item md={4} xs={12} sx={{ height: "100%" }}>
-          <Card>
-            <CardContent>
+          <Card sx={{ height: "100%" }}>
+            <CardContent
+              sx={{ display: "flex", flexFlow: "column", height: "100%" }}
+            >
               {lastSubmission === null && (
-                <Typography variant={"h5"}>No submissions found</Typography>
+                <Typography variant={"h5"}>No submission uploaded</Typography>
               )}
               {lastSubmission != null && (
                 <LastProjectSubmission submission={lastSubmission} />

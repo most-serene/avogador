@@ -10,6 +10,7 @@ import {
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
 import { User } from "@authentication/types.ts";
+import * as string_decoder from "string_decoder";
 
 const useProjectService = () => {
   const avogadorApi = useAvogadorApi();
@@ -115,6 +116,17 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const getSubmissionTree: (submission: ProjectSubmission) => Promise<File> =
+    useCallback(
+      async (submission: ProjectSubmission) => {
+        const { data: tree }: { data: File } = await avogadorApi.get(
+          `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=tree.txt`,
+        );
+        return tree;
+      },
+      [avogadorApi],
+    );
+
   const createProject: (
     project: Omit<Project, "id">,
     type: ProjectType,
@@ -132,6 +144,7 @@ const useProjectService = () => {
     getProject,
     getProjectsByCourse,
     getUserLatestProjectSubmission,
+    getSubmissionTree,
     createProject,
   };
 };
