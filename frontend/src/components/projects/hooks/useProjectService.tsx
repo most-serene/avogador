@@ -53,6 +53,7 @@ const useProjectService = () => {
       projectId: string,
       files: FileList,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
+      onFinish: () => void,
     ) => {
       createArchive(files)
         .then(mapZipBlobToFormData)
@@ -66,7 +67,7 @@ const useProjectService = () => {
             })
             .then(() => {
               enqueueSnackbar("Project submitted, waiting for execution", {
-                variant: "info",
+                variant: "success",
               });
             })
             .catch((err: Error) => {
@@ -74,6 +75,9 @@ const useProjectService = () => {
               enqueueSnackbar(err.message, {
                 variant: "error",
               });
+            })
+            .finally(() => {
+              onFinish();
             });
         })
         .catch((err: Error) => {
@@ -98,8 +102,8 @@ const useProjectService = () => {
     );
 
   const getUserLatestProjectSubmission: (
-    userId: User,
-    projectId: Project,
+    user: User,
+    project: Project,
   ) => Promise<ProjectSubmission | null> = useCallback(
     async (user: User, project: Project) => {
       const { data: projectSubmission }: { data: ProjectSubmission[] } =
@@ -110,6 +114,17 @@ const useProjectService = () => {
     },
     [avogadorApi],
   );
+
+  const getSubmissionTree: (submission: ProjectSubmission) => Promise<File> =
+    useCallback(
+      async (submission: ProjectSubmission) => {
+        const { data: tree }: { data: File } = await avogadorApi.get(
+          `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=tree.txt`,
+        );
+        return tree;
+      },
+      [avogadorApi],
+    );
 
   const createProject: (
     project: Omit<Project, "id">,
@@ -128,6 +143,7 @@ const useProjectService = () => {
     getProject,
     getProjectsByCourse,
     getUserLatestProjectSubmission,
+    getSubmissionTree,
     createProject,
   };
 };
