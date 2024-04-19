@@ -13,8 +13,16 @@ const SplashScreen = lazy(
 );
 import Navbar from "@components/structure/Navbar.tsx";
 import Footer from "@components/structure/Footer.tsx";
-import ProjectCreationScreen from "@components/projects/projectCreationScreen/ProjectCreationScreen.tsx";
-import ProjectDetailScreen from "@components/projects/ProjectDetailScreen/ProjectDetailScreen.tsx";
+const ProjectCreationScreen = lazy(
+  () =>
+    import(
+      "@components/projects/projectCreationScreen/ProjectCreationScreen.tsx"
+    ),
+);
+const ProjectDetailScreen = lazy(
+  () =>
+    import("@components/projects/ProjectDetailScreen/ProjectDetailScreen.tsx"),
+);
 const HomeScreen = lazy(() => import("@components/home/HomeScreen"));
 const Box = lazy(() => import("@mui/material/Box"));
 const AuthWrapper = lazy(() => import("./AuthWrapper.tsx"));
