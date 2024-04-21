@@ -22,6 +22,8 @@ services:
       server.error.include-message: always
       spring.profiles.active: ${APIGATEWAY_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       server.shutdown: graceful
       security.allowed.origins: ${APIGATEWAY_ALLOWED_ORIGINS}
     ports:
@@ -198,6 +200,8 @@ services:
       server.error.include-message: always
       spring.profiles.active: ${EXERCISESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       server.shutdown: graceful
     networks:
       - avogador-inner-network
@@ -256,6 +260,8 @@ services:
       server.error.include-message: always
       spring.profiles.active: ${STORAGESERVICE_PROFILE}
       spring.lifecycle.timeout-per-shutdown-phase: 1m
+      spring.servlet.multipart.max-file-size: 2GB
+      spring.servlet.multipart.max-request-size: 2GB
       server.shutdown: graceful
       fs.root: /avogador
     volumes:
