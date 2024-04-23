@@ -120,6 +120,9 @@ const useProjectService = () => {
       async (submission: ProjectSubmission) => {
         const { data: tree }: { data: File } = await avogadorApi.get(
           `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=tree.txt`,
+          {
+            responseType: "blob",
+          },
         );
         return tree;
       },
