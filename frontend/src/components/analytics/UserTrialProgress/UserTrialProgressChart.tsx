@@ -9,11 +9,11 @@ import { CircularProgress, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import Box from "@mui/material/Box";
 
-interface UserTrialProgressProps {
+interface UserTrialProgressChartProps {
   course?: Course;
 }
 
-const UserTrialProgressScreen = ({ course }: UserTrialProgressProps) => {
+const UserTrialProgressChart = ({ course }: UserTrialProgressChartProps) => {
   const { getUserTrialProgress } = useAnalyticsService();
   const [userTrialProgress, setUserTrialProgress] =
     useState<UserTrialProgress[]>();
@@ -82,4 +82,4 @@ const UserTrialProgressScreen = ({ course }: UserTrialProgressProps) => {
   );
 };
 
-export default UserTrialProgressScreen;
+export default UserTrialProgressChart;
