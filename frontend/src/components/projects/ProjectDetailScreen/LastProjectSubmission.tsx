@@ -9,6 +9,8 @@ import {
 import useProjectService from "@components/projects/hooks/useProjectService.tsx";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
+import { saveResponseToFile } from "../../../utils/fileHandling.ts";
+import { LoadingButton } from "@mui/lab";
 
 const getSubmissionStatusBadge = (status: ProjectStatus) => {
   const getProps = (
@@ -38,8 +40,31 @@ interface LastProjectSubmissionProps {
 }
 
 const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
-  const { getSubmissionTree } = useProjectService();
+  const { getSubmissionTree, downloadSubmissionArchive } = useProjectService();
   const [tree, setTree] = useState<string>();
+  const [downloadingSubmission, setDownloadingSubmission] = useState<string>();
+
+  const downloadSubmission = () => {
+    setDownloadingSubmission("0%");
+    downloadSubmissionArchive(submission, (progressEvent) => {
+      if (progressEvent.total != null) {
+        setDownloadingSubmission(
+          `${Math.round(
+            (100 * progressEvent.loaded) / progressEvent.total,
+          ).toString()}%`,
+        );
+      }
+    })
+      .then((res) => {
+        saveResponseToFile(res, "submission.tar.gz");
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      })
+      .finally(() => {
+        setDownloadingSubmission(undefined);
+      });
+  };
 
   useEffect(() => {
     getSubmissionTree(submission)
@@ -89,9 +114,15 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
             xs={12}
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <Button variant={"outlined"} startIcon={<Download />}>
+            <LoadingButton
+              loading={downloadingSubmission != null}
+              loadingIndicator={downloadingSubmission}
+              variant={"outlined"}
+              startIcon={<Download />}
+              onClick={downloadSubmission}
+            >
               Download ZIP
-            </Button>
+            </LoadingButton>
           </Grid>
           <Grid
             item
