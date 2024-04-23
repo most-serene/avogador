@@ -141,6 +141,22 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const downloadSubmissionArchive = useCallback(
+    (
+      submission: ProjectSubmission,
+      onDownloadProgress: (progressEvent: AxiosProgressEvent) => void,
+    ) => {
+      return avogadorApi.get(
+        `/projects/${submission.project.id}/submissions/${submission.id}/download`,
+        {
+          responseType: "blob",
+          onDownloadProgress,
+        },
+      );
+    },
+    [avogadorApi],
+  );
+
   return {
     uploadProject,
     getProject,
@@ -148,6 +164,7 @@ const useProjectService = () => {
     getUserLatestProjectSubmission,
     getSubmissionTree,
     createProject,
+    downloadSubmissionArchive,
   };
 };
 
