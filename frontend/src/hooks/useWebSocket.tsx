@@ -70,7 +70,7 @@ const useWebSocket = () => {
         if (isSocketConnected && websocketToken != undefined) {
           resolve(socketClient.subscribe(topic, cb, { token: websocketToken }));
         } else {
-          reject("Socket not connected");
+          reject(new Error("Socket not connected"));
         }
       });
     },
