@@ -1,6 +1,6 @@
 import { UserCourseDetail } from "@courses/types.ts";
 import { Card, CardContent, Grid } from "@mui/material";
-import UserTrialProgress from "@components/analytics/UserTrialProgress/UserTrialProgress.tsx";
+import UserTrialProgressScreen from "@components/analytics/UserTrialProgress/UserTrialProgressScreen.tsx";
 
 interface CourseOverviewTabProps {
   course: UserCourseDetail | undefined;
@@ -12,7 +12,7 @@ const CourseOverviewStudentTab = ({ course }: CourseOverviewTabProps) => {
       <Grid item xs={12}>
         <Card raised>
           <CardContent>
-            <UserTrialProgress course={course} />
+            <UserTrialProgressScreen course={course} />
           </CardContent>
         </Card>
       </Grid>

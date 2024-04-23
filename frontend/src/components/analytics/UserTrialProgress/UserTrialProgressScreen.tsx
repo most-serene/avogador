@@ -13,7 +13,7 @@ interface UserTrialProgressProps {
   course?: Course;
 }
 
-const UserTrialProgress = ({ course }: UserTrialProgressProps) => {
+const UserTrialProgressScreen = ({ course }: UserTrialProgressProps) => {
   const { getUserTrialProgress } = useAnalyticsService();
   const [userTrialProgress, setUserTrialProgress] =
     useState<UserTrialProgress[]>();
@@ -82,4 +82,4 @@ const UserTrialProgress = ({ course }: UserTrialProgressProps) => {
   );
 };
 
-export default UserTrialProgress;
+export default UserTrialProgressScreen;

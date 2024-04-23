@@ -39,7 +39,7 @@ const downloadQrCode = (course: UserCourseDetail) => {
     const pngFile = canvas.toDataURL("image/png");
     const downloadLink = document.createElement("a");
     downloadLink.download = `join ${course.name}`;
-    downloadLink.href = `${pngFile}`;
+    downloadLink.href = pngFile;
     downloadLink.click();
   };
   img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;

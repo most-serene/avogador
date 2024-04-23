@@ -143,7 +143,7 @@ const useCourseService = () => {
         return Promise.resolve();
       } catch (err) {
         enqueueSnackbar((err as Error).message, { variant: "error" });
-        return Promise.reject();
+        return Promise.reject(err as Error);
       }
     },
     [avogadorApi],
