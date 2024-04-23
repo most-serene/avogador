@@ -1,4 +1,12 @@
-import { Box, Button, Chip, Divider, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/material";
 import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 import { format } from "date-fns";
 import { Description, Download, Terminal } from "@mui/icons-material";
@@ -42,16 +50,14 @@ interface LastProjectSubmissionProps {
 const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
   const { getSubmissionTree, downloadSubmissionArchive } = useProjectService();
   const [tree, setTree] = useState<string>();
-  const [downloadingSubmission, setDownloadingSubmission] = useState<string>();
+  const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
 
   const downloadSubmission = () => {
-    setDownloadingSubmission("0%");
+    setDownloadingSubmission(0);
     downloadSubmissionArchive(submission, (progressEvent) => {
       if (progressEvent.total != null) {
         setDownloadingSubmission(
-          `${Math.round(
-            (100 * progressEvent.loaded) / progressEvent.total,
-          ).toString()}%`,
+          Math.round((100 * progressEvent.loaded) / progressEvent.total),
         );
       }
     })
@@ -116,7 +122,15 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
           >
             <LoadingButton
               loading={downloadingSubmission != null}
-              loadingIndicator={downloadingSubmission}
+              loadingIndicator={
+                <CircularProgress
+                  variant="determinate"
+                  value={downloadingSubmission}
+                  color="inherit"
+                  size={16}
+                />
+              }
+              loadingPosition={"start"}
               variant={"outlined"}
               startIcon={<Download />}
               onClick={downloadSubmission}
