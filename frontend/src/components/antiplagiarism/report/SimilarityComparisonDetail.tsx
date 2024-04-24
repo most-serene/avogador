@@ -83,9 +83,7 @@ const getSimilarityComparator =
 
 const getSimilarityNumberComparator =
   (report: PlagiarismReport, order: 1 | -1) => (a: string, b: string) =>
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     (Object.keys(report.comparisons[b] ?? {}).length -
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       Object.keys(report.comparisons[a] ?? {}).length) *
     order;
 
@@ -154,7 +152,6 @@ const SubmissionsList = ({
                   <Badge
                     color={
                       Object.values(
-                        /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */
                         report.comparisons[submissionId] ?? {},
                       ).some(
                         (comparison) =>
@@ -164,7 +161,6 @@ const SubmissionsList = ({
                         : "secondary"
                     }
                     badgeContent={
-                      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                       Object.keys(report.comparisons[submissionId] ?? {}).length
                     }
                   ></Badge>

@@ -1,4 +1,12 @@
-import { Box, Button, Chip, Divider, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/material";
 import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
 import { format } from "date-fns";
 import { Description, Download, Terminal } from "@mui/icons-material";
@@ -9,6 +17,8 @@ import {
 import useProjectService from "@components/projects/hooks/useProjectService.tsx";
 import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
+import { saveResponseToFile } from "../../../utils/fileHandling.ts";
+import { LoadingButton } from "@mui/lab";
 
 const getSubmissionStatusBadge = (status: ProjectStatus) => {
   const getProps = (
@@ -38,13 +48,35 @@ interface LastProjectSubmissionProps {
 }
 
 const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
-  const { getSubmissionTree } = useProjectService();
+  const { getSubmissionTree, downloadSubmissionArchive } = useProjectService();
   const [tree, setTree] = useState<string>();
+  const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
+
+  const downloadSubmission = () => {
+    setDownloadingSubmission(0);
+    downloadSubmissionArchive(submission, (progressEvent) => {
+      if (progressEvent.total != null) {
+        setDownloadingSubmission(
+          Math.round((100 * progressEvent.loaded) / progressEvent.total),
+        );
+      }
+    })
+      .then((res) => {
+        saveResponseToFile(res, "submission.tar.gz");
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      })
+      .finally(() => {
+        setDownloadingSubmission(undefined);
+      });
+  };
 
   useEffect(() => {
     getSubmissionTree(submission)
-      .then((result) => {
-        setTree(result.toString());
+      .then((result) => result.text())
+      .then((content) => {
+        setTree(content);
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
@@ -88,9 +120,23 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
             xs={12}
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <Button variant={"outlined"} startIcon={<Download />}>
+            <LoadingButton
+              loading={downloadingSubmission != null}
+              loadingIndicator={
+                <CircularProgress
+                  variant="determinate"
+                  value={downloadingSubmission}
+                  color="inherit"
+                  size={16}
+                />
+              }
+              loadingPosition={"start"}
+              variant={"outlined"}
+              startIcon={<Download />}
+              onClick={downloadSubmission}
+            >
               Download ZIP
-            </Button>
+            </LoadingButton>
           </Grid>
           <Grid
             item

@@ -12,9 +12,8 @@ export const useAuthService = () => {
 
   const getCurrent = useCallback(async () => {
     try {
-      const { data: responseUser }: { data: User } = await avogadorApi.get(
-        "/users/current",
-      );
+      const { data: responseUser }: { data: User } =
+        await avogadorApi.get("/users/current");
       return responseUser;
     } catch {
       return null;
