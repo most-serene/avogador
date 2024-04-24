@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/public/trials")
@@ -99,6 +100,14 @@ public class TrialController {
             throw new ResponseStatusException(HttpStatus.GONE, "The course is archived");
         }
 
+        final Function<Throwable, ? extends Void> onFailure = throwable -> {
+            userCourseService.getCourseCollaborators(trial.getCourseId())
+                    .forEach(userCourseDto -> sender.send("users", "users.notify.socket",
+                            new WebSocketMessage("/users/" + userCourseDto.getUserId() + "/trials/" + trial.getId() + "/similarity-report",
+                                    "Similarity report for " + trial.getName() + " ready (some failures)")));
+            return Void.TYPE.cast(new Object());
+        };
+
         CompletableFuture.allOf(
                         exercises.stream()
                                 .filter(exercise -> exercise.getExerciseType().equals(ExerciseType.CODING))
@@ -112,7 +121,7 @@ public class TrialController {
                         .forEach(userCourseDto -> sender.send("users", "users.notify.socket",
                                 new WebSocketMessage("/users/" + userCourseDto.getUserId() + "/trials/" + trial.getId() + "/similarity-report",
                                         "Similarity report for " + trial.getName() + " ready"))
-                        ));
+                        )).exceptionallyAsync(onFailure);
     }
 
     /**

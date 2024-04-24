@@ -7,6 +7,7 @@ import de.jplag.Language;
 import de.jplag.clustering.ClusteringOptions;
 import de.jplag.exceptions.BasecodeException;
 import de.jplag.exceptions.ExitException;
+import de.jplag.exceptions.SubmissionException;
 import de.jplag.options.JPlagOptions;
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReport;
@@ -61,7 +62,7 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
     private SimilarityReportRepository similarityReportRepository;
 
     @Override
-    public void executeSimilarityTool(CodingExercise exercise) {
+    public void executeSimilarityTool(CodingExercise exercise) throws RuntimeException {
         log.debug(LoggerColors.cyan("Similarity Job started on exercise - " + exercise.getId()));
         try {
             similarityCheckJob(exercise);
@@ -78,7 +79,10 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         } catch (Exception e) {
             log.error(LoggerColors.error("Similarity Job failed on exercise - " + exercise.getId()));
             log.error(LoggerColors.error(e.toString()));
-            Sentry.captureException(e);
+            if (!(e instanceof SubmissionException)) {
+                Sentry.captureException(e);
+            }
+            throw new RuntimeException(e);
         }
     }
 
@@ -92,12 +96,15 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
         return storageService.getSimilarityReport(exercise);
     }
 
-    private void similarityCheckJob(CodingExercise exercise) throws IOException {
+    private void similarityCheckJob(CodingExercise exercise) throws Exception {
         File workingDirectory = Files.createTempDirectory("avogador").toFile();
         try {
             File baseCode = getAndUnpackTemplate(exercise, workingDirectory);
 
             Map<UUID, PlagiarismUser> submissions = getSubmissionsForCheck(exercise);
+            if (submissions.isEmpty()) {
+                throw new SubmissionException("There are no submissions to check");
+            }
             File submissionsDirectories = getAndUnpackSubmissions(exercise, submissions.keySet().stream().toList(), workingDirectory);
 
             Language language = getLanguage(exercise);
@@ -109,8 +116,6 @@ public class AntiPlagiarismServiceImpl implements AntiPlagiarismService {
 
             handleToolRun(options, exercise, submissions, workingDirectory);
             storageService.uploadSimilarityReport(exercise, new File(workingDirectory + "/results/report.json"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         } finally {
             FileUtils.deleteDirectory(workingDirectory);
         }
