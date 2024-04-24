@@ -10,14 +10,20 @@ import {
 } from "@mui/material";
 import useProjectService from "../hooks/useProjectService.tsx";
 import { ReactNode, useState } from "react";
-import { Project } from "@components/projects/types.ts";
+import { Project, ProjectSubmission } from "@components/projects/types.ts";
+import { enqueueSnackbar } from "notistack";
 
 interface ProjectUpladForm {
   project: Project;
   children: ReactNode;
+  setSubmission: (submission: ProjectSubmission) => void;
 }
 
-const ProjectUploadForm = ({ project, children }: ProjectUpladForm) => {
+const ProjectUploadForm = ({
+  project,
+  children,
+  setSubmission,
+}: ProjectUpladForm) => {
   const { uploadProject } = useProjectService();
   const [showFileInput, setShowFileInput] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
@@ -39,7 +45,16 @@ const ProjectUploadForm = ({ project, children }: ProjectUpladForm) => {
         setProgress(undefined);
         setFiles(null);
       },
-    );
+    )
+      .then((response) => {
+        setSubmission(response);
+      })
+      .catch((err: Error) => {
+        console.error(err);
+        enqueueSnackbar(err.message, {
+          variant: "error",
+        });
+      });
   };
 
   return (

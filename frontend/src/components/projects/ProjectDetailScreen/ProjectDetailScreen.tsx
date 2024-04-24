@@ -138,7 +138,12 @@ const ProjectDetailScreen = () => {
         style={{ height: "100%", overflowY: "hidden" }}
       >
         <Grid item md={8} xs={12} sx={{ height: "100%" }}>
-          <ProjectUploadForm project={project}>
+          <ProjectUploadForm
+            project={project}
+            setSubmission={(submission) => {
+              setLastSubmission(submission);
+            }}
+          >
             <Box
               sx={{
                 minHeight: "7rem",
