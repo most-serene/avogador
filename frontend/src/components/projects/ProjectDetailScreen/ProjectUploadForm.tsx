@@ -13,7 +13,7 @@ import { ReactNode, useState } from "react";
 import { Project, ProjectSubmission } from "@components/projects/types.ts";
 import { enqueueSnackbar } from "notistack";
 
-interface ProjectUpladForm {
+interface ProjectUploadFormProps {
   project: Project;
   children: ReactNode;
   setSubmission: (submission: ProjectSubmission) => void;
@@ -23,7 +23,7 @@ const ProjectUploadForm = ({
   project,
   children,
   setSubmission,
-}: ProjectUpladForm) => {
+}: ProjectUploadFormProps) => {
   const { uploadProject } = useProjectService();
   const [showFileInput, setShowFileInput] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
