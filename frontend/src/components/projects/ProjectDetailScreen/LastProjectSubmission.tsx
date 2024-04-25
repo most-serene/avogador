@@ -96,8 +96,8 @@ const LastProjectSubmission = ({
       .then((content) => {
         setTree(content);
       })
-      .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
+      .catch(() => {
+        setTree(undefined);
       });
   }, [submission, getSubmissionTree]);
 

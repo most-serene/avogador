@@ -48,43 +48,40 @@ const useProjectService = () => {
     return form;
   }, []);
 
-  const uploadProject = useCallback(
+  const uploadProject: (
+    projectId: string,
+    files: FileList,
+    onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
+    onFinish: () => void,
+  ) => Promise<ProjectSubmission> = useCallback(
     (
       projectId: string,
       files: FileList,
       onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
       onFinish: () => void,
     ) => {
-      createArchive(files)
+      return createArchive(files)
         .then(mapZipBlobToFormData)
-        .then((form) => {
-          avogadorApi
-            .post(`/projects/notebook/${projectId}/submissions`, form, {
+        .then((form) =>
+          avogadorApi.post(
+            `/projects/notebook/${projectId}/submissions`,
+            form,
+            {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
               onUploadProgress,
-            })
-            .then(() => {
-              enqueueSnackbar("Project submitted, waiting for execution", {
-                variant: "success",
-              });
-            })
-            .catch((err: Error) => {
-              console.error(err);
-              enqueueSnackbar(err.message, {
-                variant: "error",
-              });
-            })
-            .finally(() => {
-              onFinish();
-            });
-        })
-        .catch((err: Error) => {
-          console.error(err);
-          enqueueSnackbar(err.message, {
-            variant: "error",
+            },
+          ),
+        )
+        .then(({ data: submission }: { data: ProjectSubmission }) => {
+          enqueueSnackbar("Project submitted, waiting for execution", {
+            variant: "success",
           });
+          return submission;
+        })
+        .finally(() => {
+          onFinish();
         });
     },
     [avogadorApi, createArchive, mapZipBlobToFormData],
