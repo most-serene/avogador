@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.amqp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mostserene.avogador.exerciseservice.projectservice.notebookprojects.NotebookProject;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
@@ -158,15 +159,23 @@ public class Receiver {
             throw new RuntimeException(e);
         }
 
-        Project project = projectService.getProjectById(projectSubmissionSavedDto.getProjectId())
+        ProjectSubmission projectSubmission = projectSubmissionService.getProjectSubmissionById(projectSubmissionSavedDto.getSubmissionId())
                 .orElseThrow(NotFoundException::new);
-        
+
         sender.send("executor", "exec.project.execute", new ProjectSubmissionExecutionDto(
                 projectSubmissionSavedDto.getSubmissionId(),
                 projectSubmissionSavedDto.getCourseId(),
                 projectSubmissionSavedDto.getProjectId(),
-                getFullProjectTypeForExecutor(project)
+                getFullProjectTypeForExecutor(projectSubmission.getProject())
         ));
+
+        try {
+            sender.send("users", "users.notify.socket", new WebSocketMessage("/" + projectSubmission.getId() + "/status",
+                    mapper.writeValueAsString(projectSubmission)
+            ));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getFullProjectTypeForExecutor(Project project) {
@@ -185,12 +194,10 @@ public class Receiver {
         try {
             ProjectSubmission projectSubmission = projectSubmissionService
                     .setProjectSubmissionStatus(projectSubmissionResultDto.getId(), projectSubmissionResultDto.getStatus());
-            /*
-            TODO: send socket notification to user and collaborator
-            sender.send("users", "users.notify.socket", new WebSocketMessage("/" + submissionResultDto.getSubmissionId() + "/results",
-                    mapper.writeValueAsString(submissionResultDto)
+
+            sender.send("users", "users.notify.socket", new WebSocketMessage("/" + projectSubmission.getId() + "/status",
+                    mapper.writeValueAsString(projectSubmission)
             ));
-             */
         } catch (Exception e) {
             log.error(LoggerColors.error(e.getMessage()));
             LoggerUtils.logErrorToSentry(e);

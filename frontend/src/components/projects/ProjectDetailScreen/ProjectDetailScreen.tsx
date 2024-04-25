@@ -22,6 +22,8 @@ import { CourseDetail } from "@courses/types.ts";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
 import LastProjectSubmission from "@components/projects/ProjectDetailScreen/LastProjectSubmission.tsx";
 import ProjectUploadForm from "@components/projects/ProjectDetailScreen/ProjectUploadForm.tsx";
+import useWebSocket from "@hooks/useWebSocket.tsx";
+import { Message } from "@stomp/stompjs";
 
 const ProjectDetailScreen = () => {
   const { projectId } = useParams();
@@ -36,6 +38,23 @@ const ProjectDetailScreen = () => {
   const [userCourse, setUserCourse] = useState<CourseDetail>();
   const [lastSubmission, setLastSubmission] =
     useState<ProjectSubmission | null>();
+
+  const { subscribe } = useWebSocket();
+
+  useEffect(() => {
+    if (lastSubmission == null) return;
+    subscribe(`/${lastSubmission.id}/status`, (message: Message) => {
+      console.log(message);
+      const projectSubmission = JSON.parse(message.body) as ProjectSubmission;
+      setLastSubmission({ ...projectSubmission });
+    })
+      .then(() => {
+        // empty-function
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [lastSubmission, subscribe]);
 
   useEffect(() => {
     if (user == null || projectId == null) return;
