@@ -324,13 +324,18 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename) {
-        return new RestTemplateBuilder()
-                .build()
-                .getForObject("http://storage/courses/" + submission.getProject().getCourseId() +
-                                "/projects/ " + submission.getProject().getId() +
-                                "/submissions/" + submission.getId() + "/extra?filename=" + filename,
-                        Resource.class);
+    public Optional<Resource> getProjectSubmissionExtraFile(ProjectSubmission submission, String filename) {
+        try {
+            Resource resource = new RestTemplateBuilder()
+                    .build()
+                    .getForObject("http://storage/courses/" + submission.getProject().getCourseId() +
+                                    "/projects/ " + submission.getProject().getId() +
+                                    "/submissions/" + submission.getId() + "/extra?filename=" + filename,
+                            Resource.class);
+            return resource == null ? Optional.empty() : Optional.of(resource);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     private HttpHeaders getHeadersToUploadMultipartFile() {
