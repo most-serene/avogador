@@ -111,6 +111,7 @@ const LastProjectSubmission = ({
           </Typography>
           {submission.status !== "CONFIRMED" && (
             <ButtonWithConfirmation
+              disabled={submission.status !== "SUCCESS"}
               variant={"outlined"}
               title={"Confirm submission"}
               description={
