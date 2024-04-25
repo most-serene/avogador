@@ -9,6 +9,7 @@ import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserPro
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -76,6 +77,24 @@ public class ProjectSubmissionController {
                         getProjectSubmissionIfPermitted(user, projectId, submissionId),
                         filename)
                 .orElseThrow(NotFoundException::new);
+    }
+
+    @PutMapping("/{submissionId}/confirm")
+    private ProjectSubmission confirmProjectSubmission(@RequestHeader(name = "User") UserDto user,
+                                                       @PathVariable UUID projectId,
+                                                       @PathVariable UUID submissionId) {
+        ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
+                .orElseThrow(NotFoundException::new);
+
+        if (!ProjectStatus.SUCCESS.equals(submission.getStatus())) {
+            throw new BadRequestException("A ProjectSubmission can be confirmed only if its status is SUCCESS");
+        }
+        
+        if (!user.getId().equals(submission.getUserId())) {
+            throw new ForbiddenException(user, "You cannot see this submission");
+        }
+
+        return projectSubmissionService.confirmSubmission(submission);
     }
 
     private ProjectSubmission getProjectSubmissionIfPermitted(UserDto user, UUID projectId, UUID submissionId) {

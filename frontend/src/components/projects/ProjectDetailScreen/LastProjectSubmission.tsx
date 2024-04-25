@@ -45,10 +45,15 @@ const getSubmissionStatusBadge = (status: ProjectStatus) => {
 
 interface LastProjectSubmissionProps {
   submission: ProjectSubmission;
+  setSubmission: (submission: ProjectSubmission) => void;
 }
 
-const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
-  const { getSubmissionTree, downloadSubmissionArchive } = useProjectService();
+const LastProjectSubmission = ({
+  submission,
+  setSubmission,
+}: LastProjectSubmissionProps) => {
+  const { getSubmissionTree, downloadSubmissionArchive, confirmSubmission } =
+    useProjectService();
   const [tree, setTree] = useState<string>();
   const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
 
@@ -72,6 +77,19 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
       });
   };
 
+  const onConfirm = () => {
+    confirmSubmission(submission)
+      .then(setSubmission)
+      .then(() => {
+        enqueueSnackbar("Submission confirmed successfully", {
+          variant: "success",
+        });
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
   useEffect(() => {
     getSubmissionTree(submission)
       .then((result) => result.text())
@@ -91,16 +109,15 @@ const LastProjectSubmission = ({ submission }: LastProjectSubmissionProps) => {
           <Typography variant={"h6"}>
             Status: {getSubmissionStatusBadge(submission.status)}
           </Typography>
-          {submission.status === "SUCCESS" && (
+          {submission.status !== "CONFIRMED" && (
             <ButtonWithConfirmation
+              disabled={submission.status !== "SUCCESS"}
               variant={"outlined"}
               title={"Confirm submission"}
               description={
                 "If you confirm the submission, you won't be able to modify it anymore. This action is irreversible."
               }
-              onConfirm={() => {
-                // TODO: Confirm submission code
-              }}
+              onConfirm={onConfirm}
             >
               Confirm Submission
             </ButtonWithConfirmation>

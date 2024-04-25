@@ -186,7 +186,10 @@ const ProjectDetailScreen = () => {
                 <Typography variant={"h5"}>No submission uploaded</Typography>
               )}
               {lastSubmission != null && (
-                <LastProjectSubmission submission={lastSubmission} />
+                <LastProjectSubmission
+                  submission={lastSubmission}
+                  setSubmission={setLastSubmission}
+                />
               )}
             </CardContent>
           </Card>
