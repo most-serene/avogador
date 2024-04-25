@@ -63,5 +63,5 @@ public interface StorageService {
 
     void addProjectSubmissionExtraFile(ProjectSubmission submission, String filename, File file, Consumer<File> cleanup);
 
-    Resource getProjectSubmissionExtraFile(ProjectSubmission submission, String filename);
+    Optional<Resource> getProjectSubmissionExtraFile(ProjectSubmission submission, String filename);
 }

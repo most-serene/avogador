@@ -73,8 +73,9 @@ public class ProjectSubmissionController {
                                                     @PathVariable UUID submissionId,
                                                     @RequestParam String filename) {
         return storageService.getProjectSubmissionExtraFile(
-                getProjectSubmissionIfPermitted(user, projectId, submissionId),
-                filename);
+                        getProjectSubmissionIfPermitted(user, projectId, submissionId),
+                        filename)
+                .orElseThrow(NotFoundException::new);
     }
 
     private ProjectSubmission getProjectSubmissionIfPermitted(UserDto user, UUID projectId, UUID submissionId) {
