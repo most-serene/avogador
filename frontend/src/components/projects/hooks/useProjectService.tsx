@@ -90,6 +90,19 @@ const useProjectService = () => {
     [avogadorApi, createArchive, mapZipBlobToFormData],
   );
 
+  const confirmSubmission: (
+    submission: ProjectSubmission,
+  ) => Promise<ProjectSubmission> = useCallback(
+    async (submission: ProjectSubmission) => {
+      const { data: confirmedSubmission }: { data: ProjectSubmission } =
+        await avogadorApi.put(
+          `/projects/${submission.project.id}/submissions/${submission.id}/confirm`,
+        );
+      return confirmedSubmission;
+    },
+    [avogadorApi],
+  );
+
   const getProjectsByCourse: (courseId: string) => Promise<Project[]> =
     useCallback(
       async (courseId: string) => {
@@ -159,6 +172,7 @@ const useProjectService = () => {
 
   return {
     uploadProject,
+    confirmSubmission,
     getProject,
     getProjectsByCourse,
     getUserLatestProjectSubmission,
