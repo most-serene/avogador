@@ -108,4 +108,14 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
         return repository.findFirstByProject_IdAndUserIdOrderByTimestampDesc(project.getId(), userId)
                 .stream().toList();
     }
+
+    @Override
+    public ProjectSubmission confirmSubmission(ProjectSubmission submission) {
+        if (!ProjectStatus.SUCCESS.equals(submission.getStatus())) {
+            throw new IllegalStateException("A ProjectSubmission can be confirmed only if its status is SUCCESS");
+        }
+
+        submission.setStatus(ProjectStatus.CONFIRMED);
+        return repository.save(submission);
+    }
 }
