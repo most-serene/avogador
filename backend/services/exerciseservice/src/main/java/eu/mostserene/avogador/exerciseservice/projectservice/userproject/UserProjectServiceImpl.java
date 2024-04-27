@@ -19,8 +19,8 @@ public class UserProjectServiceImpl implements UserProjectService {
     private UserProjectRepository repository;
 
     @Override
-    public Optional<UserProject> getUserProject(UUID projectId, UUID userId) {
-        return repository.findByProject_IdAndUserId(projectId, userId);
+    public Optional<UserProject> getUserProject(Project project, UserDto user) {
+        return repository.findByProject_IdAndUserId(project.getId(), user.getId());
     }
 
     @Override
