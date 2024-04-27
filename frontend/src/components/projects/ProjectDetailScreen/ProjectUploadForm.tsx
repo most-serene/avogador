@@ -9,26 +9,29 @@ import {
   Typography,
 } from "@mui/material";
 import useProjectService from "../hooks/useProjectService.tsx";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { Project, ProjectSubmission } from "@components/projects/types.ts";
 import { enqueueSnackbar } from "notistack";
 
 interface ProjectUploadFormProps {
   project: Project;
   children: ReactNode;
-  setSubmission: (submission: ProjectSubmission) => void;
+  onUpload: (submission: ProjectSubmission) => void;
+  disabled: boolean;
 }
 
 const ProjectUploadForm = ({
   project,
   children,
-  setSubmission,
+  onUpload,
+  disabled,
 }: ProjectUploadFormProps) => {
   const { uploadProject } = useProjectService();
   const [showFileInput, setShowFileInput] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
   const [progress, setProgress] = useState<number>();
   const [eta, setEta] = useState<number>();
+  const isProjectOver = useMemo(() => project.deadline < new Date(), [project]);
 
   const handleUpload = () => {
     if (files == null) return;
@@ -47,7 +50,7 @@ const ProjectUploadForm = ({
       },
     )
       .then((response) => {
-        setSubmission(response);
+        onUpload(response);
       })
       .catch((err: Error) => {
         console.error(err);
@@ -94,6 +97,7 @@ const ProjectUploadForm = ({
       <Card
         sx={{ height: "100%", position: "relative" }}
         onDragOver={(event) => {
+          if (disabled) return;
           event.preventDefault();
           const dt = event.dataTransfer;
           if (dt.types.includes("Files")) {
@@ -101,6 +105,7 @@ const ProjectUploadForm = ({
           }
         }}
         onDragLeave={() => {
+          if (disabled) return;
           setShowFileInput(false);
         }}
       >
@@ -164,49 +169,58 @@ const ProjectUploadForm = ({
           }}
         >
           {children}
-          <Divider sx={{ my: 2 }} />
-          <Typography variant={"h4"} sx={{ mb: 1 }}>
-            Submit
-          </Typography>
-          <Box
-            padding={1}
-            borderRadius={1}
-            height={"100%"}
-            minHeight={"5rem"}
-            maxHeight={"100%"}
-            display={files == null ? "flex" : "block"}
-            justifyContent={"center"}
-            alignItems={"center"}
-            className={"hidden-scrollbar"}
-            sx={{
-              backgroundColor: "rgba(0,0,0,0.1)",
-              overflowY: "scroll",
-              my: 1,
-            }}
-          >
-            {!showFileInput &&
-              (files == null ? (
-                <Typography variant={"h5"}>
-                  Drag the submission folder and drop it here
-                </Typography>
-              ) : (
-                <>
-                  <ul>
-                    {Array.from(files).map((file, i) => (
-                      <li key={i}>{file.name}</li>
-                    ))}
-                  </ul>
-                </>
-              ))}
-          </Box>
-          <Box>
+          {!disabled && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant={"h4"} sx={{ mb: 1 }}>
+                Submit
+              </Typography>
+              <Box
+                padding={1}
+                borderRadius={1}
+                height={"100%"}
+                minHeight={"5rem"}
+                maxHeight={"100%"}
+                display={files == null ? "flex" : "block"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                className={"hidden-scrollbar"}
+                sx={{
+                  backgroundColor: "rgba(0,0,0,0.1)",
+                  overflowY: "scroll",
+                  my: 1,
+                }}
+              >
+                {!showFileInput &&
+                  (files == null ? (
+                    <Typography variant={"h5"}>
+                      Drag the submission folder and drop it here
+                    </Typography>
+                  ) : (
+                    <>
+                      <ul>
+                        {Array.from(files).map((file, i) => (
+                          <li key={i}>{file.name}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ))}
+              </Box>
+            </>
+          )}
+          <Box display="flex" alignItems="center">
             <Button
+              sx={{ mr: 2 }}
               onClick={handleUpload}
               variant={"outlined"}
-              disabled={files == null}
+              disabled={disabled || files == null}
             >
               Upload
             </Button>
+            {isProjectOver && !disabled && (
+              <Typography>Project overdue</Typography>
+            )}
+            {disabled && <Typography>Confirmed submission</Typography>}
           </Box>
         </CardContent>
       </Card>

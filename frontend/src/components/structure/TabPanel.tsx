@@ -6,10 +6,18 @@ interface TabPanelProps {
   index: number;
   value: number;
   occupiedHeight?: number;
+  padding?: number;
 }
 
 export default function TabPanel(props: TabPanelProps) {
-  const { children, value, index, occupiedHeight = 0, ...other } = props;
+  const {
+    children,
+    value,
+    index,
+    occupiedHeight = 0,
+    padding,
+    ...other
+  } = props;
 
   return (
     <Box
@@ -23,7 +31,7 @@ export default function TabPanel(props: TabPanelProps) {
       className={"hidden-scrollbar"}
     >
       {value === index && (
-        <Box padding={3} height="100%">
+        <Box padding={padding ?? 3} height="100%">
           {children}
         </Box>
       )}
