@@ -77,7 +77,13 @@ const ProjectDetailScreen = () => {
   }
 
   return (
-    <ProjectDetailCollaboratorScreen project={project} course={userCourse} />
+    <ProjectDetailCollaboratorScreen
+      project={project}
+      course={userCourse}
+      onUpdate={(project) => {
+        setProject(project);
+      }}
+    />
   );
 };
 

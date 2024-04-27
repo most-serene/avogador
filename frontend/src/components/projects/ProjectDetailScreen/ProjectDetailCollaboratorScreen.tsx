@@ -15,14 +15,17 @@ import { Box, Button, Tab, Tabs, Typography } from "@mui/material";
 import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ProjectSettingsTab from "@components/projects/ProjectDetailScreen/ProjectSettingsTab/ProjectSettingsTab.tsx";
 
 interface ProjectDetailCollaboratorScreenProps {
   project: Project;
+  onUpdate: (project: Project) => void;
   course: CourseDetail;
 }
 
 const ProjectDetailCollaboratorScreen = ({
   project,
+  onUpdate,
   course,
 }: ProjectDetailCollaboratorScreenProps) => {
   const navigate = useNavigate();
@@ -33,9 +36,10 @@ const ProjectDetailCollaboratorScreen = ({
   const [openTab, setOpenTab] = useState(0);
   const tabs = useMemo(() => {
     return {
-      Project: <ProjectOverviewTab project={project} />,
+      Overview: <ProjectOverviewTab project={project} />,
+      Settings: <ProjectSettingsTab project={project} onUpdate={onUpdate} />,
     };
-  }, [project]);
+  }, [onUpdate, project]);
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));

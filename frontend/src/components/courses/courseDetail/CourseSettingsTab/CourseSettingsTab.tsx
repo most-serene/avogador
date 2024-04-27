@@ -36,7 +36,7 @@ const CourseSettingsTab = () => {
 
   return (
     <Box display={"flex"} justifyContent={"center"}>
-      <Card sx={{ maxWidth: "32rem" }} raised>
+      <Card sx={{ width: "32rem" }} raised>
         <CardContent>
           <Typography>Rename course</Typography>
 
@@ -83,84 +83,92 @@ const CourseSettingsTab = () => {
               Rename
             </ButtonWithConfirmation>
           </Box>
-          <Divider />
-          <Typography>
-            Delete this course and all its data for you and your students.
-          </Typography>
-          <Box display={"flex"} justifyContent={"center"} margin={"1rem"}>
-            <ButtonWithConfirmation
-              title={`You are deleting the course ${course?.name}`}
-              description={`Are you sure to delete the course ${course?.name}?
+          {course != null &&
+            !course.isArchived &&
+            (course.role === "ADMIN" || user?.isSuperuser === true) && (
+              <>
+                <Divider />
+                <Typography>
+                  Delete this course and all its data for you and your students.
+                </Typography>
+                <Box display={"flex"} justifyContent={"center"} margin={"1rem"}>
+                  <ButtonWithConfirmation
+                    title={`You are deleting the course ${course.name}`}
+                    description={`Are you sure to delete the course ${course.name}?
                        All the trials, exercises, submissions, results and testcases in it will be lost.`}
-              onConfirm={() => {
-                if (!course) return;
-                navigate("/");
-                deleteCourse(course)
-                  .then(() => {
-                    enqueueSnackbar(
-                      `Course ${course.name} deleted successfully`,
-                      { variant: "success" },
-                    );
-                  })
-                  .catch((err: Error) => {
-                    enqueueSnackbar(err.message, { variant: "error" });
-                  });
-              }}
-              variant={"outlined"}
-              confirmColor={"error"}
-              confirmText={"Delete"}
-              color={"error"}
-              disabled={
-                !course ||
-                (course.role !== "ADMIN" && (!user || !user.isSuperuser))
-              }
-            >
-              Delete course
-            </ButtonWithConfirmation>
-          </Box>
-          <Divider />
-          <Typography>
-            Only you will be able to access the course, that will be saved as a
-            zip file. This action is irreversible.
-          </Typography>
-          {course != null && !course.isArchived && (
-            <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
-              <ButtonWithConfirmation
-                onConfirm={() => {
-                  archiveCourse(course)
-                    .then((updatedCourse) => {
-                      enqueueSnackbar(
-                        "archiving procedure has been dispatched",
-                        {
-                          variant: "info",
-                        },
-                      );
-                      setCourse({
-                        ...course,
-                        isArchived: updatedCourse.isArchived,
-                      });
-                    })
-                    .catch((err: Error) => {
-                      enqueueSnackbar(err.message, { variant: "error" });
-                    });
-                }}
-                title={`You are archiving the course ${course.name}`}
-                description={
-                  "An archived course is not accessible by students and cannot be modified in any way. This action is irreversible."
-                }
-                confirmText={"Archive"}
-                variant={"outlined"}
-                color={"error"}
-                disabled={
-                  (course.role !== "ADMIN" && (!user || !user.isSuperuser)) ||
-                  course.isArchived
-                }
-                confirmColor={"error"}
-              >
-                Archive course
-              </ButtonWithConfirmation>
-            </Box>
-          )}
+                    onConfirm={() => {
+                      navigate("/");
+                      deleteCourse(course)
+                        .then(() => {
+                          enqueueSnackbar(
+                            `Course ${course.name} deleted successfully`,
+                            { variant: "success" },
+                          );
+                        })
+                        .catch((err: Error) => {
+                          enqueueSnackbar(err.message, { variant: "error" });
+                        });
+                    }}
+                    variant={"outlined"}
+                    confirmColor={"error"}
+                    confirmText={"Delete"}
+                    color={"error"}
+                    disabled={
+                      course.role !== "ADMIN" && (!user || !user.isSuperuser)
+                    }
+                  >
+                    Delete course
+                  </ButtonWithConfirmation>
+                </Box>
+
+                <Divider />
+                <Typography>
+                  Only you will be able to access the course, that will be saved
+                  as a zip file. This action is irreversible.
+                </Typography>
+                <Box
+                  display={"flex"}
+                  justifyContent={"center"}
+                  marginTop={"1rem"}
+                >
+                  <ButtonWithConfirmation
+                    onConfirm={() => {
+                      archiveCourse(course)
+                        .then((updatedCourse) => {
+                          enqueueSnackbar(
+                            "archiving procedure has been dispatched",
+                            {
+                              variant: "info",
+                            },
+                          );
+                          setCourse({
+                            ...course,
+                            isArchived: updatedCourse.isArchived,
+                          });
+                        })
+                        .catch((err: Error) => {
+                          enqueueSnackbar(err.message, { variant: "error" });
+                        });
+                    }}
+                    title={`You are archiving the course ${course.name}`}
+                    description={
+                      "An archived course is not accessible by students and cannot be modified in any way. This action is irreversible."
+                    }
+                    confirmText={"Archive"}
+                    variant={"outlined"}
+                    color={"error"}
+                    disabled={
+                      (course.role !== "ADMIN" &&
+                        (!user || !user.isSuperuser)) ||
+                      course.isArchived
+                    }
+                    confirmColor={"error"}
+                  >
+                    Archive course
+                  </ButtonWithConfirmation>
+                </Box>
+              </>
+            )}
           {course != null && course.isArchived && (
             <Box display={"flex"} justifyContent={"center"} marginTop={"1rem"}>
               {downloading ? (

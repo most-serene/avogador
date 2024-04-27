@@ -125,10 +125,11 @@ const ProjectCreationScreen = () => {
       description: description,
       canSubmit: true,
       deadline: deadline,
+      projectType: projectType,
       ...data,
     };
     setCanSubmit(false);
-    createProject(project, projectType)
+    createProject(project)
       .then((project) => {
         navigate(`/projects/${project.id}`);
       })

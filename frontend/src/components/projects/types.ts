@@ -5,10 +5,14 @@ interface Project {
   description: string;
   canSubmit: boolean;
   deadline: Date;
+  projectType: ProjectType;
 }
 
 interface NotebookProject extends Project {
   kernel: NotebookKernel;
+}
+function isNotebookProject(project: Project): project is NotebookProject {
+  return project.projectType === "NOTEBOOK";
 }
 
 type ProjectStatus = "PENDING" | "ERROR" | "SUCCESS" | "CONFIRMED";
@@ -43,3 +47,4 @@ export type {
   ProjectData,
   NotebookData,
 };
+export { isNotebookProject };
