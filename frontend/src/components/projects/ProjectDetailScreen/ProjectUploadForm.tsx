@@ -132,7 +132,9 @@ const ProjectUploadForm = ({
               justifyContent={"center"}
               alignItems={"center"}
             >
-              <Typography variant={"h3"}>Drop your submission here</Typography>
+              <Typography variant={"h3"} textAlign="center">
+                Drop your submission here
+              </Typography>
             </Box>
             <input
               type={"file"}
@@ -150,9 +152,22 @@ const ProjectUploadForm = ({
                 directory: "",
               }}
               onChange={(event) => {
-                console.log(event);
                 setFiles(event.target.files);
                 setShowFileInput(false);
+              }}
+              onDrop={() => {
+                setTimeout(() => {
+                  console.log();
+                  setShowFileInput((prev) => {
+                    if (prev) {
+                      enqueueSnackbar(
+                        "Something went wrong. Did you load a folder?",
+                        { variant: "error" },
+                      );
+                    }
+                    return false;
+                  });
+                }, 1000);
               }}
             ></input>
           </Box>

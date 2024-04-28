@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import JSZip from "jszip";
-import { Project, ProjectSubmission } from "@components/projects/types.ts";
+import {
+  Project,
+  ProjectSubmission,
+  UserProject,
+} from "@components/projects/types.ts";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
@@ -107,6 +111,16 @@ const useProjectService = () => {
       [avogadorApi],
     );
 
+  const getSelfUserProject: (project: Project) => Promise<UserProject | null> =
+    useCallback(
+      async (project: Project) => {
+        const { data: userProject }: { data: UserProject | null } =
+          await avogadorApi.get(`/projects/${project.id}/users/self`);
+        return userProject;
+      },
+      [avogadorApi],
+    );
+
   const getUserLatestProjectSubmission: (
     user: User,
     project: Project,
@@ -135,6 +149,21 @@ const useProjectService = () => {
       [avogadorApi],
     );
 
+  const getSubmissionExecutionLog: (
+    submission: ProjectSubmission,
+  ) => Promise<File> = useCallback(
+    async (submission: ProjectSubmission) => {
+      const { data: log }: { data: File } = await avogadorApi.get(
+        `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=exec.out`,
+        {
+          responseType: "blob",
+        },
+      );
+      return log;
+    },
+    [avogadorApi],
+  );
+
   const createProject: (project: Omit<Project, "id">) => Promise<Project> =
     useCallback(
       async (project: Omit<Project, "id">) => {
@@ -147,6 +176,15 @@ const useProjectService = () => {
       },
       [avogadorApi],
     );
+
+  const joinProject = useCallback(
+    async (project: Project) => {
+      const { data: userProject }: { data: UserProject | null } =
+        await avogadorApi.put(`/projects/${project.id}/join`);
+      return userProject;
+    },
+    [avogadorApi],
+  );
 
   const downloadSubmissionArchive = useCallback(
     (
@@ -196,9 +234,12 @@ const useProjectService = () => {
     confirmSubmission,
     getProject,
     getProjectsByCourse,
+    getSelfUserProject,
     getUserLatestProjectSubmission,
     getSubmissionTree,
+    getSubmissionExecutionLog,
     createProject,
+    joinProject,
     downloadSubmissionArchive,
     downloadOutputFile,
     updateProject,

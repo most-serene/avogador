@@ -59,6 +59,13 @@ public class ProjectController {
         if (user.getIsSuperuser() || course.getRole().hasCollaboratorClearance()) {
             return null;
         }
+
+        /*
+        if (new Date().after(project.getDeadline())) {
+            throw new BadRequestException("This Project is ended");
+        }
+         */
+
         return userProjectService.joinProject(user, project);
     }
 
