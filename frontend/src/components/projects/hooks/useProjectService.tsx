@@ -135,6 +135,21 @@ const useProjectService = () => {
       [avogadorApi],
     );
 
+  const getSubmissionExecutionLog: (
+    submission: ProjectSubmission,
+  ) => Promise<File> = useCallback(
+    async (submission: ProjectSubmission) => {
+      const { data: log }: { data: File } = await avogadorApi.get(
+        `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=exec.out`,
+        {
+          responseType: "blob",
+        },
+      );
+      return log;
+    },
+    [avogadorApi],
+  );
+
   const createProject: (project: Omit<Project, "id">) => Promise<Project> =
     useCallback(
       async (project: Omit<Project, "id">) => {
@@ -182,6 +197,7 @@ const useProjectService = () => {
     getProjectsByCourse,
     getUserLatestProjectSubmission,
     getSubmissionTree,
+    getSubmissionExecutionLog,
     createProject,
     downloadSubmissionArchive,
     updateProject,

@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { enqueueSnackbar } from "notistack";
 import { saveResponseToFile } from "../../../utils/fileHandling.ts";
 import { LoadingButton } from "@mui/lab";
+import ProjectSubmissionLogModal from "@components/projects/ProjectSubmissionLogModal/ProjectSubmissionLogModal.tsx";
 
 const getSubmissionStatusBadge = (status: ProjectStatus) => {
   const getProps = (
@@ -56,6 +57,7 @@ const LastProjectSubmission = ({
     useProjectService();
   const [tree, setTree] = useState<string>();
   const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 
   const downloadSubmission = () => {
     setDownloadingSubmission(0);
@@ -172,9 +174,22 @@ const LastProjectSubmission = ({
             xs={12}
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <Button variant={"outlined"} startIcon={<Terminal />}>
+            <Button
+              variant={"outlined"}
+              startIcon={<Terminal />}
+              onClick={() => {
+                setIsLogModalOpen(true);
+              }}
+            >
               Execution Log
             </Button>
+            <ProjectSubmissionLogModal
+              submission={submission}
+              open={isLogModalOpen}
+              onClose={() => {
+                setIsLogModalOpen(false);
+              }}
+            />
           </Grid>
         </Grid>
       </Box>
