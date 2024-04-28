@@ -32,6 +32,7 @@ const ProjectSubmissionLogModal = ({
   const [log, setLog] = useState<string>();
 
   useEffect(() => {
+    if (!open) return;
     getSubmissionExecutionLog(submission)
       .then((result) => result.text())
       .then((content) => {
@@ -40,7 +41,7 @@ const ProjectSubmissionLogModal = ({
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
-  }, [getSubmissionExecutionLog, submission]);
+  }, [open, getSubmissionExecutionLog, submission]);
 
   const handleDownload = () => {
     if (log == null) return;

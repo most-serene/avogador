@@ -199,6 +199,10 @@ const LastProjectSubmission = ({
                   size={16}
                 />
               }
+              disabled={
+                submission.status !== "SUCCESS" &&
+                submission.status !== "CONFIRMED"
+              }
               loadingPosition={"start"}
               variant={"outlined"}
               startIcon={<Description />}
@@ -216,6 +220,7 @@ const LastProjectSubmission = ({
             <Button
               variant={"outlined"}
               startIcon={<Terminal />}
+              disabled={submission.status === "PENDING"}
               onClick={() => {
                 setIsLogModalOpen(true);
               }}
