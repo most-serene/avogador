@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface UserProjectService {
 
-    Optional<UserProject> getUserProject(UUID projectId, UUID userId);
+    Optional<UserProject> getUserProject(Project projectId, UserDto user);
 
     List<UserProject> getUserProjectsByProject(UUID projectId);
 

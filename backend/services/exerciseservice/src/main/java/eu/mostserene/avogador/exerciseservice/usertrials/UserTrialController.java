@@ -72,15 +72,16 @@ public class UserTrialController {
     private UserTrialDetailDto getUserTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId, @PathVariable UUID userId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(NotFoundException::new);
-        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), userId)
+        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getId().equals(userId) || (userRole.getClearance() <= CourseRole.EXTERNAL.getClearance() && !user.getIsSuperuser())) {
-            throw new ForbiddenException(user);
-        }
+        boolean isGettingSelf = user.getId().equals(userId);
+        boolean isPrivileged = userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser();
 
-        if (user.getIsSuperuser() || userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+        if (isPrivileged) {
             return null;
+        } else if (!isGettingSelf) {
+            throw new ForbiddenException(user);
         }
 
         return userTrialService.getUserTrial(trial, user)

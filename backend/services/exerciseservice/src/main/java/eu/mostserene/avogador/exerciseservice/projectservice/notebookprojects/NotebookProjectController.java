@@ -95,7 +95,7 @@ public class NotebookProjectController {
                 .orElseThrow(NotFoundException::new)
                 .requireNotArchived();
 
-        if (userProjectService.getUserProject(projectId, user.getId()).isEmpty() &&
+        if (userProjectService.getUserProject(notebookProject, user).isEmpty() &&
                 !user.getIsSuperuser() &&
                 !courseDetail.getRole().hasCollaboratorClearance()
         ) {

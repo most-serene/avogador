@@ -45,12 +45,12 @@ const getSubmissionStatusBadge = (status: ProjectStatus) => {
 
 interface LastProjectSubmissionProps {
   submission: ProjectSubmission;
-  setSubmission: (submission: ProjectSubmission) => void;
+  onConfirm: (submission: ProjectSubmission) => void;
 }
 
 const LastProjectSubmission = ({
   submission,
-  setSubmission,
+  onConfirm,
 }: LastProjectSubmissionProps) => {
   const { getSubmissionTree, downloadSubmissionArchive, confirmSubmission } =
     useProjectService();
@@ -77,9 +77,9 @@ const LastProjectSubmission = ({
       });
   };
 
-  const onConfirm = () => {
+  const handleConfirm = () => {
     confirmSubmission(submission)
-      .then(setSubmission)
+      .then(onConfirm)
       .then(() => {
         enqueueSnackbar("Submission confirmed successfully", {
           variant: "success",
@@ -117,7 +117,7 @@ const LastProjectSubmission = ({
               description={
                 "If you confirm the submission, you won't be able to modify it anymore. This action is irreversible."
               }
-              onConfirm={onConfirm}
+              onConfirm={handleConfirm}
             >
               Confirm Submission
             </ButtonWithConfirmation>

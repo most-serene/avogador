@@ -4,6 +4,7 @@ import {
   SyntheticEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -16,8 +17,7 @@ import LeaveCourse from "@courses/courseDetail/LeaveCourse.tsx";
 import TabPanel from "@structure/TabPanel.tsx";
 import CourseTrialsTab from "@courses/courseDetail/CourseTrialsTab/CourseTrialsTab.tsx";
 import CourseOverviewStudentTab from "@courses/courseDetail/CourseOverviewTab/CourseOverviewStudentTab.tsx";
-
-const tabs = ["Overview", "Tests"];
+import CourseProjectsTab from "@courses/courseDetail/CourseProjectsTab/CourseProjectsTab.tsx";
 
 const CourseDetailStudentScreen = () => {
   const { getCourseById } = useCourseService();
@@ -27,6 +27,13 @@ const CourseDetailStudentScreen = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [course, setCourse] = useAtom(courseDetailAtom);
   const [openTab, setOpenTab] = useState(0);
+  const tabs = useMemo(() => {
+    return {
+      Overview: <CourseOverviewStudentTab course={course} />,
+      Tests: <CourseTrialsTab userCourse={course} />,
+      Projects: <CourseProjectsTab userCourse={course} />,
+    };
+  }, [course]);
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));
@@ -48,6 +55,7 @@ const CourseDetailStudentScreen = () => {
 
   return (
     <Box
+      width="100%"
       height="100%"
       sx={{
         flexGrow: 1,
@@ -55,7 +63,7 @@ const CourseDetailStudentScreen = () => {
       }}
     >
       <Tabs orientation="vertical" value={openTab} onChange={handleTabChange}>
-        {tabs.map((tab, i) => (
+        {Object.keys(tabs).map((tab, i) => (
           <Tab key={i} label={tab} />
         ))}
       </Tabs>
@@ -73,20 +81,16 @@ const CourseDetailStudentScreen = () => {
           </Box>
           {course && course.role !== "ADMIN" && <LeaveCourse course={course} />}
         </Box>
-        <TabPanel
-          value={openTab}
-          index={0}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseOverviewStudentTab course={course} />
-        </TabPanel>
-        <TabPanel
-          value={openTab}
-          index={1}
-          occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
-        >
-          <CourseTrialsTab userCourse={course} />
-        </TabPanel>
+        {Object.values(tabs).map((panel, i) => (
+          <TabPanel
+            key={i}
+            value={openTab}
+            index={i}
+            occupiedHeight={courseTitleRef.current?.clientHeight ?? 0}
+          >
+            {panel}
+          </TabPanel>
+        ))}
       </Container>
     </Box>
   );

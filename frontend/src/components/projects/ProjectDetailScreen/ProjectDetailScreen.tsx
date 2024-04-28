@@ -1,16 +1,6 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Grid,
-  Typography,
-} from "@mui/material";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Project, ProjectSubmission } from "@components/projects/types.ts";
+import { Project } from "@components/projects/types.ts";
 import useProjectService from "@components/projects/hooks/useProjectService.tsx";
 import { useAtom } from "jotai";
 import userAtom from "@authentication/userAtom.ts";
@@ -20,41 +10,19 @@ import { ArchivedCourseError, ForbiddenError } from "@error/types.ts";
 import { useGlobalErrorSetter } from "@error/GlobalErrorState.tsx";
 import { CourseDetail } from "@courses/types.ts";
 import useCourseService from "@courses/hooks/useCourseService.tsx";
-import LastProjectSubmission from "@components/projects/ProjectDetailScreen/LastProjectSubmission.tsx";
-import ProjectUploadForm from "@components/projects/ProjectDetailScreen/ProjectUploadForm.tsx";
-import useWebSocket from "@hooks/useWebSocket.tsx";
-import { Message } from "@stomp/stompjs";
+import ProjectDetailCollaboratorScreen from "@components/projects/ProjectDetailScreen/ProjectDetailCollaboratorScreen.tsx";
+import ProjectDetailStudentScreen from "@components/projects/ProjectDetailScreen/ProjectDetailStudentScreen.tsx";
 
 const ProjectDetailScreen = () => {
   const { projectId } = useParams();
-  const navigate = useNavigate();
   const globalErrorSetter = useGlobalErrorSetter();
   const [user] = useAtom(userAtom);
 
-  const { getProject, getUserLatestProjectSubmission } = useProjectService();
+  const { getProject } = useProjectService();
   const { getCourseById } = useCourseService();
 
   const [project, setProject] = useState<Project>();
   const [userCourse, setUserCourse] = useState<CourseDetail>();
-  const [lastSubmission, setLastSubmission] =
-    useState<ProjectSubmission | null>();
-
-  const { subscribe } = useWebSocket();
-
-  useEffect(() => {
-    if (lastSubmission == null) return;
-    subscribe(`/${lastSubmission.id}/status`, (message: Message) => {
-      console.log(message);
-      const projectSubmission = JSON.parse(message.body) as ProjectSubmission;
-      setLastSubmission({ ...projectSubmission });
-    })
-      .then(() => {
-        // empty-function
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [lastSubmission, subscribe]);
 
   useEffect(() => {
     if (user == null || projectId == null) return;
@@ -87,6 +55,7 @@ const ProjectDetailScreen = () => {
               `${user.email} does not belong to the associated course`,
             ),
           );
+          return;
         }
         setUserCourse(userCourseResponse);
       })
@@ -97,105 +66,24 @@ const ProjectDetailScreen = () => {
           enqueueSnackbar(err.message, { variant: "error" });
         }
       });
-
-    getUserLatestProjectSubmission(user, project)
-      .then((submission) => {
-        setLastSubmission(submission);
-      })
-      .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
-      });
-  }, [
-    getCourseById,
-    getUserLatestProjectSubmission,
-    globalErrorSetter,
-    project,
-    user,
-  ]);
+  }, [getCourseById, globalErrorSetter, project, user]);
 
   if (project == null || userCourse == null) return <></>;
 
+  // TODO: check if user hasn't joined
+
+  if (userCourse.role === "STUDENT") {
+    return <ProjectDetailStudentScreen project={project} course={userCourse} />;
+  }
+
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        height: "100%",
-        display: { md: "flex", xs: "block" },
-        flexFlow: "column",
+    <ProjectDetailCollaboratorScreen
+      project={project}
+      course={userCourse}
+      onUpdate={(project) => {
+        setProject(project);
       }}
-    >
-      <Box
-        sx={{
-          display: { md: "flex", xs: "block" },
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          position: "relative",
-          mb: 1,
-        }}
-      >
-        <Button
-          sx={{ position: { md: "absolute", xs: "static" }, left: 0 }}
-          variant={"outlined"}
-          onClick={() => {
-            navigate(`/courses/${userCourse.id}?tab=2`);
-          }}
-        >
-          <ArrowBackIosNewIcon />
-          Back to{" "}
-          {userCourse.name.length > 20
-            ? userCourse.name.substring(0, 18) + "..."
-            : userCourse.name}
-        </Button>
-        <Typography variant={"h3"} textAlign={"center"} sx={{ mb: 1 }}>
-          {project.name}
-        </Typography>
-      </Box>
-      <Grid
-        container
-        spacing={2}
-        style={{ height: "100%", overflowY: "hidden" }}
-      >
-        <Grid item md={8} xs={12} sx={{ height: "100%" }}>
-          <ProjectUploadForm
-            project={project}
-            setSubmission={(submission) => {
-              setLastSubmission(submission);
-            }}
-          >
-            <Box
-              sx={{
-                minHeight: "7rem",
-                maxHeight: "45%",
-                overflowY: "auto",
-              }}
-            >
-              <Typography variant={"h4"} sx={{ mb: 1 }}>
-                Description
-              </Typography>
-              <Typography variant={"body1"}>{project.description}</Typography>
-            </Box>
-          </ProjectUploadForm>
-        </Grid>
-        <Grid item md={4} xs={12} sx={{ height: "100%" }}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent
-              sx={{ display: "flex", flexFlow: "column", height: "100%" }}
-            >
-              {lastSubmission === null && (
-                <Typography variant={"h5"}>No submission uploaded</Typography>
-              )}
-              {lastSubmission != null && (
-                <LastProjectSubmission
-                  submission={lastSubmission}
-                  setSubmission={setLastSubmission}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Container>
+    />
   );
 };
 
