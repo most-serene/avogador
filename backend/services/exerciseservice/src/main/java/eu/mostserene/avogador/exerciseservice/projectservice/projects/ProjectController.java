@@ -7,10 +7,12 @@ import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserPro
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +61,11 @@ public class ProjectController {
         if (user.getIsSuperuser() || course.getRole().hasCollaboratorClearance()) {
             return null;
         }
+
+        if (new Date().after(project.getDeadline())) {
+            throw new BadRequestException("This Project is ended");
+        }
+
         return userProjectService.joinProject(user, project);
     }
 

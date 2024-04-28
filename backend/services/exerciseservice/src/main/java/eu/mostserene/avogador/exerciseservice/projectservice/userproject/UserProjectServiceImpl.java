@@ -30,6 +30,7 @@ public class UserProjectServiceImpl implements UserProjectService {
 
     @Override
     public UserProject joinProject(UserDto user, Project project) {
-        return repository.save(new UserProject(user.getId(), project));
+        return getUserProject(project, user)
+                .orElseGet(() -> repository.save(new UserProject(user.getId(), project)));
     }
 }
