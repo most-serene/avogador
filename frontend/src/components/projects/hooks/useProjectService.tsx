@@ -164,6 +164,22 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const downloadOutputFile = useCallback(
+    (
+      submission: ProjectSubmission,
+      onDownloadProgress: (progressEvent: AxiosProgressEvent) => void,
+    ) => {
+      return avogadorApi.get(
+        `/projects/${submission.project.id}/submissions/${submission.id}/download/extra?filename=report.html`,
+        {
+          responseType: "blob",
+          onDownloadProgress,
+        },
+      );
+    },
+    [avogadorApi],
+  );
+
   const updateProject: (project: Project) => Promise<Project> = useCallback(
     async (project: Project) => {
       const { data: updatedProject }: { data: Project } = await avogadorApi.put(
@@ -184,6 +200,7 @@ const useProjectService = () => {
     getSubmissionTree,
     createProject,
     downloadSubmissionArchive,
+    downloadOutputFile,
     updateProject,
   };
 };

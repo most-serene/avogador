@@ -52,10 +52,16 @@ const LastProjectSubmission = ({
   submission,
   onConfirm,
 }: LastProjectSubmissionProps) => {
-  const { getSubmissionTree, downloadSubmissionArchive, confirmSubmission } =
-    useProjectService();
+  const {
+    getSubmissionTree,
+    downloadSubmissionArchive,
+    confirmSubmission,
+    downloadOutputFile,
+  } = useProjectService();
   const [tree, setTree] = useState<string>();
   const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
+  const [downloadOutputProgress, setDownloadOutputProgress] =
+    useState<number>();
 
   const downloadSubmission = () => {
     setDownloadingSubmission(0);
@@ -77,6 +83,17 @@ const LastProjectSubmission = ({
       });
   };
 
+  useEffect(() => {
+    getSubmissionTree(submission)
+      .then((result) => result.text())
+      .then((content) => {
+        setTree(content);
+      })
+      .catch(() => {
+        setTree(undefined);
+      });
+  }, [submission, getSubmissionTree]);
+
   const handleConfirm = () => {
     confirmSubmission(submission)
       .then(onConfirm)
@@ -90,16 +107,24 @@ const LastProjectSubmission = ({
       });
   };
 
-  useEffect(() => {
-    getSubmissionTree(submission)
-      .then((result) => result.text())
-      .then((content) => {
-        setTree(content);
+  const handleOutputDownload = () => {
+    downloadOutputFile(submission, (progressEvent) => {
+      if (progressEvent.total != null) {
+        setDownloadOutputProgress(
+          Math.round((100 * progressEvent.loaded) / progressEvent.total),
+        );
+      }
+    })
+      .then((res) => {
+        saveResponseToFile(res, `output.html`);
       })
-      .catch(() => {
-        setTree(undefined);
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      })
+      .finally(() => {
+        setDownloadOutputProgress(undefined);
       });
-  }, [submission, getSubmissionTree]);
+  };
 
   return (
     <>
@@ -162,9 +187,23 @@ const LastProjectSubmission = ({
             xs={12}
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <Button variant={"outlined"} startIcon={<Description />}>
+            <LoadingButton
+              loading={downloadOutputProgress != null}
+              loadingIndicator={
+                <CircularProgress
+                  variant="determinate"
+                  value={downloadOutputProgress}
+                  color="inherit"
+                  size={16}
+                />
+              }
+              loadingPosition={"start"}
+              variant={"outlined"}
+              startIcon={<Description />}
+              onClick={handleOutputDownload}
+            >
               Output
-            </Button>
+            </LoadingButton>
           </Grid>
           <Grid
             item
