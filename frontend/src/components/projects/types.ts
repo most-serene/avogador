@@ -37,6 +37,13 @@ interface NotebookData extends ProjectData {
   kernel: NotebookKernel | undefined;
 }
 
+interface UserProject {
+  id: string;
+  userId: string;
+  project: Project;
+  mark: number;
+}
+
 export type {
   Project,
   NotebookProject,
@@ -46,5 +53,6 @@ export type {
   NotebookKernel,
   ProjectData,
   NotebookData,
+  UserProject,
 };
 export { isNotebookProject };
