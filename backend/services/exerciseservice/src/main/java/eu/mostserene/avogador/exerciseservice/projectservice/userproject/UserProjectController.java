@@ -32,18 +32,16 @@ public class UserProjectController {
     @Autowired
     private UserCourseService userCourseService;
 
-    @GetMapping("/{userId}")
-    private UserProject getUserProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId, @PathVariable UUID userId) {
+    @GetMapping("/self")
+    private UserProject getUserProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
-        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), userId)
+        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getId().equals(userId) || (userRole.getClearance() <= CourseRole.EXTERNAL.getClearance() && !user.getIsSuperuser())) {
-            throw new ForbiddenException(user);
-        }
+        boolean isPrivileged = userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser();
 
-        if (user.getIsSuperuser() || userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance()) {
+        if (isPrivileged) {
             return null;
         }
 
