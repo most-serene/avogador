@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 import { useAvogadorApi } from "@hooks/useAvogadorApi";
 import JSZip from "jszip";
-import { Project, ProjectSubmission } from "@components/projects/types.ts";
+import {
+  Project,
+  ProjectSubmission,
+  UserProject,
+} from "@components/projects/types.ts";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
@@ -107,6 +111,16 @@ const useProjectService = () => {
       [avogadorApi],
     );
 
+  const getSelfUserProject: (project: Project) => Promise<UserProject | null> =
+    useCallback(
+      async (project: Project) => {
+        const { data: userProject }: { data: UserProject | null } =
+          await avogadorApi.get(`/projects/${project.id}/users/self`);
+        return userProject;
+      },
+      [avogadorApi],
+    );
+
   const getUserLatestProjectSubmission: (
     user: User,
     project: Project,
@@ -148,6 +162,15 @@ const useProjectService = () => {
       [avogadorApi],
     );
 
+  const joinProject = useCallback(
+    async (project: Project) => {
+      const { data: userProject }: { data: UserProject | null } =
+        await avogadorApi.put(`/projects/${project.id}/join`);
+      return userProject;
+    },
+    [avogadorApi],
+  );
+
   const downloadSubmissionArchive = useCallback(
     (
       submission: ProjectSubmission,
@@ -180,9 +203,11 @@ const useProjectService = () => {
     confirmSubmission,
     getProject,
     getProjectsByCourse,
+    getSelfUserProject,
     getUserLatestProjectSubmission,
     getSubmissionTree,
     createProject,
+    joinProject,
     downloadSubmissionArchive,
     updateProject,
   };
