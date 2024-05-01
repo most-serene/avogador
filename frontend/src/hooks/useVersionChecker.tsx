@@ -16,10 +16,32 @@ const useVersionChecker = () => {
         if (semver.lt(import.meta.env.APP_VERSION as string, latestVersion)) {
           enqueueSnackbar("Reload to get the latest version of the app", {
             variant: "info",
+            persist: true,
             action: (snackbarId) => (
               <>
                 <IconButton
                   onClick={() => {
+                    /*
+                    caches
+                      .keys()
+                      .then((names) => {
+                        console.log(names);
+                        for (const name of names) {
+                          caches
+                            .delete(name)
+                            .then((r) => {
+                              console.log(r);
+                            })
+                            .catch((e) => {
+                              console.error(e);
+                            });
+                        }
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                      });
+
+                     */
                     window.location.reload();
                   }}
                 >

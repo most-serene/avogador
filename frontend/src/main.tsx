@@ -19,6 +19,11 @@ const root = document.getElementById("root");
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  window.location.reload();
+});
+
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
