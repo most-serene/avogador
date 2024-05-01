@@ -122,7 +122,7 @@ function App() {
   }, [navbarRef, footerRef]);
 
   useEffect(() => {
-    checkWebAppVersion();
+    // checkWebAppVersion();
     setInterval(() => {
       checkWebAppVersion();
     }, 5000 * 60);
