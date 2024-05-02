@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/public/projects/{projectId}/users")
@@ -47,6 +49,30 @@ public class UserProjectController {
 
         return userProjectService.getUserProject(project, user)
                 .orElseThrow(() -> new NotFoundException("UserProject not found"));
+    }
+
+    @GetMapping("")
+    private List<UserProjectDto> getUsersFromProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId) {
+        Project project = projectService.getProjectById(projectId)
+                .orElseThrow(NotFoundException::new);
+        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+
+        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user);
+        }
+
+        List<UserProject> userProjects = userProjectService.getUsersFromProject(project);
+        if (userProjects.isEmpty()) {
+            return List.of();
+        }
+
+        Map<UUID, UserDto> users = userService.getUsersFromIdList(userProjects.stream().map(UserProject::getUserId).toList()).
+                stream().collect(Collectors.toMap(UserDto::getId, u -> u));
+
+        return userProjects.stream()
+                .map(userProject -> userProject.getUserProjectDetail(users.get(userProject.getUserId())))
+                .toList();
     }
 
     @PutMapping("/marks")
