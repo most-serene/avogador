@@ -116,7 +116,7 @@ public class ProjectSubmissionController {
         return submission;
     }
 
-    @GetMapping("/users")
+    @GetMapping("")
     private List<ProjectSubmission> getUsersLastProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                                   @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)
