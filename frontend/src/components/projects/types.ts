@@ -1,3 +1,5 @@
+import { User } from "@authentication/types.ts";
+
 interface Project {
   id: string;
   courseId: string;
@@ -27,6 +29,17 @@ interface ProjectSubmission {
   status: ProjectStatus;
 }
 
+interface UserProjectDetail {
+  id: string;
+  projectId: string;
+  user: User;
+}
+
+interface ProjectSubmissionDetail extends UserProjectDetail {
+  timestamp?: Date;
+  status: ProjectStatus | undefined;
+}
+
 type NotebookKernel = "IPYKERNEL";
 
 interface ProjectData {
@@ -50,6 +63,8 @@ export type {
   ProjectStatus,
   ProjectType,
   ProjectSubmission,
+  UserProjectDetail,
+  ProjectSubmissionDetail,
   NotebookKernel,
   ProjectData,
   NotebookData,
