@@ -89,7 +89,7 @@ public class ProjectSubmissionController {
         if (!ProjectStatus.SUCCESS.equals(submission.getStatus())) {
             throw new BadRequestException("A ProjectSubmission can be confirmed only if its status is SUCCESS");
         }
-        
+
         if (!user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user, "You cannot see this submission");
         }
@@ -116,7 +116,7 @@ public class ProjectSubmissionController {
         return submission;
     }
 
-    @GetMapping("/users")
+    @GetMapping("")
     private List<ProjectSubmission> getUsersLastProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                                   @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)
@@ -129,7 +129,7 @@ public class ProjectSubmissionController {
             throw new ForbiddenException(user);
         }
 
-        List<UUID> projectUsers = userProjectService.getUserProjectsByProject(projectId)
+        List<UUID> projectUsers = userProjectService.getUsersFromProject(project)
                 .stream().map(UserProject::getUserId).toList();
 
         return projectSubmissionService.getUsersLastProjectSubmissions(project, projectUsers);

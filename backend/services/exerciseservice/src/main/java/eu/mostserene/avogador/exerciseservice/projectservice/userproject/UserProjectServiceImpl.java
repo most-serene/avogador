@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -24,8 +23,8 @@ public class UserProjectServiceImpl implements UserProjectService {
     }
 
     @Override
-    public List<UserProject> getUserProjectsByProject(UUID projectId) {
-        return repository.findByProject_Id(projectId);
+    public List<UserProject> getUsersFromProject(Project project) {
+        return repository.findByProject_Id(project.getId());
     }
 
     @Override

@@ -5,13 +5,12 @@ import eu.mostserene.avogador.exerciseservice.users.UserDto;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface UserProjectService {
 
-    Optional<UserProject> getUserProject(Project projectId, UserDto user);
+    Optional<UserProject> getUserProject(Project project, UserDto user);
 
-    List<UserProject> getUserProjectsByProject(UUID projectId);
+    List<UserProject> getUsersFromProject(Project project);
 
     UserProject joinProject(UserDto user, Project project);
 }
