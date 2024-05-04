@@ -38,7 +38,7 @@ const ProjectDetailCollaboratorScreen = ({
   const tabs = useMemo(() => {
     return {
       Overview: <ProjectOverviewTab project={project} />,
-      Members: <ProjectMembersTab project={project} />,
+      Users: <ProjectMembersTab project={project} />,
       Settings: <ProjectSettingsTab project={project} onUpdate={onUpdate} />,
     };
   }, [onUpdate, project]);
