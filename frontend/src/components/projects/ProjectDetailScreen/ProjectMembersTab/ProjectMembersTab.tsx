@@ -93,7 +93,7 @@ const getStatusIcon = (
     case "ERROR":
       return <Chip icon={<Cancel />} label="Error" color="error" />;
     case "CONFIRMED":
-      return <Chip icon={<Cancel />} label="Confirmed" color="info" />;
+      return <Chip icon={<CheckCircle />} label="Confirmed" color="info" />;
     case "PENDING":
       return <Chip icon={<Help />} label="Pending" color="warning" />;
     default:
