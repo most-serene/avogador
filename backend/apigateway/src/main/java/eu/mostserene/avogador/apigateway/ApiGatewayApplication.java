@@ -121,7 +121,7 @@ public class ApiGatewayApplication {
 
     @GetMapping("/version/webapp")
     String getWebappVersion() {
-        return "0.12.1";
+        return "0.13.0";
     }
 
     @PostConstruct
