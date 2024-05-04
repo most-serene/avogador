@@ -5,6 +5,7 @@ import {
   Project,
   ProjectSubmission,
   UserProject,
+  UserProjectDetail,
 } from "@components/projects/types.ts";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
@@ -135,6 +136,27 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const getProjectMembers: (project: Project) => Promise<UserProjectDetail[]> =
+    useCallback(
+      async (project: Project) => {
+        const { data: users }: { data: UserProjectDetail[] } =
+          await avogadorApi.get(`/projects/${project.id}/users`);
+        return users;
+      },
+      [avogadorApi],
+    );
+
+  const getMembersLastProjectSubmission: (
+    project: Project,
+  ) => Promise<ProjectSubmission[]> = useCallback(
+    async (project: Project) => {
+      const { data: submissions }: { data: ProjectSubmission[] } =
+        await avogadorApi.get(`/projects/${project.id}/submissions`);
+      return submissions;
+    },
+    [avogadorApi],
+  );
+
   const getSubmissionTree: (submission: ProjectSubmission) => Promise<File> =
     useCallback(
       async (submission: ProjectSubmission) => {
@@ -236,6 +258,8 @@ const useProjectService = () => {
     getProjectsByCourse,
     getSelfUserProject,
     getUserLatestProjectSubmission,
+    getProjectMembers,
+    getMembersLastProjectSubmission,
     getSubmissionTree,
     getSubmissionExecutionLog,
     createProject,

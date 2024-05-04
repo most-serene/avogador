@@ -16,6 +16,7 @@ import Container from "@mui/material/Container";
 import TabPanel from "@structure/TabPanel.tsx";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ProjectSettingsTab from "@components/projects/ProjectDetailScreen/ProjectSettingsTab/ProjectSettingsTab.tsx";
+import ProjectMembersTab from "@components/projects/ProjectDetailScreen/ProjectMembersTab/ProjectMembersTab.tsx";
 
 interface ProjectDetailCollaboratorScreenProps {
   project: Project;
@@ -37,6 +38,7 @@ const ProjectDetailCollaboratorScreen = ({
   const tabs = useMemo(() => {
     return {
       Overview: <ProjectOverviewTab project={project} />,
+      Users: <ProjectMembersTab project={project} />,
       Settings: <ProjectSettingsTab project={project} onUpdate={onUpdate} />,
     };
   }, [onUpdate, project]);
