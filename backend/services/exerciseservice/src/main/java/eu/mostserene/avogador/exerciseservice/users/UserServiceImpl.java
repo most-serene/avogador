@@ -57,6 +57,14 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    @Override
+    public List<UserDto> getOrCreateUsers(List<String> emails) {
+        RestTemplate template = new RestTemplate();
+        return Arrays.stream(Objects.requireNonNull(
+                template.postForObject("http://users/users", emails, UserDto[].class))
+        ).toList();
+    }
+
     @Data
     private static class UserDtoList {
         private List<UserDto> users;

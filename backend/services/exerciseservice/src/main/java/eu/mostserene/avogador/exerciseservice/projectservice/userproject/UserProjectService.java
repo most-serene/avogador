@@ -13,4 +13,6 @@ public interface UserProjectService {
     List<UserProject> getUsersFromProject(Project project);
 
     UserProject joinProject(UserDto user, Project project);
+
+    UserProject uploadMark(UserDto user, Project project, Integer mark);
 }
