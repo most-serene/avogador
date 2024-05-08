@@ -52,16 +52,24 @@ const columns: GridColDef<ProjectSubmissionDetail>[] = [
     field: "enroll",
     headerName: "Enroll No.",
     valueGetter: (params) => params.row.user.email.split("@")[0],
-    flex: 0.25,
-    minWidth: 75,
+    flex: 0.5,
+    minWidth: 100,
   },
   {
     field: "fullName",
     headerName: "Name",
     valueGetter: (params) =>
-      `${params.row.user.familyName} ${params.row.user.givenName}`,
+      `${params.row.user.familyName ?? ""} ${params.row.user.givenName ?? ""}`,
     flex: 1,
     minWidth: 150,
+  },
+  {
+    field: "mark",
+    headerName: "Mark",
+    valueGetter: (params) => `${params.row.mark ?? ""}`,
+    flex: 1,
+    maxWidth: 80,
+    align: "center",
   },
   {
     field: "timestamp",
@@ -80,7 +88,7 @@ const columns: GridColDef<ProjectSubmissionDetail>[] = [
     valueGetter: (params) => params.row.status,
     renderCell: (params) => getStatusIcon(params.row.status),
     flex: 1,
-    minWidth: 125,
+    maxWidth: 200,
   },
 ];
 
