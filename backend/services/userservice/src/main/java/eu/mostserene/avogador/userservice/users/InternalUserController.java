@@ -49,4 +49,13 @@ public class InternalUserController {
 
         return users.stream().map(User::generateAuthUserDTO).toList();
     }
+
+    @PostMapping("")
+    private List<AuthUserDTO> getOrCreateUsers(@RequestBody List<String> emails) {
+        return emails.stream()
+                .map(email -> userService.getUserByEmail(email)
+                        .orElseGet(() -> userService.createUser(new User(email))))
+                .map(User::generateAuthUserDTO)
+                .toList();
+    }
 }
