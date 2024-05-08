@@ -20,12 +20,14 @@ import ProjectUploadForm from "@components/projects/ProjectDetailScreen/ProjectU
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import LastProjectSubmission from "@components/projects/ProjectDetailScreen/LastProjectSubmission.tsx";
+import { CourseDetail } from "@courses/types.ts";
 
 interface ProjectOverviewTabProps {
   project: Project;
+  course: CourseDetail;
 }
 
-const ProjectOverviewTab = ({ project }: ProjectOverviewTabProps) => {
+const ProjectOverviewTab = ({ project, course }: ProjectOverviewTabProps) => {
   const globalErrorSetter = useGlobalErrorSetter();
   const [user] = useAtom(userAtom);
   const { subscribe } = useWebSocket();
@@ -92,6 +94,7 @@ const ProjectOverviewTab = ({ project }: ProjectOverviewTabProps) => {
             onUpload={(submission) => {
               setLastSubmission(submission);
             }}
+            course={course}
           >
             <Box
               sx={{
