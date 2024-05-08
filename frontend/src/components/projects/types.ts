@@ -33,6 +33,7 @@ interface UserProjectDetail {
   id: string;
   projectId: string;
   user: User;
+  mark?: number;
 }
 
 interface ProjectSubmissionDetail extends UserProjectDetail {
