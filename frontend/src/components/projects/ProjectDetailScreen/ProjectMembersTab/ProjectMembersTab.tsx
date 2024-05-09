@@ -114,8 +114,11 @@ const SESSION_STORAGE_SETTINGS_KEY = "project-table-settings";
 const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
   const [colorMode] = useAtom(ColorModeAtom);
   const navigate = useNavigate();
-  const { getProjectMembers, getMembersLastProjectSubmission } =
-    useProjectService();
+  const {
+    getProjectMembers,
+    getMembersLastProjectSubmission,
+    unconfirmSubmission,
+  } = useProjectService();
 
   const [rows, setRows] = useState<GridRowsProp<ProjectSubmissionDetail>>();
 
@@ -193,6 +196,28 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
       });
   }, [getMembersLastProjectSubmission, getProjectMembers, project]);
 
+  const handleUnconfirmSubmission = (
+    submissionDetail: ProjectSubmissionDetail,
+  ) => {
+    unconfirmSubmission(submissionDetail)
+      .then(() => {
+        enqueueSnackbar("Submission unconfirmed successfully", {
+          variant: "success",
+        });
+        setRows((prev) => {
+          if (prev == null) return prev;
+          prev.map((submission) =>
+            submission.id === submissionDetail.id
+              ? { ...submissionDetail, status: "SUCCESS" }
+              : submission,
+          );
+        });
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
   const actionsColumn = {
     field: "actions",
     type: "actions",
@@ -204,7 +229,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
           icon={<SettingsBackupRestore />}
           label="Unconfirm"
           onClick={() => {
-            console.log("REVOKE");
+            handleUnconfirmSubmission(params.row);
           }}
           disabled={params.row.status !== "CONFIRMED"}
           showInMenu
