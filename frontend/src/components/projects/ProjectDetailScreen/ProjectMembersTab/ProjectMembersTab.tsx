@@ -5,6 +5,7 @@ import {
 } from "@components/projects/types.ts";
 import {
   DataGrid,
+  GridActionsCellItem,
   // eslint-disable-next-line import/named
   GridColDef,
   // eslint-disable-next-line import/named
@@ -13,6 +14,8 @@ import {
   GridFilterModel,
   // eslint-disable-next-line import/named
   GridPaginationModel,
+  // eslint-disable-next-line import/named
+  GridRowParams,
   // eslint-disable-next-line import/named
   GridRowsProp,
   // eslint-disable-next-line import/named
@@ -24,7 +27,12 @@ import {
 } from "@mui/x-data-grid";
 import { format } from "date-fns";
 import { Card, Chip } from "@mui/material";
-import { Cancel, CheckCircle, Help } from "@mui/icons-material";
+import {
+  Cancel,
+  CheckCircle,
+  Help,
+  SettingsBackupRestore,
+} from "@mui/icons-material";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -106,8 +114,11 @@ const SESSION_STORAGE_SETTINGS_KEY = "project-table-settings";
 const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
   const [colorMode] = useAtom(ColorModeAtom);
   const navigate = useNavigate();
-  const { getProjectMembers, getMembersLastProjectSubmission } =
-    useProjectService();
+  const {
+    getProjectMembers,
+    getMembersLastProjectSubmission,
+    unconfirmSubmission,
+  } = useProjectService();
 
   const [rows, setRows] = useState<GridRowsProp<ProjectSubmissionDetail>>();
 
@@ -185,6 +196,48 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
       });
   }, [getMembersLastProjectSubmission, getProjectMembers, project]);
 
+  const handleUnconfirmSubmission = (
+    submissionDetail: ProjectSubmissionDetail,
+  ) => {
+    unconfirmSubmission(submissionDetail)
+      .then(() => {
+        enqueueSnackbar("Submission unconfirmed successfully", {
+          variant: "success",
+        });
+        setRows((prev) => {
+          if (prev == null) return prev;
+          prev.map((submission) =>
+            submission.id === submissionDetail.id
+              ? { ...submissionDetail, status: "SUCCESS" }
+              : submission,
+          );
+        });
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
+  const actionsColumn = {
+    field: "actions",
+    type: "actions",
+    width: 10,
+    getActions: (params: GridRowParams<ProjectSubmissionDetail>) => {
+      return [
+        <GridActionsCellItem
+          key={"unconfirm"}
+          icon={<SettingsBackupRestore />}
+          label="Unconfirm"
+          onClick={() => {
+            handleUnconfirmSubmission(params.row);
+          }}
+          disabled={params.row.status !== "CONFIRMED"}
+          showInMenu
+        />,
+      ];
+    },
+  };
+
   const handlePaginationModelChange = ({ page }: GridPaginationModel) => {
     const tableSettings = getDatagridSettings();
     tableSettings.page = page;
@@ -233,7 +286,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         apiRef={apiRef}
         rows={rows ?? []}
         loading={rows == null}
-        columns={[...columns]}
+        columns={[...columns, actionsColumn]}
         slots={{ toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
@@ -256,6 +309,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         onSortModelChange={handleSortModelChange}
         onFilterModelChange={handleFilterModelChange}
         onCellClick={(cell) => {
+          if (cell.field === "actions") return;
           navigate(`/projects/${project.id}/users/${cell.id}`);
         }}
       />

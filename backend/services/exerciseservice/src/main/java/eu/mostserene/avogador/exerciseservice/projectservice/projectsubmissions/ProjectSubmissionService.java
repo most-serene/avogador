@@ -22,4 +22,6 @@ public interface ProjectSubmissionService {
     List<ProjectSubmission> getLatestUserSubmissions(Project project, UUID userId);
 
     ProjectSubmission confirmSubmission(ProjectSubmission submission);
+
+    ProjectSubmission revertConfirmedSubmission(ProjectSubmission submission);
 }
