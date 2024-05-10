@@ -98,7 +98,7 @@ public class ProjectSubmissionController {
         }
 
         if (!user.getId().equals(submission.getUserId())) {
-            throw new ForbiddenException(user, "You cannot see modify submission");
+            throw new ForbiddenException(user, "You cannot see or modify this submission");
         }
 
         return projectSubmissionService.confirmSubmission(submission);

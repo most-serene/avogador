@@ -108,7 +108,7 @@ const useProjectService = () => {
     async (submission: ProjectSubmissionDetail) => {
       const { data: unconfirmedSubmission }: { data: ProjectSubmission } =
         await avogadorApi.put(
-          `/projects/${submission.projectId}/submissions/${submission.id}/confirm?revert=true`,
+          `/projects/${submission.projectId}/submissions/${submission.submissionId}/confirm?revert=true`,
         );
       return unconfirmedSubmission;
     },
