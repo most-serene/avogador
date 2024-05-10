@@ -53,7 +53,7 @@ const ProjectDetailStudentScreen = ({
           {project.name}
         </Typography>
       </Box>
-      <ProjectOverviewTab project={project} course={course} />
+      <ProjectOverviewTab project={project} />
     </Container>
   );
 };

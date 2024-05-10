@@ -6,25 +6,18 @@ import {
   CardContent,
   CircularProgress,
   Divider,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import useProjectService from "../hooks/useProjectService.tsx";
-import { ChangeEvent, ReactNode, useMemo, useRef, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { Project, ProjectSubmission } from "@components/projects/types.ts";
 import { enqueueSnackbar } from "notistack";
-import { CourseDetail } from "@courses/types.ts";
-import { useAtom } from "jotai";
-import userAtom from "@authentication/userAtom.ts";
-import { LoadingButton } from "@mui/lab";
-import { Upload } from "@mui/icons-material";
 
 interface ProjectUploadFormProps {
   project: Project;
   children: ReactNode;
   onUpload: (submission: ProjectSubmission) => void;
   disabled: boolean;
-  course: CourseDetail;
 }
 
 const ProjectUploadForm = ({
@@ -32,17 +25,13 @@ const ProjectUploadForm = ({
   children,
   onUpload,
   disabled,
-  course,
 }: ProjectUploadFormProps) => {
-  const { uploadProject, uploadMarksFile } = useProjectService();
+  const { uploadProject } = useProjectService();
   const [showFileInput, setShowFileInput] = useState(false);
   const [files, setFiles] = useState<FileList | null>(null);
   const [progress, setProgress] = useState<number>();
   const [eta, setEta] = useState<number>();
   const isProjectOver = useMemo(() => project.deadline < new Date(), [project]);
-  const [user] = useAtom(userAtom);
-  const [isUploadingMarks, setIsUploadingMarks] = useState(false);
-  const marksCsvFile = useRef<HTMLInputElement>(null);
 
   const handleUpload = () => {
     if (files == null) return;
@@ -68,32 +57,6 @@ const ProjectUploadForm = ({
         enqueueSnackbar(err.message, {
           variant: "error",
         });
-      });
-  };
-
-  const handleMarksUpload = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setIsUploadingMarks(true);
-    const fileList = (e.target as HTMLInputElement).files;
-    if (fileList == null) return;
-    const file = fileList.item(0);
-    console.log(file);
-    if (file == null) return;
-    uploadMarksFile(project, file)
-      .then(() => {
-        enqueueSnackbar("Marks upload successfully", { variant: "success" });
-        setIsUploadingMarks(false);
-        if (marksCsvFile.current != null) {
-          marksCsvFile.current.value = "";
-        }
-      })
-      .catch((err: Error) => {
-        enqueueSnackbar(err.message, { variant: "error" });
-        setIsUploadingMarks(false);
-        if (marksCsvFile.current != null) {
-          marksCsvFile.current.value = "";
-        }
       });
   };
 
@@ -273,29 +236,6 @@ const ProjectUploadForm = ({
               <Typography>Project overdue</Typography>
             )}
             {disabled && <Typography>Confirmed submission</Typography>}
-
-            {(((user && user.isSuperuser) ?? course.role == "ADMIN") ||
-              course.role == "COLLABORATOR") && (
-              <Tooltip title={"as email,mark csv file"} placement={"top"}>
-                <LoadingButton
-                  sx={{ mr: 2 }}
-                  variant={"outlined"}
-                  loading={isUploadingMarks}
-                  component={"label"}
-                  loadingPosition={"start"}
-                  startIcon={<Upload />}
-                >
-                  Upload marks
-                  <input
-                    hidden
-                    accept={".csv"}
-                    type={"file"}
-                    ref={marksCsvFile}
-                    onChange={handleMarksUpload}
-                  />
-                </LoadingButton>
-              </Tooltip>
-            )}
           </Box>
         </CardContent>
       </Card>
