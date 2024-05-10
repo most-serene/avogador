@@ -37,6 +37,7 @@ interface UserProjectDetail {
 }
 
 interface ProjectSubmissionDetail extends UserProjectDetail {
+  submissionId?: string;
   timestamp?: Date;
   status: ProjectStatus | undefined;
 }

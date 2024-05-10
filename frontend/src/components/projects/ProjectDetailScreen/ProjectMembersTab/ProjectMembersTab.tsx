@@ -232,6 +232,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
                 }
                 return {
                   ...usersProject,
+                  submissionId: usersSubmissions[userId]?.id,
                   status: usersSubmissions[userId]?.status,
                   timestamp: usersSubmissions[userId]?.timestamp,
                 };
@@ -259,14 +260,13 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         enqueueSnackbar("Submission unconfirmed successfully", {
           variant: "success",
         });
-        setRows((prev) => {
-          if (prev == null) return prev;
-          prev.map((submission) =>
+        setRows(
+          rows?.map((submission) =>
             submission.id === submissionDetail.id
               ? { ...submissionDetail, status: "SUCCESS" }
               : submission,
-          );
-        });
+          ) ?? [],
+        );
       })
       .catch((err: Error) => {
         enqueueSnackbar(err.message, { variant: "error" });
