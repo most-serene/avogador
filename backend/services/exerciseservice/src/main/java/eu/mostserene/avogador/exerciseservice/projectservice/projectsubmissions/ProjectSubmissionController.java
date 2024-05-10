@@ -1,6 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
+import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
@@ -82,19 +83,40 @@ public class ProjectSubmissionController {
     @PutMapping("/{submissionId}/confirm")
     private ProjectSubmission confirmProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                        @PathVariable UUID projectId,
-                                                       @PathVariable UUID submissionId) {
+                                                       @PathVariable UUID submissionId,
+                                                       @RequestParam(defaultValue = "false") boolean revert
+    ) {
         ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
                 .orElseThrow(NotFoundException::new);
+
+        if (revert) {
+            return revertConfirmedSubmission(submission, user);
+        }
 
         if (!ProjectStatus.SUCCESS.equals(submission.getStatus())) {
             throw new BadRequestException("A ProjectSubmission can be confirmed only if its status is SUCCESS");
         }
 
         if (!user.getId().equals(submission.getUserId())) {
-            throw new ForbiddenException(user, "You cannot see this submission");
+            throw new ForbiddenException(user, "You cannot see modify submission");
         }
 
         return projectSubmissionService.confirmSubmission(submission);
+    }
+
+    private ProjectSubmission revertConfirmedSubmission(ProjectSubmission submission, UserDto user) {
+        Project project = submission.getProject();
+        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user, "You cannot modify this submission"))
+                .getRole();
+
+        if (!userRole.hasCollaboratorClearance() && !user.getIsSuperuser()) {
+            throw new ForbiddenException(user, "You cannot modify this submission");
+        }
+        if (!ProjectStatus.CONFIRMED.equals(submission.getStatus())) {
+            throw new BadRequestException("A ProjectSubmission status can be reverted only if it is CONFIRMED");
+        }
+        return projectSubmissionService.revertConfirmedSubmission(submission);
     }
 
     private ProjectSubmission getProjectSubmissionIfPermitted(UserDto user, UUID projectId, UUID submissionId) {

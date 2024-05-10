@@ -4,6 +4,7 @@ import JSZip from "jszip";
 import {
   Project,
   ProjectSubmission,
+  ProjectSubmissionDetail,
   UserProject,
   UserProjectDetail,
 } from "@components/projects/types.ts";
@@ -98,6 +99,19 @@ const useProjectService = () => {
           `/projects/${submission.project.id}/submissions/${submission.id}/confirm`,
         );
       return confirmedSubmission;
+    },
+    [avogadorApi],
+  );
+
+  const unconfirmSubmission: (
+    submission: ProjectSubmissionDetail,
+  ) => Promise<ProjectSubmission> = useCallback(
+    async (submission: ProjectSubmissionDetail) => {
+      const { data: unconfirmedSubmission }: { data: ProjectSubmission } =
+        await avogadorApi.put(
+          `/projects/${submission.projectId}/submissions/${submission.id}/confirm?revert=true`,
+        );
+      return unconfirmedSubmission;
     },
     [avogadorApi],
   );
@@ -329,6 +343,7 @@ const useProjectService = () => {
   return {
     uploadProject,
     confirmSubmission,
+    unconfirmSubmission,
     getProject,
     getProjectsByCourse,
     getSelfUserProject,

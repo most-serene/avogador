@@ -118,4 +118,14 @@ public class ProjectSubmissionServiceImpl implements ProjectSubmissionService {
         submission.setStatus(ProjectStatus.CONFIRMED);
         return repository.save(submission);
     }
+
+    @Override
+    public ProjectSubmission revertConfirmedSubmission(ProjectSubmission submission) {
+        if (!ProjectStatus.CONFIRMED.equals(submission.getStatus())) {
+            throw new IllegalStateException("A ProjectSubmission status can be reverted only if it is CONFIRMED");
+        }
+
+        submission.setStatus(ProjectStatus.SUCCESS);
+        return repository.save(submission);
+    }
 }
