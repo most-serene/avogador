@@ -12,6 +12,7 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +93,12 @@ public class UserProjectController {
         validateMarks(marks);
 
         Map<UserDto, Integer> userMarkMap = new HashMap<>();
-        userService.getOrCreateUsers(marks.keySet().stream().toList())
-                .forEach(userDto -> userMarkMap.put(userDto, marks.get(userDto.getEmail())));
+        try {
+            userService.getOrCreateUsers(marks.keySet().stream().toList())
+                    .forEach(userDto -> userMarkMap.put(userDto, marks.get(userDto.getEmail())));
+        } catch (HttpClientErrorException.BadRequest e) {
+            throw new BadRequestException("Some emails domains are invalid");
+        }
 
         return userMarkMap.entrySet().stream().map(
                 mark -> userProjectService.uploadMark(mark.getKey(), project, mark.getValue())
