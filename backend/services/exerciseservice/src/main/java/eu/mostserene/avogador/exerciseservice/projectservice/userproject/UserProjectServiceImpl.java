@@ -32,4 +32,11 @@ public class UserProjectServiceImpl implements UserProjectService {
         return getUserProject(project, user)
                 .orElseGet(() -> repository.save(new UserProject(user.getId(), project)));
     }
+
+    @Override
+    public UserProject uploadMark(UserDto user, Project project, Integer mark) {
+        UserProject userProject = joinProject(user, project);
+        userProject.setMark(mark);
+        return repository.save(userProject);
+    }
 }

@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.projectservice.userproject;
 
+import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
@@ -7,13 +8,13 @@ import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectSer
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.users.UserService;
+import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -76,9 +77,38 @@ public class UserProjectController {
     }
 
     @PutMapping("/marks")
-    private void uploadMarks(@RequestHeader(name = "User") UserDto user,
-                             @PathVariable UUID projectId, @RequestBody List<Pair<UUID, Integer>> marks) {
-        throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Not yet supported");
+    private List<UserProject> uploadMarks(@RequestHeader(name = "User") UserDto user,
+                                          @PathVariable UUID projectId, @RequestBody Map<String, Integer> marks) {
+        Project project = projectService.getProjectById(projectId)
+                .orElseThrow(NotFoundException::new);
+
+        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user))
+                .requireNotArchived();
+
+        if (!user.getIsSuperuser() && !course.getRole().hasCollaboratorClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        validateMarks(marks);
+
+        Map<UserDto, Integer> userMarkMap = new HashMap<>();
+        try {
+            userService.getOrCreateUsers(marks.keySet().stream().toList())
+                    .forEach(userDto -> userMarkMap.put(userDto, marks.get(userDto.getEmail())));
+        } catch (HttpClientErrorException.BadRequest e) {
+            throw new BadRequestException("Some emails domains are invalid");
+        }
+
+        return userMarkMap.entrySet().stream().map(
+                mark -> userProjectService.uploadMark(mark.getKey(), project, mark.getValue())
+        ).toList();
+    }
+
+    private void validateMarks(Map<String, Integer> marks) {
+        if (marks.values().parallelStream().anyMatch(mark -> mark < 0 || mark > 31)) {
+            throw new BadRequestException("Some marks are invalid: less than 0 or more than 31");
+        }
     }
 
 }

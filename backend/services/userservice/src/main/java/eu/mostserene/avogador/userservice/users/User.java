@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -19,27 +20,36 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Setter
     @Email(message = "Please provide a valid email address")
     @NotNull
     @Column(unique = true)
     private String email;
 
-    @NotNull
+    @Setter
     private String givenName;
 
-    @NotNull
+    @Setter
     private String familyName;
 
+    @Setter
     @NotNull
     private Boolean isProfessor = false;
 
+    @Setter
     @NotNull
     private Boolean isSuperuser = false;
 
+    @Setter
     @NotNull
     private Timestamp jwtValidity = Timestamp.from(Instant.now());
 
     public User() {
+    }
+
+    public User(String email) {
+        this.email = email;
+        this.jwtValidity = Timestamp.from(Instant.now());
     }
 
     public User(String email, String givenName, String familyName) {
@@ -47,30 +57,6 @@ public class User {
         this.givenName = givenName;
         this.familyName = familyName;
         this.jwtValidity = Timestamp.from(Instant.now());
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public void setIsProfessor(Boolean professor) {
-        isProfessor = professor;
-    }
-
-    public void setIsSuperuser(Boolean superuser) {
-        isSuperuser = superuser;
-    }
-
-    public void setJwtValidity(Timestamp jwtValidity) {
-        this.jwtValidity = jwtValidity;
     }
 
     public AuthUserDTO generateAuthUserDTO() {

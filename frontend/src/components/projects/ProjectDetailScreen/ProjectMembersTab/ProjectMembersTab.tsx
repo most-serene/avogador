@@ -12,6 +12,8 @@ import {
   GridFilterItem,
   // eslint-disable-next-line import/named
   GridFilterModel,
+  GridFooter,
+  GridFooterContainer,
   // eslint-disable-next-line import/named
   GridPaginationModel,
   // eslint-disable-next-line import/named
@@ -26,19 +28,22 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { format } from "date-fns";
-import { Card, Chip } from "@mui/material";
+import { Card, Chip, Tooltip } from "@mui/material";
 import {
   Cancel,
   CheckCircle,
   Help,
   SettingsBackupRestore,
+  Upload,
 } from "@mui/icons-material";
 import ColorModeAtom from "@theme/colorModeAtom.ts";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import useProjectService from "@components/projects/hooks/useProjectService.tsx";
 import { enqueueSnackbar } from "notistack";
+import { LoadingButton } from "@mui/lab";
+import { AxiosError } from "axios";
 
 interface ProjectMembersTabProps {
   project: Project;
@@ -60,16 +65,24 @@ const columns: GridColDef<ProjectSubmissionDetail>[] = [
     field: "enroll",
     headerName: "Enroll No.",
     valueGetter: (params) => params.row.user.email.split("@")[0],
-    flex: 0.25,
-    minWidth: 75,
+    flex: 0.5,
+    minWidth: 100,
   },
   {
     field: "fullName",
     headerName: "Name",
     valueGetter: (params) =>
-      `${params.row.user.familyName} ${params.row.user.givenName}`,
+      `${params.row.user.familyName ?? ""} ${params.row.user.givenName ?? ""}`,
     flex: 1,
     minWidth: 150,
+  },
+  {
+    field: "mark",
+    headerName: "Mark",
+    valueGetter: (params) => `${params.row.mark ?? ""}`,
+    flex: 1,
+    maxWidth: 80,
+    align: "center",
   },
   {
     field: "timestamp",
@@ -88,7 +101,7 @@ const columns: GridColDef<ProjectSubmissionDetail>[] = [
     valueGetter: (params) => params.row.status,
     renderCell: (params) => getStatusIcon(params.row.status),
     flex: 1,
-    minWidth: 125,
+    maxWidth: 200,
   },
 ];
 
@@ -118,7 +131,10 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
     getProjectMembers,
     getMembersLastProjectSubmission,
     unconfirmSubmission,
+    uploadMarksFile,
   } = useProjectService();
+  const [isUploadingMarks, setIsUploadingMarks] = useState(false);
+  const marksCsvFile = useRef<HTMLInputElement>(null);
 
   const [rows, setRows] = useState<GridRowsProp<ProjectSubmissionDetail>>();
 
@@ -128,6 +144,41 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
     return JSON.parse(
       sessionStorage.getItem(SESSION_STORAGE_SETTINGS_KEY) ?? "{}",
     ) as DataGridSettings;
+  };
+
+  const handleMarksUpload = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setIsUploadingMarks(true);
+    const fileList = (e.target as HTMLInputElement).files;
+    if (fileList == null) return;
+    const file = fileList.item(0);
+    if (file == null) return;
+    uploadMarksFile(project, file)
+      .then(() => {
+        enqueueSnackbar("Marks upload successfully", { variant: "success" });
+        setIsUploadingMarks(false);
+        if (marksCsvFile.current != null) {
+          marksCsvFile.current.value = "";
+        }
+      })
+      .catch((err: Error) => {
+        if (err instanceof AxiosError && err.status === 400) {
+          enqueueSnackbar("The domain of some emails is not valid", {
+            variant: "error",
+          });
+        } else {
+          enqueueSnackbar(err.message, { variant: "error" });
+        }
+        setIsUploadingMarks(false);
+        if (marksCsvFile.current != null) {
+          marksCsvFile.current.value = "";
+        }
+      })
+      .finally(() => {
+        setRows(undefined);
+        fetchProjectMembers();
+      });
   };
 
   useEffect(() => {
@@ -160,7 +211,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
     }
   }, [apiRef, project]);
 
-  useEffect(() => {
+  const fetchProjectMembers = useCallback(() => {
     getProjectMembers(project)
       .then((usersProjects) => {
         getMembersLastProjectSubmission(project)
@@ -196,6 +247,10 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         enqueueSnackbar(err.message, { variant: "error" });
       });
   }, [getMembersLastProjectSubmission, getProjectMembers, project]);
+
+  useEffect(() => {
+    fetchProjectMembers();
+  }, [fetchProjectMembers]);
 
   const handleUnconfirmSubmission = (
     submissionDetail: ProjectSubmissionDetail,
@@ -236,6 +291,33 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         />,
       ];
     },
+  };
+
+  const CustomGridFooter = () => {
+    return (
+      <GridFooterContainer>
+        <Tooltip title={"as email,mark csv file"} placement={"top"}>
+          <LoadingButton
+            sx={{ ml: "2rem" }}
+            variant={"outlined"}
+            loading={isUploadingMarks}
+            component={"label"}
+            loadingPosition={"start"}
+            startIcon={<Upload />}
+          >
+            Upload marks
+            <input
+              hidden
+              accept={".csv"}
+              type={"file"}
+              ref={marksCsvFile}
+              onChange={handleMarksUpload}
+            />
+          </LoadingButton>
+        </Tooltip>
+        <GridFooter sx={{ border: "none" }} />
+      </GridFooterContainer>
+    );
   };
 
   const handlePaginationModelChange = ({ page }: GridPaginationModel) => {
@@ -287,7 +369,10 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         rows={rows ?? []}
         loading={rows == null}
         columns={[...columns, actionsColumn]}
-        slots={{ toolbar: GridToolbar }}
+        slots={{
+          toolbar: GridToolbar,
+          footer: CustomGridFooter,
+        }}
         slotProps={{
           toolbar: {
             showQuickFilter: true,

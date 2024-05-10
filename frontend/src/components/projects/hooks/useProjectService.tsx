@@ -8,6 +8,7 @@ import {
   UserProject,
   UserProjectDetail,
 } from "@components/projects/types.ts";
+import Papa from "papaparse";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
@@ -265,6 +266,80 @@ const useProjectService = () => {
     [avogadorApi],
   );
 
+  const processMarksCsvFile: (
+    marksFile: File,
+  ) => Promise<[{ email: string; mark: number }]> = useCallback(
+    (marksFile: File) => {
+      return new Promise((resolve, reject) => {
+        Papa.parse(marksFile, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            resolve(results.data as [{ email: string; mark: number }]);
+          },
+          error: (error) => {
+            reject(error);
+          },
+        });
+      });
+    },
+    [],
+  );
+
+  const validateMarks: (
+    marks: [{ email: string; mark: number }],
+  ) => Promise<Record<string, number>> = useCallback(
+    (marks: [{ email: string; mark: number }]) => {
+      return new Promise((resolve, reject) => {
+        if (marks.some((mark) => !(mark.email && mark.mark))) {
+          reject(
+            new Error(
+              'Malformed file: the CSV file must contain two columns: "email" and "mark" (numeric)',
+            ),
+          );
+        }
+
+        for (const { email, mark } of marks) {
+          if (email.split("@").length !== 2) {
+            reject(new Error(`The email ${email} is not an email`));
+          }
+          if (mark < 0 || mark > 31 || !Number.isInteger(Number(mark))) {
+            reject(
+              new Error(
+                `The mark of ${email} (${mark}) is out of (0,32) or not an integer`,
+              ),
+            );
+          }
+        }
+
+        const marksRecord: Record<string, number> = {};
+        for (const mark of marks) {
+          marksRecord[mark.email] = mark.mark;
+        }
+        resolve(marksRecord);
+      });
+    },
+    [],
+  );
+
+  const uploadMarks = useCallback(
+    async (project: Project, marks: Record<string, number>) => {
+      const { data: userProjectList }: { data: UserProject[] } =
+        await avogadorApi.put(`/projects/${project.id}/users/marks`, marks);
+      return userProjectList;
+    },
+    [avogadorApi],
+  );
+
+  const uploadMarksFile = useCallback(
+    async (project: Project, marksFile: File) => {
+      return processMarksCsvFile(marksFile)
+        .then(validateMarks)
+        .then((marks) => uploadMarks(project, marks));
+    },
+    [processMarksCsvFile, uploadMarks, validateMarks],
+  );
+
   return {
     uploadProject,
     confirmSubmission,
@@ -282,6 +357,7 @@ const useProjectService = () => {
     downloadSubmissionArchive,
     downloadOutputFile,
     updateProject,
+    uploadMarksFile,
   };
 };
 
