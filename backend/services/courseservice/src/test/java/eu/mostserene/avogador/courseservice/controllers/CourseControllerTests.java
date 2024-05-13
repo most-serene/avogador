@@ -12,6 +12,7 @@ import eu.mostserene.avogador.courseservice.usercourses.UserCourseService;
 import eu.mostserene.avogador.courseservice.users.UserDto;
 import eu.mostserene.avogador.courseservice.users.UserService;
 import eu.mostserene.avogador.courseservice.utils.ProfileManager;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -224,11 +225,14 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.empty());
+            when(courseService.getJoinCode(any()))
+                    .thenReturn(Optional.of(RandomStringUtils.randomAlphabetic(20)));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.role").value("EXTERNAL"));
+                    .andExpect(jsonPath("$.role").value("EXTERNAL"))
+                    .andExpect(jsonPath("$.joinCode").isEmpty());
         }
 
         @Test
@@ -237,6 +241,8 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(new UserCourse(studentUser, archivedCourse, CourseRole.STUDENT)));
+            when(courseService.getJoinCode(any()))
+                    .thenReturn(Optional.of(RandomStringUtils.randomAlphabetic(20)));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
@@ -249,12 +255,14 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(archivedCourse));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(archivedAdmin));
+            String joinCode = RandomStringUtils.randomAlphabetic(20);
             when(courseService.getJoinCode(any()))
-                    .thenReturn(Optional.of("joincode"));
+                    .thenReturn(Optional.of(joinCode));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.joinCode").value(joinCode));
         }
 
         @Test
@@ -263,10 +271,13 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student));
+            when(courseService.getJoinCode(any()))
+                    .thenReturn(Optional.of(RandomStringUtils.randomAlphabetic(20)));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.joinCode").isEmpty());
         }
 
         @Test
@@ -275,6 +286,8 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(student));
+            when(courseService.getJoinCode(any()))
+                    .thenReturn(Optional.of(RandomStringUtils.randomAlphabetic(20)));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", studentHeader))
                     .andDo(print())
@@ -288,13 +301,30 @@ public class CourseControllerTests {
                     .thenReturn(Optional.of(course));
             when(userCourseService.getUserCourse(any(), any()))
                     .thenReturn(Optional.of(admin));
+            String joinCode = RandomStringUtils.randomAlphabetic(20);
             when(courseService.getJoinCode(any()))
-                    .thenReturn(Optional.of("joincode"));
+                    .thenReturn(Optional.of(joinCode));
 
             mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
                     .andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.joinCode").isNotEmpty());
+                    .andExpect(jsonPath("$.joinCode").value(joinCode));
+        }
+
+        @Test
+        public void isSuperuser_get200_nullJoinCode() throws Exception {
+            when(courseService.getCourse(any()))
+                    .thenReturn(Optional.of(course));
+            when(userCourseService.getUserCourse(any(), any()))
+                    .thenReturn(Optional.of(superuserExternal));
+            String joinCode = RandomStringUtils.randomAlphabetic(20);
+            when(courseService.getJoinCode(any()))
+                    .thenReturn(Optional.of(joinCode));
+
+            mvc.perform(get("/public/courses/00000000-0000-0000-0000-000000000001").header("User", professorHeader))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.joinCode").value(joinCode));
         }
     }
 

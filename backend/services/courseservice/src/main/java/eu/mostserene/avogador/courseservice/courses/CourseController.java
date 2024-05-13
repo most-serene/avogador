@@ -99,8 +99,15 @@ public class CourseController {
 
         var userCourse = userCourseService
                 .getUserCourse(user.getId(), courseId);
-        if (userCourse.isEmpty() && !course.getIsArchived())
+
+        String joinCode = courseService.getJoinCode(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        if (userCourse.isEmpty() && user.getIsSuperuser()) {
+            return new CourseDetailDto(course, joinCode, CourseRole.EXTERNAL);
+        } else if (userCourse.isEmpty() && !course.getIsArchived()) {
             return new CourseDetailDto(course, CourseRole.EXTERNAL);
+        }
 
         var userRole = userCourse
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not part of this course or it doesn't exists"))
@@ -113,11 +120,8 @@ public class CourseController {
         if (userRole == CourseRole.STUDENT) {
             return new CourseDetailDto(course, userRole);
         }
-        var joinCode = courseService.getJoinCode(courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         return new CourseDetailDto(course, joinCode, userRole);
-
     }
 
     /**
