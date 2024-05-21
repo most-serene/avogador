@@ -5,7 +5,7 @@ import { Course } from "@courses/types.ts";
 import { UserTrialProgress } from "@components/analytics/types.ts";
 import { enqueueSnackbar } from "notistack";
 import { useAtom } from "jotai";
-import { CircularProgress, useTheme } from "@mui/material";
+import { CircularProgress, Typography, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import Box from "@mui/material/Box";
 
@@ -46,6 +46,14 @@ const UserTrialProgressChart = ({ course }: UserTrialProgressChartProps) => {
       >
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (userTrialProgress.length == 0) {
+    return (
+      <Typography justifyContent={"center"} display={"flex"}>
+        No data to show
+      </Typography>
     );
   }
 
