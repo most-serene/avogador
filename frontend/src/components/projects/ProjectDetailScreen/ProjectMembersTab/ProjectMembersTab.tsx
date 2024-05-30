@@ -255,7 +255,11 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
   const handleUnconfirmSubmission = (
     submissionDetail: ProjectSubmissionDetail,
   ) => {
-    unconfirmSubmission(submissionDetail)
+    if (submissionDetail.submissionId == null) return;
+    unconfirmSubmission(
+      submissionDetail.projectId,
+      submissionDetail.submissionId,
+    )
       .then(() => {
         enqueueSnackbar("Submission unconfirmed successfully", {
           variant: "success",
