@@ -37,11 +37,11 @@ const ProjectDetailCollaboratorScreen = ({
   const [openTab, setOpenTab] = useState(0);
   const tabs = useMemo(() => {
     return {
-      Overview: <ProjectOverviewTab project={project} />,
+      Overview: <ProjectOverviewTab project={project} course={course} />,
       Users: <ProjectMembersTab project={project} />,
       Settings: <ProjectSettingsTab project={project} onUpdate={onUpdate} />,
     };
-  }, [onUpdate, project]);
+  }, [course, onUpdate, project]);
 
   const getInitialTab = useCallback(() => {
     const paramTab = Number(searchParams.get("tab"));

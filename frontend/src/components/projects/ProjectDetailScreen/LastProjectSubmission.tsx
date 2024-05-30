@@ -20,6 +20,9 @@ import { enqueueSnackbar } from "notistack";
 import { saveResponseToFile } from "../../../utils/fileHandling.ts";
 import { LoadingButton } from "@mui/lab";
 import ProjectSubmissionLogModal from "@components/projects/ProjectSubmissionLogModal/ProjectSubmissionLogModal.tsx";
+import { useAtom } from "jotai";
+import userAtom from "@authentication/userAtom.ts";
+import { CourseDetail } from "@courses/types.ts";
 
 const getSubmissionStatusBadge = (status: ProjectStatus) => {
   const getProps = (
@@ -47,23 +50,27 @@ const getSubmissionStatusBadge = (status: ProjectStatus) => {
 interface LastProjectSubmissionProps {
   submission: ProjectSubmission;
   onConfirm: (submission: ProjectSubmission) => void;
+  course: CourseDetail;
 }
 
 const LastProjectSubmission = ({
   submission,
   onConfirm,
+  course,
 }: LastProjectSubmissionProps) => {
   const {
     getSubmissionTree,
     downloadSubmissionArchive,
     confirmSubmission,
     downloadOutputFile,
+    unconfirmSubmission,
   } = useProjectService();
   const [tree, setTree] = useState<string>();
   const [downloadingSubmission, setDownloadingSubmission] = useState<number>();
   const [downloadOutputProgress, setDownloadOutputProgress] =
     useState<number>();
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [user] = useAtom(userAtom);
 
   const downloadSubmission = () => {
     setDownloadingSubmission(0);
@@ -101,6 +108,19 @@ const LastProjectSubmission = ({
       .then(onConfirm)
       .then(() => {
         enqueueSnackbar("Submission confirmed successfully", {
+          variant: "success",
+        });
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
+  const handleUnConfirm = () => {
+    unconfirmSubmission(submission.project.id, submission.id)
+      .then(onConfirm)
+      .then(() => {
+        enqueueSnackbar("Submission unconfirmed successfully", {
           variant: "success",
         });
       })
@@ -149,6 +169,14 @@ const LastProjectSubmission = ({
               Confirm Submission
             </ButtonWithConfirmation>
           )}
+          {(course.role === "COLLABORATOR" ||
+            course.role === "ADMIN" ||
+            user?.isSuperuser === true) &&
+            submission.status === "CONFIRMED" && (
+              <Button variant={"outlined"} onClick={handleUnConfirm}>
+                unconfirm
+              </Button>
+            )}
         </Box>
         <Typography variant={"h6"} display={"inline"}>
           Submitted at:{" "}
