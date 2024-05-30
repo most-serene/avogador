@@ -4,7 +4,6 @@ import JSZip from "jszip";
 import {
   Project,
   ProjectSubmission,
-  ProjectSubmissionDetail,
   UserProject,
   UserProjectDetail,
 } from "@components/projects/types.ts";
@@ -104,12 +103,13 @@ const useProjectService = () => {
   );
 
   const unconfirmSubmission: (
-    submission: ProjectSubmissionDetail,
+    projectId: string,
+    submissionId: string,
   ) => Promise<ProjectSubmission> = useCallback(
-    async (submission: ProjectSubmissionDetail) => {
+    async (projectId: string, submissionId: string) => {
       const { data: unconfirmedSubmission }: { data: ProjectSubmission } =
         await avogadorApi.put(
-          `/projects/${submission.projectId}/submissions/${submission.submissionId}/confirm?revert=true`,
+          `/projects/${projectId}/submissions/${submissionId}/confirm?revert=true`,
         );
       return unconfirmedSubmission;
     },
