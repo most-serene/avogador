@@ -27,7 +27,7 @@ const ProjectItem = ({ project }: ProjectItemProps) => {
 
   useEffect(() => {
     if (user == null) return;
-    getUserLatestProjectSubmission(user, project)
+    getUserLatestProjectSubmission(user.id, project)
       .then((submission) => {
         setLastSubmission(submission);
       })

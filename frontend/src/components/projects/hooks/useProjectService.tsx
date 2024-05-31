@@ -11,7 +11,6 @@ import Papa from "papaparse";
 // eslint-disable-next-line import/named
 import { AxiosProgressEvent } from "axios";
 import { enqueueSnackbar } from "notistack";
-import { User } from "@authentication/types.ts";
 
 const useProjectService = () => {
   const avogadorApi = useAvogadorApi();
@@ -138,13 +137,13 @@ const useProjectService = () => {
     );
 
   const getUserLatestProjectSubmission: (
-    user: User,
+    userId: string,
     project: Project,
   ) => Promise<ProjectSubmission | null> = useCallback(
-    async (user: User, project: Project) => {
+    async (userId: string, project: Project) => {
       const { data: projectSubmission }: { data: ProjectSubmission[] } =
         await avogadorApi.get(
-          `/projects/${project.id}/submissions/users/${user.id}?latest=true`,
+          `/projects/${project.id}/submissions/users/${userId}?latest=true`,
         );
       return projectSubmission.length > 0 ? projectSubmission[0] : null;
     },
