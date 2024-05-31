@@ -183,7 +183,7 @@ public class UserController {
         Optional<User> queriedUser = userService.getUserByEmail(thirdPartyAuthUser.getEmail());
 
         final User user = queriedUser.map(innerUser -> {
-            if (innerUser.getGivenName().equals(thirdPartyAuthUser.getGivenName()) &&
+            if (innerUser.getGivenName() != null && innerUser.getFamilyName() != null && innerUser.getGivenName().equals(thirdPartyAuthUser.getGivenName()) &&
                     innerUser.getFamilyName().equals(thirdPartyAuthUser.getFamilyName())) {
                 return innerUser;
             }
