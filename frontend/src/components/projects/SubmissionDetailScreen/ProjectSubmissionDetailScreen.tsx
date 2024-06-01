@@ -52,7 +52,6 @@ const ProjectSubmissionDetailScreen = () => {
     if (userId == null || project == null) return;
     getUserLatestProjectSubmission(userId, project)
       .then((submission) => {
-        console.log(submission?.id);
         setSubmission(submission);
       })
       .catch((err: Error) => {

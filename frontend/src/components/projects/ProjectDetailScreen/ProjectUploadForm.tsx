@@ -160,7 +160,6 @@ const ProjectUploadForm = ({
             }}
             onDrop={() => {
               setTimeout(() => {
-                console.log();
                 setShowFileInput((prev) => {
                   if (prev) {
                     enqueueSnackbar(
@@ -187,8 +186,6 @@ const ProjectUploadForm = ({
           onClick={() => {
             if (inputRef.current != null) {
               inputRef.current.click();
-            } else {
-              console.log("WHT");
             }
           }}
         >
