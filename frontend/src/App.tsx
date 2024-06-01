@@ -13,6 +13,7 @@ const SplashScreen = lazy(
 );
 import Navbar from "@components/structure/Navbar.tsx";
 import Footer from "@components/structure/Footer.tsx";
+import ProjectSubmissionDetailScreen from "@components/projects/SubmissionDetailScreen/ProjectSubmissionDetailScreen.tsx";
 const ProjectCreationScreen = lazy(
   () =>
     import(
@@ -248,10 +249,16 @@ function App() {
                         />
                         <Route path="/profile" element={<ProfileScreen />} />
                         <Route path="/projects">
-                          <Route
-                            path={":projectId"}
-                            element={<ProjectDetailScreen />}
-                          />
+                          <Route path={":projectId"}>
+                            <Route
+                              path={""}
+                              element={<ProjectDetailScreen />}
+                            />
+                            <Route
+                              path={"users/:userId"}
+                              element={<ProjectSubmissionDetailScreen />}
+                            />
+                          </Route>
                           <Route
                             path={"new"}
                             element={

@@ -34,7 +34,7 @@ const ProjectDetailCollaboratorScreen = ({
   const globalErrorSetter = useGlobalErrorSetter();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [openTab, setOpenTab] = useState(0);
+  const [openTab, setOpenTab] = useState<number>();
   const tabs = useMemo(() => {
     return {
       Overview: <ProjectOverviewTab project={project} course={course} />,
@@ -59,6 +59,8 @@ const ProjectDetailCollaboratorScreen = ({
       tab: newValue.toString(),
     });
   };
+
+  if (openTab == null) return;
 
   return (
     <Box
