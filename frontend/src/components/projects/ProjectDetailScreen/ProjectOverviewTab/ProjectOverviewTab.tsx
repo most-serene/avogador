@@ -60,7 +60,7 @@ const ProjectOverviewTab = ({ project, course }: ProjectOverviewTabProps) => {
   useEffect(() => {
     if (!user) return;
 
-    getUserLatestProjectSubmission(user, project)
+    getUserLatestProjectSubmission(user.id, project)
       .then((submission) => {
         setLastSubmission(submission);
       })
