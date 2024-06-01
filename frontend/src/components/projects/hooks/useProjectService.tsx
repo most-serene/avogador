@@ -30,18 +30,27 @@ const useProjectService = () => {
     const generateFilesStream = (files: FileList) => {
       const arr: File[] = [];
       for (const file of files) {
-        console.log(file);
         arr.push(file);
       }
       return arr;
     };
 
     const zip = new JSZip();
-    generateFilesStream(files).map((file: File) => {
-      zip.file(file.webkitRelativePath, file);
-    });
+    const fileStream = generateFilesStream(files);
+    const extensions = fileStream.map((f) => f.name.split(".").pop());
 
-    return zip.generateAsync({ type: "blob" });
+    return new Promise<Blob>((resolve, reject) => {
+      // TODO: this check will be generalized
+      if (extensions.filter((ext) => ext === "ipynb").length !== 1) {
+        reject(new Error("None or more than one ipynb files"));
+      } else {
+        fileStream.map((file: File) => {
+          zip.file(file.webkitRelativePath, file);
+        });
+
+        resolve(zip.generateAsync({ type: "blob" }));
+      }
+    });
   }, []);
 
   const mapZipBlobToFormData = useCallback((archive: Blob) => {
