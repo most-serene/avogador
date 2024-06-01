@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import useProjectService from "../hooks/useProjectService.tsx";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useMemo, useRef, useState } from "react";
 import { Project, ProjectSubmission } from "@components/projects/types.ts";
 import { enqueueSnackbar } from "notistack";
 
@@ -32,6 +32,7 @@ const ProjectUploadForm = ({
   const [progress, setProgress] = useState<number>();
   const [eta, setEta] = useState<number>();
   const isProjectOver = useMemo(() => project.deadline < new Date(), [project]);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = () => {
     if (files == null) return;
@@ -109,69 +110,70 @@ const ProjectUploadForm = ({
           setShowFileInput(false);
         }}
       >
-        {showFileInput && (
+        <Box
+          sx={{
+            display: showFileInput ? "block" : "none",
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0, 0.5)",
+          }}
+        >
           <Box
             sx={{
+              borderRadius: 1,
+              m: "1.5rem",
+              border: "dashed grey 2px",
+              width: "calc(100%- 3rem)",
+              height: "calc(100% - 3rem)",
+            }}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
+            <Typography variant={"h3"} textAlign="center">
+              Drop your submission here
+            </Typography>
+          </Box>
+          <input
+            type="file"
+            id="project-input"
+            ref={inputRef}
+            style={{
               position: "absolute",
-              left: 0,
               top: 0,
+              left: 0,
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(0,0,0, 0.5)",
+              opacity: 0,
             }}
-          >
-            <Box
-              sx={{
-                borderRadius: 1,
-                m: "1.5rem",
-                border: "dashed grey 2px",
-                width: "calc(100%- 3rem)",
-                height: "calc(100% - 3rem)",
-              }}
-              display={"flex"}
-              justifyContent={"center"}
-              alignItems={"center"}
-            >
-              <Typography variant={"h3"} textAlign="center">
-                Drop your submission here
-              </Typography>
-            </Box>
-            <input
-              type={"file"}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                opacity: 0,
-              }}
-              {...{
-                webkitdirectory: "",
-                mozdirectory: "",
-                directory: "",
-              }}
-              onChange={(event) => {
-                setFiles(event.target.files);
-                setShowFileInput(false);
-              }}
-              onDrop={() => {
-                setTimeout(() => {
-                  console.log();
-                  setShowFileInput((prev) => {
-                    if (prev) {
-                      enqueueSnackbar(
-                        "Something went wrong. Did you load a folder?",
-                        { variant: "error" },
-                      );
-                    }
-                    return false;
-                  });
-                }, 1000);
-              }}
-            ></input>
-          </Box>
-        )}
+            {...{
+              webkitdirectory: "",
+              mozdirectory: "",
+              directory: "",
+            }}
+            onChange={(event) => {
+              setFiles(event.target.files);
+              setShowFileInput(false);
+            }}
+            onDrop={() => {
+              setTimeout(() => {
+                console.log();
+                setShowFileInput((prev) => {
+                  if (prev) {
+                    enqueueSnackbar(
+                      "Something went wrong. Did you load a folder?",
+                      { variant: "error" },
+                    );
+                  }
+                  return false;
+                });
+              }, 1000);
+            }}
+          ></input>
+        </Box>
 
         <CardContent
           className={"hidden-scrollbar"}
@@ -181,6 +183,13 @@ const ProjectUploadForm = ({
             height: "100%",
             maxHeight: "100%",
             overflowY: "scroll",
+          }}
+          onClick={() => {
+            if (inputRef.current != null) {
+              inputRef.current.click();
+            } else {
+              console.log("WHT");
+            }
           }}
         >
           {children}
@@ -209,7 +218,7 @@ const ProjectUploadForm = ({
                 {!showFileInput &&
                   (files == null ? (
                     <Typography variant={"h5"}>
-                      Drag the submission folder and drop it here
+                      Click here or Drag the submission folder and drop it here
                     </Typography>
                   ) : (
                     <>

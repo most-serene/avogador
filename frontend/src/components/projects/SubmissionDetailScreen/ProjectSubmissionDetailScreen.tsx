@@ -95,7 +95,20 @@ const ProjectSubmissionDetailScreen = () => {
       });
   }, [submission, getUserById, getSubmissionTree, downloadOutputFile]);
 
-  if (submission == null || submitter == null) return "Wait";
+  if (submission == null || submitter == null) {
+    return (
+      <Box
+        style={{
+          display: "flex",
+          height: "100%",
+        }}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <CircularProgress size={80} />
+      </Box>
+    );
+  }
 
   return (
     <Container
@@ -129,10 +142,11 @@ const ProjectSubmissionDetailScreen = () => {
                 </Box>
               ) : (
                 <iframe
-                  width={"100%"}
-                  height={"100%"}
+                  loading="lazy"
+                  width="100%"
+                  height="100%"
                   style={{ borderRadius: "8px" }}
-                  title="submission-report"
+                  title="submission-output"
                   srcDoc={outputHtml}
                   id="iframe"
                 />

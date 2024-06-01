@@ -57,7 +57,7 @@ const DownloadProjectOutputButton = ({
       startIcon={<Description />}
       onClick={handleDownload}
     >
-      Output
+      Download Output
     </LoadingButton>
   );
 };

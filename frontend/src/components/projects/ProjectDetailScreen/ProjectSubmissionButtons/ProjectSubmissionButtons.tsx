@@ -18,9 +18,9 @@ const ProjectSubmissionButtons = ({
         flexWrap: "wrap",
       }}
     >
-      <DownloadProjectOutputButton submission={submission} />
-      <DownloadProjectSubmissionButton submission={submission} />
       <ToggleProjectSubmissionLogButton submission={submission} />
+      <DownloadProjectSubmissionButton submission={submission} />
+      <DownloadProjectOutputButton submission={submission} />
     </Box>
   );
 };
