@@ -28,14 +28,14 @@ const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
     );
 
     return [...Array(coursesNumber).keys()].map((i) => (
-      <Grid item key={i} xs={4}>
+      <Grid item key={i} xs={12} sm={6} md={4}>
         <CourseItemSkeleton />
       </Grid>
     ));
   }
 
   return courses.map((course) => (
-    <Grid item key={course.id} xs={4}>
+    <Grid item key={course.id} xs={12} sm={6} md={4}>
       <CourseItem course={course} />
     </Grid>
   ));
