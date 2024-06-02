@@ -62,8 +62,12 @@ class DevUtilsCmd(Cmd):
     def do_list_services(self, inp):
         os.system(f'docker compose config --services')
 
-    def do_deployToProd(self, inp):
-        os.system(f"DOCKER_HOST={config['production']['docker_engine']} docker compose -f docker-compose-prod.yml --project-name avogador --env-file production.env up -d --build")
+    def do_deployToProd(self, inp: str):
+        if inp == '':
+            os.system(f"DOCKER_HOST={config['production']['docker_engine']} docker compose -f docker-compose-prod.yml --project-name avogador --env-file production.env up -d --build")
+        else:
+            for s in inp.split(' '):
+                os.system(f"DOCKER_HOST={config['production']['docker_engine']} docker compose -f docker-compose-prod.yml --project-name avogador --env-file production.env up -d --build {s}")
 
     def do_sandboxBuildPush(self, inp):
         os.system('docker buildx build --push --platform linux/amd64  --tag gotti27/runtime-env:stable ./sandboxImage')
