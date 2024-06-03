@@ -5,6 +5,7 @@ import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.Date;
@@ -20,20 +21,26 @@ public class UserTrial {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Setter
     @NotNull
     private UUID userId;
 
+    @Setter
     @JoinColumn(name = "trial_id", referencedColumnName = "id")
     @ManyToOne
     @NotNull
     private Trial trial;
 
+    @Setter
     private Date startTime;
 
+    @Setter
     private Date finishTime;
 
+    @Setter
     private Date deadline;
 
+    @Setter
     @NotNull
     private Boolean hasExtraTime = false;
 
@@ -54,52 +61,32 @@ public class UserTrial {
         return userId;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
     public Trial getTrial() {
         return trial;
-    }
-
-    public void setTrial(Trial trial) {
-        this.trial = trial;
     }
 
     public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
     public Date getFinishTime() {
         return finishTime;
-    }
-
-    public void setFinishTime(Date finishTime) {
-        this.finishTime = finishTime;
     }
 
     public Date getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
-    }
-
     public Boolean getHasExtraTime() {
         return hasExtraTime;
     }
 
-    public void setHasExtraTime(Boolean hasExtraTime) {
-        this.hasExtraTime = hasExtraTime;
-    }
-
     public UserTrialDetailDto getUserTrialDetail(UserDto userDto) {
         return new UserTrialDetailDto(this, userDto);
+    }
+
+    public boolean isAfterDeadline() {
+        return this.getTrial().isAfterDeadline(this.deadline);
     }
 
     public void init() {

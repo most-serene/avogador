@@ -18,6 +18,7 @@ import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrial;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
 import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
@@ -32,8 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -162,12 +161,9 @@ public class SubmissionController {
         }
 
         if (!isUserPrivileged) {
-            Timestamp deadline = Timestamp.from(userTrialService.getUserTrial(exercise.getTrial(), user)
-                    .orElseThrow(() -> new ForbiddenException(user))
-                    .getDeadline()
-                    .toInstant());
+            UserTrial ut = userTrialService.getUserTrial(exercise.getTrial(), user).orElseThrow(NotFoundException::new);
 
-            if (Timestamp.from(Instant.now()).after(deadline)) {
+            if (ut.isAfterDeadline()) {
                 throw new BadRequestException("The deadline has passed");
             }
         }
