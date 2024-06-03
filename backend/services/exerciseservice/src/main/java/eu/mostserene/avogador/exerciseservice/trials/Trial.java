@@ -59,4 +59,5 @@ public abstract class Trial {
 
     public abstract TrialType getTrialType();
 
+    public abstract boolean isAfterDeadline(Date deadline);
 }

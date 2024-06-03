@@ -8,6 +8,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,6 +39,12 @@ public class Practice extends Trial {
         return TrialType.PRACTICE;
     }
 
+    @Override
+    public boolean isAfterDeadline(Date deadline) {
+        // ignores the parameter because the deadline depends only on the practice data
+        return Timestamp.from(Instant.now()).after(this.deadline);
+    }
+
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
@@ -44,4 +52,5 @@ public class Practice extends Trial {
     public boolean areTimestampsValid() {
         return getStartTimestamp().after(new Date()) && getDeadline().after(getStartTimestamp());
     }
+
 }
