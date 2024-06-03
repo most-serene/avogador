@@ -62,6 +62,13 @@ class DevUtilsCmd(Cmd):
     def do_list_services(self, inp):
         os.system(f'docker compose config --services')
 
+    def do_deployToStaging(self, inp: str):
+        if inp == '':
+            os.system(f"DOCKER_HOST={config['staging']['docker_engine']} docker compose -f docker-compose-staging.yml --project-name avogador --env-file staging.env up -d --build")
+        else:
+            for s in inp.split(' '):
+                os.system(f"DOCKER_HOST={config['staging']['docker_engine']} docker compose -f docker-compose-staging.yml --project-name avogador --env-file staging.env up -d --build {s}")
+
     def do_deployToProd(self, inp: str):
         if inp == '':
             os.system(f"DOCKER_HOST={config['production']['docker_engine']} docker compose -f docker-compose-prod.yml --project-name avogador --env-file production.env up -d --build")
