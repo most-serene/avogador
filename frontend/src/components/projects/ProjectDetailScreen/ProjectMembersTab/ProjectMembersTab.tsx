@@ -7,6 +7,8 @@ import {
   DataGrid,
   GridActionsCellItem,
   // eslint-disable-next-line import/named
+  GridCellParams,
+  // eslint-disable-next-line import/named
   GridColDef,
   // eslint-disable-next-line import/named
   GridFilterItem,
@@ -27,8 +29,16 @@ import {
   GridToolbar,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { format } from "date-fns";
-import { Card, Chip, Tooltip } from "@mui/material";
+import { format, isAfter } from "date-fns";
+import {
+  alpha,
+  Card,
+  Chip,
+  darken,
+  lighten,
+  styled,
+  Tooltip,
+} from "@mui/material";
 import {
   Cancel,
   CheckCircle,
@@ -59,6 +69,47 @@ interface DataGridSettings {
   quickFilterValues?: string[];
   filter?: GridFilterItem[];
 }
+
+const getBackgroundColor = (color: string, mode: string) =>
+  alpha(mode === "dark" ? darken(color, 0.7) : lighten(color, 0.7), 0.5);
+
+const getHoverBackgroundColor = (color: string, mode: string) =>
+  alpha(mode === "dark" ? darken(color, 0.6) : lighten(color, 0.6), 0.5);
+
+const getSelectedBackgroundColor = (color: string, mode: string) =>
+  alpha(mode === "dark" ? darken(color, 0.5) : lighten(color, 0.5), 0.5);
+
+const getSelectedHoverBackgroundColor = (color: string, mode: string) =>
+  alpha(mode === "dark" ? darken(color, 0.4) : lighten(color, 0.4), 0.5);
+
+const StyledDataGrid = styled(DataGrid<ProjectSubmissionDetail>)(
+  ({ theme }) => ({
+    "& .super-app-theme--overdue": {
+      backgroundColor: getBackgroundColor(
+        theme.palette.warning.main,
+        theme.palette.mode,
+      ),
+      "&:hover": {
+        backgroundColor: getHoverBackgroundColor(
+          theme.palette.warning.main,
+          theme.palette.mode,
+        ),
+      },
+      "&.Mui-selected": {
+        backgroundColor: getSelectedBackgroundColor(
+          theme.palette.warning.main,
+          theme.palette.mode,
+        ),
+        "&:hover": {
+          backgroundColor: getSelectedHoverBackgroundColor(
+            theme.palette.warning.main,
+            theme.palette.mode,
+          ),
+        },
+      },
+    },
+  }),
+);
 
 const columns: GridColDef<ProjectSubmissionDetail>[] = [
   {
@@ -368,7 +419,7 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         },
       }}
     >
-      <DataGrid
+      <StyledDataGrid
         apiRef={apiRef}
         rows={rows ?? []}
         loading={rows == null}
@@ -394,11 +445,15 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         disableRowSelectionOnClick
         density="compact"
         autoPageSize
+        getRowClassName={(params) =>
+          `super-app-theme--${params.row.timestamp && isAfter(params.row.timestamp, project.deadline) ? "overdue" : ""}`
+        }
         onPaginationModelChange={handlePaginationModelChange}
         onSortModelChange={handleSortModelChange}
         onFilterModelChange={handleFilterModelChange}
-        onCellClick={(cell) => {
-          if (cell.field === "actions") return;
+        onCellClick={(cell: GridCellParams<ProjectSubmissionDetail>) => {
+          if (["actions", "__check__"].includes(cell.field)) return;
+          if (cell.row.status == null) return;
           navigate(`/projects/${project.id}/users/${cell.id}`);
         }}
       />
