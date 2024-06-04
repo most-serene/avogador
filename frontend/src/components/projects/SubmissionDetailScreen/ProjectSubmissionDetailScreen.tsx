@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import {
+  Alert,
   Box,
   Card,
   CardContent,
@@ -34,7 +35,7 @@ const ProjectSubmissionDetailScreen = () => {
   const [submission, setSubmission] = useState<ProjectSubmission | null>();
   const [submitter, setSubmitter] = useState<User>();
   const [tree, setTree] = useState<string>();
-  const [outputHtml, setOutputHtml] = useState<string>();
+  const [outputHtml, setOutputHtml] = useState<string | null>();
   const [progress, setProgress] = useState<number>();
 
   useEffect(() => {
@@ -77,6 +78,11 @@ const ProjectSubmissionDetailScreen = () => {
       .catch(() => {
         setTree(undefined);
       });
+
+    if (submission.status == "ERROR") {
+      setOutputHtml(null);
+      return;
+    }
 
     downloadOutputFile(submission, (progressEvent) => {
       if (progressEvent.total != null) {
@@ -129,7 +135,7 @@ const ProjectSubmissionDetailScreen = () => {
         <Grid item xs={9} sx={{ height: "100%" }}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ height: "100%" }}>
-              {outputHtml == null ? (
+              {outputHtml === undefined ? (
                 <Box
                   height="100%"
                   width="100%"
@@ -138,6 +144,18 @@ const ProjectSubmissionDetailScreen = () => {
                   alignItems="center"
                 >
                   <CircularProgress variant="determinate" value={progress} />
+                </Box>
+              ) : outputHtml === null ? (
+                <Box
+                  width={"100%"}
+                  height={"100%"}
+                  display={"flex"}
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                >
+                  <Alert severity="info" variant={"outlined"}>
+                    <Typography>No output report generated</Typography>
+                  </Alert>
                 </Box>
               ) : (
                 <iframe
