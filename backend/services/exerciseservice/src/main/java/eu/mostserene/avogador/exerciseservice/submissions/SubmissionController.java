@@ -24,6 +24,7 @@ import eu.mostserene.avogador.exerciseservice.utils.BadRequestException;
 import eu.mostserene.avogador.exerciseservice.utils.LoggerColors;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import eu.mostserene.avogador.exerciseservice.utils.WebSocketMessage;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -127,7 +128,8 @@ public class SubmissionController {
     }
 
     @PostMapping("")
-    private SubmissionDto createSubmission(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody SubmissionDto submissionDto) {
+    private SubmissionDto createSubmission(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody SubmissionDto submissionDto, HttpServletRequest request) {
+        log.info(LoggerColors.cyan("Submission attempt from " + user.getEmail() + " - " + request.getHeader("X-FORWARDED-FOR")));
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
