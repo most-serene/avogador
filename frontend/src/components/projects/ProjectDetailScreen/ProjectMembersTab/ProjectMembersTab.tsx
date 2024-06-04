@@ -7,6 +7,8 @@ import {
   DataGrid,
   GridActionsCellItem,
   // eslint-disable-next-line import/named
+  GridCellParams,
+  // eslint-disable-next-line import/named
   GridColDef,
   // eslint-disable-next-line import/named
   GridFilterItem,
@@ -397,8 +399,9 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
         onPaginationModelChange={handlePaginationModelChange}
         onSortModelChange={handleSortModelChange}
         onFilterModelChange={handleFilterModelChange}
-        onCellClick={(cell) => {
-          if (cell.field === "actions") return;
+        onCellClick={(cell: GridCellParams<ProjectSubmissionDetail>) => {
+          if (["actions", "__check__"].includes(cell.field)) return;
+          if (cell.row.status == null) return;
           navigate(`/projects/${project.id}/users/${cell.id}`);
         }}
       />
