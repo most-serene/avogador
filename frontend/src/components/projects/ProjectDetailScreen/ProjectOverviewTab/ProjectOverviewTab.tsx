@@ -21,6 +21,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import LastProjectSubmission from "@components/projects/ProjectDetailScreen/LastProjectSubmission.tsx";
 import { CourseDetail } from "@courses/types.ts";
+import { MathJax } from "better-react-mathjax";
 
 interface ProjectOverviewTabProps {
   project: Project;
@@ -106,12 +107,14 @@ const ProjectOverviewTab = ({ project, course }: ProjectOverviewTabProps) => {
               <Typography variant={"h4"} sx={{ mb: 1 }}>
                 Description
               </Typography>
-              <Markdown
-                remarkPlugins={[remarkGfm]}
-                className={`md-text ${theme.palette.mode}`}
-              >
-                {project.description}
-              </Markdown>
+              <MathJax>
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  className={`md-text ${theme.palette.mode}`}
+                >
+                  {project.description}
+                </Markdown>
+              </MathJax>
             </Box>
           </ProjectUploadForm>
         </Grid>

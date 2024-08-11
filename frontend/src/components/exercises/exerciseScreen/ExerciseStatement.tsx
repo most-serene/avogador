@@ -4,6 +4,7 @@ import { Exercise, Testcase } from "@exercises/types.ts";
 import Markdown from "react-markdown";
 import SampleTestcaseCards from "@exercises/exerciseScreen/SampleTestcaseCards.tsx";
 import remarkGfm from "remark-gfm";
+import { MathJax } from "better-react-mathjax";
 
 interface ExerciseStatementProps {
   exercise: Exercise | undefined;
@@ -42,12 +43,14 @@ const ExerciseStatement = ({ exercise, testcases }: ExerciseStatementProps) => {
       className="hidden-scrollbar"
     >
       <Typography variant="h3">{exercise.name}</Typography>
-      <Markdown
-        remarkPlugins={[remarkGfm]}
-        className={`md-text ${theme.palette.mode}`}
-      >
-        {exercise.statement}
-      </Markdown>
+      <MathJax>
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          className={`md-text ${theme.palette.mode}`}
+        >
+          {exercise.statement}
+        </Markdown>
+      </MathJax>
 
       <Box marginBottom="6rem">
         {testcases.map((testcase, i) => (

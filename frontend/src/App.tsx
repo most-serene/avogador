@@ -14,6 +14,7 @@ const SplashScreen = lazy(
 import Navbar from "@components/structure/Navbar.tsx";
 import Footer from "@components/structure/Footer.tsx";
 import ProjectSubmissionDetailScreen from "@components/projects/SubmissionDetailScreen/ProjectSubmissionDetailScreen.tsx";
+import { MathJaxContext } from "better-react-mathjax";
 const ProjectCreationScreen = lazy(
   () =>
     import(
@@ -149,129 +150,137 @@ function App() {
             <ErrorHandlerWrapper>
               <AuthWrapper>
                 <WebSocketWrapper>
-                  <MobileWrapper>
-                    <Box
-                      id="fullScreenWrapper"
-                      height={`calc(100dvh - ${occupiedHeight}px)`}
-                    >
-                      <Routes>
-                        <Route
-                          path="/"
-                          element={
-                            <Container maxWidth={false} sx={{ height: "100%" }}>
-                              <HomeScreen />
-                            </Container>
-                          }
-                        />
-                        <Route
-                          path="/status"
-                          element={
-                            <Container>
-                              <StatusPage />
-                            </Container>
-                          }
-                        />
-                        <Route
-                          path="/users"
-                          element={
-                            <Container maxWidth={false} sx={{ height: "100%" }}>
-                              <UsersScreen />
-                            </Container>
-                          }
-                        />
-                        <Route path="courses">
+                  <MathJaxContext>
+                    <MobileWrapper>
+                      <Box
+                        id="fullScreenWrapper"
+                        height={`calc(100dvh - ${occupiedHeight}px)`}
+                      >
+                        <Routes>
                           <Route
-                            path={""}
+                            path="/"
                             element={
-                              <Container maxWidth={"xl"}>
-                                <CoursesScreen />
+                              <Container
+                                maxWidth={false}
+                                sx={{ height: "100%" }}
+                              >
+                                <HomeScreen />
                               </Container>
                             }
                           />
                           <Route
-                            path={"new"}
+                            path="/status"
                             element={
-                              <Container maxWidth={"xl"}>
-                                <CourseCreationScreen />
+                              <Container>
+                                <StatusPage />
                               </Container>
                             }
                           />
                           <Route
-                            path={":courseId"}
-                            element={<CourseDetailScreen />}
+                            path="/users"
+                            element={
+                              <Container
+                                maxWidth={false}
+                                sx={{ height: "100%" }}
+                              >
+                                <UsersScreen />
+                              </Container>
+                            }
                           />
-                          <Route
-                            path={":courseId/join"}
-                            element={<JoinCourseScreen />}
-                          />
-                        </Route>
-                        <Route
-                          path={"/trials/new"}
-                          element={<TrialCreationScreen />}
-                        />
-                        <Route
-                          path={"/trials/:trialId"}
-                          element={<TrialDetailScreen />}
-                        />
-                        <Route
-                          path={"/trials/:trialId/exercises/:exerciseId"}
-                          element={<ExerciseNavigatorWrapper />}
-                        />
-                        <Route
-                          path={"/trials/:trialId/users/:userId"}
-                          element={<UserSubmissionsScreen />}
-                        />
-                        <Route
-                          path="/exercises/new"
-                          element={
-                            <Container
-                              maxWidth={"xl"}
-                              style={{ height: "100%" }}
-                            >
-                              <ExerciseCreation />
-                            </Container>
-                          }
-                        />
-                        <Route
-                          path="/exercises/:exerciseId/edit"
-                          element={
-                            <Container
-                              maxWidth={"xl"}
-                              style={{ height: "100%" }}
-                            >
-                              <ExerciseUpdate />
-                            </Container>
-                          }
-                        />
-                        <Route
-                          path="/exercises/:exerciseId/similarity-report"
-                          element={<SimilarityReport />}
-                        />
-                        <Route path="/profile" element={<ProfileScreen />} />
-                        <Route path="/projects">
-                          <Route path={":projectId"}>
+                          <Route path="courses">
                             <Route
                               path={""}
-                              element={<ProjectDetailScreen />}
+                              element={
+                                <Container maxWidth={"xl"}>
+                                  <CoursesScreen />
+                                </Container>
+                              }
                             />
                             <Route
-                              path={"users/:userId"}
-                              element={<ProjectSubmissionDetailScreen />}
+                              path={"new"}
+                              element={
+                                <Container maxWidth={"xl"}>
+                                  <CourseCreationScreen />
+                                </Container>
+                              }
+                            />
+                            <Route
+                              path={":courseId"}
+                              element={<CourseDetailScreen />}
+                            />
+                            <Route
+                              path={":courseId/join"}
+                              element={<JoinCourseScreen />}
                             />
                           </Route>
                           <Route
-                            path={"new"}
+                            path={"/trials/new"}
+                            element={<TrialCreationScreen />}
+                          />
+                          <Route
+                            path={"/trials/:trialId"}
+                            element={<TrialDetailScreen />}
+                          />
+                          <Route
+                            path={"/trials/:trialId/exercises/:exerciseId"}
+                            element={<ExerciseNavigatorWrapper />}
+                          />
+                          <Route
+                            path={"/trials/:trialId/users/:userId"}
+                            element={<UserSubmissionsScreen />}
+                          />
+                          <Route
+                            path="/exercises/new"
                             element={
-                              <Container maxWidth={"xl"}>
-                                <ProjectCreationScreen />
+                              <Container
+                                maxWidth={"xl"}
+                                style={{ height: "100%" }}
+                              >
+                                <ExerciseCreation />
                               </Container>
                             }
                           />
-                        </Route>
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Box>
-                  </MobileWrapper>
+                          <Route
+                            path="/exercises/:exerciseId/edit"
+                            element={
+                              <Container
+                                maxWidth={"xl"}
+                                style={{ height: "100%" }}
+                              >
+                                <ExerciseUpdate />
+                              </Container>
+                            }
+                          />
+                          <Route
+                            path="/exercises/:exerciseId/similarity-report"
+                            element={<SimilarityReport />}
+                          />
+                          <Route path="/profile" element={<ProfileScreen />} />
+                          <Route path="/projects">
+                            <Route path={":projectId"}>
+                              <Route
+                                path={""}
+                                element={<ProjectDetailScreen />}
+                              />
+                              <Route
+                                path={"users/:userId"}
+                                element={<ProjectSubmissionDetailScreen />}
+                              />
+                            </Route>
+                            <Route
+                              path={"new"}
+                              element={
+                                <Container maxWidth={"xl"}>
+                                  <ProjectCreationScreen />
+                                </Container>
+                              }
+                            />
+                          </Route>
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Box>
+                    </MobileWrapper>
+                  </MathJaxContext>
                 </WebSocketWrapper>
               </AuthWrapper>
             </ErrorHandlerWrapper>
