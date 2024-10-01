@@ -283,9 +283,9 @@ const ProjectMembersTab = ({ project }: ProjectMembersTabProps) => {
                 }
                 return {
                   ...usersProject,
-                  submissionId: usersSubmissions[userId]?.id,
-                  status: usersSubmissions[userId]?.status,
-                  timestamp: usersSubmissions[userId]?.timestamp,
+                  submissionId: usersSubmissions[userId].id,
+                  status: usersSubmissions[userId].status,
+                  timestamp: usersSubmissions[userId].timestamp,
                 };
               }),
             );
