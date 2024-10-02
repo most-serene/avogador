@@ -3,10 +3,10 @@ WORKDIR /app
 COPY . .
 
 FROM base as dev-builder
-RUN gradle build --no-daemon
+RUN gradle build
 
 FROM base as prod-builder
-RUN gradle assemble --no-daemon
+RUN gradle assemble
 
 FROM scratch AS reporter
 COPY --from=base build/reports/tests /reports

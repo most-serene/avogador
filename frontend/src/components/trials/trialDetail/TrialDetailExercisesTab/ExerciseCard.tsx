@@ -15,6 +15,7 @@ import { enqueueSnackbar } from "notistack";
 import useExerciseService from "@exercises/hooks/useExerciseService.tsx";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ButtonWithConfirmation from "@structure/ButtonWithConfirmation/ButtonWithConfirmation.tsx";
+import { saveAs } from "file-saver";
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -28,7 +29,22 @@ const ExerciseCard = ({
   trial,
 }: ExerciseCardProps) => {
   const navigate = useNavigate();
-  const { updateExercise, deleteExercise } = useExerciseService();
+  const { updateExercise, deleteExercise, exportExercise } =
+    useExerciseService();
+
+  const exportExerciseJson = () => {
+    exportExercise(exercise.id)
+      .then((dump) => {
+        const fileName = `${exercise.name}_dump.json`;
+        const fileToSave = new Blob([JSON.stringify(dump, undefined, 2)], {
+          type: "application/json",
+        });
+        saveAs(fileToSave, fileName);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
 
   return (
     <ContextMenuWrapper
@@ -72,6 +88,7 @@ const ExerciseCard = ({
           >
             Edit
           </MenuItem>
+          <MenuItem onClick={exportExerciseJson}>Export JSON</MenuItem>
         </Box>
       }
     >

@@ -13,7 +13,12 @@ import eu.mostserene.avogador.exerciseservice.exercises.ExerciseController;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.practices.Practice;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
+import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.strox.StroxCell;
+import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService;
@@ -88,6 +93,28 @@ public class ExerciseControllerTests {
             CourseRole.ADMIN
     );
 
+    private final StroxCell hiddenStroxCell = new StroxCell(StroxCellType.HIDDEN, "Hidden Content");
+    private final StroxCell visibleStroxCell = new StroxCell(StroxCellType.VISIBLE, "Visible Content");
+    private final StroxCell editableStroxCell = new StroxCell(StroxCellType.EDITABLE, "Editable Content");
+    private final Strox strox = new Strox("filename", List.of(hiddenStroxCell, visibleStroxCell, editableStroxCell), "path");
+
+    TestcaseDetailDto visibleTestcaseDto = new TestcaseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            true,
+            1,
+            "in1",
+            "out1"
+    );
+    TestcaseDetailDto hiddenTestcaseDto = new TestcaseDetailDto(
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            UUID.fromString("00000000-0000-0000-0000-000000000001"),
+            false,
+            2,
+            "in2",
+            "out2"
+    );
+
     private final ObjectMapper mapper = new ObjectMapper();
     private @Autowired MockMvc mvc;
     private @MockBean BuildProperties buildProperties;
@@ -99,6 +126,7 @@ public class ExerciseControllerTests {
     private @MockBean TrialService trialService;
     private @MockBean StorageService storageService;
     private @MockBean SubmissionService submissionService;
+    private @MockBean TestcaseService testcaseService;
     private @MockBean AntiPlagiarismService antiPlagiarismService;
 
     @Nested
@@ -607,6 +635,63 @@ public class ExerciseControllerTests {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(2)));
+        }
+    }
+
+    @Nested
+    class ExportExercise {
+        @Test
+        public void fromStudent_get403() throws Exception {
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoStudent));
+            when(codingExerciseService.getCodingExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(storageService.getExerciseTemplate(any()))
+                    .thenReturn(Optional.of(strox));
+            when(testcaseService.getTestcasesFromExercise(any()))
+                    .thenReturn(List.of(visibleTestcaseDto, hiddenTestcaseDto));
+
+            mvc.perform(get("/public/exercises/coding/00000000-0000-0000-0000-000000000000/export")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void fromCollaborator_get200() throws Exception {
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoCollaborator));
+            when(codingExerciseService.getCodingExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(storageService.getExerciseTemplate(any()))
+                    .thenReturn(Optional.of(strox));
+            when(testcaseService.getTestcasesFromExercise(any()))
+                    .thenReturn(List.of(visibleTestcaseDto, hiddenTestcaseDto));
+
+            mvc.perform(get("/public/exercises/coding/00000000-0000-0000-0000-000000000000/export")
+                            .header("User", studentHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void fromSuperuser_get200() throws Exception {
+            when(userCourseService.getUserCourseRoleDetail(any(), any()))
+                    .thenReturn(Optional.of(courseDetailDtoExternal));
+            when(codingExerciseService.getCodingExercise(any()))
+                    .thenReturn(Optional.of(visibleExercise));
+            when(storageService.getExerciseTemplate(any()))
+                    .thenReturn(Optional.of(strox));
+            when(testcaseService.getTestcasesFromExercise(any()))
+                    .thenReturn(List.of(visibleTestcaseDto, hiddenTestcaseDto));
+
+            mvc.perform(get("/public/exercises/coding/00000000-0000-0000-0000-000000000000/export")
+                            .header("User", superUserHeader)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isOk());
         }
     }
 

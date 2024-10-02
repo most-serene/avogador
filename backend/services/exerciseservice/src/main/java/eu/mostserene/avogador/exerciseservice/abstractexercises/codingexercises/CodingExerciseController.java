@@ -13,6 +13,8 @@ import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto;
+import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
@@ -24,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,6 +55,9 @@ public class CodingExerciseController {
 
     @Autowired
     private AntiPlagiarismService antiPlagiarismService;
+
+    @Autowired
+    private TestcaseService testcaseService;
 
     /**
      * Creates an exercise in a given trial
@@ -216,5 +222,31 @@ public class CodingExerciseController {
 
         return antiPlagiarismService.retrieveSimilarityReportFile(exercise)
                 .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found"));
+    }
+
+    @GetMapping("/{exerciseId}/export")
+    private CodingExerciseDump exeportExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+        CodingExerciseDump dump = new CodingExerciseDump();
+
+        CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
+                .orElseThrow(NotFoundException::new);
+
+        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
+            throw new ForbiddenException(user);
+        }
+
+        dump.setExercise(exercise);
+
+        Strox template = storageService.getExerciseTemplate(exercise)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+        dump.setTemplate(template);
+
+        List<TestcaseDetailDto> testcases = testcaseService.getTestcasesFromExercise(exercise);
+        dump.setTestcases(testcases);
+
+        return dump;
     }
 }

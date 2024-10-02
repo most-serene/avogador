@@ -118,7 +118,7 @@ const TrialDetailExercisesTab = ({
                     alignItems="center"
                   >
                     <Add sx={{ mr: 2 }} />
-                    <Typography variant="h5"> Create new Exercise </Typography>
+                    <Typography variant="h5"> Create New Exercise </Typography>
                   </Box>
                 </CardContent>
               </CardActionArea>

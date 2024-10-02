@@ -91,6 +91,30 @@ const ExerciseSettingsStepper = ({
     );
   }, [testcases]);
 
+  const handleUpdate = () => {
+    handleComplete(setCreationPercentage, setCreationStatus)
+      .then(() => {
+        setCreationStatus("");
+        navigate(`/trials/${exercise.trialId}/exercises/${exerciseId}`);
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
+  const handleCreate = () => {
+    handleComplete(setCreationPercentage, setCreationStatus)
+      .then(() => {
+        setTimeout(() => {
+          setCreationStatus("");
+          navigate(`/trials/${exercise.trialId}`);
+        }, 2000); // TODO: remove this delay after fixing rabbit waiting
+      })
+      .catch((err: Error) => {
+        enqueueSnackbar(err.message, { variant: "error" });
+      });
+  };
+
   return (
     <>
       <Box height="100%">
@@ -134,12 +158,9 @@ const ExerciseSettingsStepper = ({
               </ButtonWithConfirmation>
             </Box>
           )}
-          <Button
-            variant="outlined"
-            sx={{
-              mx: 1,
-              display: activeStep >= steps.length - 1 ? "none" : "block",
-            }}
+          <StepperButton
+            label="Next"
+            visible={activeStep < steps.length - 1}
             disabled={
               activeStep >= steps.length - 1 ||
               (activeStep === 0 && !isInformationStepComplete) ||
@@ -148,59 +169,25 @@ const ExerciseSettingsStepper = ({
             onClick={() => {
               setActiveStep(Math.min(activeStep + 1, steps.length - 1));
             }}
-          >
-            Next
-          </Button>
+          />
           {exerciseId == null ? (
-            <Button
-              variant="outlined"
-              sx={{
-                mx: 1,
-                display: activeStep < steps.length - 1 ? "none" : "block",
-              }}
+            <StepperButton
+              label="Create"
+              visible={activeStep === steps.length - 1}
               disabled={
                 activeStep != steps.length - 1 || !isTestcasesStepComplete
               }
-              onClick={() => {
-                handleComplete(setCreationPercentage, setCreationStatus)
-                  .then(() => {
-                    setTimeout(() => {
-                      setCreationStatus("");
-                      navigate(`/trials/${exercise.trialId}`);
-                    }, 2000); // TODO: remove this delay after fixing rabbit waiting
-                  })
-                  .catch((err: Error) => {
-                    enqueueSnackbar(err.message, { variant: "error" });
-                  });
-              }}
-            >
-              Create
-            </Button>
+              onClick={handleCreate}
+            />
           ) : (
-            <Button
-              variant="outlined"
-              sx={{
-                mx: 1,
-                display: activeStep < steps.length - 1 ? "none" : "block",
-              }}
+            <StepperButton
+              label="Update"
+              visible={activeStep === steps.length - 1}
               disabled={
                 activeStep != steps.length - 1 || !isTestcasesStepComplete
               }
-              onClick={() => {
-                handleComplete(setCreationPercentage, setCreationStatus)
-                  .then(() => {
-                    setCreationStatus("");
-                    navigate(
-                      `/trials/${exercise.trialId}/exercises/${exerciseId}`,
-                    );
-                  })
-                  .catch((err: Error) => {
-                    enqueueSnackbar(err.message, { variant: "error" });
-                  });
-              }}
-            >
-              Update
-            </Button>
+              onClick={handleUpdate}
+            />
           )}
         </Box>
       </Box>
@@ -221,6 +208,33 @@ const ExerciseSettingsStepper = ({
         </Box>
       </Backdrop>
     </>
+  );
+};
+
+interface StepperButtonProps {
+  label: string;
+  visible?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}
+const StepperButton = ({
+  label,
+  visible = true,
+  disabled = false,
+  onClick: handleClick,
+}: StepperButtonProps) => {
+  return (
+    <Button
+      variant="outlined"
+      sx={{
+        mx: 1,
+        display: visible ? "block" : "none",
+      }}
+      disabled={disabled}
+      onClick={handleClick}
+    >
+      {label}
+    </Button>
   );
 };
 
