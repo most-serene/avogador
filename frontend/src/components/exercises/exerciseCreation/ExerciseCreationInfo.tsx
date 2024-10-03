@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   InputLabel,
   Select,
+  styled,
   TextField,
 } from "@mui/material";
 import { lazy, useEffect, useState } from "react";
@@ -26,10 +27,26 @@ const Grid = lazy(() => import("@mui/material/Grid"));
 import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 const Box = lazy(() => import("@mui/material/Box"));
 import MarkdownEditor from "@structure/editors/MarkdownEditor.tsx";
+import { Upload } from "@mui/icons-material";
+import { ExerciseDump } from "@exercises/types.ts";
+import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
+import templateAtom from "@exercises/exerciseCreation/TemplateAtom.ts";
 const OldMarkdownEditor = lazy(
   () =>
     import("@exercises/exerciseCreation/mardownEditors/OldMarkdownEditor.tsx"),
 );
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 interface ExerciseCreationInfo {
   disableTrialSelection?: boolean;
@@ -46,6 +63,8 @@ const ExerciseCreationInfo = ({
   const [userCourses, setUserCourses] = useState<UserCourse[]>([]);
   const [trials, setTrials] = useState<Trial[]>([]);
   const [exercise, setExercise] = useAtom(exerciseAtom);
+  const [, setTemplate] = useAtom(templateAtom);
+  const [, setTestcases] = useAtom(testcasesAtom);
   const [isOldEditor, setIsOldEditor] = useState(false);
 
   useEffect(() => {
@@ -92,6 +111,26 @@ const ExerciseCreationInfo = ({
     userCourses,
     isTrialEnded,
   ]);
+
+  const handleImport = ({
+    exercise: importedExercise,
+    testcases: importedTestcases,
+    template: importedTemplate,
+  }: ExerciseDump) => {
+    setExercise({
+      ...exercise,
+      name: importedExercise.name,
+      statement: importedExercise.statement,
+      isVisible: importedExercise.isVisible,
+      timeLimit: importedExercise.timeLimit,
+    });
+    setTestcases(
+      importedTestcases.map(({ input, output, isVisible }) => {
+        return { input, output, isVisible };
+      }),
+    );
+    setTemplate(importedTemplate.cells);
+  };
 
   if (!areCoursesFetched) {
     return (
@@ -254,6 +293,33 @@ const ExerciseCreationInfo = ({
               />
             </Grid>
           )}
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              component="label"
+              role={undefined}
+              variant="outlined"
+              startIcon={<Upload />}
+            >
+              Import from JSON
+              <VisuallyHiddenInput
+                type="file"
+                onChange={(event) => {
+                  if (
+                    event.target.files != null &&
+                    event.target.files.length === 1
+                  ) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      handleImport(
+                        JSON.parse(reader.result as string) as ExerciseDump,
+                      );
+                    };
+                    reader.readAsText(event.target.files[0]);
+                  }
+                }}
+              />
+            </Button>
+          </Grid>
         </Grid>
       </CardContent>
     </Card>

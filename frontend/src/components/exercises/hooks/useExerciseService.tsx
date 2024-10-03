@@ -82,7 +82,7 @@ const useExerciseService = () => {
 
   const downloadSubmission: (submission: Submission) => void = useCallback(
     (submission: Submission) => {
-      enqueueSnackbar("download started", { variant: "info" });
+      enqueueSnackbar("Download started", { variant: "info" });
       avogadorApi
         .get(
           `/exercises/coding/${submission.exerciseId}/submissions/${submission.id}/download`,
@@ -320,6 +320,16 @@ const useExerciseService = () => {
     [avogadorApi],
   );
 
+  const exportExercise: (exerciseId: string) => Promise<object> = useCallback(
+    async (exerciseId: string) => {
+      const { data: dump }: { data: object } = await avogadorApi.get(
+        `/exercises/coding/${exerciseId}/export`,
+      );
+      return dump;
+    },
+    [avogadorApi],
+  );
+
   return {
     createExercise,
     createTemplate,
@@ -343,6 +353,7 @@ const useExerciseService = () => {
     deleteTestcase,
     insertTestcase,
     getSubmission,
+    exportExercise,
   };
 };
 

@@ -76,7 +76,11 @@ export default function CoursesScreen() {
         {user && (user.isProfessor || user.isSuperuser) && (
           <CreateCourseButton />
         )}
-        <CoursesGridContent courses={courses} />
+        <CoursesGridContent
+          courses={
+            courses == null ? undefined : courses.filter((c) => !c.isArchived)
+          }
+        />
       </Grid>
       {courses && courses.filter((c) => c.isArchived).length > 0 && (
         <>

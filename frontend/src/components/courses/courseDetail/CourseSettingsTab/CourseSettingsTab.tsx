@@ -135,12 +135,9 @@ const CourseSettingsTab = () => {
                     onConfirm={() => {
                       archiveCourse(course)
                         .then((updatedCourse) => {
-                          enqueueSnackbar(
-                            "archiving procedure has been dispatched",
-                            {
-                              variant: "info",
-                            },
-                          );
+                          enqueueSnackbar("Archiving procedure started", {
+                            variant: "info",
+                          });
                           setCourse({
                             ...course,
                             isArchived: updatedCourse.isArchived,

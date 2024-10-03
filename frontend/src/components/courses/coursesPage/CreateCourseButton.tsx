@@ -32,7 +32,7 @@ const CreateCourseButton = () => {
             height="100%"
           >
             <Add sx={{ mr: 2 }} />
-            <Typography variant="h5"> Create new course </Typography>
+            <Typography variant="h5"> Create new Course </Typography>
           </Box>
         </CardActionArea>
       </Card>
