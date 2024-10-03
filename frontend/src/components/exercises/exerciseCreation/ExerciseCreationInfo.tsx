@@ -28,7 +28,7 @@ import exerciseAtom from "@exercises/exerciseCreation/ExerciseAtom.ts";
 const Box = lazy(() => import("@mui/material/Box"));
 import MarkdownEditor from "@structure/editors/MarkdownEditor.tsx";
 import { Upload } from "@mui/icons-material";
-import { Exercise, StroxCell, Testcase } from "@exercises/types.ts";
+import { ExerciseDump } from "@exercises/types.ts";
 import testcasesAtom from "@exercises/exerciseCreation/TestcasesAtom.ts";
 import templateAtom from "@exercises/exerciseCreation/TemplateAtom.ts";
 const OldMarkdownEditor = lazy(
@@ -47,12 +47,6 @@ const VisuallyHiddenInput = styled("input")({
   whiteSpace: "nowrap",
   width: 1,
 });
-
-interface ExerciseDump {
-  exercise: Exercise;
-  testcases: Testcase[];
-  template: { cells: StroxCell[] };
-}
 
 interface ExerciseCreationInfo {
   disableTrialSelection?: boolean;
@@ -323,7 +317,6 @@ const ExerciseCreationInfo = ({
                     reader.readAsText(event.target.files[0]);
                   }
                 }}
-                multiple
               />
             </Button>
           </Grid>

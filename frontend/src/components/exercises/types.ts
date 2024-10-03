@@ -19,6 +19,12 @@ interface PartialExercise {
   isVisible: boolean;
 }
 
+interface ExerciseDump {
+  exercise: Exercise;
+  testcases: Testcase[];
+  template: { cells: StroxCell[] };
+}
+
 interface StroxCell {
   content: string;
   type: "HIDDEN" | "VISIBLE" | "EDITABLE";
@@ -83,6 +89,7 @@ type SubmissionResultMap = Record<string, SubmissionResult[]>;
 export type {
   Exercise,
   PartialExercise,
+  ExerciseDump,
   Strox,
   StroxCell,
   Testcase,

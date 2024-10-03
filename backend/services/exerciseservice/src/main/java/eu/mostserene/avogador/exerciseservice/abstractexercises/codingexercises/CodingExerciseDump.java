@@ -11,4 +11,10 @@ public class CodingExerciseDump {
     private CodingExercise exercise;
     private Strox template;
     private List<TestcaseDetailDto> testcases;
+
+    public CodingExerciseDump(CodingExercise exercise, Strox template, List<TestcaseDetailDto> testcases) {
+        this.exercise = exercise;
+        this.template = template;
+        this.testcases = testcases;
+    }
 }

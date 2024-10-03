@@ -226,8 +226,6 @@ public class CodingExerciseController {
 
     @GetMapping("/{exerciseId}/export")
     private CodingExerciseDump exeportExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        CodingExerciseDump dump = new CodingExerciseDump();
-
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
@@ -238,15 +236,11 @@ public class CodingExerciseController {
             throw new ForbiddenException(user);
         }
 
-        dump.setExercise(exercise);
-
         Strox template = storageService.getExerciseTemplate(exercise)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
-        dump.setTemplate(template);
 
         List<TestcaseDetailDto> testcases = testcaseService.getTestcasesFromExercise(exercise);
-        dump.setTestcases(testcases);
 
-        return dump;
+        return new CodingExerciseDump(exercise, template, testcases);
     }
 }
