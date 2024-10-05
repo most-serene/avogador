@@ -31,7 +31,7 @@
     "@mui/x-data-grid": "^6.18.3",
     "@mui/x-date-pickers": "^6.17.0",
     "@react-oauth/google": "^0.11.1",
-    "@sentry/browser": "^7.64.0",
+    "@sentry/browser": "^7.119.1",
     "@stomp/stompjs": "^7.0.0",
     "@types/file-saver": "^2.0.7",
     "@types/papaparse": "^5.3.14",
