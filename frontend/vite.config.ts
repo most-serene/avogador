@@ -110,6 +110,7 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    sourcemap: 'hidden'
   },
   optimizeDeps: {
     include: ["@emotion/react", "@emotion/styled"],
