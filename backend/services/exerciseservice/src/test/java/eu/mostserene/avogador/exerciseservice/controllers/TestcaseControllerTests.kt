@@ -1,7 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.CodingExerciseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.TestcaseServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
@@ -18,8 +20,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -59,16 +59,10 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
     @BeforeEach
     fun setup() {
-        `when`(codingExerciseService.getCodingExercise(any()))
-            .thenReturn(Optional.empty())
-        `when`(codingExerciseService.getCodingExercise(visibleExercise.id))
-            .thenReturn(Optional.of(visibleExercise))
-        `when`(trialService.getTrialById(any()))
-            .thenReturn(Optional.empty())
-        `when`(trialService.getTrialById(practice.id))
-            .thenReturn(Optional.of(practice))
+        CodingExerciseServiceMocks(codingExerciseService).setup()
         UserCourseServiceMocks(userCourseService).setup()
         TestcaseServiceMocks(testcaseService).setup()
+        TrialServiceMocks(trialService).setup()
     }
 
     @Nested

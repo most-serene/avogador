@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.controllers
 import eu.mostserene.avogador.exerciseservice.amqp.Sender
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.CourseService
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
@@ -18,9 +19,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -29,7 +27,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
-import java.util.*
 
 @WebMvcTest(TrialController::class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -74,12 +71,7 @@ class TrialControllerTests : AbstractControllerTests() {
     @BeforeEach
     fun setup() {
         UserCourseServiceMocks(userCourseService).setup()
-        `when`(trialService.getTrialById(any()))
-            .thenReturn(Optional.empty())
-        `when`(trialService.getTrialById(eq(practice.id)))
-            .thenReturn(Optional.of(practice))
-        `when`(trialService.getTrialById(eq(practiceInArchivedCourse.id)))
-            .thenReturn(Optional.of(practiceInArchivedCourse))
+        TrialServiceMocks(trialService).setup()
     }
 
 
