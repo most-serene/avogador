@@ -112,8 +112,8 @@ public class ExerciseController {
         var courseRole = userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-
-        return exerciseService.getExercisesFromTrial(trial, courseRole.hasCollaboratorClearance())
+        boolean isPrivileged = courseRole.hasCollaboratorClearance() || user.getIsSuperuser();
+        return exerciseService.getExercisesFromTrial(trial, isPrivileged)
                 .stream()
                 .map(AbstractExercise::toDto)
                 .toList();

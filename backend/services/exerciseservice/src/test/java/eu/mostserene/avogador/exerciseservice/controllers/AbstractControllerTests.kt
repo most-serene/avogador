@@ -142,6 +142,8 @@ abstract class AbstractControllerTests {
 
         val visibleExercise = CodingExercise(practice, "Exercise1", "statement", true, 1, ProgrammingLanguage.JAVA)
         val hiddenExercise = CodingExercise(practice, "Exercise2", "statement", false, 1, ProgrammingLanguage.JAVA)
+        val archivedExercise =
+            CodingExercise(practiceInArchivedCourse, "Exercise3", "statement", false, 1, ProgrammingLanguage.JAVA)
 
         val visibleTestcase = Testcase(visibleExercise, true, 1, 1.0, "Test")
 
@@ -215,6 +217,7 @@ abstract class AbstractControllerTests {
             exerciseId.isAccessible = true
             exerciseId.set(visibleExercise, UUID.fromString("00000000-0000-0000-0000-000000000001"))
             exerciseId.set(hiddenExercise, UUID.fromString("00000000-0000-0000-0000-000000000002"))
+            exerciseId.set(archivedExercise, UUID.fromString("00000000-0000-0000-0000-000000000003"))
 
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true

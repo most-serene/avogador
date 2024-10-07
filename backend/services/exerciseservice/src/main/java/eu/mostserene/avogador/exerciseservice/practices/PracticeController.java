@@ -138,7 +138,6 @@ public class PracticeController {
 
 
         Boolean canSeeHiddenExercises = user.getIsSuperuser() || courseRole.hasCollaboratorClearance();
-        System.out.println(canSeeHiddenExercises);
 
         return exerciseService.getExercisesFromTrial(practice, canSeeHiddenExercises);
     }

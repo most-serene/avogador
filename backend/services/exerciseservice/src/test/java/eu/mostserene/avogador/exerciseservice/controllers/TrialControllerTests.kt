@@ -80,20 +80,6 @@ class TrialControllerTests : AbstractControllerTests() {
             .thenReturn(Optional.of(practice))
         `when`(trialService.getTrialById(eq(practiceInArchivedCourse.id)))
             .thenReturn(Optional.of(practiceInArchivedCourse))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
-            .thenReturn(Optional.empty())
-        `when`(userCourseService.getUserCourseRoleDetail(eq(course.id), eq(external.id)))
-            .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(eq(course.id), eq(superuser.id)))
-            .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(eq(course.id), eq(student.id)))
-            .thenReturn(Optional.of(courseDetailDtoStudent))
-        `when`(userCourseService.getUserCourseRoleDetail(eq(course.id), eq(collaborator.id)))
-            .thenReturn(Optional.of(courseDetailDtoCollaborator))
-        `when`(userCourseService.getUserCourseRoleDetail(eq(course.id), eq(professor.id)))
-            .thenReturn(Optional.of(courseDetailDtoAdmin))
-        `when`(userCourseService.getUserCourseRoleDetail(eq(archivedCourse.id), eq(professor.id)))
-            .thenReturn(Optional.of(archivedCourseDetailDtoAdmin))
     }
 
 
