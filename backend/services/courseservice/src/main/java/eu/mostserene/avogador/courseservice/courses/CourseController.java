@@ -135,7 +135,7 @@ public class CourseController {
                 .getUserCourse(user.getId(), courseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course"));
 
-        if (userCourse.getRole() != CourseRole.ADMIN) {
+        if (userCourse.getRole() != CourseRole.ADMIN && !user.getIsSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this course");
         }
 

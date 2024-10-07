@@ -1,5 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
+import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,33 @@ public class UserCourseServiceImpl implements UserCourseService {
                         .getForObject("http://courses/courses/" + courseId + "/collaborators",
                                 UserCourseDtoList.class)
         ).getUserCourses();
+    }
+
+    @Override
+    public Optional<CourseDetailDto> getCourseMember(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasStudentClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CourseDetailDto> getCourseCollaborator(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasCollaboratorClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CourseDetailDto> getCourseAdmin(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasAdminClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
     }
 
     @Override

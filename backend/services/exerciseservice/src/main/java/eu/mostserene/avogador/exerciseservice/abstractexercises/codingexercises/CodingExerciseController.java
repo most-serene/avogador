@@ -75,12 +75,8 @@ public class CodingExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
@@ -100,12 +96,8 @@ public class CodingExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
@@ -127,12 +119,8 @@ public class CodingExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
-        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course is archived");
@@ -162,12 +150,8 @@ public class CodingExerciseController {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         Optional<Submission> submission = Optional.empty();
         Strox template;
@@ -198,12 +182,8 @@ public class CodingExerciseController {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
+        userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         return antiPlagiarismService.getSimilarityReport(exercise).isPresent();
     }
@@ -213,12 +193,8 @@ public class CodingExerciseController {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException(exerciseId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
+        userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         return antiPlagiarismService.retrieveSimilarityReportFile(exercise)
                 .orElseThrow(() -> new NotFoundException("Exercise " + exercise.getId() + " Similarity report not found"));
@@ -229,12 +205,8 @@ public class CodingExerciseController {
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
+        userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         Strox template = storageService.getExerciseTemplate(exercise)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));

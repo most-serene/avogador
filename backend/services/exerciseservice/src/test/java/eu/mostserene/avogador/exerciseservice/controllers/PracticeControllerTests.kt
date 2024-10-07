@@ -1,11 +1,14 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.ExerciseServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.PracticeServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserTrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.practices.Practice
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController
-import eu.mostserene.avogador.exerciseservice.practices.PracticeRepository
 import eu.mostserene.avogador.exerciseservice.practices.PracticeService
 import eu.mostserene.avogador.exerciseservice.storage.StorageService
 import eu.mostserene.avogador.exerciseservice.trials.Trial
@@ -19,9 +22,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -49,9 +49,6 @@ class PracticeControllerTests : AbstractControllerTests() {
     private lateinit var practiceService: PracticeService
 
     @MockBean
-    private lateinit var practiceRepository: PracticeRepository
-
-    @MockBean
     private lateinit var userCourseService: UserCourseService
 
     @MockBean
@@ -71,32 +68,10 @@ class PracticeControllerTests : AbstractControllerTests() {
 
     @BeforeEach
     fun setup() {
-        `when`(practiceService.getPractice(any()))
-                .thenReturn(Optional.empty())
-        `when`(practiceService.getPractice(eq(practice.id)))
-                .thenReturn(Optional.of(practice))
-        `when`(practiceService.getPractice(eq(hiddenPractice.id)))
-                .thenReturn(Optional.of(hiddenPractice))
-        `when`(practiceService.getPractice(eq(oldPractice.id)))
-                .thenReturn(Optional.of(oldPractice))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
-                .thenReturn(Optional.empty())
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
-                .thenReturn(Optional.of(courseDetailDtoStudent))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
-                .thenReturn(Optional.of(courseDetailDtoCollaborator))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
-                .thenReturn(Optional.of(courseDetailDtoAdmin))
-        `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(true)))
-                .thenReturn(listOf(visibleExercise, hiddenExercise))
-        `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(false)))
-                .thenReturn(listOf(visibleExercise))
-        `when`(userTrialService.joinTrial(eq(student), eq(practice)))
-                .thenReturn(studentPractice)
+        ExerciseServiceMocks(exerciseService).setup()
+        PracticeServiceMocks(practiceService).setup()
+        UserCourseServiceMocks(userCourseService).setup()
+        UserTrialServiceMocks(userTrialService).setup()
     }
 
     @Nested
@@ -286,13 +261,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(400) different courseId`() {
             val practiceWithDifferentCourseId = Practice(
-                    UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                    practice.name,
-                    practice.isVisible,
-                    practice.isPublic,
-                    practice.language,
-                    practice.startTimestamp,
-                    practice.deadline
+                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                practice.name,
+                practice.isVisible,
+                practice.isPublic,
+                practice.language,
+                practice.startTimestamp,
+                practice.deadline
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true
@@ -326,13 +301,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(200) only change name`() {
             val practiceWithNewName = Practice(
-                    oldPractice.courseId,
-                    "Trial with new name",
-                    oldPractice.isVisible,
-                    oldPractice.isPublic,
-                    oldPractice.language,
-                    oldPractice.startTimestamp,
-                    oldPractice.deadline
+                oldPractice.courseId,
+                "Trial with new name",
+                oldPractice.isVisible,
+                oldPractice.isPublic,
+                oldPractice.language,
+                oldPractice.startTimestamp,
+                oldPractice.deadline
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true
@@ -352,13 +327,13 @@ class PracticeControllerTests : AbstractControllerTests() {
         @Test
         fun `(200) only change finishDate`() {
             val practiceWithNewFinishDate = Practice(
-                    oldPractice.courseId,
-                    oldPractice.name,
-                    oldPractice.isVisible,
-                    oldPractice.isPublic,
-                    oldPractice.language,
-                    oldPractice.startTimestamp,
-                    Date.from(Instant.now().plus(13, ChronoUnit.DAYS))
+                oldPractice.courseId,
+                oldPractice.name,
+                oldPractice.isVisible,
+                oldPractice.isPublic,
+                oldPractice.language,
+                oldPractice.startTimestamp,
+                Date.from(Instant.now().plus(13, ChronoUnit.DAYS))
             )
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true

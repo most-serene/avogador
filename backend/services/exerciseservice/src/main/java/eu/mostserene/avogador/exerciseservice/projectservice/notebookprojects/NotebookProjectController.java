@@ -44,13 +44,9 @@ public class NotebookProjectController {
 
     @PostMapping("")
     private Project createNotebookProject(@RequestHeader(name = "User") UserDto user, @RequestBody NotebookProject project) {
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        userCourseService.getCourseCollaborator(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new)
                 .requireNotArchived();
-
-        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You cannot create a project in this course");
-        }
 
         return notebookProjectService.createProject(project);
     }
@@ -68,13 +64,9 @@ public class NotebookProjectController {
             throw new BadRequestException("Project ID mismatch");
         }
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(storedProject.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseCollaborator(storedProject.getCourseId(), user)
                 .orElseThrow(NotFoundException::new)
                 .requireNotArchived();
-
-        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You cannot create a project in this course");
-        }
 
         storedProject.setName(project.getName());
         storedProject.setDescription(project.getDescription());
@@ -91,7 +83,7 @@ public class NotebookProjectController {
         NotebookProject notebookProject = notebookProjectService.getNotebookProject(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(notebookProject.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getCourseMember(notebookProject.getCourseId(), user)
                 .orElseThrow(NotFoundException::new)
                 .requireNotArchived();
 

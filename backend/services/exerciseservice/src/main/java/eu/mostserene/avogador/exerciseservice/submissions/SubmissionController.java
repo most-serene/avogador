@@ -76,13 +76,13 @@ public class SubmissionController {
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        CourseRole courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         Submission submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user);
         }
 
@@ -94,15 +94,11 @@ public class SubmissionController {
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         Submission submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(() -> new NotFoundException("Submission " + submissionId.toString() + " not found"));
-
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
 
         Resource submissionSource = storageService.getSubmissionSource(submission)
                 .orElseThrow(() -> new NotFoundException("Submission - " + submissionId + ": sourcecode not found"));
@@ -117,10 +113,10 @@ public class SubmissionController {
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        CourseRole courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
         }
 
@@ -133,7 +129,7 @@ public class SubmissionController {
         CodingExercise exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (course.getIsArchived()) {
@@ -147,14 +143,10 @@ public class SubmissionController {
         }
 
         boolean isUserPrivileged = user.getIsSuperuser() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance();
-        boolean isExternal = !user.getIsSuperuser() && courseRole.getClearance() < CourseRole.STUDENT.getClearance();
         boolean hasUserIdMismatch = !user.getId().equals(submissionDto.getUserId());
         boolean isExerciseHidden = !exercise.getIsVisible();
         boolean isTrialHidden = !exercise.getTrial().getIsVisible();
 
-        if (isExternal) {
-            throw new ForbiddenException(user, "External User");
-        }
         if (hasUserIdMismatch) {
             throw new ForbiddenException(user, "UserId mismatch");
         }

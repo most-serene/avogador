@@ -3,6 +3,7 @@ package eu.mostserene.avogador.exerciseservice.controllers
 import eu.mostserene.avogador.exerciseservice.amqp.Sender
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.CourseService
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
@@ -72,6 +73,7 @@ class TrialControllerTests : AbstractControllerTests() {
 
     @BeforeEach
     fun setup() {
+        UserCourseServiceMocks(userCourseService).setup()
         `when`(trialService.getTrialById(any()))
             .thenReturn(Optional.empty())
         `when`(trialService.getTrialById(eq(practice.id)))
@@ -154,7 +156,7 @@ class TrialControllerTests : AbstractControllerTests() {
             }.andDo {
                 print()
             }.andExpect {
-                status { isForbidden() }
+                status { isForbidden() } // TODO: check trial count
             }
         }
 
@@ -166,7 +168,7 @@ class TrialControllerTests : AbstractControllerTests() {
             }.andDo {
                 print()
             }.andExpect {
-                status { isOk() }
+                status { isOk() } //TODO: check trial count
             }
         }
     }

@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.usertrials;
 
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.trials.TrialService;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -40,19 +40,15 @@ public class UserTrialController {
     private List<UserTrialDetailDto> getUsersFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(NotFoundException::new);
-        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        userCourseService.getCourseCollaborator(trial.getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
-
-        var userTrials = userTrialService.getUsersFromTrial(trial);
+        List<UserTrial> userTrials = userTrialService.getUsersFromTrial(trial);
         if (userTrials.isEmpty()) {
             return List.of();
         }
 
-        var users = userService.getUsersFromIdList(userTrials.stream().map(UserTrial::getUserId).toList()).
+        Map<UUID, UserDto> users = userService.getUsersFromIdList(userTrials.stream().map(UserTrial::getUserId).toList()).
                 stream().collect(Collectors.toMap(UserDto::getId, u -> u));
 
         return userTrials.stream()
@@ -72,11 +68,11 @@ public class UserTrialController {
     private UserTrialDetailDto getUserTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId, @PathVariable UUID userId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(NotFoundException::new);
-        var userRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var userRole = userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
         boolean isGettingSelf = user.getId().equals(userId);
-        boolean isPrivileged = userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser();
+        boolean isPrivileged = userRole.hasCollaboratorClearance() || user.getIsSuperuser();
 
         if (isPrivileged) {
             return null;

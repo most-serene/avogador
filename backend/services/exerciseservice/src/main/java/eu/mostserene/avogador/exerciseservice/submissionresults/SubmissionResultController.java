@@ -1,7 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
@@ -51,10 +50,10 @@ public class SubmissionResultController {
     ) {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(userId)) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(userId)) {
             throw new ForbiddenException(user);
         }
 
@@ -77,12 +76,8 @@ public class SubmissionResultController {
     ) {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance()) {
-            throw new ForbiddenException(user);
-        }
+        userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         List<UserTrial> userTrials = userTrialService.getUsersFromTrial(exercise.getTrial());
         return userTrials.stream()
@@ -104,12 +99,12 @@ public class SubmissionResultController {
     ) {
         var exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
         var submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user);
         }
 
@@ -124,12 +119,12 @@ public class SubmissionResultController {
     ) {
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
         var submission = submissionService.getSubmission(submissionId)
                 .orElseThrow(NotFoundException::new);
 
-        if (!user.getIsSuperuser() && courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getId().equals(submission.getUserId())) {
+        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance() && !user.getId().equals(submission.getUserId())) {
             throw new ForbiddenException(user);
         }
 
