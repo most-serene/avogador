@@ -18,4 +18,12 @@ public enum CourseRole {
     public boolean hasCollaboratorClearance() {
         return this.clearance >= COLLABORATOR.getClearance();
     }
+
+    public boolean hasStudentClearance() {
+        return this.clearance >= STUDENT.getClearance();
+    }
+
+    public boolean hasAdminClearance() {
+        return this.clearance >= ADMIN.getClearance();
+    }
 }

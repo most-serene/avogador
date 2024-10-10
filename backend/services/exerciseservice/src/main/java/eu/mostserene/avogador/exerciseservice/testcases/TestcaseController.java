@@ -2,7 +2,6 @@ package eu.mostserene.avogador.exerciseservice.testcases;
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
@@ -45,17 +44,13 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         try {
             return testcaseService.getTestcasesFromExercise(exercise)
                     .stream()
-                    .filter(tc -> tc.getIsVisible() || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
+                    .filter(tc -> tc.getIsVisible() || courseRole.hasCollaboratorClearance() || user.getIsSuperuser())
                     .sorted(Comparator.comparingInt(TestcaseDetailDto::getIndex))
                     .toList();
         } catch (IllegalStateException exception) {
@@ -69,16 +64,12 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         var testcase = testcaseService.getTestcase(exercise, testcaseId)
                 .orElseThrow(() -> new NotFoundException("Not found testcase with id: " + testcaseId));
-        if (!testcase.getIsVisible() && courseRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
+        if (!testcase.getIsVisible() && !courseRole.hasCollaboratorClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -110,7 +101,7 @@ public class TestcaseController {
             @PathVariable UUID exerciseId,
             @RequestBody TestcaseDetailDto testcaseDto) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
-        var courseDetail = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseDetail = userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (courseDetail.getIsArchived()) {
@@ -134,7 +125,7 @@ public class TestcaseController {
     private void deleteTestcase(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @PathVariable UUID testcaseId) {
         var exercise = getExerciseIfCollaboratorClearance(exerciseId, user);
 
-        var courseDetail = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        var courseDetail = userCourseService.getCourseCollaborator(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
 
         if (courseDetail.getIsArchived()) {
@@ -149,12 +140,9 @@ public class TestcaseController {
                 .orElseThrow(() -> new NotFoundException("Not found exercise with id: " + exerciseId));
         var trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Not found trial with id: " + exercise.getTrial().getId()));
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
+        userCourseService.getCourseCollaborator(trial.getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
-        if (courseRole.getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
         return exercise;
     }
 

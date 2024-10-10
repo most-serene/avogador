@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -43,7 +43,7 @@ public class UserTrialServiceTests {
     private final UserDto studentUser = new UserDto(UUID.fromString("00000000-0000-0000-0000-000000000001"), "student@stud.unive.it", "Andy", "Bernard", false, false);
 
     @BeforeAll
-    private void initFields() {
+    public void initFields() {
         alreadyPresentUserTrial.setStartTime(Date.from(Instant.now().minus(6, ChronoUnit.DAYS)));
         alreadyPresentUserTrial.setDeadline(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)));
     }
@@ -51,7 +51,7 @@ public class UserTrialServiceTests {
     @Nested
     class JoinTrial {
         @Test
-        public void emptyRelation() throws Exception{
+        public void emptyRelation() throws Exception {
             when(repository.findByTrialAndUserId(any(), any()))
                     .thenReturn(Optional.empty());
             justCreatedUserTrial.init();
@@ -64,7 +64,7 @@ public class UserTrialServiceTests {
         }
 
         @Test
-        public void nonEmptyRelation() throws Exception{
+        public void nonEmptyRelation() throws Exception {
             when(repository.findByTrialAndUserId(any(), any()))
                     .thenReturn(Optional.of(alreadyPresentUserTrial));
 

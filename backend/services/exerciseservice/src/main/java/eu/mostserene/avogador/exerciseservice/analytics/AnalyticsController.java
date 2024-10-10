@@ -45,7 +45,7 @@ public class AnalyticsController {
                                                         @PathVariable UUID userId,
                                                         @PathVariable UUID courseId
     ) {
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
+        CourseRole courseRole = userCourseService.getCourseMember(courseId, user)
                 .orElseThrow(NotFoundException::new)
                 .getRole();
 
@@ -64,16 +64,13 @@ public class AnalyticsController {
     ) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException("Trial with id: " + trialId));
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
-                .orElseThrow(NotFoundException::new).getRole();
+        userCourseService.getCourseCollaborator(trial.getCourseId(), user)
+                .orElseThrow(NotFoundException::new);
         var exercise = codingExerciseService.getCodingExercise(exerciseId)
                 .orElseThrow(() -> new NotFoundException("Exercise with id: " + trialId));
 
         if (exercise.getTrial().getId() != trialId) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Exercise does not belong to the specified Trial");
-        }
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException("You don't have the right authorization");
         }
 
         return analyticsService.getExerciseResults(exercise);
@@ -82,12 +79,8 @@ public class AnalyticsController {
     @GetMapping("/courses/{courseId}/submissions-trend")
     private List<Date> getCourseSubmissionTrend(@RequestHeader(name = "User") UserDto user,
                                                 @PathVariable UUID courseId) {
-        var courseRole = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
-                .orElseThrow(NotFoundException::new).getRole();
-
-        if (!user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
-            throw new ForbiddenException("You don't have the right authorization");
-        }
+        userCourseService.getCourseCollaborator(courseId, user)
+                .orElseThrow(NotFoundException::new);
 
         return analyticsService.getSubmissionsTrend(courseId);
     }

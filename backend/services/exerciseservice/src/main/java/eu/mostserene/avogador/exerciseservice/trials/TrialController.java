@@ -49,12 +49,8 @@ public class TrialController {
     private Trial getTrialById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId).
                 orElseThrow(NotFoundException::new);
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseRole.getRole().getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         return trial;
     }
@@ -69,32 +65,25 @@ public class TrialController {
      */
     @GetMapping("/courses/{courseId}")
     private List<Trial> getTrialsFromCourse(@RequestHeader(name = "User") UserDto user, @PathVariable UUID courseId) {
-        var userRole = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
-                .orElseThrow(() -> new ForbiddenException(user));
+        CourseRole userRole = userCourseService.getCourseMember(courseId, user)
+                .orElseThrow(() -> new ForbiddenException(user))
+                .getRole();
 
-        if (!user.getIsSuperuser() && userRole.getRole().getClearance() < CourseRole.STUDENT.getClearance()) {
-            throw new ForbiddenException(user);
+        if (userRole.hasCollaboratorClearance() || user.getIsSuperuser()) {
+            return trialService.getTrialsByCourseId(courseId, true);
         }
 
-        if (userRole.getRole().getClearance() == CourseRole.STUDENT.getClearance()) {
-            return trialService.getTrialsByCourseId(courseId, false);
-        }
-
-        return trialService.getTrialsByCourseId(courseId, true);
+        return trialService.getTrialsByCourseId(courseId, false);
     }
 
     @PutMapping("/{trialId}/similarity")
     private void generateSimilarityReport(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
 
         var exercises = exerciseService.getExercisesFromTrial(trial, true);
-
-        if (!user.getIsSuperuser() && !courseRole.getRole().hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseRole.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "The course is archived");
@@ -137,12 +126,8 @@ public class TrialController {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
-        var courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseDetail = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "The course is archived");
