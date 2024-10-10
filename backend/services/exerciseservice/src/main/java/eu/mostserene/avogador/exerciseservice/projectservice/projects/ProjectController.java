@@ -4,6 +4,7 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProject;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
+import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,12 @@ public class ProjectController {
             return null;
         }
 
+        /*
+        if (new Date().after(project.getDeadline())) {
+            throw new BadRequestException("This Project is ended");
+        }
+         */
+
         return userProjectService.joinProject(user, project);
     }
 
@@ -57,7 +64,7 @@ public class ProjectController {
     private List<Project> getProjectsByCourse(@RequestHeader(name = "User") UserDto user,
                                               @PathVariable UUID courseId) {
         userCourseService.getCourseMember(courseId, user)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new ForbiddenException(user));
 
         return projectService.getProjectsByCourseId(courseId);
     }

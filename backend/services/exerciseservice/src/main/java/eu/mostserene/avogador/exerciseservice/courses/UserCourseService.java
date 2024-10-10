@@ -9,9 +9,6 @@ import java.util.UUID;
 public interface UserCourseService {
     List<UserCourseDto> getCourseCollaborators(UUID courseId);
 
-    @Deprecated
-    Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId);
-
     Optional<CourseDetailDto> getCourseMember(UUID courseId, UserDto user);
 
     Optional<CourseDetailDto> getCourseCollaborator(UUID courseId, UserDto user);

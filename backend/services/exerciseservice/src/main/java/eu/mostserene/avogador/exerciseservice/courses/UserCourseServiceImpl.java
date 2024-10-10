@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +17,8 @@ import java.util.UUID;
 @Transactional
 @Service
 public class UserCourseServiceImpl implements UserCourseService {
+    private final RestTemplate restTemplate = new RestTemplateBuilder().build();
+
     @Override
     public List<UserCourseDto> getCourseCollaborators(UUID courseId) {
         return Objects.requireNonNull(
@@ -52,10 +55,8 @@ public class UserCourseServiceImpl implements UserCourseService {
         return Optional.empty();
     }
 
-    @Override
-    public Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
-        CourseDetailDto courseDetailDto = new RestTemplateBuilder()
-                .build()
+    private Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
+        CourseDetailDto courseDetailDto = restTemplate
                 .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseDetailDto.class);
 
         return courseDetailDto != null ? Optional.of(courseDetailDto) : Optional.empty();
