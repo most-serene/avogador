@@ -1,16 +1,12 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.amqp.Sender
-import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService
-import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReportRepository
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
-import eu.mostserene.avogador.exerciseservice.courses.CourseService
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserTrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
-import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
-import eu.mostserene.avogador.exerciseservice.storage.StorageService
-import eu.mostserene.avogador.exerciseservice.trials.TrialController
 import eu.mostserene.avogador.exerciseservice.trials.TrialService
+import eu.mostserene.avogador.exerciseservice.users.UserService
+import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialController
 import eu.mostserene.avogador.exerciseservice.usertrials.UserTrialService
 import eu.mostserene.avogador.exerciseservice.utils.ProfileManager
 import org.junit.jupiter.api.BeforeEach
@@ -25,13 +21,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
-@WebMvcTest(TrialController::class)
+
+@WebMvcTest(UserTrialController::class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TrialControllerTests : AbstractControllerTests() {
+class UserTrialControllerTests : AbstractControllerTests() {
     @Autowired
     private lateinit var mvc: MockMvc
 
@@ -42,121 +40,30 @@ class TrialControllerTests : AbstractControllerTests() {
     private lateinit var profileManager: ProfileManager
 
     @MockBean
-    private lateinit var exerciseService: ExerciseService
+    private lateinit var userTrialService: UserTrialService
 
     @MockBean
-    private lateinit var userTrialService: UserTrialService
+    private lateinit var userService: UserService
 
     @MockBean
     private lateinit var userCourseService: UserCourseService
 
     @MockBean
-    private lateinit var courseService: CourseService
-
-    @MockBean
     private lateinit var trialService: TrialService
-
-    @MockBean
-    private lateinit var storageService: StorageService
-
-    @MockBean
-    private lateinit var antiPlagiarismService: AntiPlagiarismService
-
-    @MockBean
-    private lateinit var similarityReportRepository: SimilarityReportRepository
-
-    @MockBean
-    private lateinit var sender: Sender
 
     @BeforeEach
     fun setup() {
-        UserCourseServiceMocks(userCourseService).setup()
         TrialServiceMocks(trialService).setup()
+        UserCourseServiceMocks(userCourseService).setup()
+        UserTrialServiceMocks(userTrialService).setup()
     }
 
-
     @Nested
-    inner class GetTrialById {
+    inner class GetUsersFromTrial {
         @Test
         fun `(404) wrong id`() {
-            mvc.get("/public/trials/${emptyId}") {
-                header("User", externalHeader)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isNotFound() }
-            }
-        }
-
-        @ParameterizedTest
-        @ArgumentsSource(CourseExternalHeadersProvider::class)
-        fun `(403) external user`(header: String) {
-            mvc.get("/public/trials/${practice.id}") {
-                header("User", header)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isForbidden() }
-            }
-        }
-
-        @ParameterizedTest
-        @ArgumentsSource(CourseMemberHeadersProvider::class)
-        fun `(200) member user`(header: String) {
-            mvc.get("/public/trials/${practice.id}") {
-                header("User", header)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isOk() }
-            }
-        }
-    }
-
-    @Nested
-    inner class GetTrialsFromCourse {
-        @Test
-        fun `(403) wrong id`() {
-            mvc.get("/public/trials/courses/${emptyId}") {
-                header("User", externalHeader)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isForbidden() }
-            }
-        }
-
-        @ParameterizedTest
-        @ArgumentsSource(CourseExternalHeadersProvider::class)
-        fun `(403) external user`(header: String) {
-            mvc.get("/public/trials/courses/${emptyId}") {
-                header("User", header)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isForbidden() } // TODO: check trial count
-            }
-        }
-
-        @ParameterizedTest
-        @ArgumentsSource(CourseMemberHeadersProvider::class)
-        fun `(200) member user`(header: String) {
-            mvc.get("/public/trials/courses/${course.id}") {
-                header("User", header)
-            }.andDo {
-                print()
-            }.andExpect {
-                status { isOk() } //TODO: check trial count
-            }
-        }
-    }
-
-    @Nested
-    inner class DeleteTrial {
-        @Test
-        fun `(404) wrong id`() {
-            mvc.delete("/public/trials/${emptyId}") {
-                header("User", externalHeader)
+            mvc.get("/public/trials/00000000-0000-0000-0000-000000000000/users") {
+                header("User", studentHeader)
             }.andDo {
                 print()
             }.andExpect {
@@ -166,8 +73,46 @@ class TrialControllerTests : AbstractControllerTests() {
 
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
-        fun `(403) unprivileged user`(header: String) {
-            mvc.delete("/public/trials/${practice.id}") {
+        fun `(403) unprivileged`(header: String) {
+            mvc.get("/public/trials/${practice.id}/users") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged`(header: String) {
+            mvc.get("/public/trials/${practice.id}/users") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
+    }
+
+    @Nested
+    inner class GetUserTrial {
+        @Test
+        fun `(404) wrong id`() {
+            mvc.get("/public/trials/00000000-0000-0000-0000-000000000000/users/${student.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isNotFound() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(CourseExternalHeadersProvider::class)
+        fun `(403) external`(header: String) {
+            mvc.get("/public/trials/${practice.id}/users/${student.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -177,21 +122,61 @@ class TrialControllerTests : AbstractControllerTests() {
         }
 
         @Test
-        fun `(410) archived course`() {
-            mvc.delete("/public/trials/${practiceInArchivedCourse.id}") {
-                header("User", professorHeader)
+        fun `(403) not getting self`() {
+            mvc.get("/public/trials/${practice.id}/users/${collaborator.id}") {
+                header("User", studentHeader)
             }.andDo {
                 print()
             }.andExpect {
-                status { isGone() }
+                status { isForbidden() }
             }
+        }
+
+        @Test
+        fun `(200) student self`() {
+            val result = mvc.get("/public/trials/${practice.id}/users/${student.id}") {
+                header("User", studentHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }.andReturn()
+
+            assertNotEquals("", result.response.contentAsString)
         }
 
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
-        fun `(200) privileged user`(header: String) {
-            mvc.delete("/public/trials/${practice.id}") {
+        fun `(200) privileged`(header: String) {
+            val result = mvc.get("/public/trials/${practice.id}/users/${collaborator.id}") {
                 header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }.andReturn()
+
+            assertEquals("", result.response.contentAsString)
+        }
+    }
+
+    @Nested
+    inner class GetTrialsFromUser {
+        @Test
+        fun `(403) different user`() {
+            mvc.get("/public/trials/users/${student.id}") {
+                header("User", collaboratorHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @Test
+        fun `(200) same user`() {
+            mvc.get("/public/trials/users/${student.id}") {
+                header("User", studentHeader)
             }.andDo {
                 print()
             }.andExpect {
@@ -199,7 +184,15 @@ class TrialControllerTests : AbstractControllerTests() {
             }
         }
 
+        @Test
+        fun `(200) superuser`() {
+            mvc.get("/public/trials/users/${student.id}") {
+                header("User", superuserHeader)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+            }
+        }
     }
-
-
 }

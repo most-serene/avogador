@@ -1,10 +1,12 @@
 package eu.mostserene.avogador.exerciseservice.courses;
 
+import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,8 @@ import java.util.UUID;
 @Transactional
 @Service
 public class UserCourseServiceImpl implements UserCourseService {
+    private final RestTemplate restTemplate = new RestTemplateBuilder().build();
+
     @Override
     public List<UserCourseDto> getCourseCollaborators(UUID courseId) {
         return Objects.requireNonNull(
@@ -25,9 +29,34 @@ public class UserCourseServiceImpl implements UserCourseService {
     }
 
     @Override
-    public Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
-        CourseDetailDto courseDetailDto = new RestTemplateBuilder()
-                .build()
+    public Optional<CourseDetailDto> getCourseMember(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasStudentClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CourseDetailDto> getCourseCollaborator(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasCollaboratorClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CourseDetailDto> getCourseAdmin(UUID courseId, UserDto user) {
+        Optional<CourseDetailDto> courseDetailDto = getUserCourseRoleDetail(courseId, user.getId());
+        if (courseDetailDto.isEmpty() || user.getIsSuperuser() || courseDetailDto.get().getRole().hasAdminClearance()) {
+            return courseDetailDto;
+        }
+        return Optional.empty();
+    }
+
+    private Optional<CourseDetailDto> getUserCourseRoleDetail(UUID courseId, UUID userId) {
+        CourseDetailDto courseDetailDto = restTemplate
                 .getForObject("http://courses/courses/" + courseId + "/users/" + userId, CourseDetailDto.class);
 
         return courseDetailDto != null ? Optional.of(courseDetailDto) : Optional.empty();

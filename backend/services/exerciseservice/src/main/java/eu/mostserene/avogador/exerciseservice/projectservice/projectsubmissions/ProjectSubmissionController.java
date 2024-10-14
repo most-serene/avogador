@@ -1,7 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.ProjectService;
@@ -45,7 +44,7 @@ public class ProjectSubmissionController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new);
 
         ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
@@ -64,9 +63,8 @@ public class ProjectSubmissionController {
     private Resource downloadProjectSubmission(@RequestHeader(name = "User") UserDto user,
                                                @PathVariable UUID projectId,
                                                @PathVariable UUID submissionId) {
-        return storageService.getProjectSubmissionArchive(
-                getProjectSubmissionIfPermitted(user, projectId, submissionId)
-        );
+        ProjectSubmission projectSubmission = getProjectSubmissionIfPermitted(user, projectId, submissionId);
+        return storageService.getProjectSubmissionArchive(projectSubmission);
     }
 
     @GetMapping("/{submissionId}/download/extra")
@@ -74,9 +72,9 @@ public class ProjectSubmissionController {
                                                     @PathVariable UUID projectId,
                                                     @PathVariable UUID submissionId,
                                                     @RequestParam String filename) {
-        return storageService.getProjectSubmissionExtraFile(
-                        getProjectSubmissionIfPermitted(user, projectId, submissionId),
-                        filename)
+
+        ProjectSubmission projectSubmission = getProjectSubmissionIfPermitted(user, projectId, submissionId);
+        return storageService.getProjectSubmissionExtraFile(projectSubmission, filename)
                 .orElseThrow(NotFoundException::new);
     }
 
@@ -106,13 +104,9 @@ public class ProjectSubmissionController {
 
     private ProjectSubmission revertConfirmedSubmission(ProjectSubmission submission, UserDto user) {
         Project project = submission.getProject();
-        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user, "You cannot modify this submission"))
-                .getRole();
+        userCourseService.getCourseCollaborator(project.getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user, "You cannot modify this submission"));
 
-        if (!userRole.hasCollaboratorClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You cannot modify this submission");
-        }
         if (!ProjectStatus.CONFIRMED.equals(submission.getStatus())) {
             throw new BadRequestException("A ProjectSubmission status can be reverted only if it is CONFIRMED");
         }
@@ -123,7 +117,7 @@ public class ProjectSubmissionController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new);
 
         ProjectSubmission submission = projectSubmissionService.getProjectSubmissionById(submissionId)
@@ -144,12 +138,8 @@ public class ProjectSubmissionController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        userCourseService.getCourseCollaborator(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new);
-
-        if (!course.getRole().hasCollaboratorClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         List<UUID> projectUsers = userProjectService.getUsersFromProject(project)
                 .stream().map(UserProject::getUserId).toList();
@@ -164,7 +154,7 @@ public class ProjectSubmissionController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new);
 
         List<ProjectSubmission> submissions = latest ?

@@ -61,15 +61,10 @@ public class ExerciseController {
         AbstractExercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseRole courseRole = userCourseService.getUserCourseRoleDetail(exercise.getTrial().getCourseId(), user.getId())
+        CourseRole courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
-
-        if (courseRole.getClearance() == CourseRole.STUDENT.getClearance() && !user.getIsSuperuser() &&
-                !exercise.getIsVisible()) {
+        if (!exercise.getIsVisible() && courseRole.getClearance() == CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
             throw new ForbiddenException(user);
         }
 
@@ -90,12 +85,8 @@ public class ExerciseController {
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrial().getId() + " not found"));
 
-        CourseDetailDto courseDetail = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        CourseDetailDto courseDetail = userCourseService.getCourseCollaborator(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user));
-
-        if (courseDetail.getRole().getClearance() < CourseRole.COLLABORATOR.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
 
         if (courseDetail.getIsArchived()) {
             throw new ResponseStatusException(HttpStatus.GONE, "This course has been archived");
@@ -118,14 +109,11 @@ public class ExerciseController {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
-        var courseRole = userCourseService.getUserCourseRoleDetail(trial.getCourseId(), user.getId())
+        var courseRole = userCourseService.getCourseMember(trial.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        if (courseRole.getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
-
-        return exerciseService.getExercisesFromTrial(trial, courseRole.hasCollaboratorClearance())
+        boolean isPrivileged = courseRole.hasCollaboratorClearance() || user.getIsSuperuser();
+        return exerciseService.getExercisesFromTrial(trial, isPrivileged)
                 .stream()
                 .map(AbstractExercise::toDto)
                 .toList();

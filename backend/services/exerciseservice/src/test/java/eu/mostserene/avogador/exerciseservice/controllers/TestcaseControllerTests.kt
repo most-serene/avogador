@@ -1,6 +1,10 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
 import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.CodingExerciseServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.TestcaseServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
+import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseController
@@ -16,9 +20,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -58,42 +59,10 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
     @BeforeEach
     fun setup() {
-        `when`(codingExerciseService.getCodingExercise(any()))
-                .thenReturn(Optional.empty())
-        `when`(codingExerciseService.getCodingExercise(visibleExercise.id))
-                .thenReturn(Optional.of(visibleExercise))
-        `when`(trialService.getTrialById(any()))
-                .thenReturn(Optional.empty())
-        `when`(trialService.getTrialById(practice.id))
-                .thenReturn(Optional.of(practice))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), any()))
-                .thenReturn(Optional.empty())
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(external.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(superuser.id)))
-                .thenReturn(Optional.of(courseDetailDtoExternal))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(student.id)))
-                .thenReturn(Optional.of(courseDetailDtoStudent))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(collaborator.id)))
-                .thenReturn(Optional.of(courseDetailDtoCollaborator))
-        `when`(userCourseService.getUserCourseRoleDetail(any(), eq(professor.id)))
-                .thenReturn(Optional.of(courseDetailDtoAdmin))
-        `when`(testcaseService.getTestcasesFromExercise(eq(visibleExercise)))
-                .thenReturn(listOf(visibleTestcaseDto, hiddenTestcaseDto))
-        `when`(testcaseService.getTestcase(any(), any()))
-                .thenReturn(Optional.empty())
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcaseDto.id)))
-                .thenReturn(Optional.of(visibleTestcaseDto))
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcaseDto.id)))
-                .thenReturn(Optional.of(hiddenTestcaseDto))
-        `when`(testcaseService.getSimpleTestcasesFromExercise(any()))
-                .thenReturn(listOf())
-        `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleExercise)))
-                .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
-        `when`(testcaseService.getSimpleTestcase(any()))
-                .thenReturn(Optional.empty())
-        `when`(testcaseService.getSimpleTestcase(eq(visibleTestcaseDto.id)))
-                .thenReturn(Optional.of(visibleTestcase))
+        CodingExerciseServiceMocks(codingExerciseService).setup()
+        UserCourseServiceMocks(userCourseService).setup()
+        TestcaseServiceMocks(testcaseService).setup()
+        TrialServiceMocks(trialService).setup()
     }
 
     @Nested
@@ -334,11 +303,11 @@ class TestcaseControllerTests : AbstractControllerTests() {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                        listOf(
-                                hiddenTestcaseDto.id,
-                                visibleTestcaseDto.id,
-                                visibleTestcaseDto.id
-                        )
+                    listOf(
+                        hiddenTestcaseDto.id,
+                        visibleTestcaseDto.id,
+                        visibleTestcaseDto.id
+                    )
                 )
             }.andDo {
                 print()
@@ -366,10 +335,10 @@ class TestcaseControllerTests : AbstractControllerTests() {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
-                        listOf(
-                                UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                                visibleTestcaseDto.id
-                        )
+                    listOf(
+                        UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                        visibleTestcaseDto.id
+                    )
                 )
             }.andDo {
                 print()

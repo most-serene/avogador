@@ -1,7 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.projectservice.projects;
 
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
-import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProject;
 import eu.mostserene.avogador.exerciseservice.projectservice.userproject.UserProjectService;
@@ -32,12 +31,8 @@ public class ProjectController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new);
-
-        if (course.getRole().getClearance() < CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You cannot see this project");
-        }
 
         return project;
     }
@@ -48,13 +43,9 @@ public class ProjectController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseDetailDto course = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(NotFoundException::new)
                 .requireNotArchived();
-
-        if (course.getRole().equals(CourseRole.EXTERNAL) && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You are not a course member");
-        }
 
         if (user.getIsSuperuser() || course.getRole().hasCollaboratorClearance()) {
             return null;
@@ -72,12 +63,8 @@ public class ProjectController {
     @GetMapping("/courses/{courseId}")
     private List<Project> getProjectsByCourse(@RequestHeader(name = "User") UserDto user,
                                               @PathVariable UUID courseId) {
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(courseId, user.getId())
-                .orElseThrow(NotFoundException::new);
-
-        if (course.getRole().equals(CourseRole.EXTERNAL) && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user, "You are not a course member");
-        }
+        userCourseService.getCourseMember(courseId, user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         return projectService.getProjectsByCourseId(courseId);
     }

@@ -1,6 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.projectservice.userproject;
 
-import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
@@ -39,12 +38,10 @@ public class UserProjectController {
     private UserProject getUserProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
-        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        CourseRole userRole = userCourseService.getCourseMember(project.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
-        boolean isPrivileged = userRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser();
-
-        if (isPrivileged) {
+        if (userRole.hasCollaboratorClearance() || user.getIsSuperuser()) {
             return null;
         }
 
@@ -56,12 +53,8 @@ public class UserProjectController {
     private List<UserProjectDto> getUsersFromProject(@RequestHeader(name = "User") UserDto user, @PathVariable UUID projectId) {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
-        CourseRole userRole = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
-                .orElseThrow(() -> new ForbiddenException(user)).getRole();
-
-        if (userRole.getClearance() <= CourseRole.STUDENT.getClearance() && !user.getIsSuperuser()) {
-            throw new ForbiddenException(user);
-        }
+        userCourseService.getCourseCollaborator(project.getCourseId(), user)
+                .orElseThrow(() -> new ForbiddenException(user));
 
         List<UserProject> userProjects = userProjectService.getUsersFromProject(project);
         if (userProjects.isEmpty()) {
@@ -82,13 +75,9 @@ public class UserProjectController {
         Project project = projectService.getProjectById(projectId)
                 .orElseThrow(NotFoundException::new);
 
-        CourseDetailDto course = userCourseService.getUserCourseRoleDetail(project.getCourseId(), user.getId())
+        userCourseService.getCourseCollaborator(project.getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user))
                 .requireNotArchived();
-
-        if (!user.getIsSuperuser() && !course.getRole().hasCollaboratorClearance()) {
-            throw new ForbiddenException(user);
-        }
 
         validateMarks(marks);
 
