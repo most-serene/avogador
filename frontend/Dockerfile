@@ -28,7 +28,7 @@ ARG VITE_REACT_BASE_URL
 ENV VITE_REACT_BASE_URL: ${VITE_REACT_BASE_URL}
 
 COPY . .
-RUN yarn build
+RUN yarn build:production
 
 ENV NODE_ENV production
 
