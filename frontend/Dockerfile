@@ -28,7 +28,7 @@ ARG VITE_REACT_BASE_URL
 ENV VITE_REACT_BASE_URL: ${VITE_REACT_BASE_URL}
 
 COPY . .
-RUN yarn build
+RUN yarn build:production
 
 ENV NODE_ENV production
 
@@ -44,6 +44,6 @@ ARG OBFUSCATE_DIRECTIVE
 RUN yarn run obfuscate -- $OBFUSCATE_DIRECTIVE
 
 FROM nginx as production
-COPY --from=obfuscated /app/dist /usr/share/nginx/html
+COPY --from=develop /app/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 CMD ["nginx", "-g", "daemon off;"]
