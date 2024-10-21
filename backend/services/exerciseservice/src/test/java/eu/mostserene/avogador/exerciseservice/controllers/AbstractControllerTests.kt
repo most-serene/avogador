@@ -2,11 +2,14 @@ package eu.mostserene.avogador.exerciseservice.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectWriter
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise
 import eu.mostserene.avogador.exerciseservice.practices.Practice
+import eu.mostserene.avogador.exerciseservice.strox.Strox
+import eu.mostserene.avogador.exerciseservice.strox.StroxCell
+import eu.mostserene.avogador.exerciseservice.strox.StroxCellType
 import eu.mostserene.avogador.exerciseservice.testcases.Testcase
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage
@@ -26,9 +29,9 @@ abstract class AbstractControllerTests {
     companion object {
         val mapper: ObjectWriter = ObjectMapper().writer().withDefaultPrettyPrinter()
 
+        val emptyId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
         val courseId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000001")
         val archivedCourseId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000002")
-        val emptyId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
 
         val empty = UserDto(
             UUID.fromString("00000000-0000-0000-0000-000000000000"),
@@ -210,6 +213,11 @@ abstract class AbstractControllerTests {
 
         val course = CourseDto()
         val archivedCourse = CourseDto()
+
+        val hiddenStroxCell = StroxCell(StroxCellType.HIDDEN, "hidden")
+        val visibleStroxCell = StroxCell(StroxCellType.VISIBLE, "visible")
+        val editableStroxCell = StroxCell(StroxCellType.EDITABLE, "editable")
+        val template = Strox("filename", listOf(hiddenStroxCell, visibleStroxCell, editableStroxCell), "path")
 
 
         init {

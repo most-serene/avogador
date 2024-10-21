@@ -1,11 +1,11 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.ExerciseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.PracticeServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserTrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.practices.Practice
 import eu.mostserene.avogador.exerciseservice.practices.PracticeController
@@ -384,7 +384,7 @@ class PracticeControllerTests : AbstractControllerTests() {
                 print()
             }.andExpect {
                 status { isOk() }
-                jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(1))
+                jsonPath<Collection<ExerciseDto>>("$", hasSize(1))
             }
         }
 
@@ -397,7 +397,7 @@ class PracticeControllerTests : AbstractControllerTests() {
                 print()
             }.andExpect {
                 status { isOk() }
-                jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(2))
+                jsonPath<Collection<ExerciseDto>>("$", hasSize(2))
             }
         }
     }

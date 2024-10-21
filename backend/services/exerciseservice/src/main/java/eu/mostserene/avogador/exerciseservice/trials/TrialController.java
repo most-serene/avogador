@@ -1,14 +1,14 @@
 package eu.mostserene.avogador.exerciseservice.trials;
 
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.CourseService;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseType;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import eu.mostserene.avogador.exerciseservice.utils.NotFoundException;

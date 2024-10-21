@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissions;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;

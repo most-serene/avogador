@@ -1,14 +1,14 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.ExerciseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseController
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseService
 import eu.mostserene.avogador.exerciseservice.storage.StorageService
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService
@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.get
 @WebMvcTest(ExerciseController::class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class AbstractExerciseControllerTests : AbstractControllerTests() {
+class ExerciseControllerTests : AbstractControllerTests() {
     @Autowired
     private lateinit var mvc: MockMvc
 
@@ -200,7 +200,7 @@ class AbstractExerciseControllerTests : AbstractControllerTests() {
                 status { isNotFound() }
             }
         }
-        
+
         @ParameterizedTest
         @ArgumentsSource(CourseExternalHeadersProvider::class)
         fun `(403) external`(header: String) {
@@ -222,7 +222,7 @@ class AbstractExerciseControllerTests : AbstractControllerTests() {
             }.andExpect {
                 status {
                     isOk()
-                    jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(1))
+                    jsonPath<Collection<ExerciseDto>>("$", hasSize(1))
                 }
             }
         }
@@ -237,7 +237,7 @@ class AbstractExerciseControllerTests : AbstractControllerTests() {
             }.andExpect {
                 status {
                     isOk()
-                    jsonPath<Collection<AbstractExerciseDto>>("$", hasSize(2))
+                    jsonPath<Collection<ExerciseDto>>("$", hasSize(2))
                 }
             }
         }

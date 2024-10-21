@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.submissionresults;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.amqp.Sender;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.projectservice.projects.Project;
 import eu.mostserene.avogador.exerciseservice.projectservice.projectsubmissions.ProjectSubmission;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;

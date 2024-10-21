@@ -1,7 +1,5 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExercise;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
@@ -57,8 +55,8 @@ public class ExerciseController {
      * @return the exercise
      */
     @GetMapping("/{exerciseId}")
-    private AbstractExercise getExerciseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        AbstractExercise exercise = exerciseService.getExercise(exerciseId)
+    private Exercise getExerciseById(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
+        Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         CourseRole courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
@@ -79,7 +77,7 @@ public class ExerciseController {
      */
     @DeleteMapping("/{exerciseId}")
     private void deleteExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId) {
-        AbstractExercise exercise = exerciseService.getExercise(exerciseId)
+        Exercise exercise = exerciseService.getExercise(exerciseId)
                 .orElseThrow(NotFoundException::new);
 
         Trial trial = trialService.getTrialById(exercise.getTrial().getId())
@@ -105,7 +103,7 @@ public class ExerciseController {
      * @throws ForbiddenException if the user has a clearance lower than a student
      */
     @GetMapping("/trials/{trialId}")
-    private List<AbstractExerciseDto> getExercisesFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
+    private List<ExerciseDto> getExercisesFromTrial(@RequestHeader(name = "User") UserDto user, @PathVariable UUID trialId) {
         var trial = trialService.getTrialById(trialId)
                 .orElseThrow(() -> new NotFoundException(trialId.toString()));
 
@@ -115,7 +113,7 @@ public class ExerciseController {
         boolean isPrivileged = courseRole.hasCollaboratorClearance() || user.getIsSuperuser();
         return exerciseService.getExercisesFromTrial(trial, isPrivileged)
                 .stream()
-                .map(AbstractExercise::toDto)
+                .map(Exercise::toDto)
                 .toList();
     }
 
