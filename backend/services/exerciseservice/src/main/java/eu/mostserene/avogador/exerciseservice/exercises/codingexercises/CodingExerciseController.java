@@ -1,15 +1,16 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises;
+package eu.mostserene.avogador.exerciseservice.exercises.codingexercises;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.PlagiarismReport;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
+import eu.mostserene.avogador.exerciseservice.strox.StroxCell;
 import eu.mostserene.avogador.exerciseservice.strox.StroxCellType;
 import eu.mostserene.avogador.exerciseservice.submissions.Submission;
 import eu.mostserene.avogador.exerciseservice.submissions.SubmissionService;
@@ -115,7 +116,7 @@ public class CodingExerciseController {
      * @return the saved updated exercise
      */
     @PutMapping("/{exerciseId}")
-    private AbstractExerciseDto updateExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody CodingExerciseDto exercise) {
+    private ExerciseDto updateExercise(@RequestHeader(name = "User") UserDto user, @PathVariable UUID exerciseId, @RequestBody CodingExerciseDto exercise) {
         Trial trial = trialService.getTrialById(exercise.getTrialId())
                 .orElseThrow(() -> new NotFoundException("Trial " + exercise.getTrialId() + " not found"));
 
@@ -166,15 +167,13 @@ public class CodingExerciseController {
             template = storageService.getMergedSubmission(submission.get())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
+        
+        List<StroxCell> filteredCells = template.getCells()
+                .stream()
+                .filter(cell -> !cell.getType().equals(StroxCellType.HIDDEN) || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
+                .toList();
 
-        template.setCells(
-                template.getCells()
-                        .stream()
-                        .filter(cell -> !cell.getType().equals(StroxCellType.HIDDEN) || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())
-                        .toList()
-        );
-
-        return template;
+        return new Strox(template.getSourceFileName(), filteredCells, template.getPath());
     }
 
     @GetMapping("/{exerciseId}/similarity-report-presence")

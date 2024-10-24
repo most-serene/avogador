@@ -1,8 +1,8 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises;
+package eu.mostserene.avogador.exerciseservice.exercises;
 
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseDto;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseDto;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -14,9 +14,9 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "AbstractExercises")
+@Table(name = "Exercises")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class AbstractExercise {
+public abstract class Exercise {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -41,11 +41,11 @@ public abstract class AbstractExercise {
     @NotNull
     private Boolean isVisible = false;
 
-    public AbstractExercise() {
+    public Exercise() {
 
     }
 
-    public AbstractExercise(Trial trial, String name, String statement, Boolean isVisible) {
+    public Exercise(Trial trial, String name, String statement, Boolean isVisible) {
         this.trial = trial;
         this.name = name;
         this.statement = statement;
@@ -54,10 +54,10 @@ public abstract class AbstractExercise {
 
     public abstract ExerciseType getExerciseType();
 
-    public AbstractExerciseDto toDto() {
+    public ExerciseDto toDto() {
         if (getExerciseType().equals(ExerciseType.CODING)) {
             return new CodingExerciseDto((CodingExercise) this);
         }
-        return new AbstractExerciseDto(id, trial.getId(), name, statement, isVisible);
+        return new ExerciseDto(id, trial.getId(), name, statement, isVisible);
     }
 }

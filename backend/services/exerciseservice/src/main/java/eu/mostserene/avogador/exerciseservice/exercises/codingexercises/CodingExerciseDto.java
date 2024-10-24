@@ -1,6 +1,6 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises;
+package eu.mostserene.avogador.exerciseservice.exercises.codingexercises;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseDto;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CodingExerciseDto extends AbstractExerciseDto {
+public class CodingExerciseDto extends ExerciseDto {
     private ProgrammingLanguage language;
     private Integer timeLimit;
 
@@ -23,9 +23,9 @@ public class CodingExerciseDto extends AbstractExerciseDto {
         this.language = codingExercise.getLanguage();
     }
 
-    public CodingExerciseDto(AbstractExerciseDto abstractExerciseDto, Integer timeLimit, ProgrammingLanguage language) {
-        super(abstractExerciseDto.getId(), abstractExerciseDto.getTrialId(), abstractExerciseDto.getName(),
-                abstractExerciseDto.getStatement(), abstractExerciseDto.getIsVisible());
+    public CodingExerciseDto(ExerciseDto exerciseDto, Integer timeLimit, ProgrammingLanguage language) {
+        super(exerciseDto.getId(), exerciseDto.getTrialId(), exerciseDto.getName(),
+                exerciseDto.getStatement(), exerciseDto.getIsVisible());
         this.timeLimit = timeLimit;
         this.language = language;
     }

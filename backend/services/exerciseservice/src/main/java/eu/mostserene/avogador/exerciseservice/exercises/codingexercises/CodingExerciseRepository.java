@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises;
+package eu.mostserene.avogador.exerciseservice.exercises.codingexercises;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

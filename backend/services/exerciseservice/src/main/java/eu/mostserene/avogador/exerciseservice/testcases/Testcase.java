@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.testcases;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

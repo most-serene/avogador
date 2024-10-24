@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseType;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResult;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionResultService;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;

@@ -1,12 +1,12 @@
 package eu.mostserene.avogador.exerciseservice.controllers
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.CodingExerciseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.TestcaseServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.TrialServiceMocks
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.UserCourseServiceMocks
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseService
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseController
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseDetailDto
 import eu.mostserene.avogador.exerciseservice.testcases.TestcaseService

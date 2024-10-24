@@ -1,21 +1,21 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises;
+package eu.mostserene.avogador.exerciseservice.exercises;
 
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-public class AbstractExerciseDto {
+public class ExerciseDto {
     private UUID id;
     private UUID trialId;
     private String name;
     private String statement;
     private Boolean isVisible;
 
-    public AbstractExerciseDto() {
+    public ExerciseDto() {
     }
 
-    public AbstractExerciseDto(UUID id, UUID trialId, String name, String statement, Boolean isVisible) {
+    public ExerciseDto(UUID id, UUID trialId, String name, String statement, Boolean isVisible) {
         this.id = id;
         this.trialId = trialId;
         this.name = name;

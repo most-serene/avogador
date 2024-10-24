@@ -1,7 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.antiplagiarism;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.similarityreport.SimilarityReport;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 
 import java.util.Optional;
 

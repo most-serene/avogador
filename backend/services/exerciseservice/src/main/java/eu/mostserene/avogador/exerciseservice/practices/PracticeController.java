@@ -1,9 +1,9 @@
 package eu.mostserene.avogador.exerciseservice.practices;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExercise;
 import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
@@ -129,7 +129,7 @@ public class PracticeController {
      * @return the list of the exercises of a practice
      */
     @GetMapping("/{practiceId}/exercises")
-    private List<AbstractExercise> getExercisesFromPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
+    private List<Exercise> getExercisesFromPractice(@RequestHeader(name = "User") UserDto user, @PathVariable UUID practiceId) {
         var practice = practiceService.getPractice(practiceId)
                 .orElseThrow(() -> new NotFoundException(practiceId.toString()));
         var courseRole = userCourseService.getCourseMember(practice.getCourseId(), user)

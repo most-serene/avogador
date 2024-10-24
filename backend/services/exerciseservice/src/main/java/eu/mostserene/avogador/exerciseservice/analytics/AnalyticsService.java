@@ -1,6 +1,6 @@
 package eu.mostserene.avogador.exerciseservice.analytics;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
 import eu.mostserene.avogador.exerciseservice.submissionresults.SubmissionStatus;
 
 import java.util.Date;

@@ -1,10 +1,7 @@
 package eu.mostserene.avogador.exerciseservice.exercises;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExercise;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExerciseRepository;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExercise;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises.CodingExerciseService;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise;
+import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseService;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +16,18 @@ import java.util.UUID;
 public class ExerciseServiceImpl implements ExerciseService {
 
     @Autowired
-    private AbstractExerciseRepository exerciseRepository;
+    private ExerciseRepository exerciseRepository;
 
     @Autowired
     private CodingExerciseService codingExerciseService;
 
     @Override
-    public Optional<AbstractExercise> getExercise(UUID exerciseId) {
+    public Optional<Exercise> getExercise(UUID exerciseId) {
         return exerciseRepository.findById(exerciseId);
     }
 
     @Override
-    public List<AbstractExercise> getExercisesFromTrial(Trial trial, Boolean includeHidden) {
+    public List<Exercise> getExercisesFromTrial(Trial trial, Boolean includeHidden) {
         if (includeHidden) {
             return exerciseRepository.findByTrial_Id(trial.getId());
         }
@@ -38,7 +35,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public void deleteExercise(AbstractExercise exercise) {
+    public void deleteExercise(Exercise exercise) {
         if (exercise.getExerciseType().equals(ExerciseType.CODING)) {
             codingExerciseService.deleteCodingExercise((CodingExercise) exercise);
         }

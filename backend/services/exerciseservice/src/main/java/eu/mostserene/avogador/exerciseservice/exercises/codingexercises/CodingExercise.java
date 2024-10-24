@@ -1,7 +1,7 @@
-package eu.mostserene.avogador.exerciseservice.abstractexercises.codingexercises;
+package eu.mostserene.avogador.exerciseservice.exercises.codingexercises;
 
-import eu.mostserene.avogador.exerciseservice.abstractexercises.AbstractExercise;
-import eu.mostserene.avogador.exerciseservice.abstractexercises.ExerciseType;
+import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
+import eu.mostserene.avogador.exerciseservice.exercises.ExerciseType;
 import eu.mostserene.avogador.exerciseservice.trials.ProgrammingLanguage;
 import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import jakarta.persistence.Entity;
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "CodingExercises")
-public class CodingExercise extends AbstractExercise {
+public class CodingExercise extends Exercise {
 
     @NotNull
     private Integer timeLimit;
@@ -39,5 +39,5 @@ public class CodingExercise extends AbstractExercise {
     public ExerciseType getExerciseType() {
         return ExerciseType.CODING;
     }
-    
+
 }
