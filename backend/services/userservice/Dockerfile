@@ -1,11 +1,11 @@
-FROM gradle:jdk17 as base
+FROM gradle:jdk17 AS base
 WORKDIR /app
 COPY . .
 
-FROM base as dev-builder
+FROM base AS dev-builder
 RUN gradle build --no-daemon
 
-FROM base as prod-builder
+FROM base AS prod-builder
 RUN gradle assemble --no-daemon
 
 FROM scratch AS reporter
