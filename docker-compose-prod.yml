@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   apigateway:
     image: "repository.mostserene.eu/mostserene/avogador-apigateway:${BRANCH:-latest}" 

@@ -7,7 +7,7 @@ RUN yarn --network-timeout 100000
 
 ###
 
-FROM builder as develop
+FROM builder AS develop
 
 ARG VITE_AVOGADOR_BACKEND_API_ADDRESS
 ENV VITE_AVOGADOR_BACKEND_API_ADDRESS: ${VITE_AVOGADOR_BACKEND_API_ADDRESS}
@@ -34,16 +34,16 @@ ENV NODE_ENV production
 
 ###
 
-FROM nginx as staging
+FROM nginx AS staging
 COPY --from=develop /app/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 CMD ["nginx", "-g", "daemon off;"]
 
-FROM develop as obfuscated
+FROM develop AS obfuscated
 ARG OBFUSCATE_DIRECTIVE 
 RUN yarn run obfuscate -- $OBFUSCATE_DIRECTIVE
 
-FROM nginx as production
+FROM nginx AS production
 COPY --from=develop /app/dist /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 CMD ["nginx", "-g", "daemon off;"]
