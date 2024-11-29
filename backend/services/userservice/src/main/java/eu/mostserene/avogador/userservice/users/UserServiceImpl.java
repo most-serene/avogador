@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         user.setIsProfessor(true);
         user.setJwtValidity(Timestamp.from(Instant.now()));
 
-        return user;
+        return repository.save(user);
     }
 
     @Override
@@ -68,6 +68,6 @@ public class UserServiceImpl implements UserService {
         user.setIsProfessor(false);
         user.setJwtValidity(Timestamp.from(Instant.now()));
 
-        return user;
+        return repository.save(user);
     }
 }
