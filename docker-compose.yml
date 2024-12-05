@@ -267,6 +267,7 @@ services:
     ports:
       - "${EXECUTORSERVICE_PORT}:80"
       - "${EXECUTORSERVICE_PORT_DEBUGGER}:5005"
+      - "9999:9999"
     networks:
       - avogador-inner-network
 

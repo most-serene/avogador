@@ -128,6 +128,8 @@ public class CodeExecutor {
             System.exit(1);
             throw new RuntimeException(e);
         }
+
+        new Thread(() -> new PoCLiveSandbox().proofOfConcept(executor.dockerClient)).start();
     }
 
     private static void pullImages() throws InterruptedException {
