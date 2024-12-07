@@ -27,11 +27,14 @@ const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
     return <EmptyCoursesPage />;
   }
 
-  return courses.map((course) => (
-    <Grid item key={course.id} xs={6}>
-      <CourseItem course={course} />
-    </Grid>
-  ));
+  return courses
+    .sort(({ name: a }, { name: b }) => a.localeCompare(b))
+    .sort(({ year: a }, { year: b }) => b.localeCompare(a))
+    .map((course) => (
+      <Grid item key={course.id} xs={6}>
+        <CourseItem course={course} />
+      </Grid>
+    ));
 };
 
 const EmptyCoursesPage = () => {

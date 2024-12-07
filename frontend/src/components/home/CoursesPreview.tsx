@@ -34,11 +34,14 @@ const CoursesGridContent = ({ courses }: { courses: Course[] | undefined }) => {
     ));
   }
 
-  return courses.map((course) => (
-    <Grid item key={course.id} xs={12} sm={6} md={4}>
-      <CourseItem course={course} />
-    </Grid>
-  ));
+  return courses
+    .sort(({ name: a }, { name: b }) => a.localeCompare(b))
+    .sort(({ year: a }, { year: b }) => b.localeCompare(a))
+    .map((course) => (
+      <Grid item key={course.id} xs={12} sm={6} md={4}>
+        <CourseItem course={course} />
+      </Grid>
+    ));
 };
 
 interface CoursePreviewProps {
