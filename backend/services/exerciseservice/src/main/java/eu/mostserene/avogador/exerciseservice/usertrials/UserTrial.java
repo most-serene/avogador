@@ -5,12 +5,14 @@ import eu.mostserene.avogador.exerciseservice.trials.Trial;
 import eu.mostserene.avogador.exerciseservice.users.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
+@Getter
 @Entity
 @Table(
         name = "UserTrials",
@@ -51,34 +53,6 @@ public class UserTrial {
         this.userId = userId;
         this.trial = trial;
         this.hasExtraTime = hasExtraTime;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public Trial getTrial() {
-        return trial;
-    }
-
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public Date getFinishTime() {
-        return finishTime;
-    }
-
-    public Date getDeadline() {
-        return deadline;
-    }
-
-    public Boolean getHasExtraTime() {
-        return hasExtraTime;
     }
 
     public UserTrialDetailDto getUserTrialDetail(UserDto userDto) {
