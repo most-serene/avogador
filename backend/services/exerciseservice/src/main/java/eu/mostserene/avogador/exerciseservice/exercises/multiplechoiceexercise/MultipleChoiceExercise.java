@@ -18,7 +18,7 @@ public class MultipleChoiceExercise extends Exercise {
     private Boolean hasMultipleAnswers = false;
 
     @NotNull
-    private Double correctPoints;
+    private Double correctPoints = 1.;
 
     @NotNull
     private Double wrongPoints = 0.;
