@@ -13,11 +13,11 @@ class AntiPlagiarismServiceMocks(private val antiPlagiarismService: AntiPlagiari
     fun setup() {
         `when`(antiPlagiarismService.getSimilarityReport(any()))
             .thenReturn(Optional.empty())
-        `when`(antiPlagiarismService.getSimilarityReport(visibleExercise))
+        `when`(antiPlagiarismService.getSimilarityReport(visibleCodingExercise))
             .thenReturn(Optional.of(SimilarityReport()))
         `when`(antiPlagiarismService.retrieveSimilarityReportFile(any()))
             .thenReturn(Optional.empty())
-        `when`(antiPlagiarismService.retrieveSimilarityReportFile(visibleExercise))
+        `when`(antiPlagiarismService.retrieveSimilarityReportFile(visibleCodingExercise))
             .thenReturn(Optional.of(PlagiarismReport()))
     }
 }

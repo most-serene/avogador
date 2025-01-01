@@ -83,7 +83,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.put("/public/exercises/coding/${visibleExercise.id}/testcases") {
+            mvc.put("/public/exercises/coding/${visibleCodingExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(visibleTestcaseDto)
@@ -97,7 +97,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.put("/public/exercises/coding/${visibleExercise.id}/testcases") {
+            mvc.put("/public/exercises/coding/${visibleCodingExercise.id}/testcases") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(visibleTestcaseDto)
@@ -124,7 +124,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -135,7 +135,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -149,7 +149,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases") {
                 header("User", header)
             }.andDo {
                 print()
@@ -177,7 +177,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -188,7 +188,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) external user - hidden testcase`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", externalHeader)
             }.andDo {
                 print()
@@ -199,7 +199,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(404) wrong testcase id`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/00000000-0000-0000-0000-000000000000") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/00000000-0000-0000-0000-000000000000") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -210,7 +210,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(403) student user - hidden testcase`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -221,7 +221,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -233,7 +233,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -245,7 +245,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user - hidden testcase`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/testcases/${hiddenTestcaseDto.id}") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${hiddenTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -273,7 +273,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
@@ -286,7 +286,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list size mismatch - smaller`() {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id))
@@ -299,7 +299,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list size mismatch - bigger`() {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
@@ -318,7 +318,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list with repetitions`() {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(visibleTestcaseDto.id, visibleTestcaseDto.id))
@@ -331,7 +331,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) list with wrong ids`() {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(
@@ -350,7 +350,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.patch("/public/exercises/coding/${visibleExercise.id}/testcases/order") {
+            mvc.patch("/public/exercises/coding/${visibleCodingExercise.id}/testcases/order") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(listOf(hiddenTestcaseDto.id, visibleTestcaseDto.id))
@@ -378,7 +378,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.delete("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.delete("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -390,7 +390,7 @@ class TestcaseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.delete("/public/exercises/coding/${visibleExercise.id}/testcases/${visibleTestcaseDto.id}") {
+            mvc.delete("/public/exercises/coding/${visibleCodingExercise.id}/testcases/${visibleTestcaseDto.id}") {
                 header("User", header)
             }.andDo {
                 print()

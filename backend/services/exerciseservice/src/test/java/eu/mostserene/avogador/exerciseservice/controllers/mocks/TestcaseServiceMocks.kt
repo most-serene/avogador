@@ -8,17 +8,17 @@ import java.util.*
 class TestcaseServiceMocks(private val testcaseService: TestcaseService) : AbstractControllerTests() {
 
     fun setup() {
-        `when`(testcaseService.getTestcasesFromExercise(eq(visibleExercise)))
+        `when`(testcaseService.getTestcasesFromExercise(eq(visibleCodingExercise)))
             .thenReturn(listOf(visibleTestcaseDto, hiddenTestcaseDto))
         `when`(testcaseService.getTestcase(any(), any()))
             .thenReturn(Optional.empty())
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(visibleTestcaseDto.id)))
+        `when`(testcaseService.getTestcase(eq(visibleCodingExercise), eq(visibleTestcaseDto.id)))
             .thenReturn(Optional.of(visibleTestcaseDto))
-        `when`(testcaseService.getTestcase(eq(visibleExercise), eq(hiddenTestcaseDto.id)))
+        `when`(testcaseService.getTestcase(eq(visibleCodingExercise), eq(hiddenTestcaseDto.id)))
             .thenReturn(Optional.of(hiddenTestcaseDto))
         `when`(testcaseService.getSimpleTestcasesFromExercise(any()))
             .thenReturn(listOf())
-        `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleExercise)))
+        `when`(testcaseService.getSimpleTestcasesFromExercise(eq(visibleCodingExercise)))
             .thenReturn(listOf(simpleVisibleTestcase, simpleHiddenTestcase))
         `when`(testcaseService.getSimpleTestcase(any()))
             .thenReturn(Optional.empty())

@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercise;
+package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercises;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

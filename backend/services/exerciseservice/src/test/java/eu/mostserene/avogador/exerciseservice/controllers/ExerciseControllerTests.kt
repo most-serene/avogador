@@ -94,7 +94,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(CourseExternalHeadersProvider::class)
         fun `(403) external user`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}") {
+            mvc.get("/public/exercises/${visibleCodingExercise.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -106,7 +106,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(CourseMemberHeadersProvider::class)
         fun `(200) member user - visible`(header: String) {
-            mvc.get("/public/exercises/${visibleExercise.id}") {
+            mvc.get("/public/exercises/${visibleCodingExercise.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -117,7 +117,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user - hidden`() {
-            mvc.get("/public/exercises/${hiddenExercise.id}") {
+            mvc.get("/public/exercises/${hiddenCodingExercise.id}") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -129,7 +129,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user - hidden`(header: String) {
-            mvc.get("/public/exercises/${hiddenExercise.id}") {
+            mvc.get("/public/exercises/${hiddenCodingExercise.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -155,7 +155,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}") {
+            mvc.delete("/public/exercises/${visibleCodingExercise.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -167,7 +167,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.delete("/public/exercises/${visibleExercise.id}") {
+            mvc.delete("/public/exercises/${visibleCodingExercise.id}") {
                 header("User", header)
             }.andDo {
                 print()
@@ -178,7 +178,7 @@ class ExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(410) archived course`() {
-            mvc.delete("/public/exercises/${archivedExercise.id}") {
+            mvc.delete("/public/exercises/${archivedCodingExercise.id}") {
                 header("User", professorHeader)
             }.andDo {
                 print()
