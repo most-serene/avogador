@@ -6,6 +6,8 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseDto
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole
 import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise
+import eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercises.MultipleChoiceExercise
+import eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercises.MultipleChoiceOption
 import eu.mostserene.avogador.exerciseservice.practices.Practice
 import eu.mostserene.avogador.exerciseservice.strox.Strox
 import eu.mostserene.avogador.exerciseservice.strox.StroxCell
@@ -32,6 +34,8 @@ abstract class AbstractControllerTests {
         val emptyId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000000")
         val courseId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000001")
         val archivedCourseId: UUID = UUID.fromString("00000000-0000-0000-0000-000000000002")
+
+        // USERS
 
         val empty = UserDto(
             UUID.fromString("00000000-0000-0000-0000-000000000000"),
@@ -88,6 +92,8 @@ abstract class AbstractControllerTests {
         val professorHeader: String = mapper.writeValueAsString(professor)
         val superuserHeader: String = mapper.writeValueAsString(superuser)
 
+        // PRACTICES
+
         val practice = Practice(
             courseId,
             "Trial",
@@ -143,12 +149,16 @@ abstract class AbstractControllerTests {
             Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
         )
 
-        val visibleExercise = CodingExercise(practice, "Exercise1", "statement", true, 1, ProgrammingLanguage.JAVA)
-        val hiddenExercise = CodingExercise(practice, "Exercise2", "statement", false, 1, ProgrammingLanguage.JAVA)
-        val archivedExercise =
+        // CODING EXERCISES
+
+        val visibleCodingExercise =
+            CodingExercise(practice, "Exercise1", "statement", true, 1, ProgrammingLanguage.JAVA)
+        val hiddenCodingExercise =
+            CodingExercise(practice, "Exercise2", "statement", false, 1, ProgrammingLanguage.JAVA)
+        val archivedCodingExercise =
             CodingExercise(practiceInArchivedCourse, "Exercise3", "statement", false, 1, ProgrammingLanguage.JAVA)
 
-        val visibleTestcase = Testcase(visibleExercise, true, 1, 1.0, "Test")
+        val visibleTestcase = Testcase(visibleCodingExercise, true, 1, 1.0, "Test")
 
         val visibleTestcaseDto = TestcaseDetailDto(
             UUID.fromString("00000000-0000-0000-0000-000000000001"),
@@ -166,8 +176,24 @@ abstract class AbstractControllerTests {
             "in2",
             "out2"
         )
-        val simpleVisibleTestcase = Testcase(visibleExercise, true, 1)
-        val simpleHiddenTestcase = Testcase(visibleExercise, false, 2)
+        val simpleVisibleTestcase = Testcase(visibleCodingExercise, true, 1)
+        val simpleHiddenTestcase = Testcase(visibleCodingExercise, false, 2)
+
+        // MULTIPLE CHOICE EXERCISES
+
+        val visibleMultipleChoiceExercise =
+            MultipleChoiceExercise(practice, "MCE1", "statement", true, true, 1.0, 0.0, false, false)
+        val hiddenMultipleChoiceExercise =
+            MultipleChoiceExercise(practice, "MCE2", "statement", false, false, 1.0, 0.0, false, false)
+        val archivedMultipleChoiceExercise =
+            MultipleChoiceExercise(practiceInArchivedCourse, "MCE3", "statement", true, true, 1.0, 0.0, false, false)
+
+        val option1 = MultipleChoiceOption(visibleMultipleChoiceExercise, "1", true, 0)
+        val option2 = MultipleChoiceOption(visibleMultipleChoiceExercise, "2", true, 1)
+        val option3 = MultipleChoiceOption(visibleMultipleChoiceExercise, "3", false, 2)
+        val option4 = MultipleChoiceOption(visibleMultipleChoiceExercise, "4", false, 3)
+
+        // USER RELATIONS
 
         val studentPractice = UserTrial(student.id, practice, false)
 
@@ -221,11 +247,24 @@ abstract class AbstractControllerTests {
 
 
         init {
-            val exerciseId = CodingExercise::class.java.superclass.getDeclaredField("id")
-            exerciseId.isAccessible = true
-            exerciseId.set(visibleExercise, UUID.fromString("00000000-0000-0000-0000-000000000001"))
-            exerciseId.set(hiddenExercise, UUID.fromString("00000000-0000-0000-0000-000000000002"))
-            exerciseId.set(archivedExercise, UUID.fromString("00000000-0000-0000-0000-000000000003"))
+            val codingExerciseId = CodingExercise::class.java.superclass.getDeclaredField("id")
+            codingExerciseId.isAccessible = true
+            codingExerciseId.set(visibleCodingExercise, UUID.fromString("00000000-0000-0000-0000-000000000001"))
+            codingExerciseId.set(hiddenCodingExercise, UUID.fromString("00000000-0000-0000-0000-000000000002"))
+            codingExerciseId.set(archivedCodingExercise, UUID.fromString("00000000-0000-0000-0000-000000000003"))
+
+            val MCExerciseId = MultipleChoiceExercise::class.java.superclass.getDeclaredField("id")
+            MCExerciseId.isAccessible = true
+            MCExerciseId.set(visibleMultipleChoiceExercise, UUID.fromString("00000000-0000-0000-0000-000000000001"))
+            MCExerciseId.set(hiddenMultipleChoiceExercise, UUID.fromString("00000000-0000-0000-0000-000000000002"))
+            MCExerciseId.set(archivedMultipleChoiceExercise, UUID.fromString("00000000-0000-0000-0000-000000000003"))
+
+            val optionId = MultipleChoiceOption::class.java.getDeclaredField("id")
+            optionId.isAccessible = true
+            optionId.set(option1, UUID.fromString("00000000-0000-0000-0000-000000000001"))
+            optionId.set(option2, UUID.fromString("00000000-0000-0000-0000-000000000002"))
+            optionId.set(option3, UUID.fromString("00000000-0000-0000-0000-000000000003"))
+            optionId.set(option4, UUID.fromString("00000000-0000-0000-0000-000000000004"))
 
             val practiceId = Trial::class.java.getDeclaredField("id")
             practiceId.isAccessible = true

@@ -11,7 +11,9 @@ class StorageServiceMocks(private val storageService: StorageService) : Abstract
     fun setup() {
         `when`(storageService.getExerciseTemplate(any()))
             .thenReturn(Optional.empty())
-        `when`(storageService.getExerciseTemplate(visibleExercise))
+        `when`(storageService.getExerciseTemplate(visibleCodingExercise))
+            .thenReturn(Optional.of(template))
+        `when`(storageService.getExerciseTemplate(hiddenCodingExercise))
             .thenReturn(Optional.of(template))
     }
 }

@@ -10,14 +10,14 @@ class ExerciseServiceMocks(private val exerciseService: ExerciseService) : Abstr
 
     fun setup() {
         `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(true)))
-            .thenReturn(listOf(visibleExercise, hiddenExercise))
+            .thenReturn(listOf(visibleCodingExercise, hiddenCodingExercise))
         `when`(exerciseService.getExercisesFromTrial(eq(practice), eq(false)))
-            .thenReturn(listOf(visibleExercise))
-        `when`(exerciseService.getExercise(eq(visibleExercise.id)))
-            .thenReturn(Optional.of(visibleExercise))
-        `when`(exerciseService.getExercise(eq(hiddenExercise.id)))
-            .thenReturn(Optional.of(hiddenExercise))
-        `when`(exerciseService.getExercise(eq(archivedExercise.id)))
-            .thenReturn(Optional.of(archivedExercise))
+            .thenReturn(listOf(visibleCodingExercise))
+        `when`(exerciseService.getExercise(eq(visibleCodingExercise.id)))
+            .thenReturn(Optional.of(visibleCodingExercise))
+        `when`(exerciseService.getExercise(eq(hiddenCodingExercise.id)))
+            .thenReturn(Optional.of(hiddenCodingExercise))
+        `when`(exerciseService.getExercise(eq(archivedCodingExercise.id)))
+            .thenReturn(Optional.of(archivedCodingExercise))
     }
 }

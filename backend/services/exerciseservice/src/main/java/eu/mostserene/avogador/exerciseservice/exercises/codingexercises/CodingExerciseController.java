@@ -6,7 +6,6 @@ import eu.mostserene.avogador.exerciseservice.courses.CourseDetailDto;
 import eu.mostserene.avogador.exerciseservice.courses.CourseRole;
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseDto;
-import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService;
 import eu.mostserene.avogador.exerciseservice.security.ForbiddenException;
 import eu.mostserene.avogador.exerciseservice.storage.StorageService;
 import eu.mostserene.avogador.exerciseservice.strox.Strox;
@@ -41,9 +40,6 @@ public class CodingExerciseController {
 
     @Autowired
     private UserCourseService userCourseService;
-
-    @Autowired
-    private ExerciseService exerciseService;
 
     @Autowired
     private CodingExerciseService codingExerciseService;
@@ -154,6 +150,10 @@ public class CodingExerciseController {
         var courseRole = userCourseService.getCourseMember(exercise.getTrial().getCourseId(), user)
                 .orElseThrow(() -> new ForbiddenException(user)).getRole();
 
+        if (!exercise.getIsVisible() && !user.getIsSuperuser() && !courseRole.hasCollaboratorClearance()) {
+            throw new ForbiddenException(user);
+        }
+
         Optional<Submission> submission = Optional.empty();
         Strox template;
         if (merged) {
@@ -167,7 +167,7 @@ public class CodingExerciseController {
             template = storageService.getMergedSubmission(submission.get())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
         }
-        
+
         List<StroxCell> filteredCells = template.getCells()
                 .stream()
                 .filter(cell -> !cell.getType().equals(StroxCellType.HIDDEN) || courseRole.getClearance() >= CourseRole.COLLABORATOR.getClearance() || user.getIsSuperuser())

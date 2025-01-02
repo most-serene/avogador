@@ -3,7 +3,6 @@ package eu.mostserene.avogador.exerciseservice.controllers
 import eu.mostserene.avogador.exerciseservice.antiplagiarism.AntiPlagiarismService
 import eu.mostserene.avogador.exerciseservice.controllers.mocks.*
 import eu.mostserene.avogador.exerciseservice.courses.UserCourseService
-import eu.mostserene.avogador.exerciseservice.exercises.ExerciseService
 import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExercise
 import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseController
 import eu.mostserene.avogador.exerciseservice.exercises.codingexercises.CodingExerciseDto
@@ -53,9 +52,6 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
     private lateinit var profileManager: ProfileManager
 
     @MockBean
-    private lateinit var exerciseService: ExerciseService
-
-    @MockBean
     private lateinit var codingExerciseService: CodingExerciseService
 
     @MockBean
@@ -83,7 +79,6 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
     fun setup() {
         AntiPlagiarismServiceMocks(antiPlagiarismService).setup()
         CodingExerciseServiceMocks(codingExerciseService).setup()
-        ExerciseServiceMocks(exerciseService).setup()
         StorageServiceMocks(storageService).setup()
         TrialServiceMocks(trialService).setup()
         UserCourseServiceMocks(userCourseService).setup()
@@ -122,7 +117,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
             mvc.post("/public/exercises/coding") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(visibleExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(visibleCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -135,7 +130,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
             mvc.post("/public/exercises/coding") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(archivedExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(archivedCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -149,7 +144,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
             mvc.post("/public/exercises/coding") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(visibleExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(visibleCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -176,7 +171,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.post("/public/exercises/coding/${visibleExercise.id}/template") {
+            mvc.post("/public/exercises/coding/${visibleCodingExercise.id}/template") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(Strox())
@@ -189,7 +184,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(410) archived course`() {
-            mvc.post("/public/exercises/coding/${archivedExercise.id}/template") {
+            mvc.post("/public/exercises/coding/${archivedCodingExercise.id}/template") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(Strox())
@@ -203,7 +198,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.post("/public/exercises/coding/${visibleExercise.id}/template") {
+            mvc.post("/public/exercises/coding/${visibleCodingExercise.id}/template") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
                 content = mapper.writeValueAsString(Strox())
@@ -222,7 +217,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
             mvc.put("/public/exercises/coding/${emptyId}") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(visibleExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(visibleCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -233,10 +228,10 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.put("/public/exercises/coding/${visibleExercise.id}") {
+            mvc.put("/public/exercises/coding/${visibleCodingExercise.id}") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(visibleExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(visibleCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -246,10 +241,10 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(410) archived course`() {
-            mvc.put("/public/exercises/coding/${archivedExercise.id}") {
+            mvc.put("/public/exercises/coding/${archivedCodingExercise.id}") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(archivedExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(archivedCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -259,10 +254,10 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(400) id mismatch`() {
-            mvc.put("/public/exercises/coding/${visibleExercise.id}") {
+            mvc.put("/public/exercises/coding/${visibleCodingExercise.id}") {
                 header("User", professorHeader)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(hiddenExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(hiddenCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -273,10 +268,10 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.put("/public/exercises/coding/${visibleExercise.id}") {
+            mvc.put("/public/exercises/coding/${visibleCodingExercise.id}") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(CodingExerciseDto(visibleExercise))
+                content = mapper.writeValueAsString(CodingExerciseDto(visibleCodingExercise))
             }.andDo {
                 print()
             }.andExpect {
@@ -301,7 +296,19 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(CourseExternalHeadersProvider::class)
         fun `(403) external user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/template") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/template") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isForbidden() }
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
+        fun `(403) unprivileged user - hidden exercise`(header: String) {
+            mvc.get("/public/exercises/coding/${hiddenCodingExercise.id}/template") {
                 header("User", header)
             }.andDo {
                 print()
@@ -312,7 +319,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(200) student user`() {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/template") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/template") {
                 header("User", studentHeader)
             }.andDo {
                 print()
@@ -325,7 +332,20 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/template") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/template") {
+                header("User", header)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isOk() }
+                jsonPath<Collection<StroxCell>>("$.cells", hasSize(3))
+            }
+        }
+
+        @ParameterizedTest
+        @ArgumentsSource(PrivilegedUserHeadersProvider::class)
+        fun `(200) privileged user - hidden exercise`(header: String) {
+            mvc.get("/public/exercises/coding/${hiddenCodingExercise.id}/template") {
                 header("User", header)
             }.andDo {
                 print()
@@ -352,7 +372,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/similarity-report-presence") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/similarity-report-presence") {
                 header("User", header)
             }.andDo {
                 print()
@@ -364,7 +384,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/similarity-report-presence") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/similarity-report-presence") {
                 header("User", header)
             }.andDo {
                 print()
@@ -390,7 +410,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/similarity-report") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/similarity-report") {
                 header("User", header)
             }.andDo {
                 print()
@@ -401,7 +421,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(404) empty report`() {
-            mvc.get("/public/exercises/coding/${hiddenExercise.id}/similarity-report") {
+            mvc.get("/public/exercises/coding/${hiddenCodingExercise.id}/similarity-report") {
                 header("User", professorHeader)
             }.andDo {
                 print()
@@ -413,7 +433,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/similarity-report") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/similarity-report") {
                 header("User", header)
             }.andDo {
                 print()
@@ -439,7 +459,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(UnprivilegedUserHeadersProvider::class)
         fun `(403) unprivileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/export") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/export") {
                 header("User", header)
             }.andDo {
                 print()
@@ -450,7 +470,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
 
         @Test
         fun `(500) missing template`() {
-            mvc.get("/public/exercises/coding/${hiddenExercise.id}/export") {
+            mvc.get("/public/exercises/coding/${archivedCodingExercise.id}/export") {
                 header("User", professorHeader)
             }.andDo {
                 print()
@@ -462,7 +482,7 @@ class CodingExerciseControllerTests : AbstractControllerTests() {
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
-            mvc.get("/public/exercises/coding/${visibleExercise.id}/export") {
+            mvc.get("/public/exercises/coding/${visibleCodingExercise.id}/export") {
                 header("User", header)
             }.andDo {
                 print()

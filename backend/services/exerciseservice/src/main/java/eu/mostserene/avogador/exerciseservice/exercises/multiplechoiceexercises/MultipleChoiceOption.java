@@ -1,6 +1,7 @@
-package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercise;
+package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercises;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,13 +32,19 @@ public class MultipleChoiceOption {
     @NotNull
     private Boolean isCorrect;
 
+    @Setter
+    @NotNull
+    @Min(0)
+    private Integer index;
+
     public MultipleChoiceOption() {
 
     }
 
-    public MultipleChoiceOption(MultipleChoiceExercise exercise, String label, Boolean isCorrect) {
+    public MultipleChoiceOption(MultipleChoiceExercise exercise, String label, Boolean isCorrect, Integer index) {
         this.exercise = exercise;
         this.label = label;
         this.isCorrect = isCorrect;
+        this.index = index;
     }
 }

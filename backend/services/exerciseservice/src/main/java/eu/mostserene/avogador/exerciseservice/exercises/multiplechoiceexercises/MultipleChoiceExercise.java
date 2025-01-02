@@ -1,4 +1,4 @@
-package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercise;
+package eu.mostserene.avogador.exerciseservice.exercises.multiplechoiceexercises;
 
 import eu.mostserene.avogador.exerciseservice.exercises.Exercise;
 import eu.mostserene.avogador.exerciseservice.exercises.ExerciseType;
