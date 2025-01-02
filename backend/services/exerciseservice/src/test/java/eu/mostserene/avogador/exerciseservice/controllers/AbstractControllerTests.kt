@@ -184,7 +184,7 @@ abstract class AbstractControllerTests {
         val visibleMultipleChoiceExercise =
             MultipleChoiceExercise(practice, "MCE1", "statement", true, true, 1.0, 0.0, false, false)
         val hiddenMultipleChoiceExercise =
-            MultipleChoiceExercise(practice, "MCE2", "statement", false, true, 1.0, 0.0, false, false)
+            MultipleChoiceExercise(practice, "MCE2", "statement", false, false, 1.0, 0.0, false, false)
         val archivedMultipleChoiceExercise =
             MultipleChoiceExercise(practiceInArchivedCourse, "MCE3", "statement", true, true, 1.0, 0.0, false, false)
 

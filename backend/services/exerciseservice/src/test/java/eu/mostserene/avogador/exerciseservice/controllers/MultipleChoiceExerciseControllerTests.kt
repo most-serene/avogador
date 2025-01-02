@@ -151,13 +151,53 @@ class MultipleChoiceExerciseControllerTests : AbstractControllerTests() {
             }
         }
 
+        @Test
+        fun `(400) no correct options`() {
+            val exerciseDto = MultipleChoiceExerciseDto(hiddenMultipleChoiceExercise)
+            exerciseDto.options = listOf()
+
+            mvc.post("/public/exercises/multichoice") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(exerciseDto)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @Test
+        fun `(400) too many correct options`() {
+            val exerciseDto = MultipleChoiceExerciseDto(hiddenMultipleChoiceExercise)
+            exerciseDto.options = listOf(MultipleChoiceOptionDto(option1), MultipleChoiceOptionDto(option2))
+
+            mvc.post("/public/exercises/multichoice") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(exerciseDto)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
+            val exerciseDto = MultipleChoiceExerciseDto(visibleMultipleChoiceExercise)
+            exerciseDto.options = listOf(
+                MultipleChoiceOptionDto(option1),
+                MultipleChoiceOptionDto(option2),
+                MultipleChoiceOptionDto(option3),
+                MultipleChoiceOptionDto(option4)
+            )
+
             mvc.post("/public/exercises/multichoice") {
                 header("User", header)
                 contentType = MediaType.APPLICATION_JSON
-                content = mapper.writeValueAsString(MultipleChoiceExerciseDto(visibleMultipleChoiceExercise))
+                content = mapper.writeValueAsString(exerciseDto)
             }.andDo {
                 print()
             }.andExpect {
@@ -221,11 +261,43 @@ class MultipleChoiceExerciseControllerTests : AbstractControllerTests() {
             }
         }
 
+        @Test
+        fun `(400) no correct options`() {
+            val exerciseDto = MultipleChoiceExerciseDto(hiddenMultipleChoiceExercise)
+            exerciseDto.options = listOf()
+
+            mvc.put("/public/exercises/multichoice/${hiddenMultipleChoiceExercise.id}") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(exerciseDto)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
+        @Test
+        fun `(400) too many correct options`() {
+            val exerciseDto = MultipleChoiceExerciseDto(hiddenMultipleChoiceExercise)
+            exerciseDto.options = listOf(MultipleChoiceOptionDto(option1), MultipleChoiceOptionDto(option2))
+
+            mvc.put("/public/exercises/multichoice/${hiddenMultipleChoiceExercise.id}") {
+                header("User", professorHeader)
+                contentType = MediaType.APPLICATION_JSON
+                content = mapper.writeValueAsString(exerciseDto)
+            }.andDo {
+                print()
+            }.andExpect {
+                status { isBadRequest() }
+            }
+        }
+
         @ParameterizedTest
         @ArgumentsSource(PrivilegedUserHeadersProvider::class)
         fun `(200) privileged user`(header: String) {
             val tempExercise = MultipleChoiceExerciseDto(visibleMultipleChoiceExercise)
-            tempExercise.options = listOf(MultipleChoiceOptionDto(option1))
+            tempExercise.options = listOf(MultipleChoiceOptionDto(option1), MultipleChoiceOptionDto(option2))
 
             mvc.put("/public/exercises/multichoice/${visibleMultipleChoiceExercise.id}") {
                 header("User", header)

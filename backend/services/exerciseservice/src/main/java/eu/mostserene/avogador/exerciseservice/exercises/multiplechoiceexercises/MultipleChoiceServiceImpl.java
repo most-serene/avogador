@@ -15,19 +15,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Transactional
 public class MultipleChoiceServiceImpl implements MultipleChoiceService {
     @Autowired
-    MultipleChoiceExerciseRepository MCERepository;
+    MultipleChoiceExerciseRepository MCExerciseRepository;
 
     @Autowired
-    MultipleChoiceOptionRepository MCORepository;
+    MultipleChoiceOptionRepository MCOptionRepository;
 
     @Override
     public Optional<MultipleChoiceExercise> getMultipleChoiceExercise(UUID exerciseId) {
-        return MCERepository.findById(exerciseId);
+        return MCExerciseRepository.findById(exerciseId);
     }
 
     @Override
     public List<MultipleChoiceOption> getExerciseOptions(UUID exerciseId) {
-        return MCORepository.findByExercise_Id(exerciseId).stream().sorted(Comparator.comparing(MultipleChoiceOption::getIndex)).toList();
+        return MCOptionRepository.findByExercise_Id(exerciseId).stream().sorted(Comparator.comparing(MultipleChoiceOption::getIndex)).toList();
     }
 
     @Override
@@ -41,23 +41,23 @@ public class MultipleChoiceServiceImpl implements MultipleChoiceService {
             saveMultipleChoiceOption(new MultipleChoiceOption(exercise, option.getLabel(), option.getIsCorrect(), 0), index.getAndIncrement());
         });
 
-        return MCERepository.save(exercise);
+        return MCExerciseRepository.save(exercise);
     }
 
     @Override
     public MultipleChoiceExercise updateMultipleChoiceExercise(MultipleChoiceExercise exercise) {
-        return MCERepository.save(exercise);
+        return MCExerciseRepository.save(exercise);
     }
 
     @Override
     public MultipleChoiceOption saveMultipleChoiceOption(MultipleChoiceOption option, int index) {
         option.setIndex(index);
-        return MCORepository.save(option);
+        return MCOptionRepository.save(option);
     }
 
     @Override
     public void deleteMultipleChoiceOption(UUID optionId) {
-        MCORepository.deleteById(optionId);
+        MCOptionRepository.deleteById(optionId);
     }
 
 

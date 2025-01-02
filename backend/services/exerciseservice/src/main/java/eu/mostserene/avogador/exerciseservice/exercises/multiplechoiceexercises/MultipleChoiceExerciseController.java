@@ -49,10 +49,18 @@ public class MultipleChoiceExerciseController {
         if (exercise.getWrongPoints() > 0) {
             throw new BadRequestException("Wrong points cannot be positive");
         }
+
         if (exercise.getCorrectPoints() < 0) {
             throw new BadRequestException("Correct points cannot be negative");
         }
 
+        int numCorrectOptions = exercise.getOptions().stream().filter(MultipleChoiceOptionDto::getIsCorrect).toList().size();
+        if (numCorrectOptions == 0) {
+            throw new BadRequestException("No correct option set");
+        }
+        if (numCorrectOptions > 1 && !exercise.getHasMultipleAnswers()) {
+            throw new BadRequestException("More than one correct option set");
+        }
 
         return multipleChoiceService.createMultipleChoiceExercise(exercise, trial);
     }
@@ -88,6 +96,14 @@ public class MultipleChoiceExerciseController {
         existingExercise.setWrongPoints(exercise.getWrongPoints());
         existingExercise.setStrictMode(exercise.getStrictMode());
         existingExercise.setHasShuffling(exercise.getHasShuffling());
+
+        int numCorrectOptions = exercise.getOptions().stream().filter(MultipleChoiceOptionDto::getIsCorrect).toList().size();
+        if (numCorrectOptions == 0) {
+            throw new BadRequestException("No correct option set");
+        }
+        if (numCorrectOptions > 1 && !exercise.getHasMultipleAnswers()) {
+            throw new BadRequestException("More than one correct option set");
+        }
 
         Map<UUID, MultipleChoiceOption> oldOptions = multipleChoiceService.getExerciseOptions(exerciseId)
                 .stream()
