@@ -183,11 +183,6 @@ const ProjectUploadForm = ({
             maxHeight: "100%",
             overflowY: "scroll",
           }}
-          onClick={() => {
-            if (inputRef.current != null) {
-              inputRef.current.click();
-            }
-          }}
         >
           {children}
           {!disabled && (
@@ -210,6 +205,11 @@ const ProjectUploadForm = ({
                   backgroundColor: "rgba(0,0,0,0.1)",
                   overflowY: "scroll",
                   my: 1,
+                }}
+                onClick={() => {
+                  if (inputRef.current != null) {
+                    inputRef.current.click();
+                  }
                 }}
               >
                 {!showFileInput &&
