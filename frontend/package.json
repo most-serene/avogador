@@ -92,6 +92,10 @@
     "workbox-window": "^7.0.0"
   },
   "peerDependencies": {
-    "glob": "^11.0.0"
+    "@lezer/highlight": "^1.2.1",
+    "@storybook/channels": "^8.4.7",
+    "@storybook/components": "^8.4.7",
+    "glob": "^11.0.0",
+    "workbox-build": "^7.3.0"
   }
 }
