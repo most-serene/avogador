@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM debian
 
 RUN apt update 
 RUN apt install apt-utils -y
@@ -12,8 +12,9 @@ RUN apt install openjdk-17-jdk openjdk-17-jre -y
 
 RUN apt install python3 -y
 RUN apt install python3-pip -y
-RUN apt install python3.10-venv -y
-RUN pip install numpy
+RUN apt install python3-venv -y
+RUN apt install python3-numpy -y
+RUN apt install python3-matplotlib -y
 
 COPY entrypoint.sh /entrypoint.sh
 
