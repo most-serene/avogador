@@ -4,10 +4,11 @@ import com.google.common.hash.Hashing;
 import eu.mostserene.avogador.userservice.mail.EmailService;
 import eu.mostserene.avogador.userservice.profilemanager.ExecutionProfile;
 import eu.mostserene.avogador.userservice.security.AuthService;
-import eu.mostserene.avogador.userservice.security.ThirdPartyAuthUser;
 import eu.mostserene.avogador.userservice.security.ForbiddenException;
 import eu.mostserene.avogador.userservice.security.InvalidDomainException;
+import eu.mostserene.avogador.userservice.security.ThirdPartyAuthUser;
 import eu.mostserene.avogador.userservice.security.restapicontrol.EnablePublicRestAPI;
+import eu.mostserene.avogador.userservice.utils.LoggerColors;
 import eu.mostserene.avogador.userservice.utils.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -191,8 +192,13 @@ public class UserController {
             innerUser.setFamilyName(thirdPartyAuthUser.getFamilyName());
             return userService.updateUser(innerUser);
         }).orElseGet(() -> {
-            emailService.sendSimpleEmail(thirdPartyAuthUser.getEmail(), "Welcome to Avogador!",
-                    "Hi " + thirdPartyAuthUser.getGivenName() + "!\nYou have been successfully registered to Avogador, enjoy!");
+            try {
+                emailService.sendSimpleEmail(thirdPartyAuthUser.getEmail(), "Welcome to Avogador!",
+                        "Hi " + thirdPartyAuthUser.getGivenName() + "!\nYou have been successfully registered to Avogador, enjoy!");
+            } catch (Exception e) {
+                // TODO: implement a better handling of email error
+                log.warn(LoggerColors.warn("Failed to send the welcome email to " + thirdPartyAuthUser.getEmail()));
+            }
 
             return userService.createUser(new User(
                     thirdPartyAuthUser.getEmail(),

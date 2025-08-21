@@ -1,4 +1,4 @@
-FROM gradle:jdk17 AS base
+FROM gradle:8-jdk17-ubi AS base
 WORKDIR /app
 COPY . .
 
