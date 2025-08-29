@@ -36,7 +36,7 @@ public class PythonNotebook implements NotebookKernel {
         var container = dockerClient.createContainerCmd("gotti27/j-check-env")
                 .withImage("gotti27/j-check-env")
                 .withCmd("/bin/bash", "-c",
-                        "PATH=$PATH:/home/student/.local/bin/ jupyter-execute --kernel_name=python3 --timeout=500 /execution/" + notebook.getName() + "; echo $?")
+                        "PATH=$PATH:/home/student/.local/bin/ jupyter-execute --kernel_name=python3 --timeout=500 /execution/" + notebook.getName() + " 1>&2 ; echo $?")
                 //.withNetworkDisabled(true)
                 .exec();
 
