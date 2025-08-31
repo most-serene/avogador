@@ -1,16 +1,19 @@
-FROM gradle:8-jdk17-ubi AS dev-builder
+FROM gradle:8-jdk17-ubi AS installer
 WORKDIR /app
+COPY settings.gradle.kts build.gradle.kts ./
+RUN gradle clean build --no-daemon  > /dev/null 2>&1 || true
+
+FROM installer AS base 
 COPY . .
-RUN cat build.gradle.kts
+
+FROM base AS dev-builder
 RUN gradle build --no-daemon
 
-FROM gradle:8-jdk17-ubi AS prod-builder
-WORKDIR /app
-COPY . .
+FROM base AS prod-builder
 RUN gradle assemble --no-daemon
 
 FROM scratch AS reporter
-COPY --from=base build/reports/tests /reports
+COPY --from=dev-builder build/reports/tests /reports
 
 ###
 
