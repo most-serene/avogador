@@ -116,7 +116,8 @@ const UserSubmissionsScreen = () => {
         )
       ).reduce(
         (acc: Record<string, Strox>, template, i) => (
-          (acc[exercises[i].id] = template), acc
+          (acc[exercises[i].id] = template),
+          acc
         ),
         {},
       );
@@ -135,7 +136,8 @@ const UserSubmissionsScreen = () => {
         setExercises(
           exercises.reduce(
             (acc: Record<string, Exercise>, exercise) => (
-              (acc[exercise.id] = exercise), acc
+              (acc[exercise.id] = exercise),
+              acc
             ),
             {},
           ),
