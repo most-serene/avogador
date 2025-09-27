@@ -44,7 +44,7 @@ public class Receiver {
     private Sender sender;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "pingStorage"),
+            value = @Queue(value = "pingStorage", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.ping."))
     private void pingStorage() {
@@ -52,7 +52,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "courseCreationHandler"),
+            value = @Queue(value = "courseCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.course.create"))
     private void courseCreationHandler(String courseStringId) {
@@ -61,7 +61,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "courseDeletionHandler"),
+            value = @Queue(value = "courseDeletionHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.course.delete"))
     private void courseDeletionHandler(String courseStringId) {
@@ -70,7 +70,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "courseArchivingHandler"),
+            value = @Queue(value = "courseArchivingHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.course.archive"))
     private boolean courseArchivingHandler(String courseStringId) {
@@ -79,7 +79,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "trialCreationHandler"),
+            value = @Queue(value = "trialCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.trial.create"))
     private void trialCreationHandler(TrialDTO trialDTO) {
@@ -87,7 +87,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "trialDeletionHandler"),
+            value = @Queue(value = "trialDeletionHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.trial.delete"))
     private void trialDeletionHandler(TrialDTO trialDTO) {
@@ -95,7 +95,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "logTrialEventHandler"),
+            value = @Queue(value = "logTrialEventHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.trial.log"))
     private void logTrialEventHandler(TrialLogDto trialLogDto) {
@@ -109,7 +109,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "exerciseCreationHandler"),
+            value = @Queue(value = "exerciseCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.exercise.create"))
     private void exerciseCreationHandler(ExerciseDTO exerciseDTO) {
@@ -117,7 +117,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "exerciseDeletionHandler"),
+            value = @Queue(value = "exerciseDeletionHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.exercise.delete"))
     private void exerciseDeletionHandler(ExerciseDTO exerciseDTO) {
@@ -125,7 +125,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "exerciseSimilaritySavingHandler"),
+            value = @Queue(value = "exerciseSimilaritySavingHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.exercise.similarity"))
     private void exerciseSimilaritySavingHandler(SimilarityReportStorageDto similarityReportStorageDto) {
@@ -135,7 +135,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "exerciseTemplateCreationHandler"),
+            value = @Queue(value = "exerciseTemplateCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.template.create"))
     private void exerciseTemplateCreationHandler(ExerciseTemplateDTO templateDTO) {
@@ -144,7 +144,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "submissionCreationHandler"),
+            value = @Queue(value = "submissionCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.submission.create"))
     private void submissionCreationHandler(SubmissionDTO submissionDTO) {
@@ -156,7 +156,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "submissionSaveOutputHandler"),
+            value = @Queue(value = "submissionSaveOutputHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.submission.output"))
     private void submissionSaveOutputHandler(SubmissionOutputDto submissionDTO) {
@@ -168,7 +168,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "testcaseCreationHandler"),
+            value = @Queue(value = "testcaseCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.testcase.create"))
     private void testcaseCreationHandler(TestcaseDTO testcaseDTO) {
@@ -177,7 +177,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "testcaseDeleteHandler"),
+            value = @Queue(value = "testcaseDeleteHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.testcase.delete"))
     private void testcaseDeleteHandler(TestcaseDTO testcaseDTO) {
@@ -186,7 +186,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "projectCreationHandler"),
+            value = @Queue(value = "projectCreationHandler", durable = "true", autoDelete = "false"),
             exchange = @Exchange(value = "storage", type = ExchangeTypes.TOPIC),
             key = "storage.project.create"))
     private void projectCreationHandler(ProjectDTO projectDTO) {
