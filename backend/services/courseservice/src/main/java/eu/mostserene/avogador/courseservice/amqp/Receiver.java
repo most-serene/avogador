@@ -12,7 +12,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 @Slf4j
 public class Receiver  {
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "pingCourses", durable = "true", autoDelete = "false"),
+            value = @Queue(value = "pingCourses", durable = "true"),
             exchange = @Exchange(value = "courses", type = ExchangeTypes.TOPIC),
             key = "courses.ping."))
     private void pingCourses() {

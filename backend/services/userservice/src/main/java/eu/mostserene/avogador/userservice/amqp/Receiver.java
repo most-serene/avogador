@@ -25,7 +25,7 @@ public class Receiver {
     private WebSocketSender webSocketSender;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "pingUsers", durable = "true", autoDelete = "false"),
+            value = @Queue(value = "pingUsers", durable = "true"),
             exchange = @Exchange(value = "users", type = ExchangeTypes.TOPIC),
             key = "users.ping."))
     private void pingUsers() {
@@ -33,7 +33,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "handleWebSocketSend", durable = "true", autoDelete = "false"),
+            value = @Queue(value = "handleWebSocketSend", durable = "true"),
             exchange = @Exchange(value = "users", type = ExchangeTypes.TOPIC),
             key = "users.notify.socket")
     )
