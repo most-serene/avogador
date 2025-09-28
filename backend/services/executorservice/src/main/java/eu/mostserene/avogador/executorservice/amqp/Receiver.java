@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class Receiver {
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "pingExecutor"),
+            value = @Queue(value = "pingExecutor", durable = "true"),
             exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
             key = "exec.ping."))
     private void pingExecutor() {
@@ -25,7 +25,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "executeSubmissionHandler"),
+            value = @Queue(value = "executeSubmissionHandler", durable = "true"),
             exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
             key = "exec.submission.execute")
     )
@@ -35,7 +35,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "executeProjectHandler"),
+            value = @Queue(value = "executeProjectHandler", durable = "true"),
             exchange = @Exchange(value = "executor", type = ExchangeTypes.TOPIC),
             key = "exec.project.execute")
     )

@@ -67,7 +67,7 @@ public class Receiver {
     private Sender sender;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "pingExercises"),
+            value = @Queue(value = "pingExercises", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "exercises.ping."))
     private void pingExercises() {
@@ -75,7 +75,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "trialsDeletionHandler"),
+            value = @Queue(value = "trialsDeletionHandler", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "trials.delete"))
     private void trialsDeletionHandler(String courseStringId) {
@@ -85,7 +85,7 @@ public class Receiver {
 
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "submissionSavedHandler"),
+            value = @Queue(value = "submissionSavedHandler", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "exercises.submission.save"))
     private void submissionSavedHandler(SubmissionSavedDto submissionSavedDto) {
@@ -118,7 +118,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "submissionResultHandler"),
+            value = @Queue(value = "submissionResultHandler", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "exercises.submission.result"))
     private void submissionResultHandler(SubmissionResultDto submissionResultDto) {
@@ -149,7 +149,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "ProjectSubmissionSavedHandler"),
+            value = @Queue(value = "ProjectSubmissionSavedHandler", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "projects.submission.save"))
     private void ProjectSubmissionSavedHandler(ProjectSubmissionSavedDto projectSubmissionSavedDto) {
@@ -187,7 +187,7 @@ public class Receiver {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "projectSubmissionResultHandler"),
+            value = @Queue(value = "projectSubmissionResultHandler", durable = "true"),
             exchange = @Exchange(value = "exercises", type = ExchangeTypes.TOPIC),
             key = "projects.submission.result"))
     private void projectSubmissionResultHandler(ProjectSubmissionResultDto projectSubmissionResultDto) {

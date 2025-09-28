@@ -267,6 +267,7 @@ services:
     hostname: avogador-rabbitmq
     image: rabbitmq:3-management
     pull_policy: always
+    restart: always
     logging:
       driver: json-file
       options:
