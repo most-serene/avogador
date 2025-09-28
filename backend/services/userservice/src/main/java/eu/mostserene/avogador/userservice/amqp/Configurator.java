@@ -36,6 +36,8 @@ public class Configurator {
         connectionFactory.setHost(rabbitHostname);
         connectionFactory.setUsername(rabbitUsername);
         connectionFactory.setPassword(rabbitPassword);
+        connectionFactory.getRabbitConnectionFactory().setAutomaticRecoveryEnabled(true);
+        connectionFactory.getRabbitConnectionFactory().setNetworkRecoveryInterval(5000);
         return connectionFactory;
     }
 
